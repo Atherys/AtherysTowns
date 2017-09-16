@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AtherysTowns">
+    <output-path>$PROJECT_DIR$/../../Builds</output-path>
+    <root id="archive" name="AtherysTowns.jar">
+      <element id="module-output" name="AtherysTowns_main" />
+      <element id="library" level="project" name="Gradle: math.geom2d:javaGeom:0.11.1" />
+    </root>
+  </artifact>
+</component>
