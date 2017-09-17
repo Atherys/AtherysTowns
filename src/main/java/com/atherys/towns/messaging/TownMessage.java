@@ -45,9 +45,9 @@ public class TownMessage {
     public static void titleAnnounce ( Player player, Text text ) {
         player.sendTitle(
             Title.builder()
-            .fadeIn(Settings.TOWN_TITLE_FADEIN_TICKS)
-            .stay(Settings.TOWN_TITLE_STAY_TICKS)
-            .fadeOut(Settings.TOWN_TITLE_FADEOUT_TICKS)
+            .fadeIn(Settings.TITLE_FADEIN_TICKS)
+            .stay(Settings.TITLE_STAY_TICKS)
+            .fadeOut(Settings.TITLE_FADEOUT_TICKS)
             .title(text)
             .build()
         );
@@ -56,9 +56,9 @@ public class TownMessage {
     public static void subtitleAnnounce ( Player player, Text text ) {
         player.sendTitle(
                 Title.builder()
-                        .fadeIn(Settings.TOWN_SUBTITLE_FADEIN_TICKS)
-                        .stay(Settings.TOWN_SUBTITLE_STAY_TICKS)
-                        .fadeOut(Settings.TOWN_SUBTITLE_FADEOUT_TICKS)
+                        .fadeIn(Settings.SUBTITLE_FADEIN_TICKS)
+                        .stay(Settings.SUBTITLE_STAY_TICKS)
+                        .fadeOut(Settings.SUBTITLE_FADEOUT_TICKS)
                         .subtitle(text)
                         .build()
         );

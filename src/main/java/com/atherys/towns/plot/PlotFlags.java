@@ -18,12 +18,12 @@ public class PlotFlags {
     }
 
     public enum Flag {
-        PVP             (Settings.PVP_FLAG_ALLOWED_EXTENTS),
-        BUILD           (Settings.BUILD_FLAG_ALLOWED_EXTENTS),
-        DESTROY         (Settings.DESTROY_FLAG_ALLOWED_EXTENTS),
-        SWITCH          (Settings.SWITCH_FLAG_ALLOWED_EXTENTS),
-        DAMAGE_ENTITY   (Settings.DAMAGE_ENTITY_FLAG_ALLOWED_EXTENTS),
-        JOIN            (Settings.JOIN_ALLOWED_EXTENTS);
+        PVP             (Extent.ALL, Extent.NONE),
+        BUILD           (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
+        DESTROY         (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
+        SWITCH          (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
+        DAMAGE_ENTITY   (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
+        JOIN            (Extent.ALL, Extent.NONE);
 
         private Extent[] permittedExtents;
 

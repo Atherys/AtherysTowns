@@ -332,18 +332,22 @@ public class Town extends AreaObject<Plot> {
         Text pvp = Text.of( TextStyles.BOLD, TextColors.GREEN, "( PvP On )" );
         if ( townFlags.get(PlotFlags.Flag.PVP) == PlotFlags.Extent.NONE ) pvp = Text.of( TextStyles.BOLD, TextColors.RED, "( PvP Off )" );
 
+        TextColor decoration = Settings.DECORATION_COLOR;
+        TextColor primary = Settings.PRIMARY_COLOR;
+        TextColor textColor = Settings.TEXT_COLOR;
+
         return Text.builder()
-                .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
+                .append(Text.of(decoration, ".o0o.______.[ ", TextColors.RESET))
                 .append(Text.of(color, TextStyles.BOLD, name, TextStyles.RESET, " ", pvp) )
-                .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "MOTD: ", TextStyles.RESET, Settings.TEXT_COLOR, motd, "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Description: ", TextStyles.RESET, Settings.TEXT_COLOR, description, "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, super.getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Flags: ", TextStyles.RESET, Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET).toBuilder().onHover(TextActions.showText(townFlags.formatted())).build(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Nation: ", TextStyles.RESET, Settings.TEXT_COLOR, nationName + "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Size: ", TextStyles.RESET, Settings.TEXT_COLOR, formatter.format( plotSize ), "/", formatter.format(maxArea), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxArea - plotSize), " remaining )", "\n" ) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Mayor: ", TextStyles.RESET, Settings.TEXT_COLOR, mayorName + "\n" ) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Residents[", Settings.TEXT_COLOR, residents.size(), Settings.PRIMARY_COLOR ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
+                .append(Text.of(TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET))
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "MOTD: ", TextStyles.RESET,         textColor, motd, "\n") )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET,  textColor, description, "\n") )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET,         textColor, super.getFormattedBank(), "\n") )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET,        Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET).toBuilder().onHover(TextActions.showText(townFlags.formatted())).build(), "\n") )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET,       textColor, nationName + "\n") )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET,         textColor, formatter.format( plotSize ), "/", formatter.format(maxArea), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxArea - plotSize), " remaining )", "\n" ) )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET,        textColor, mayorName + "\n" ) )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Residents[",                       textColor, residents.size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
                 .build();
     }
 
@@ -351,6 +355,10 @@ public class Town extends AreaObject<Plot> {
         List<Resident> residentsByLastOnline = sortResidentsByDate(residents);
         Text.Builder residentsBuilder = Text.builder();
         Text separator = Text.of(", ");
+
+        TextColor primary = Settings.PRIMARY_COLOR;
+        TextColor textColor = Settings.TEXT_COLOR;
+
         int iterations = 0;
         for ( Resident r : residentsByLastOnline ) {
             if ( iterations == 25 ) break;
@@ -358,8 +366,8 @@ public class Town extends AreaObject<Plot> {
             Text resText = Text.builder()
                     .append(Text.of(r.getName()))
                     .onHover(TextActions.showText(Text.of(
-                            Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, tr.formattedName(), "\n",
-                            Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, r.formattedLastOnlineDate()
+                            primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET,        textColor, tr.formattedName(), "\n",
+                            primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, r.formattedLastOnlineDate()
 
                     ) ) )
                     .onClick(TextActions.runCommand("/res " + r.getName()) )
@@ -403,6 +411,7 @@ public class Town extends AreaObject<Plot> {
 
     public void inviteResident(Resident resident) {
         Optional<Player> p = resident.getPlayer();
+
         if ( p.isPresent() ) {
             Player player = p.get();
             Text question;
@@ -411,6 +420,9 @@ public class Town extends AreaObject<Plot> {
             } else {
                 question = Text.of("You have been invited to the town of \n", name );
             }
+
+            TextColor primary = Settings.PRIMARY_COLOR;
+            TextColor secondary = Settings.SECONDARY_COLOR;
 
             Text view = Question.asViewButton(
                 Question.asText(question, Question.Type.ACCEPT_REFUSE,
@@ -435,7 +447,7 @@ public class Town extends AreaObject<Plot> {
                     })
                 )
                 ,
-                Text.of( "\n", TownMessage.MSG_PREFIX,  TextStyles.BOLD, Settings.PRIMARY_COLOR, "[", Settings.SECONDARY_COLOR, "Click Here To View", Settings.PRIMARY_COLOR, "]" )
+                Text.of( "\n", TownMessage.MSG_PREFIX,  TextStyles.BOLD, primary, "[", secondary, "Click Here To View", primary, "]" )
             );
 
             TownMessage.inform(player, question, view);
@@ -496,7 +508,7 @@ public class Town extends AreaObject<Plot> {
         if ( residents.contains(res) ) {
             for (Resident r : residents) {
                 if (r.getPlayer().isPresent()) {
-                    r.getPlayer().get().sendMessage( Text.of( TownMessage.TOWN_CHAT_PREFIX, TextColors.RESET, res.getName(), Settings.TERTIARY_COLOR,": ", Settings.TOWN_CHAT_COLOR, message ) );
+                    r.getPlayer().get().sendMessage( Text.of( TownMessage.TOWN_CHAT_PREFIX, TextColors.RESET, res.getName(),": ", Settings.TERTIARY_COLOR, message ) );
                 }
             }
         }

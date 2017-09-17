@@ -27,17 +27,21 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@Plugin( id=AtherysTowns.ID, name="A'therys Towns", description = "A custom plugin responsible for agile land management. Created for the A'therys Horizons server.", version="1.0")
+import static com.atherys.towns.AtherysTowns.*;
+
+@Plugin( id=AtherysTowns.ID, name=NAME, description = DESCRIPTION, version=VERSION)
 public class AtherysTowns {
 
     final static String ID = "atherystowns";
+    final static String NAME = "A'therys Towns";
+    final static String DESCRIPTION = "A custom plugin responsible for agile land management. Created for the A'therys Horizons server.";
+    final static String VERSION = "1.0.0a";
 
     @Inject
     private Game game;
@@ -65,14 +69,7 @@ public class AtherysTowns {
     private boolean init() {
         instance = this;
 
-        try {
-            Settings.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error("Settings file could not load. Halting AtherysTowns & Server initialization.");
-            game.getServer().shutdown();
-            return false;
-        }
+        Settings.getInstance();
 
         database = TownsDatabase.getInstance();
         if ( database == null ) return false;
@@ -110,7 +107,7 @@ public class AtherysTowns {
         NationMasterCommand.getInstance().register();
 
         townBorderTask = Task.builder()
-                .interval(Settings.TOWN_BORDER_UPDATE_SECONDS, TimeUnit.SECONDS)
+                .interval( Settings.TOWN_BORDER_UPDATE_RATE, TimeUnit.SECONDS )
                 .execute(() -> {
                     for ( Player p : Sponge.getServer().getOnlinePlayers() ) {
                         if (TownsValues.get(p.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS).isPresent()){
@@ -127,8 +124,8 @@ public class AtherysTowns {
                 .submit(this);
 
         wildernessRegenTask = Task.builder()
-                .delay(Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT)
-                .interval(Settings.WILDERNESS_REGEN_RATE, TimeUnit.SECONDS)
+                .delay(     Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
+                .interval(  Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
                 .execute(WildernessManager::task)
                 .name("atherystowns-wilderness-regen-task")
                 .submit(this);
@@ -155,7 +152,7 @@ public class AtherysTowns {
     }
 
     @Listener
-    public void onServerStopped (GameStoppingServerEvent event ) {
+    public void onStop (GameStoppingServerEvent event ) {
         stop();
     }
 

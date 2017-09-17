@@ -154,7 +154,7 @@ public final class ResidentManager extends DatabaseManager<Resident> {
                 )
                 .townRank(tRank)
                 .nationRank(nRank)
-                .registerTimestamp((long) row.get("registerTimestamp"))
+                .registerTimestamp((int) row.get("registerTimestamp"))
                 .updateLastOnline()
                 .build();
     }

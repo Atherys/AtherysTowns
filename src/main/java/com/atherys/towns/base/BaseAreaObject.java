@@ -10,7 +10,7 @@ public interface BaseAreaObject extends TownsObject {
 
     Optional<? extends AreaObject<? extends BaseAreaObject>> getParent();
 
-    boolean contains (World w, double x, double y );
+    boolean contains ( World w, double x, double y );
 
     boolean contains ( World w, Point2D point );
 
