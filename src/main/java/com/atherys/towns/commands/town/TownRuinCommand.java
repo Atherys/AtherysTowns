@@ -38,7 +38,7 @@ public class TownRuinCommand extends AbstractTownCommand {
                 Text.of("Are you sure you want to destroy your town? Doing this will eject all residents and unclaim all plots."),
                 Question.Type.YES_NO,
                 (commandSource -> {
-                    if ( town.status() == TownStatus.CAPITAL ) {
+                    if ( town.getStatus() == TownStatus.CAPITAL ) {
                         TownMessage.warn( player, "You cannot destroy the capital of a nation!");
                         return;
                     }

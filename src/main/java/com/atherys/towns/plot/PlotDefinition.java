@@ -109,8 +109,8 @@ public class PlotDefinition extends Rectangle2D {
 
     private static boolean checkBordering ( Town town, PlotDefinition test ) {
         if ( town == null ) return true;
-        for ( Plot p : town.plots() ) {
-            if ( p.definition().isBordering( test ) ) {
+        for ( Plot p : town.getPlots() ) {
+            if ( p.getDefinition().isBordering( test ) ) {
                 return true;
             }
         }

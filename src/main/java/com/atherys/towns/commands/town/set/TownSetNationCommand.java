@@ -35,8 +35,8 @@ public class TownSetNationCommand extends AbstractTownSetCommand {
         Optional<Nation> n = AtherysTowns.getInstance().getNationManager().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
 
         if ( n.isPresent() ) {
-            n.get().addTown(town);
-            TownMessage.informAll(Text.of(town.getName() + " has joined the nation of " + n.get().name() ));
+            town.setParent(n.get());
+            TownMessage.informAll(Text.of(town.getName() + " has joined the nation of " + n.get().getName() ));
         } else {
             TownMessage.warn(player, "You must provide a valid nation to join.");
         }

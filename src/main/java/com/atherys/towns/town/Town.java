@@ -140,8 +140,8 @@ public class Town extends AreaObject<Nation> {
         this.spawn = mayor.getPlayer().get().getLocation();
         mayor.setTownRank(TownRank.MAYOR);
         Plot homePlot = Plot.create(define, this, "Home");
+        this.townFlags = homePlot.getFlags().copy();
         claimPlot(homePlot);
-        this.townFlags = homePlot.flags().copy();
         this.nation = null;
         this.status = TownStatus.NONE;
         mayor.setTown(this, TownRank.MAYOR);
@@ -189,17 +189,6 @@ public class Town extends AreaObject<Nation> {
         }
     }
 
-    public void addResident (Resident resident ) {
-        resident.setTown(this, TownRank.RESIDENT);
-        informResidents(Text.of( resident.getName(), " has joined the town!"));
-    }
-
-    public boolean removeResident ( Resident resident ) {
-        if ( !resident.town().isPresent() || !resident.town().get().equals(this) ) return false;
-        resident.leaveTown();
-        return true;
-    }
-
     public int getMaxSize() {
         return maxArea;
     }
@@ -230,7 +219,7 @@ public class Town extends AreaObject<Nation> {
     public Town setFlag ( PlotFlags.Flag flag, PlotFlags.Extent extents ) {
         this.townFlags.set(flag, extents);
         for ( Plot p : getPlots() ) {
-            p.flags().set(flag, extents);
+            p.getFlags().set(flag, extents);
         }
         return this;
     }
@@ -257,7 +246,7 @@ public class Town extends AreaObject<Nation> {
 
     public Town setNation ( Nation nation ) {
         if ( nation != null ) {
-            TownMessage.informAll( Text.of("The town of " + name + " has joined the nation of " + nation.name()));
+            TownMessage.informAll( Text.of("The town of " + name + " has joined the nation of " + nation.getName()));
         } else {
             TownMessage.informAll( Text.of("The town of " + name + " is now nationless!") );
         }
@@ -276,12 +265,12 @@ public class Town extends AreaObject<Nation> {
 
         String nationName = "None";
         if ( getParent().isPresent() ) {
-            nationName = getParent().get().name();
+            nationName = getParent().get().getName();
         }
 
         long plotSize = 0;
         for ( Plot p : getPlots() ) {
-            plotSize += p.definition().area();
+            plotSize += p.getDefinition().area();
         }
 
         String mayorName = Settings.NON_PLAYER_CHARACTER_NAME;
@@ -326,12 +315,12 @@ public class Town extends AreaObject<Nation> {
         int iterations = 0;
         for ( Resident r : residentsByLastOnline ) {
             if ( iterations == 25 ) break;
-            TownRank tr = r.townRank();
+            TownRank tr = r.getTownRank();
             Text resText = Text.builder()
                     .append(Text.of(r.getName()))
                     .onHover(TextActions.showText(Text.of(
                             primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET,        textColor, tr.formattedName(), "\n",
-                            primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, r.formattedLastOnlineDate()
+                            primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, r.getFormattedLastOnlineDate()
 
                     ) ) )
                     .onClick(TextActions.runCommand("/res " + r.getName()) )
@@ -347,7 +336,7 @@ public class Town extends AreaObject<Nation> {
         Resident res;
         for ( int i = 0; i < list.size(); i++ ) {
             for ( int j = 0; j<list.size(); j++ ) {
-                if ( list.get(i).lastOnlineSeconds() > list.get(j).lastOnlineSeconds() ) {
+                if ( list.get(i).getLastOnlineSeconds() > list.get(j).getLastOnlineSeconds() ) {
                     res = list.get(j);
                     list.set(j, list.get(i));
                     list.set(i, res);
@@ -362,6 +351,11 @@ public class Town extends AreaObject<Nation> {
         p.setFlags(townFlags);
     }
 
+    public void unclaimPlot(Plot p) {
+        p.setParent(null);
+        p.remove();
+    }
+
     public void inviteResident(Resident resident) {
         Optional<Player> p = resident.getPlayer();
 
@@ -369,7 +363,7 @@ public class Town extends AreaObject<Nation> {
             Player player = p.get();
             Text question;
             if ( getParent().isPresent() ) {
-                question = Text.of("You have been invited to the town of \n", name, " in \n", nation.name() );
+                question = Text.of("You have been invited to the town of \n", name, " in \n", nation.getName() );
             } else {
                 question = Text.of("You have been invited to the town of \n", name );
             }
@@ -389,15 +383,13 @@ public class Town extends AreaObject<Nation> {
                                     TownMessage.warn((Player) commandSource, Text.of("You cannot join a town while you are part of another! Please leave your current town first."));
                                     return;
                                 }
-                                this.addResident(r);
+                                r.setTown(this, TownRank.RESIDENT);
                             }
                         }
                     })
                     ,
                     // no
-                    (commandSource -> {
-                        this.warnResidents(Text.of( resident.getName(), " has refused to join the town.") );
-                    })
+                    (commandSource -> this.warnResidents(Text.of( resident.getName(), " has refused to join the town.") ))
                 )
                 ,
                 Text.of( "\n", TownMessage.MSG_PREFIX,  TextStyles.BOLD, primary, "[", secondary, "Click Here To View", primary, "]" )
@@ -416,7 +408,7 @@ public class Town extends AreaObject<Nation> {
 
     public Optional<Resident> getMayor() {
         for ( Resident r : getResidents() ) {
-            if ( r.townRank().equals(TownRank.MAYOR) ) return Optional.of(r);
+            if ( r.getTownRank().equals(TownRank.MAYOR) ) return Optional.of(r);
         }
         return Optional.empty();
     }
@@ -449,7 +441,7 @@ public class Town extends AreaObject<Nation> {
     public double getArea() {
         double area = 0;
         for ( Plot p : getPlots() ) {
-            area += p.definition().area();
+            area += p.getDefinition().area();
         }
         return area;
     }
@@ -474,11 +466,11 @@ public class Town extends AreaObject<Nation> {
     public void showBorders(Player p) {
         List<LineSegment2D> borderedEdges = new LinkedList<>();
         for ( Plot plot : this.getPlots() ) {
-            for ( LineSegment2D edge : plot.definition().edges() ) {
+            for ( LineSegment2D edge : plot.getDefinition().edges() ) {
                 if ( !doesEdgeAlmostEqualAnyOther(edge, borderedEdges) ) {
-                    for (int i = 0; i <= edge.length(); i += 2) {
+                    for (int i = 0; i <= edge.length(); i += 1) {
                         Point2D twoD = interpolationByDistance(edge, i);
-                        Vector3d loc = new Vector3d(twoD.x(), p.getLocation().getBlockY(), twoD.y());
+                        Vector3d loc = new Vector3d(twoD.x(), p.getLocation().getExtent().getHighestYAt( (int) twoD.x(), (int) twoD.y()), twoD.y());
                         p.spawnParticles(ParticleEffect.builder()
                                 .velocity(Vector3d.from(0, 0.08, 0))
                                 .type(ParticleTypes.BARRIER)

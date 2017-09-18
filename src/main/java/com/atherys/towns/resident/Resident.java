@@ -42,7 +42,9 @@ public class Resident implements TownsObject {
         }
 
         public Resident.Builder town ( Town town, TownRank rank ) {
-            if ( town != null ) town.addResident(res, rank);
+            if ( town != null ) {
+                res.setTown(town, rank);
+            }
             return this;
         }
 
@@ -147,11 +149,11 @@ public class Resident implements TownsObject {
         return this;
     }
 
-    public TownRank townRank() {
+    public TownRank getTownRank() {
         return townRank;
     }
 
-    public NationRank nationRank() {
+    public NationRank getNationRank() {
         return nationRank;
     }
 
@@ -160,23 +162,23 @@ public class Resident implements TownsObject {
         return this;
     }
 
-    public long registerSeconds() { return unixRegisterDateSeconds; }
+    public long getRegisteredSeconds() { return unixRegisterDateSeconds; }
 
-    public long lastOnlineSeconds() { return unixLastOnlineSeconds; }
+    public long getLastOnlineSeconds() { return unixLastOnlineSeconds; }
 
-    public Date registeredOn() {
+    public Date getRegisterDate() {
         return Date.from( Instant.ofEpochSecond(unixRegisterDateSeconds) );
     }
 
-    public String formattedRegisterDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(registeredOn());
+    public String getFormattedRegisterDate() {
+        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getRegisteredSeconds());
     }
 
-    public String formattedLastOnlineDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(lastOnline());
+    public String getFormattedLastOnlineDate() {
+        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getLastOnlineSeconds());
     }
 
-    public Date lastOnline() {
+    public Date getLastOnlineDate() {
         return Date.from( Instant.ofEpochSecond(unixLastOnlineSeconds) );
     }
 
@@ -197,20 +199,20 @@ public class Resident implements TownsObject {
     @Override
     public Text getFormattedInfo() {
 
-        if ( !getPlayer().isPresent() ) Text.of("Resident is not assigned to player");
-
         TextFormat format = TextFormat.NONE;
         String townName = "None";
         Text townLore = Text.EMPTY;
         Text nation = Text.of("None");
 
         if ( town().isPresent() ) {
+
             townName = town().get().getName();
-            format.color( town().get().color() );
-            format.style( TextStyles.BOLD      );
+            format = format.color( town().get().getColor() );
+            format = format.style( TextStyles.BOLD );
+
             townLore = town().get().getFormattedInfo();
             if ( town.getParent().isPresent() ) {
-                nation = Text.of ( town.getParent().get().color(), town.getParent().get().name() );
+                nation = Text.of ( town.getParent().get().getColor(), town.getParent().get().getName() );
                 nation = nation.toBuilder().onHover(TextActions.showText( town.getParent().get().formatInfo() ) ).build();
             }
         }
@@ -219,8 +221,8 @@ public class Resident implements TownsObject {
                 .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
                 .append(Text.of(Settings.TEXT_COLOR, TextStyles.BOLD, getName(), TextStyles.RESET ) )
                 .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, Settings.TEXT_COLOR, formattedRegisterDate(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, formattedLastOnlineDate(), "\n") )
+                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedRegisterDate(), "\n") )
+                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedLastOnlineDate(), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, nation, Settings.DECORATION_COLOR, " )\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank.formattedName() ) )
@@ -251,9 +253,8 @@ public class Resident implements TownsObject {
                 // yes
                 commandSource -> {
                     if ( town().isPresent() ) {
-                        town().get().warnResidents(Text.of( this.getName() + " has left the town."));
-                        town().get().removeResident(this);
                         this.setTown(null, TownRank.NONE);
+                        town().get().warnResidents(Text.of( this.getName() + " has left the town."));
                     }
                 }));
         return this;
@@ -270,9 +271,8 @@ public class Resident implements TownsObject {
         this.nationRank = nationRank;
     }
 
-    public Resident setRegisteredTimestamp(long registeredTimestamp) {
+    public void setRegisteredTimestamp(long registeredTimestamp) {
         this.unixRegisterDateSeconds = registeredTimestamp;
-        return this;
     }
 
     public Text getFormattedBank() {
@@ -310,8 +310,8 @@ public class Resident implements TownsObject {
         map.put(ResidentManager.Table.TOWN_UUID, town_uuid);
         map.put(ResidentManager.Table.TOWN_RANK, townRank.id() );
         map.put(ResidentManager.Table.NATION_RANK, nationRank.id() );
-        map.put(ResidentManager.Table.REGISTER, registerSeconds() );
-        map.put(ResidentManager.Table.LAST_ONLINE, lastOnlineSeconds() );
+        map.put(ResidentManager.Table.REGISTER, getRegisteredSeconds() );
+        map.put(ResidentManager.Table.LAST_ONLINE, getLastOnlineSeconds() );
 
         return map;
     }

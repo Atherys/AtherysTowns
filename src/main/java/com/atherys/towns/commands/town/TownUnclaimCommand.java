@@ -52,7 +52,7 @@ public class TownUnclaimCommand extends AbstractTownCommand {
             return CommandResult.empty();
         }
 
-        if ( town.plots().size() <= 1 ) {
+        if ( town.getPlots().size() <= 1 ) {
             TownMessage.warn( player, "You cannot unclaim your last plot!" );
             return CommandResult.empty();
         }

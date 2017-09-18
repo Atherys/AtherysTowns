@@ -74,7 +74,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
 
     public boolean checkIntersection (PlotDefinition definition ) {
         for ( Plot p : list ) {
-            if ( p.definition().intersects(definition) ) return true;
+            if ( p.getDefinition().intersects(definition) ) return true;
         }
         return false;
     }

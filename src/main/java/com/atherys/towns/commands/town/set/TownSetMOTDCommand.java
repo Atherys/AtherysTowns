@@ -28,9 +28,9 @@ public class TownSetMOTDCommand extends AbstractTownSetCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         if ( town == null ) return CommandResult.empty();
 
-        String motd = (String) args.getOne("newMOTD").orElse( town.motd() );
+        String motd = (String) args.getOne("newMOTD").orElse( town.getMOTD() );
         town.setMOTD( motd );
-        town.informResidents( Text.of( "Town MOTD changed to ", town.motd() ) );
+        town.informResidents( Text.of( "Town MOTD changed to ", town.getMOTD() ) );
 
         return CommandResult.success();
     }

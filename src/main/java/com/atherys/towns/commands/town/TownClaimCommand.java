@@ -78,8 +78,8 @@ public class TownClaimCommand extends AbstractTownCommand {
                 }
             }
 
-            if ( define.area() + town.area() > town.maxSize() ) {
-                TownMessage.warn( player, "Your town cannot grow any larger than ", town.maxSize(), " blocks in area!" );
+            if ( define.area() + town.getArea() > town.getMaxSize() ) {
+                TownMessage.warn( player, "Your town cannot grow any larger than ", town.getMaxSize(), " blocks in area!" );
                 return CommandResult.empty();
             }
 

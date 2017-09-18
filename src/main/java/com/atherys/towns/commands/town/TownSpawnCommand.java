@@ -39,7 +39,7 @@ public class TownSpawnCommand extends AbstractTownCommand {
 
         TownMessage.inform( player, "You will be teleported home in ", Settings.TOWN_SPAWN_DELAY, " seconds.");
 
-        Location spawn = town.spawn();
+        Location spawn = town.getSpawn();
         Task.builder()
                 .delay(Settings.TOWN_SPAWN_DELAY, TimeUnit.SECONDS)
                 .execute( () -> {

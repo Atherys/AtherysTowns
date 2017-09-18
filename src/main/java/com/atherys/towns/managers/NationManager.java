@@ -124,6 +124,7 @@ public final class NationManager extends AreaObjectManager<Nation> {
 
     @Override
     public Nation load(Map<String, Object> row) {
+
         Nation n = Nation.fromUUID(UUID.fromString( (String) row.get("uuid")))
                 .name( (String) row.get("name"))
                 .leaderTitle( (String) row.get("leaderTitle"))
@@ -131,20 +132,6 @@ public final class NationManager extends AreaObjectManager<Nation> {
                 .description( (String) row.get("description"))
                 .build();
 
-        String[] allies = ((String) row.get("allies_uuids")).split("&%&");
-        String[] enemies = ((String) row.get("enemies_uuids")).split("&%&");
-
-        for ( String ally_uuid : allies ) {
-            if ( ally_uuid.length() < 16 || ally_uuid.isEmpty() ) continue;
-            Optional<Nation> ally = getByUUID(UUID.fromString(ally_uuid));
-            ally.ifPresent(n::addAlly);
-        }
-
-        for ( String enemy_uuid : enemies ) {
-            if ( enemy_uuid.length() < 16 || enemy_uuid.isEmpty() ) continue;
-            Optional<Nation> enemy = getByUUID(UUID.fromString(enemy_uuid));
-            enemy.ifPresent(n::addEnemy);
-        }
 
         return n;
     }

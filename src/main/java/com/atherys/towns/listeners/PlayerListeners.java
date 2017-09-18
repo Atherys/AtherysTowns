@@ -73,8 +73,8 @@ public class PlayerListeners {
             if ( !plotFrom.get().getName().equals(plotTo.get().getName()) && !plotTo.get().getName().equals("None") ) {
                 TownMessage.subtitleAnnounce(player, Text.of( Settings.SECONDARY_COLOR, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~" ) );
             }
-            if ( !plotFrom.get().flags().equals(plotTo.get().flags()) ) {
-                player.sendMessage(plotTo.get().flags().differencesFormatted(plotFrom.get().flags()));
+            if ( !plotFrom.get().getFlags().equals(plotTo.get().getFlags()) ) {
+                player.sendMessage(plotTo.get().getFlags().differencesFormatted(plotFrom.get().getFlags()));
             }
         }
     }
@@ -100,7 +100,7 @@ public class PlayerListeners {
                 if ( loc.isPresent() ) {
                     Optional<Plot> plot = AtherysTowns.getInstance().getPlotManager().getByLocation(loc.get());
                     if (plot.isPresent()) {
-                        if (!plot.get().flags().isAllowed(resident, flag, plot.get())) {
+                        if (!plot.get().getFlags().isAllowed(resident, flag, plot.get())) {
                             TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getParent().get().getName());
                             event.setCancelled(true);
                             return;
@@ -181,7 +181,7 @@ public class PlayerListeners {
                 Optional<Resident> resident = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
                 if (!resident.isPresent()) return;
 
-                if ( !plot.get().flags().isAllowed(resident.get(), flag, plot.get()) ) {
+                if ( !plot.get().getFlags().isAllowed(resident.get(), flag, plot.get()) ) {
                     TownMessage.warn(player, Text.of("You are not permitted to ", action, " in ", plot.get().getParent().get().getName()));
                     event.setCancelled(true);
                 }

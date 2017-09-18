@@ -31,7 +31,7 @@ public class TownLeaveCommand extends AbstractTownCommand {
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
 
-        if ( resident.townRank().equals(TownRank.MAYOR) ) {
+        if ( resident.getTownRank().equals(TownRank.MAYOR) ) {
             TownMessage.warn( player, "You are the mayor of the town. You can either leave the town for dead ( /t ruin ) or promote another mayor ( /t mayor <playerName> ) and then leave." );
             return CommandResult.empty();
         }

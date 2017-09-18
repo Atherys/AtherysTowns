@@ -93,13 +93,13 @@ public class Plot extends AreaObject<Town> {
 
     public boolean isResidentAllowedTo (Resident res, PlotFlags.Flag flag) { return this.flags.isAllowed(res, flag, this); }
 
-    public PlotDefinition definition() { return definition; }
+    public PlotDefinition getDefinition() { return definition; }
 
     public void setDefinition(PlotDefinition definition) {
         this.definition = definition;
     }
 
-    public PlotFlags flags() { return flags; }
+    public PlotFlags getFlags() { return flags; }
 
     public void setFlags( PlotFlags flags ) { this.flags = flags.copy(); }
 
@@ -126,8 +126,8 @@ public class Plot extends AreaObject<Town> {
         if ( d == l.length() ) return l.lastPoint();
         double len = l.length();
         double ratio = d/len;
-        double x = ratio*l.lastPoint().getX() + (1.0 - ratio)*l.firstPoint().getX();
-        double y = ratio*l.lastPoint().getY() + (1.0 - ratio)*l.firstPoint().getY();
+        double x = ratio*l.lastPoint().x() + (1.0 - ratio)*l.firstPoint().x();
+        double y = ratio*l.lastPoint().y() + (1.0 - ratio)*l.firstPoint().y();
         return new Point2D( x, y );
     }
 
@@ -163,7 +163,7 @@ public class Plot extends AreaObject<Town> {
         Town parent = getParent().get();
 
         String nationName = "None";
-        if ( parent.getParent().isPresent() ) nationName = parent.getParent().get().name();
+        if ( parent.getParent().isPresent() ) nationName = parent.getParent().get().getName();
 
         return Text.builder()
                 .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))

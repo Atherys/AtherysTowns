@@ -2,6 +2,7 @@ package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.db.DatabaseManager;
+import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.resident.ranks.TownRank;
@@ -30,6 +31,17 @@ public final class ResidentManager extends DatabaseManager<Resident> {
         for ( Resident res : playerResidentMap.values() ) {
             if ( res.town().isPresent() && res.town().get().equals(town) ) {
                 residents.add(res);
+            }
+        }
+        return residents;
+    }
+
+    public List<Resident> getByNation(Nation nation) {
+        List<Resident> residents = new ArrayList<>();
+        for ( Resident res : playerResidentMap.values() ) {
+            Optional<Town> town = res.town();
+            if ( town.isPresent() ) {
+                if ( town.get().getParent().isPresent() && town.get().getParent().get().equals(nation) ) residents.add(res);
             }
         }
         return residents;

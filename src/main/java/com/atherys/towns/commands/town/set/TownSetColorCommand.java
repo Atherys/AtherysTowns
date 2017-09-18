@@ -29,9 +29,9 @@ public class TownSetColorCommand extends AbstractTownSetCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         if ( town == null ) return CommandResult.empty();
 
-        TextColor color = (TextColor) args.getOne("newColor").orElse( town.color() );
+        TextColor color = (TextColor) args.getOne("newColor").orElse( town.getColor() );
         town.setColor(color);
-        town.informResidents( Text.of( "Town Color changed to ", town.color(), town.color().getName().replace('_',' ') ) );
+        town.informResidents( Text.of( "Town Color changed to ", town.getColor(), town.getColor().getName().replace('_',' ') ) );
 
         return CommandResult.success();
     }

@@ -70,11 +70,11 @@ public class TownMessage {
     }
 
     public static void enterTown ( Player player, Town town ) {
-        subtitleAnnounce( player, Text.of ( Settings.TERTIARY_COLOR, "You have entered ", TextStyles.BOLD, town.color(), town.getName() ) );
+        subtitleAnnounce( player, Text.of ( Settings.TERTIARY_COLOR, "You have entered ", TextStyles.BOLD, town.getColor(), town.getName() ) );
     }
 
     public static void leaveTown ( Player player, Town town ) {
-        subtitleAnnounce( player, Text.of ( Settings.TERTIARY_COLOR, "You have left ", TextStyles.BOLD, town.color(), town.getName() ) );
+        subtitleAnnounce( player, Text.of ( Settings.TERTIARY_COLOR, "You have left ", TextStyles.BOLD, town.getColor(), town.getName() ) );
     }
 
 }

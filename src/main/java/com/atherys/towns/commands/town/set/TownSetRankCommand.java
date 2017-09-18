@@ -50,7 +50,7 @@ public class TownSetRankCommand extends AbstractTownSetCommand {
             return CommandResult.empty();
         }
 
-        TownRank rank = (TownRank) args.getOne("newRank").orElse(targetRes.townRank());
+        TownRank rank = (TownRank) args.getOne("newRank").orElse(targetRes.getTownRank());
         if ( rank.equals(TownRank.MAYOR) ) {
             TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
             return CommandResult.empty();

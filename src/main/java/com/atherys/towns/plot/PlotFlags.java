@@ -19,10 +19,10 @@ public class PlotFlags {
 
     public enum Flag {
         PVP             (Extent.ALL, Extent.NONE),
-        BUILD           (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
-        DESTROY         (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
-        SWITCH          (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
-        DAMAGE_ENTITY   (Extent.ALL, Extent.ALLIES, Extent.ENEMIES, Extent.NATION, Extent.TOWN, Extent.NONE),
+        BUILD           (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        DESTROY         (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        SWITCH          (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        DAMAGE_ENTITY   (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
         JOIN            (Extent.ALL, Extent.NONE);
 
         private Extent[] permittedExtents;
@@ -60,34 +60,36 @@ public class PlotFlags {
                 if ( resNation.get().equals(plotNation.get()) ) return true;
             }
             return false;
-        }),
-        ALLIES("%allies%",      (resident, flag, plot) -> {
-            Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-            Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-            // if resident's town's nation and plot's town's nation are allied
-            if ( resNation.isPresent() && plotNation.isPresent() ) {
-                if ( resNation.get().equals(plotNation.get()) || resNation.get().isAlliedWith(plotNation.get()) ) return true;
-            }
-            return false;
-        }),
-        NEUTRALS("%neutrals%",  (resident, flag, plot) -> {
-            Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-            Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-            // if neither nations have any diplomatic relationships ( ie they are neither enemies nor allies )
-            if ( resNation.isPresent() && plotNation.isPresent() ) {
-                if ( !resNation.get().isAlliedWith(plotNation.get()) && !resNation.get().isEnemiesWith(plotNation.get()) ) return true;
-            }
-            return false;
-        }),
-        ENEMIES("%enemies%",    (resident, flag, plot) -> {
-            Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-            Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-            // if resident's town's nation and plot's town's nation are at war
-            if ( resNation.isPresent() && plotNation.isPresent() ) {
-                if ( resNation.get().equals(plotNation.get()) || resNation.get().isEnemiesWith(plotNation.get()) ) return true;
-            }
-            return false;
-        });
+        })
+        //,
+        //ALLIES("%allies%",      (resident, flag, plot) -> {
+        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
+        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
+        //    // if resident's town's nation and plot's town's nation are allied
+        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
+        //        if ( resNation.get().equals(plotNation.get()) || resNation.get().isAlliedWith(plotNation.get()) ) return true;
+        //    }
+        //    return false;
+        //}),
+        //NEUTRALS("%neutrals%",  (resident, flag, plot) -> {
+        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
+        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
+        //    // if neither nations have any diplomatic relationships ( ie they are neither enemies nor allies )
+        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
+        //        if ( !resNation.get().isAlliedWith(plotNation.get()) && !resNation.get().isEnemiesWith(plotNation.get()) ) return true;
+        //    }
+        //    return false;
+        //}),
+        //ENEMIES("%enemies%",    (resident, flag, plot) -> {
+        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
+        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
+        //    // if resident's town's nation and plot's town's nation are at war
+        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
+        //        if ( resNation.get().equals(plotNation.get()) || resNation.get().isEnemiesWith(plotNation.get()) ) return true;
+        //    }
+        //    return false;
+        //})
+        ;
 
         private String name;
         private ExtentChecker<Resident,Flag,Plot,Boolean> checker;

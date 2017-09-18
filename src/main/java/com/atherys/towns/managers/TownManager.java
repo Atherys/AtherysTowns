@@ -9,9 +9,7 @@ import com.atherys.towns.utils.DatabaseUtils;
 import com.atherys.towns.utils.Deserialize;
 import org.spongepowered.api.world.Location;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public final class TownManager extends AreaObjectManager<Town> {
 
@@ -29,6 +27,14 @@ public final class TownManager extends AreaObjectManager<Town> {
                     "  `description` VARCHAR NOT NULL," +
                     "  PRIMARY KEY (`uuid`)" +
                     ");";
+
+    public List<Town> getByNation(Nation nation) {
+        List<Town> towns = new ArrayList<>();
+        for ( Town t : list ) {
+            if ( t.getParent().isPresent() && t.getParent().get().equals(nation) ) towns.add(t);
+        }
+        return towns;
+    }
 
     public enum Table implements DatabaseUtils.AbstractTable<Table> {
         UUID        (1,     "uuid",         "VARCHAR(36) NOT NULL"),
