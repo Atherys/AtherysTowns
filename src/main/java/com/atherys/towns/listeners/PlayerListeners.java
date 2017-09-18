@@ -26,7 +26,6 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
@@ -95,31 +94,28 @@ public class PlayerListeners {
             msg = "build";
         } else return;
 
-        Optional<Resident> res = getResident(player);
-        if ( !res.isPresent() ) return;
+        AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId()).ifPresent( resident -> {
+            for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
+                Optional<Location<World>> loc = trans.getOriginal().getLocation();
+                if ( loc.isPresent() ) {
+                    Optional<Plot> plot = AtherysTowns.getInstance().getPlotManager().getByLocation(loc.get());
+                    if (plot.isPresent()) {
+                        if (!plot.get().flags().isAllowed(resident, flag, plot.get())) {
+                            TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getParent().get().getName());
+                            event.setCancelled(true);
+                            return;
+                        }
+                    } else {
+                        // FOR WILDERNESS REGEN
+                        BlockSnapshot snap = trans.getOriginal();
 
-        for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
-            Optional<Location<World>> loc = trans.getOriginal().getLocation();
-            if ( loc.isPresent() ) {
-                Optional<Plot> plot = AtherysTowns.getInstance().getPlotManager().getByLocation(loc.get());
-                if (plot.isPresent()) {
-                    if (!plot.get().flags().isAllowed(res.get(), flag, plot.get())) {
-                        TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getParent().get().getName());
-                        event.setCancelled(true);
-                        return;
+                        if (WildernessManager.isItemRegenerable(snap.getExtendedState().getType()) ) {
+                            DatabaseManager.saveSnapshot(loc.get(), WildernessManager.getRegenSnapshot( event, snap ), System.currentTimeMillis());
+                        }
                     }
-                } else {
-                    // FOR WILDERNESS REGEN
-                    BlockSnapshot snap = trans.getOriginal();
-
-                    if (WildernessManager.isItemRegenerable(snap.getExtendedState().getType()) ) {
-                        DatabaseManager.saveSnapshot(loc.get(), WildernessManager.getRegenSnapshot( event, snap ), System.currentTimeMillis());
-                    }
-                }
-            } else event.setCancelled(true);
-        }
-
-
+                } else event.setCancelled(true);
+            }
+        });
     }
 
     @Listener
@@ -128,7 +124,7 @@ public class PlayerListeners {
 
         Optional<Plot> plotFrom = AtherysTowns.getInstance().getPlotManager().getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
         if (plotFrom.isPresent()) {
-            Optional<Resident> resOpt = getResident(player);
+            Optional<Resident> resOpt = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
             if (resOpt.isPresent() && !plotFrom.get().isResidentAllowedTo(resOpt.get(), PlotFlags.Flag.SWITCH) && Settings.SWITCH_FLAG_BLOCKS.contains(event.getTargetBlock().getExtendedState().getType().getName()) ) {
                 TownMessage.warn(player, "You are not allowed to switch in this town.");
                 event.setCancelled(true);
@@ -208,13 +204,5 @@ public class PlayerListeners {
             event.setMessageCancelled(true);
         }
     }*/
-
-    private Optional<Resident> getResident ( Player player ) {
-        Optional<Resident> res = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
-        if ( !res.isPresent() ) {
-            player.kick(Text.of(TextColors.GREEN, "[Towns] ", TextColors.RED, "You did not have a Resident object! Please reconnect and report this error."));
-        }
-        return res;
-    }
 
 }

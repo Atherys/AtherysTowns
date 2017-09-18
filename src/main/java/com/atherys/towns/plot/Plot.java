@@ -2,7 +2,7 @@ package com.atherys.towns.plot;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
-import com.atherys.towns.base.BaseAreaObject;
+import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
@@ -21,10 +21,9 @@ import org.spongepowered.api.world.World;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
-public class Plot implements BaseAreaObject {
+public class Plot extends AreaObject<Town> {
 
     public static class Builder {
 
@@ -44,7 +43,7 @@ public class Plot implements BaseAreaObject {
         }
 
         public Plot.Builder town ( Town town ) {
-            town.addPlot(plot);
+            plot.setParent(town);
             return this;
         }
 
@@ -65,24 +64,21 @@ public class Plot implements BaseAreaObject {
 
     }
 
-    private UUID uuid;
-
     private PlotDefinition definition;
-    private Town town;
     private PlotFlags flags;
 
     private String name;
 
     private Plot ( UUID uuid ) {
-        this.uuid = uuid;
+        super ( uuid );
     }
 
     private Plot (PlotDefinition definition, Town town, String name ) {
+        super ( UUID.randomUUID() );
         this.definition = definition;
-        this.town = town;
+        this.setParent(town);
         flags = PlotFlags.regular();
         this.name = name;
-        this.uuid = UUID.randomUUID();
         AtherysTowns.getInstance().getPlotManager().add(this);
         AtherysTowns.getInstance().getPlotManager().save(this);
     }
@@ -147,15 +143,6 @@ public class Plot implements BaseAreaObject {
     public String getName() { return name; }
 
     @Override
-    public Optional<Town> getParent() {
-        return Optional.of(this.town);
-    }
-
-    public void setParent ( Town t ) {
-        this.town = t;
-    }
-
-    @Override
     public boolean contains(World w, double x, double y) {
         return definition.getWorld().equals(w) && definition.contains(x, y);
     }
@@ -173,14 +160,16 @@ public class Plot implements BaseAreaObject {
     @Override
     public Text getFormattedInfo() {
 
+        Town parent = getParent().get();
+
         String nationName = "None";
-        if ( town.getParent().isPresent() ) nationName = town.getParent().get().name();
+        if ( parent.getParent().isPresent() ) nationName = parent.getParent().get().name();
 
         return Text.builder()
                 .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
                 .append(Text.of(Settings.TERTIARY_COLOR, TextStyles.BOLD, name, TextStyles.RESET) )
                 .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append( Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, town.color(), town.getName(), Settings.PRIMARY_COLOR, " ( ", Settings.TEXT_COLOR, nationName, Settings.PRIMARY_COLOR, " )\n" ))
+                .append( Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), Settings.PRIMARY_COLOR, " ( ", Settings.TEXT_COLOR, nationName, Settings.PRIMARY_COLOR, " )\n" ))
                 .append( Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Flags: ", TextStyles.RESET, flags.formattedSingleLine(), "\n") )
                 .build();
     }

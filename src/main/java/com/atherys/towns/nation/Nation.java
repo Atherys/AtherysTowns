@@ -19,7 +19,7 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.*;
 
-public class Nation extends AreaObject<Town> {
+public class Nation extends AreaObject<Nation> { // what is the parent of a nation?
 
     public static class Builder {
 
@@ -29,25 +29,8 @@ public class Nation extends AreaObject<Town> {
             nation = new Nation(uuid);
         }
 
-        public Nation.Builder allies ( Nation... allies ) {
-            nation.addAllies ( allies );
-            return this;
-        }
-
-        public Nation.Builder enemies ( Nation... enemies ) {
-            nation.addEnemies ( enemies );
-            return this;
-        }
-
         public Nation.Builder towns ( Town... towns ) {
             nation.addTowns(towns);
-            return this;
-        }
-
-        public Nation.Builder townsDb ( Town... towns ) {
-            for ( Town t : towns ) {
-                nation.addTown(t, t.status());
-            }
             return this;
         }
 
@@ -82,8 +65,7 @@ public class Nation extends AreaObject<Town> {
     private TextColor color = TextColors.WHITE;
     private String description = "";
 
-    private List<Nation> allies;
-    private List<Nation> enemies;
+    // allies and enemies are bullshit. Let's not do them.
 
     public Nation(UUID uuid) {
         super(uuid);

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface BaseAreaObject extends TownsObject {
 
-    Optional<? extends AreaObject<? extends BaseAreaObject>> getParent();
+    Optional<? extends BaseAreaObject> getParent();
 
     boolean contains ( World w, double x, double y );
 

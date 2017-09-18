@@ -61,11 +61,6 @@ public class Resident implements TownsObject {
             return this;
         }
 
-        public Resident.Builder registerTimestamp ( long time ) {
-            res.setRegisteredTimestamp(time);
-            return this;
-        }
-
         public Resident.Builder updateLastOnline () {
             res.updateLastOnline();
             return this;

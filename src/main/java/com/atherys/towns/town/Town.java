@@ -32,7 +32,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.*;
 
-public class Town extends AreaObject<Plot> {
+public class Town extends AreaObject<Nation> {
 
     public static class Builder {
 
@@ -52,7 +52,7 @@ public class Town extends AreaObject<Plot> {
 
         public Town.Builder nation ( Nation nation ) {
             if ( nation == null ) return this;
-            nation.__addTown(town, town.status());
+            town.setParent(nation);
             return this;
         }
 
@@ -66,13 +66,6 @@ public class Town extends AreaObject<Plot> {
             return this;
         }
 
-        public Town.Builder plots(List<Plot> plots) {
-            for ( Plot p : plots ) {
-                town.claimPlot(p);
-            }
-            return this;
-        }
-
         public Town.Builder maxArea ( int max ) {
             town.setMaxArea(max);
             return this;
@@ -80,11 +73,6 @@ public class Town extends AreaObject<Plot> {
 
         public Town.Builder spawn(Location spawn) {
             town.setSpawn(spawn);
-            return this;
-        }
-
-        public Town.Builder residents(List<Resident> residents) {
-            town.addResidents((Resident[]) residents.toArray());
             return this;
         }
 
@@ -122,8 +110,6 @@ public class Town extends AreaObject<Plot> {
     private int maxArea;
     private Location<World> spawn;
 
-    private List<Resident> residents;
-
     private String name;
     private TextColor color = Settings.SECONDARY_COLOR;
     private String motd = "Message of the day.";
@@ -132,7 +118,6 @@ public class Town extends AreaObject<Plot> {
     private Town( UUID uuid ) {
         super(uuid);
         this.townFlags = PlotFlags.regular();
-        this.residents = new LinkedList<>();
         this.motd = "";
         this.description = "";
     }
@@ -144,7 +129,6 @@ public class Town extends AreaObject<Plot> {
         this.townFlags = townFlags;
         this.maxArea = maxSize;
         this.spawn = spawn;
-        this.residents = residents;
         this.name = name;
         this.motd = motd;
         this.description = description;
@@ -154,11 +138,9 @@ public class Town extends AreaObject<Plot> {
     private Town ( PlotDefinition define, Resident mayor ) {
         super(UUID.randomUUID());
         this.spawn = mayor.getPlayer().get().getLocation();
-        this.residents = new LinkedList<>();
-        this.residents.add(mayor);
         mayor.setTownRank(TownRank.MAYOR);
         Plot homePlot = Plot.create(define, this, "Home");
-        addPlot(homePlot);
+        claimPlot(homePlot);
         this.townFlags = homePlot.flags().copy();
         this.nation = null;
         this.status = TownStatus.NONE;
@@ -187,75 +169,42 @@ public class Town extends AreaObject<Plot> {
         return new Town.Builder();
     }
 
-    public Town.Builder toBuilder() {
-        return new Town.Builder(this);
-    }
-
     public void setFlags(PlotFlags flags) {
         this.townFlags = flags;
     }
 
-    public void informResidents (Text message ) {
-        for ( Resident res : residents ) {
+    public void informResidents ( Text message ) {
+        for ( Resident res : getResidents() ) {
             if ( res.getPlayer().isPresent() ) {
                 TownMessage.inform(res.getPlayer().get(), message);
             }
         }
     }
 
-    public void warnResidents(Text message) {
-        for ( Resident res : residents ) {
+    public void warnResidents ( Text message ) {
+        for ( Resident res : getResidents() ) {
             if ( res.getPlayer().isPresent() ) {
                 TownMessage.warn(res.getPlayer().get(), message);
             }
         }
     }
 
-    public void addResident (Resident resident, TownRank rank ) {
-        if ( residents.contains(resident) ) return;
-        resident.setTown(this, rank);
-        residents.add( resident );
-        informResidents(Text.of( resident.getName(), " is now online!"));
-    }
-
     public void addResident (Resident resident ) {
-        if ( residents.contains(resident) ) return;
         resident.setTown(this, TownRank.RESIDENT);
-        residents.add( resident );
         informResidents(Text.of( resident.getName(), " has joined the town!"));
     }
 
-    public void addResidents (Resident... residents ) {
-        for ( Resident res : residents ) addResident(res, res.townRank());
-    }
-
     public boolean removeResident ( Resident resident ) {
-        if ( !residents.contains(resident) ) return false;
-        resident.setTown(null, TownRank.NONE);
-        residents.remove(resident);
+        if ( !resident.town().isPresent() || !resident.town().get().equals(this) ) return false;
+        resident.leaveTown();
         return true;
     }
 
-    public boolean removeResidents ( Resident... residents ) {
-        for ( Resident res : residents ) {
-            if ( !removeResident(res) ) return false;
-        }
-        return true;
-    }
-
-    public List<Plot> plots() { return super.contents; }
-
-    public List<Resident> residents () { return residents; }
-
-    public int maxSize() {
+    public int getMaxSize() {
         return maxArea;
     }
 
-    public void setPlots(List<Plot> plots) {
-        this.contents = plots;
-    }
-
-    public Location<World> spawn() {
+    public Location<World> getSpawn() {
         return spawn;
     }
 
@@ -274,13 +223,13 @@ public class Town extends AreaObject<Plot> {
         return this;
     }
 
-    public PlotFlags flags() {
+    public PlotFlags getTownFlags() {
         return townFlags;
     }
 
     public Town setFlag ( PlotFlags.Flag flag, PlotFlags.Extent extents ) {
         this.townFlags.set(flag, extents);
-        for ( Plot p : contents ) {
+        for ( Plot p : getPlots() ) {
             p.flags().set(flag, extents);
         }
         return this;
@@ -289,6 +238,21 @@ public class Town extends AreaObject<Plot> {
     @Override
     public Optional<Nation> getParent() {
         return Optional.ofNullable(nation);
+    }
+
+    @Override
+    public boolean contains(World w, double x, double y) {
+        return false;
+    }
+
+    @Override
+    public boolean contains(World w, Point2D point) {
+        return false;
+    }
+
+    @Override
+    public boolean contains(Location<World> loc) {
+        return false;
     }
 
     public Town setNation ( Nation nation ) {
@@ -301,11 +265,10 @@ public class Town extends AreaObject<Plot> {
         return this;
     }
 
-    public TownStatus status() { return status; }
+    public TownStatus getStatus() { return status; }
 
-    public Town setStatus ( TownStatus status ) {
+    public void setStatus ( TownStatus status ) {
         this.status = status;
-        return this;
     }
 
     @Override
@@ -317,12 +280,13 @@ public class Town extends AreaObject<Plot> {
         }
 
         long plotSize = 0;
-        for ( Plot p : contents ) {
+        for ( Plot p : getPlots() ) {
             plotSize += p.definition().area();
         }
 
         String mayorName = Settings.NON_PLAYER_CHARACTER_NAME;
-        if ( this.mayor().isPresent() ) mayorName = this.mayor().get().getName();
+        Optional<Resident> mayor = getMayor();
+        if ( mayor.isPresent() ) mayorName = mayor.get().getName();
 
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
@@ -347,12 +311,12 @@ public class Town extends AreaObject<Plot> {
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET,       textColor, nationName + "\n") )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET,         textColor, formatter.format( plotSize ), "/", formatter.format(maxArea), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxArea - plotSize), " remaining )", "\n" ) )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET,        textColor, mayorName + "\n" ) )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Residents[",                       textColor, residents.size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Residents[",                       textColor, getResidents().size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
                 .build();
     }
 
-    public Text getFormattedResidents() {
-        List<Resident> residentsByLastOnline = sortResidentsByDate(residents);
+    private Text getFormattedResidents() {
+        List<Resident> residentsByLastOnline = sortResidentsByDate(getResidents());
         Text.Builder residentsBuilder = Text.builder();
         Text separator = Text.of(", ");
 
@@ -393,20 +357,9 @@ public class Town extends AreaObject<Plot> {
         return list;
     }
 
-    public void addPlot (Plot p ) {
-        this.contents.add(p);
-        p.setParent(this);
-    }
-
     public void claimPlot(Plot p) {
-        this.contents.add(p);
         p.setParent(this);
         p.setFlags(townFlags);
-    }
-
-    public void unclaimPlot(Plot p) {
-        this.contents.remove(p);
-        p.remove();
     }
 
     public void inviteResident(Resident resident) {
@@ -454,24 +407,21 @@ public class Town extends AreaObject<Plot> {
         }
     }
 
-    public Town setMayor(Resident newMayor) {
+    public void setMayor(Resident newMayor) {
         if ( newMayor.town().isPresent() && newMayor.town().get().equals(this) ) {
-            if ( this.mayor().isPresent() ) {
-                this.mayor().get().setTownRank(TownRank.CO_MAYOR);
-            }
+            getMayor().ifPresent( resident -> resident.setTownRank(TownRank.CO_MAYOR) );
             newMayor.setTownRank(TownRank.MAYOR);
         }
-        return this;
     }
 
-    public Optional<Resident> mayor() {
-        for ( Resident r : residents ) {
+    public Optional<Resident> getMayor() {
+        for ( Resident r : getResidents() ) {
             if ( r.townRank().equals(TownRank.MAYOR) ) return Optional.of(r);
         }
         return Optional.empty();
     }
 
-    public String motd() {
+    public String getMOTD() {
         return motd;
     }
 
@@ -483,11 +433,11 @@ public class Town extends AreaObject<Plot> {
         this.description = description;
     }
 
-    public String description() {
+    public String getDescription() {
         return description;
     }
 
-    public TextColor color() {
+    public TextColor getColor() {
         return color;
     }
 
@@ -496,51 +446,34 @@ public class Town extends AreaObject<Plot> {
         return this;
     }
 
-    public double area() {
+    public double getArea() {
         double area = 0;
-        for ( Plot p : contents ) {
+        for ( Plot p : getPlots() ) {
             area += p.definition().area();
         }
         return area;
     }
 
-    public Town sendMessage ( Resident res, Text message ) {
-        if ( residents.contains(res) ) {
-            for (Resident r : residents) {
-                if (r.getPlayer().isPresent()) {
-                    r.getPlayer().get().sendMessage( Text.of( TownMessage.TOWN_CHAT_PREFIX, TextColors.RESET, res.getName(),": ", Settings.TERTIARY_COLOR, message ) );
-                }
-            }
-        }
-        return this;
-    }
-
-    public Town sendMessage ( Resident res, Object... message ) {
-        return sendMessage(res, Text.of(message));
-    }
-
     public void ruin() {
-        if ( getParent().isPresent() ) {
-            nation.removeTown(this);
-        }
-        Iterator<Plot> iter = contents.iterator();
-        while ( iter.hasNext() ) {
-            Plot p = iter.next();
-            unclaimPlot(p);
-            p.remove();
-            contents.remove(p);
-        }
-        for ( Resident r : residents ) {
-            r.setTown(null, TownRank.NONE);
-            residents.remove(r);
-        }
-        AtherysTowns.getInstance().getTownManager().remove(this);
+
+        getPlots().forEach(Plot::remove); // remove all plots.
+        getResidents().forEach(Resident::leaveTown); // force all residents to leave the town
+        AtherysTowns.getInstance().getTownManager().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
+
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
+    }
+
+    public List<Resident> getResidents() {
+        return AtherysTowns.getInstance().getResidentManager().getByTown(this);
+    }
+
+    public List<Plot> getPlots() {
+        return AtherysTowns.getInstance().getPlotManager().getByParent(this);
     }
 
     public void showBorders(Player p) {
         List<LineSegment2D> borderedEdges = new LinkedList<>();
-        for ( Plot plot : contents ) {
+        for ( Plot plot : this.getPlots() ) {
             for ( LineSegment2D edge : plot.definition().edges() ) {
                 if ( !doesEdgeAlmostEqualAnyOther(edge, borderedEdges) ) {
                     for (int i = 0; i <= edge.length(); i += 2) {
@@ -563,8 +496,8 @@ public class Town extends AreaObject<Plot> {
         if ( d == l.length() ) return l.lastPoint();
         double len = l.length();
         double ratio = d/len;
-        double x = ratio*l.lastPoint().getX() + (1.0 - ratio)*l.firstPoint().getX();
-        double y = ratio*l.lastPoint().getY() + (1.0 - ratio)*l.firstPoint().getY();
+        double x = ratio*l.lastPoint().x() + (1.0 - ratio)*l.firstPoint().x();
+        double y = ratio*l.lastPoint().y() + (1.0 - ratio)*l.firstPoint().y();
         return new Point2D( x, y );
     }
 
@@ -575,19 +508,8 @@ public class Town extends AreaObject<Plot> {
         return false;
     }
 
-    public Optional<Resident> searchResident(UUID uuid) {
-        for ( Resident r : residents ) {
-            if ( r.uuid().equals(uuid) ) return Optional.of(r);
-        }
-        return Optional.empty();
-    }
-
     public void setSpawn(Location spawn) {
         this.spawn = spawn;
-    }
-
-    public void setResidents(List<Resident> residents) {
-        this.residents = residents;
     }
 
     @Override

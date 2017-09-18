@@ -25,6 +25,16 @@ public final class ResidentManager extends DatabaseManager<Resident> {
                     "  PRIMARY KEY (`uuid`)" +
                     ");";
 
+    public List<Resident> getByTown(Town town) {
+        List<Resident> residents = new ArrayList<>();
+        for ( Resident res : playerResidentMap.values() ) {
+            if ( res.town().isPresent() && res.town().get().equals(town) ) {
+                residents.add(res);
+            }
+        }
+        return residents;
+    }
+
     public enum Table implements DatabaseUtils.AbstractTable<Table> {
         UUID        (1, "uuid",                 "VARCHAR(36) NOT NULL"),
         TOWN_UUID   (2, "town_uuid",            "VARCHAR(36)"         ),

@@ -5,10 +5,7 @@ import com.atherys.towns.db.DatabaseManager;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AreaObjectManager<T extends BaseAreaObject> extends DatabaseManager<T>{
 
@@ -48,6 +45,19 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
     public void add ( T ao ) {
         if ( list.contains(ao) ) return;
         list.add(ao);
+    }
+
+    public <P extends BaseAreaObject> List<T> getByParent ( P test ) {
+        List<T> children = new ArrayList<>();
+        for ( T t : list ) {
+            Optional<? extends BaseAreaObject> parent = t.getParent();
+            if ( parent.isPresent() ) {
+                if ( parent.get().equals(test) ) {
+                    children.add(t);
+                }
+            }
+        }
+        return children;
     }
 
     public void remove ( T ao ) {

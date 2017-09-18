@@ -4,7 +4,6 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.resident.Resident;
 import io.github.flibio.economylite.EconomyLite;
-import math.geom2d.Point2D;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.service.economy.Currency;
@@ -13,41 +12,25 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaObject {
 
-    private UUID uuid;
-
-    protected List<T> contents;
+    protected UUID uuid;
+    private T parent;
     private UniqueAccount bank;
 
     protected AreaObject ( UUID uuid ) {
         this.uuid = uuid;
-        contents = new LinkedList<>();
         createBank().ifPresent(uniqueAccount -> bank = uniqueAccount);
     }
 
     public UUID getUUID() { return uuid; }
-
-    public boolean contains ( Location<World> loc ) {
-        for ( T t : contents ) if ( t.contains(loc) ) return true;
-        return false;
-    }
-
-    public boolean contains ( World w, double x, double y ) {
-        for ( T t : contents ) if ( t.contains(w, x, y) ) return true;
-        return false;
-    }
-
-    public boolean contains (World w, Point2D point ) {
-        for ( T t : contents ) if ( t.contains(w, point) ) return true;
-        return false;
-    }
 
     public Optional<UniqueAccount> getBank() { return Optional.ofNullable(bank); }
 
@@ -100,6 +83,10 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
         }
         return false;
     }
+
+    public void setParent ( T parent ) { this.parent = parent; }
+
+    public Optional<T> getParent() { return Optional.ofNullable(parent); }
 
     private Optional<UniqueAccount> createBank () {
         if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {

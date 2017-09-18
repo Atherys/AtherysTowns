@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+// SQL is bad. Let's do MongoDB instead.
 public abstract class DatabaseManager<T extends TownsObject> {
 
     private static Connection connection = null;
