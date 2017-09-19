@@ -1,25 +1,24 @@
 package com.atherys.towns.utils;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Deserialize {
 
@@ -29,7 +28,7 @@ public class Deserialize {
     public static BlockSnapshot blockSnapshot(String json)
     {
         Map<Object, Object> map = gson.fromJson(json, Map.class);
-        DataContainer container = new MemoryDataContainer();
+        DataContainer container = DataContainer.createNew();
 
         for (Map.Entry<Object, Object> entry : map.entrySet())
         {
@@ -96,18 +95,6 @@ public class Deserialize {
 
     public static TextColor color (String color) {
         return AtherysTowns.getInstance().getGame().getRegistry().getType(TextColor.class, color).orElse(TextColors.WHITE);
-    }
-
-    public static List<Nation> nationList (String natList ) {
-        List<Nation> list = new LinkedList<>();
-        JsonElement el = parser.parse(natList);
-        if ( el.isJsonArray() ) {
-            for ( JsonElement e : el.getAsJsonArray() ) {
-                Optional<Nation> nOpt = AtherysTowns.getInstance().getNationManager().getByUUID(UUID.fromString(e.getAsString()));
-                nOpt.ifPresent(list::add);
-            }
-        }
-        return list;
     }
 
 }

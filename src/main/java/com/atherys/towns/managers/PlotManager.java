@@ -1,75 +1,24 @@
 package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.town.Town;
-import com.atherys.towns.utils.DatabaseUtils;
-import com.atherys.towns.utils.Deserialize;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.World;
 
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 public final class PlotManager extends AreaObjectManager<Plot> {
 
-    private static final String CREATE_TABLE_PLOTS =
-            "CREATE TABLE IF NOT EXISTS `towns_Plots` (" +
-                    "  `uuid` VARCHAR NOT NULL," +
-                    "  `town_uuid` VARCHAR NOT NULL," +
-                    "  `definition` VARCHAR NOT NULL," +
-                    "  `flags` VARCHAR NOT NULL," +
-                    "  `name` VARCHAR NOT NULL," +
-                    "  PRIMARY KEY (`uuid`)" +
-                    ");";
+    private static PlotManager instance = new PlotManager();
 
-    public enum Table implements DatabaseUtils.AbstractTable<Table> {
-        UUID        (1, "uuid",         "VARCHAR(36) NOT NULL"),
-        TOWN_UUID   (2, "town_uuid",    "VARCHAR(36)"         ),
-        DEFINITION  (3, "definition",   "VARCHAR(256) NOT NULL"),
-        FLAGS       (4, "flags",        "VARCHAR(256) NOT NULL"),
-        NAME        (5, "name",         "VARCHAR(256) NOT NULL");
-
-        int index;
-        String name;
-        String signature;
-
-        Table ( int index, String name, String signature ) {
-            this.index = index;
-            this.name = name;
-            this.signature = signature;
-        }
-
-        @Override
-        public int getIndex() {
-            return index;
-        }
-
-        @Override
-        public String getId() {
-            return name;
-        }
-
-        @Override
-        public String getSignature() {
-            return signature;
-        }
-
-        @Override
-        public String getCreateTableQuery() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("CREATE TABLE IF NOT EXISTS `towns_Plots` (");
-            for ( Table v : values() ) {
-                builder.append("`").append(v.getId()).append("` ").append(v.getSignature()).append(",");
-            }
-            builder.append("PRIMARY KEY (`").append(values()[0].getId()).append("`));");
-            return builder.toString();
-        }
-    }
-
-    public PlotManager() {
+    private PlotManager() {
     }
 
     public boolean checkIntersection (PlotDefinition definition ) {
@@ -80,66 +29,86 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     }
 
     @Override
-    protected Class<Plot> getManagerClass() {
-        return Plot.class;
+    public MongoCollection<Document> collection() {
+        return TownsDatabase.getInstance().getDatabase().getCollection("plots");
     }
 
     @Override
-    protected String getCreateTableQuery() {
-        return Table.UUID.getCreateTableQuery();
+    public Document toDocument(Plot object) {
+
+        Document doc = new Document("uuid", object.getUUID().toString());
+        doc.append("town", object.getTown().getUUID().toString() );
+        doc.append("name", object.getName());
+
+        Document definition = new Document()
+                .append("world", object.getDefinition().getWorld().getUniqueId().toString())
+                .append("x", object.getDefinition().getX())
+                .append("y", object.getDefinition().getY())
+                .append("w", object.getDefinition().getWidth())
+                .append("h", object.getDefinition().getHeight());
+
+        doc.append("definition", definition);
+
+        Document flags = new Document();
+        object.getFlags().getAll().forEach( (k,v) -> flags.append(k.name(), v.name()));
+
+        doc.append("flags", flags);
+
+        return doc;
     }
 
     @Override
-    public String getSelectAllQuery() {
-        return "SELECT * FROM `towns_Plots`";
+    public void saveAll() {
+        super.saveAll(list);
     }
 
     @Override
-    public String getSelectQuery() {
-        return "SELECT * FROM `towns_Plots` WHERE `uuid` = ?;";
-    }
+    public boolean fromDocument(Document doc) {
 
-    @Override
-    public String getInsertQuery() { return "REPLACE INTO `towns_Plots` (`uuid`,`town_uuid`,`definition`,`flags`,`name`) VALUES ( ?, ?, ?, ?, ? );"; }
+        UUID uuid = UUID.fromString( doc.getString("uuid") );
+        Plot.Builder builder = Plot.fromUUID(uuid);
 
-    @Override
-    public String getDeleteQuery() {
-        return "DELETE FROM `towns_Plots` WHERE `uuid` = ?";
-    }
-
-    @Override
-    public Plot load(Map<String, Object> row) {
-        String town_uuid = (String) row.get("town_uuid");
-        if (Objects.equals(town_uuid, "NULL")) {
-            AtherysTowns.getInstance().getLogger().error("Plot town " + town_uuid + " @ row " + row.toString() + " is invalid. Will skip.");
-            return null;
+        // load parent
+        Optional<Town> parent = TownManager.getInstance().getByUUID( UUID.fromString( doc.getString("town") ) );
+        if ( parent.isPresent() ) {
+            builder.town(parent.get());
+        } else {
+            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
+            return false;
         }
 
-        Optional<Town> t = AtherysTowns.getInstance().getTownManager().getByUUID(UUID.fromString(town_uuid));
+        builder.name(doc.getString("name"));
 
-        if ( !t.isPresent() ) {
-            AtherysTowns.getInstance().getLogger().error("Plot town " + town_uuid + " @ row " + row.toString() + " does not exist. Will skip.");
-            return null;
+        // load definition
+        Document definition = doc.get("definition", Document.class);
+        Optional<World> world = Sponge.getServer().getWorld( UUID.fromString( definition.getString("world") ) );
+        if ( world.isPresent() ) {
+            PlotDefinition define = new PlotDefinition(
+                    world.get(),
+                    definition.getDouble("x"),
+                    definition.getDouble("y"),
+                    definition.getDouble("w"),
+                    definition.getDouble("h")
+            );
+            builder.definition(define);
+        } else {
+            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure. Had improper definition.");
+            return false;
         }
 
-        Optional<PlotDefinition> define = Deserialize.definition((String) row.get("definition"));
-        if ( !define.isPresent() ) {
-            AtherysTowns.getInstance().getLogger().error("Plot definition " + row.get("definition") + " @ row " + row.toString() + " failed to deserialize. Will skip.");
-            return null;
-        }
+        // load flags
+        Document flags = doc.get("flags", Document.class);
+        PlotFlags plotFlags = PlotFlags.empty();
+        flags.forEach( (k,v) -> plotFlags.set(PlotFlags.Flag.valueOf(k), PlotFlags.Extent.valueOf((String) v)));
+        builder.flags(plotFlags);
 
-        PlotFlags flags = Deserialize.plotFlags((String) row.get("flags"));
+        builder.build();
 
-        return Plot.fromUUID(UUID.fromString((String) row.get("uuid")))
-                .town(t.get())
-                .name((String) row.get("name"))
-                .definition(define.get())
-                .flags(flags)
-                .build();
+        // TODO: Convert BSON to Plot
+        return true;
     }
 
-    @Override
-    public boolean delete(Plot obj) {
-        return false;
+    public static PlotManager getInstance() {
+        return instance;
     }
 }

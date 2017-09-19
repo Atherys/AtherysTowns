@@ -1,8 +1,8 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.commands.TownsValues;
+import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.town.Town;
 import com.flowpowered.math.vector.Vector3d;
@@ -132,7 +132,7 @@ public class PlotDefinition extends Rectangle2D {
             TownMessage.warn(player, Text.of("Maximum area of a plot is " + Settings.MAX_PLOT_AREA + " blocks!"));
             throw new DefinitionNotValidException();
         }
-        if ( AtherysTowns.getInstance().getPlotManager().checkIntersection( new PlotDefinition( player.getWorld(), test ) ) ) {
+        if ( PlotManager.getInstance().checkIntersection( new PlotDefinition( player.getWorld(), test ) ) ) {
             TownMessage.warn(player, Text.of("Plot must not intersect other plots!"));
             throw new DefinitionNotValidException();
         }

@@ -35,7 +35,7 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
     public Optional<UniqueAccount> getBank() { return Optional.ofNullable(bank); }
 
     public boolean deposit ( Resident res, BigDecimal amount, Currency currency ) {
-        if ( bank != null ) {
+        if ( bank != null) {
             Optional<UniqueAccount> acc = res.getBank();
             if ( acc.isPresent() ) {
                 Cause cause = Cause.builder().named(NamedCause.of("towns-deposit", this)).build();

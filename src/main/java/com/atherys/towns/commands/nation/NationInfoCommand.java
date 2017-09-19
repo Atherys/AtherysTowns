@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.nation;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.NationRank;
@@ -13,7 +13,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class NationInfoCommand extends AbstractNationCommand {
 
@@ -43,15 +42,12 @@ public class NationInfoCommand extends AbstractNationCommand {
     @Override
     public CommandResult townsExecute(Nation nation, Town town, Resident resident, Player player, CommandContext args) {
 
-        Optional<Nation> nationOptional = AtherysTowns.getInstance().getNationManager().getByName(args.<String>getOne("nation").orElseGet( () -> {
-            if ( resident.town().isPresent() ) {
-                if ( resident.town().get().getParent().isPresent() ) {
-                    return resident.town().get().getParent().get().getName();
-                }
-            }
-            return UUID.randomUUID().toString();
+        Optional<Nation> nationOptional = NationManager.getInstance().getByName(args.<String>getOne("nation").orElseGet( () -> {
+            Optional<Nation> residentNation = resident.getNation();
+            if ( residentNation.isPresent() ) return residentNation.get().getName();
+            return "";
         }));
-        nationOptional.ifPresent(nation1 -> player.sendMessage(nation1.formatInfo()));
+        nationOptional.ifPresent(nation1 -> player.sendMessage(nation1.getFormattedInfo()));
         return CommandResult.success();
     }
 }

@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
@@ -38,8 +38,8 @@ public class TownInfoCommand extends AbstractTownCommand {
 
         if ( !townName.isPresent() ) {
 
-            if (resident.town().isPresent()) {
-                Town t = resident.town().get();
+            if (resident.getTown().isPresent()) {
+                Town t = resident.getTown().get();
                 player.sendMessage(t.getFormattedInfo());
                 return CommandResult.success();
             } else {
@@ -54,10 +54,10 @@ public class TownInfoCommand extends AbstractTownCommand {
 
             if ( townName.get().equalsIgnoreCase("here") ) {
                 error = Text.of("You are in the wilderness.");
-                tOpt = AtherysTowns.getInstance().getTownManager().getByLocation(player.getLocation());
+                tOpt = TownManager.getInstance().getByLocation(player.getLocation());
             } else {
                 error = Text.of("No such town exists.");
-                tOpt = AtherysTowns.getInstance().getTownManager().getByName(townName.get());
+                tOpt = TownManager.getInstance().getByName(townName.get());
             }
 
             if ( tOpt.isPresent() ) {

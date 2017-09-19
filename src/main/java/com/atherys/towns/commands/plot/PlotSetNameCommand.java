@@ -1,7 +1,7 @@
 package com.atherys.towns.commands.plot;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
+import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.Plot;
@@ -33,14 +33,14 @@ public class PlotSetNameCommand extends AbstractPlotCommand {
 
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-        Optional<Plot> plotOpt = AtherysTowns.getInstance().getPlotManager().getByLocation(player.getLocation());
+        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation(player.getLocation());
         if ( !plotOpt.isPresent() ) {
             TownMessage.warn( player, "You must be standing within the borders of a town plot in order to do this command." );
             return CommandResult.empty();
         }
 
         Plot plot = plotOpt.get();
-        if ( !plot.getParent().get().equals(town) ) {
+        if ( !plot.getTown().equals(town) ) {
             TownMessage.warn( player, "You must be standing within the borders of a plot which belongs to your own town in order to do this command." );
             return CommandResult.empty();
         }

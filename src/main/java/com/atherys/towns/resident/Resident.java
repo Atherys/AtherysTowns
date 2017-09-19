@@ -3,7 +3,9 @@ package com.atherys.towns.resident;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.base.TownsObject;
+import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
+import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.resident.ranks.TownsAction;
@@ -58,7 +60,7 @@ public class Resident implements TownsObject {
             return this;
         }
 
-        public Resident.Builder registerTimestamp ( int time ) {
+        public Resident.Builder registerTimestamp ( long time ) {
             res.setRegisteredTimestamp(time);
             return this;
         }
@@ -69,10 +71,13 @@ public class Resident implements TownsObject {
         }
 
         public Resident build() {
-            AtherysTowns.getInstance().getResidentManager().add(res.uuid(),res);
+            ResidentManager.getInstance().add(res.getUUID(),res);
             return res;
         }
     }
+
+
+    private UUID uuid;
 
     private Town town;
     private TownRank townRank = TownRank.NONE;
@@ -81,32 +86,30 @@ public class Resident implements TownsObject {
     private long unixRegisterDateSeconds = 0;
     private long unixLastOnlineSeconds = 0;
 
-    private UUID playerUUID;
-
     private Resident( UUID uuid) {
-        this.playerUUID = uuid;
+        this.uuid = uuid;
         unixRegisterDateSeconds = System.currentTimeMillis() / 1000L;
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
     private Resident ( User player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
         this.town = town;
-        this.playerUUID = player.getUniqueId();
+        this.uuid = player.getUniqueId();
         this.townRank = townRank;
         this.nationRank = nationRank;
         this.unixRegisterDateSeconds = unixRegisterDateSeconds;
         this.unixLastOnlineSeconds = unixLastOnlineSeconds;
-        AtherysTowns.getInstance().getResidentManager().add(playerUUID, this);
+        ResidentManager.getInstance().add(uuid, this);
     }
 
     private Resident ( UUID uuid, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
         this.town = town;
-        this.playerUUID = uuid;
+        this.uuid = uuid;
         this.townRank = townRank;
         this.nationRank = nationRank;
         this.unixRegisterDateSeconds = unixRegisterDateSeconds;
         this.unixLastOnlineSeconds = unixLastOnlineSeconds;
-        AtherysTowns.getInstance().getResidentManager().add(playerUUID, this);
+        ResidentManager.getInstance().add(uuid, this);
     }
 
     public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
@@ -121,32 +124,37 @@ public class Resident implements TownsObject {
         return new Resident( uuid, null, TownRank.NONE, NationRank.NONE, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
     }
 
-    public UUID uuid() {
-        return playerUUID;
-    }
-
     public String getName() {
         if ( !getUser().isPresent() ) return Settings.NON_PLAYER_CHARACTER_NAME;
         return getUser().get().getName();
     }
 
-    public Optional<? extends User> getUser() {
-        return UserUtils.getUser(playerUUID);
+
+    // return user object regardless if player is online or not
+    private Optional<? extends User> getUser() {
+        return UserUtils.getUser(uuid);
     }
 
+    // returns player object IF player is online
     public Optional<Player> getPlayer() {
-        return Sponge.getServer().getPlayer(playerUUID);
+        for ( Player player : Sponge.getServer().getOnlinePlayers() ) {
+            if ( player.getUniqueId().equals(uuid) ) return Optional.of(player);
+        }
+        return Optional.empty();
     }
 
-    public Optional<Town> town() {
+    public Optional<Town> getTown() {
         if ( town != null ) return Optional.of(town);
         else return Optional.empty();
     }
 
-    public Resident setTown( Town town, TownRank rank ) {
+    public Optional<Nation> getNation() {
+        return NationManager.getInstance().getByResident(this);
+    }
+
+    public void setTown( Town town, TownRank rank ) {
         this.town = town;
         this.townRank = rank;
-        return this;
     }
 
     public TownRank getTownRank() {
@@ -171,11 +179,11 @@ public class Resident implements TownsObject {
     }
 
     public String getFormattedRegisterDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getRegisteredSeconds());
+        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getRegisterDate());
     }
 
     public String getFormattedLastOnlineDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getLastOnlineSeconds());
+        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getLastOnlineDate());
     }
 
     public Date getLastOnlineDate() {
@@ -188,7 +196,7 @@ public class Resident implements TownsObject {
 
     @Override
     public UUID getUUID() {
-        return playerUUID;
+        return uuid;
     }
 
     @Override
@@ -204,16 +212,16 @@ public class Resident implements TownsObject {
         Text townLore = Text.EMPTY;
         Text nation = Text.of("None");
 
-        if ( town().isPresent() ) {
+        if ( getTown().isPresent() ) {
 
-            townName = town().get().getName();
-            format = format.color( town().get().getColor() );
+            townName = getTown().get().getName();
+            format = format.color( getTown().get().getColor() );
             format = format.style( TextStyles.BOLD );
 
-            townLore = town().get().getFormattedInfo();
+            townLore = getTown().get().getFormattedInfo();
             if ( town.getParent().isPresent() ) {
                 nation = Text.of ( town.getParent().get().getColor(), town.getParent().get().getName() );
-                nation = nation.toBuilder().onHover(TextActions.showText( town.getParent().get().formatInfo() ) ).build();
+                nation = nation.toBuilder().onHover(TextActions.showText( town.getParent().get().getFormattedInfo() ) ).build();
             }
         }
 
@@ -222,17 +230,11 @@ public class Resident implements TownsObject {
                 .append(Text.of(Settings.TEXT_COLOR, TextStyles.BOLD, getName(), TextStyles.RESET ) )
                 .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedRegisterDate(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedLastOnlineDate(), "\n") )
+                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, getPlayer().isPresent() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, nation, Settings.DECORATION_COLOR, " )\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank.formattedName() ) )
                 .build();
-    }
-
-    public Text formatInfo() { return getFormattedInfo(); }
-
-    public boolean canClaimPlots() {
-        return this.can(TownRank.Action.CLAIM_PLOT);
     }
 
     public boolean can ( TownsAction action ) {
@@ -252,9 +254,9 @@ public class Resident implements TownsObject {
         player.ifPresent(player1 -> Question.poll(player1, Text.of("Would you like to leave your current town?"), Question.Type.YES_NO,
                 // yes
                 commandSource -> {
-                    if ( town().isPresent() ) {
+                    if ( getTown().isPresent() ) {
                         this.setTown(null, TownRank.NONE);
-                        town().get().warnResidents(Text.of( this.getName() + " has left the town."));
+                        getTown().get().warnResidents(Text.of( this.getName() + " has left the town."));
                     }
                 }));
         return this;
@@ -262,7 +264,7 @@ public class Resident implements TownsObject {
 
     public Optional<UniqueAccount> getBank() {
         if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
-            return EconomyLite.getEconomyService().getOrCreateAccount(playerUUID);
+            return EconomyLite.getEconomyService().getOrCreateAccount(uuid);
         }
         return Optional.empty();
     }
@@ -278,7 +280,7 @@ public class Resident implements TownsObject {
     public Text getFormattedBank() {
         Optional<UniqueAccount> bankOpt = Optional.empty();
         if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
-            bankOpt = EconomyLite.getEconomyService().getOrCreateAccount(playerUUID);
+            bankOpt = EconomyLite.getEconomyService().getOrCreateAccount(uuid);
         }
         if ( bankOpt.isPresent() ) {
             UniqueAccount bank = bankOpt.get();
@@ -299,20 +301,15 @@ public class Resident implements TownsObject {
         }
     }
 
-    @Override
-    public Map<ResidentManager.Table, Object> toDatabaseStorable() {
-        Map<ResidentManager.Table, Object> map = new HashMap<>();
-
-        String town_uuid = "NULL";
-        if ( town().isPresent() ) town_uuid = town().get().getUUID().toString();
-
-        map.put(ResidentManager.Table.UUID, getUUID().toString() );
-        map.put(ResidentManager.Table.TOWN_UUID, town_uuid);
-        map.put(ResidentManager.Table.TOWN_RANK, townRank.id() );
-        map.put(ResidentManager.Table.NATION_RANK, nationRank.id() );
-        map.put(ResidentManager.Table.REGISTER, getRegisteredSeconds() );
-        map.put(ResidentManager.Table.LAST_ONLINE, getLastOnlineSeconds() );
-
-        return map;
-    }
+    //@Override
+    //public Document toBSON() {
+    //    Document serialized = new Document();
+    //    serialized.append("_id", this.getUUID());
+    //    serialized.append("town", town.getUUID());
+    //    serialized.append("last_online", this.getLastOnlineSeconds());
+    //    serialized.append("registered", this.getRegisteredSeconds());
+    //    serialized.append("town_rank", this.townRank.id());
+    //    serialized.append("nation_rank", this.nationRank.id());
+    //    return serialized;
+    //}
 }

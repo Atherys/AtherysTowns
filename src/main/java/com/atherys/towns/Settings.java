@@ -1,6 +1,5 @@
 package com.atherys.towns;
 
-import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.managers.WildernessManager;
 import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.resident.ranks.TownRank;
@@ -402,12 +401,12 @@ public final class Settings {
     public static int                   SUBTITLE_FADEIN_TICKS =         Settings.get(5, "titles", "subtitle", "fadeInTicks");
     public static int                   SUBTITLE_STAY_TICKS =           Settings.get(10, "titles", "subtitle", "stayTicks");
     public static int                   SUBTITLE_FADEOUT_TICKS =        Settings.get(5, "titles", "subtitle", "fadeoutTicks");
-    public static TownsDatabase.Type    SQL_TYPE =                      TownsDatabase.Type.valueOf( Settings.get("SQLITE", "database", "type") );
-    public static String                SQL_HOST =                      Settings.get("127.0.0.1", "database", "host");
-    public static int                   SQL_PORT =                      Settings.get(3306, "database", "port");
-    public static String                SQL_DATABASE =                  Settings.get("towns_Database", "database", "dbName");
-    public static String                SQL_USER =                      Settings.get("user", "database", "user");
-    public static String                SQL_PASSWORD =                  Settings.get("password", "database", "password");
+    public static String                DB_HOST =                       Settings.get("localhost", "database", "host");
+    public static int                   DB_PORT =                       Settings.get(27017, "database", "port");
+    public static String                DB_DATABASE =                   Settings.get("towns_database", "database", "dbName");
+    public static String                DB_USER_DB =                    Settings.get("admin", "database", "userDb");
+    public static String                DB_USER =                       Settings.get("user", "database", "user");
+    public static String                DB_PASSWORD =                   Settings.get("password", "database", "password");
     public static int                   TOWN_SPAWN_DELAY =              Settings.get(10, "spawn", "delay");
     public static int                   WILDERNESS_REGEN_RATE =         Settings.get(60, "wilderness", "regenRate");
     public static TimeUnit              WILDERNESS_REGEN_RATE_UNIT =    TimeUnit.valueOf(Settings.get("SECONDS", "wilderness", "regenUnit") );

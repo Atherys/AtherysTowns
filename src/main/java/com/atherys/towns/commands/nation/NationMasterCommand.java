@@ -34,8 +34,8 @@ public class NationMasterCommand extends AbstractNationCommand {
 
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-        if ( resident.town().isPresent() && resident.town().get().getParent().isPresent() ) {
-            player.sendMessage(resident.town().get().getParent().get().formatInfo());
+        if ( resident.getTown().isPresent() && resident.getTown().get().getParent().isPresent() ) {
+            player.sendMessage(resident.getTown().get().getParent().get().getFormattedInfo());
         } else {
             player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/n(ation) Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
             for ( AbstractCommand cmd : getChildren() ) {

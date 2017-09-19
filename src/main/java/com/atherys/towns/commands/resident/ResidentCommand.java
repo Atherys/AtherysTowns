@@ -1,6 +1,7 @@
 package com.atherys.towns.commands.resident;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.command.CommandException;
@@ -39,9 +40,9 @@ public class ResidentCommand implements CommandExecutor {
                 Optional<User> user = args.getOne(Text.of("player"));
                 if ( user.isPresent() ) {
                     System.out.println(user.get().getUniqueId().toString());
-                    Optional<Resident> res = AtherysTowns.getInstance().getResidentManager().get(user.get().getUniqueId());
+                    Optional<Resident> res = ResidentManager.getInstance().get(user.get().getUniqueId());
                     if ( res.isPresent() ) {
-                        src.sendMessage(res.get().formatInfo());
+                        src.sendMessage(res.get().getFormattedInfo());
                     } else {
                         TownMessage.warn((Player) src, "Resident does not exist.");
                     }
@@ -49,9 +50,9 @@ public class ResidentCommand implements CommandExecutor {
                 }
             } else {
                 // get own resident
-                Optional<Resident> res = AtherysTowns.getInstance().getResidentManager().get(((Player) src).getUniqueId());
+                Optional<Resident> res = ResidentManager.getInstance().get(((Player) src).getUniqueId());
                 // send src resident info
-                res.ifPresent(resident -> src.sendMessage(resident.formatInfo()));
+                res.ifPresent(resident -> src.sendMessage(resident.getFormattedInfo()));
             }
 
         return CommandResult.empty();

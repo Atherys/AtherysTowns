@@ -1,13 +1,12 @@
 package com.atherys.towns.managers;
 
 import com.atherys.towns.base.BaseAreaObject;
-import com.atherys.towns.db.DatabaseManager;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.*;
 
-public abstract class AreaObjectManager<T extends BaseAreaObject> extends DatabaseManager<T>{
+public abstract class AreaObjectManager<T extends BaseAreaObject> extends DatabaseManager<T> {
 
     protected List<T> list;
 

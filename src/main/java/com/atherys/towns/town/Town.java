@@ -1,8 +1,9 @@
 package com.atherys.towns.town;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.base.AreaObject;
+import com.atherys.towns.managers.PlotManager;
+import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -12,7 +13,6 @@ import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.utils.Question;
-import com.atherys.towns.utils.Serialize;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
@@ -66,8 +66,8 @@ public class Town extends AreaObject<Nation> {
             return this;
         }
 
-        public Town.Builder maxArea ( int max ) {
-            town.setMaxArea(max);
+        public Town.Builder maxSize ( int max ) {
+            town.setMaxSize(max);
             return this;
         }
 
@@ -97,17 +97,17 @@ public class Town extends AreaObject<Nation> {
         }
 
         public Town build() {
-            AtherysTowns.getInstance().getTownManager().add(town);
+            TownManager.getInstance().add(town);
             return town;
         }
 
     }
 
     private Nation nation;
-    private TownStatus status;
+    private TownStatus status = TownStatus.NONE;
 
     private PlotFlags townFlags;
-    private int maxArea;
+    private int maxSize;
     private Location<World> spawn;
 
     private String name;
@@ -127,12 +127,12 @@ public class Town extends AreaObject<Nation> {
         this.nation = nation;
         this.status = status;
         this.townFlags = townFlags;
-        this.maxArea = maxSize;
+        this.maxSize = maxSize;
         this.spawn = spawn;
         this.name = name;
         this.motd = motd;
         this.description = description;
-        AtherysTowns.getInstance().getTownManager().add(this);
+        TownManager.getInstance().add(this);
     }
 
     private Town ( PlotDefinition define, Resident mayor ) {
@@ -145,15 +145,15 @@ public class Town extends AreaObject<Nation> {
         this.nation = null;
         this.status = TownStatus.NONE;
         mayor.setTown(this, TownRank.MAYOR);
-        AtherysTowns.getInstance().getTownManager().add(this);
+        TownManager.getInstance().add(this);
     }
 
     public static Town create( PlotDefinition definition, Resident mayor, String name, int maxAllowedPlots ) {
         Town t = new Town(definition, mayor);
         t.setName(name);
-        t.setMaxArea(maxAllowedPlots);
+        t.setMaxSize(maxAllowedPlots);
         TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
-        AtherysTowns.getInstance().getTownManager().save(t);
+        TownManager.getInstance().saveOne(t);
         return t;
     }
 
@@ -190,7 +190,7 @@ public class Town extends AreaObject<Nation> {
     }
 
     public int getMaxSize() {
-        return maxArea;
+        return maxSize;
     }
 
     public Location<World> getSpawn() {
@@ -207,21 +207,19 @@ public class Town extends AreaObject<Nation> {
         return name;
     }
 
-    public Town setMaxArea(int maxArea) {
-        this.maxArea = maxArea;
-        return this;
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
     }
 
     public PlotFlags getTownFlags() {
         return townFlags;
     }
 
-    public Town setFlag ( PlotFlags.Flag flag, PlotFlags.Extent extents ) {
+    public void setFlag ( PlotFlags.Flag flag, PlotFlags.Extent extents ) {
         this.townFlags.set(flag, extents);
         for ( Plot p : getPlots() ) {
             p.getFlags().set(flag, extents);
         }
-        return this;
     }
 
     @Override
@@ -298,7 +296,7 @@ public class Town extends AreaObject<Nation> {
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET,         textColor, super.getFormattedBank(), "\n") )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET,        Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET).toBuilder().onHover(TextActions.showText(townFlags.formatted())).build(), "\n") )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET,       textColor, nationName + "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET,         textColor, formatter.format( plotSize ), "/", formatter.format(maxArea), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxArea - plotSize), " remaining )", "\n" ) )
+                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET,         textColor, formatter.format( plotSize ), "/", formatter.format(maxSize), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxSize - plotSize), " remaining )", "\n" ) )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET,        textColor, mayorName + "\n" ) )
                 .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Residents[",                       textColor, getResidents().size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
                 .build();
@@ -376,10 +374,10 @@ public class Town extends AreaObject<Nation> {
                     // yes
                     (commandSource -> {
                         if ( commandSource instanceof Player ) {
-                            Optional<Resident> res = AtherysTowns.getInstance().getResidentManager().get(((Player) commandSource).getUniqueId());
+                            Optional<Resident> res = ResidentManager.getInstance().get(((Player) commandSource).getUniqueId());
                             if ( res.isPresent() ) {
                                 Resident r = res.get();
-                                if ( r.town().isPresent() ) {
+                                if ( r.getTown().isPresent() ) {
                                     TownMessage.warn((Player) commandSource, Text.of("You cannot join a town while you are part of another! Please leave your current town first."));
                                     return;
                                 }
@@ -400,7 +398,7 @@ public class Town extends AreaObject<Nation> {
     }
 
     public void setMayor(Resident newMayor) {
-        if ( newMayor.town().isPresent() && newMayor.town().get().equals(this) ) {
+        if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this) ) {
             getMayor().ifPresent( resident -> resident.setTownRank(TownRank.CO_MAYOR) );
             newMayor.setTownRank(TownRank.MAYOR);
         }
@@ -450,17 +448,17 @@ public class Town extends AreaObject<Nation> {
 
         getPlots().forEach(Plot::remove); // remove all plots.
         getResidents().forEach(Resident::leaveTown); // force all residents to leave the town
-        AtherysTowns.getInstance().getTownManager().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
+        TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
 
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
     }
 
     public List<Resident> getResidents() {
-        return AtherysTowns.getInstance().getResidentManager().getByTown(this);
+        return ResidentManager.getInstance().getByTown(this);
     }
 
     public List<Plot> getPlots() {
-        return AtherysTowns.getInstance().getPlotManager().getByParent(this);
+        return PlotManager.getInstance().getByParent(this);
     }
 
     public void showBorders(Player p) {
@@ -504,24 +502,16 @@ public class Town extends AreaObject<Nation> {
         this.spawn = spawn;
     }
 
-    @Override
-    public Map<TownManager.Table, Object> toDatabaseStorable() {
-        Map<TownManager.Table,Object> map = new HashMap<>();
-
-        String nation_uuid = "NULL";
-        if ( getParent().isPresent() ) nation_uuid = getParent().get().getUUID().toString();
-
-        map.put(TownManager.Table.UUID, getUUID().toString());
-        map.put(TownManager.Table.STATUS, status.id() );
-        map.put(TownManager.Table.NATION_UUID, nation_uuid);
-        map.put(TownManager.Table.FLAGS, Serialize.plotFlags(townFlags).toString() );
-        map.put(TownManager.Table.MAX_AREA, maxArea);
-        map.put(TownManager.Table.SPAWN, Serialize.location(spawn).toString());
-        map.put(TownManager.Table.NAME, name);
-        map.put(TownManager.Table.COLOR, Serialize.color(color));
-        map.put(TownManager.Table.MOTD, motd);
-        map.put(TownManager.Table.DESCRIPTION, description);
-
-        return map;
-    }
+    //@Override
+    //public Document toBSON() {
+    //    Document serialized = new Document("_id", this.uuid);
+    //    serialized.append("nation", nation.getUUID());
+    //    serialized.put("status", status.id());
+//
+    //    Document flags = new Document();
+    //    townFlags.forEach((k,v) -> flags.put(k.name(), v.name()));
+    //    serialized.put("flags", flags);
+//
+    //    return serialized;
+    //}
 }

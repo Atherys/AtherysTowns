@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.Plot;
@@ -38,7 +38,7 @@ public class TownUnclaimCommand extends AbstractTownCommand {
             return CommandResult.empty();
         }
 
-        Optional<Plot> plotOpt = AtherysTowns.getInstance().getPlotManager().getByLocation(player.getLocation());
+        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation(player.getLocation());
 
         if ( !plotOpt.isPresent() ) {
             TownMessage.warn( player, "You must be standing on a plot owned by your town in order to unclaim." );

@@ -32,8 +32,8 @@ public class TownMasterCommand extends AbstractTownCommand {
 
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-        if ( resident.town().isPresent() ) {
-            player.sendMessage(resident.town().get().getFormattedInfo());
+        if ( resident.getTown().isPresent() ) {
+            player.sendMessage(resident.getTown().get().getFormattedInfo());
         }
         return CommandResult.empty();
     }

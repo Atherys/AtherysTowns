@@ -1,9 +1,7 @@
 package com.atherys.towns.base;
 
-import com.atherys.towns.utils.DatabaseUtils;
 import org.spongepowered.api.text.Text;
 
-import java.util.Map;
 import java.util.UUID;
 
 public interface TownsObject {
@@ -15,7 +13,5 @@ public interface TownsObject {
     String getName();
 
     Text getFormattedInfo();
-
-    Map<? extends DatabaseUtils.AbstractTable, Object> toDatabaseStorable();
 
 }

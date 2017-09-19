@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
@@ -32,7 +32,7 @@ public class TownSetNationCommand extends AbstractTownSetCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         if ( town == null ) return CommandResult.empty();
 
-        Optional<Nation> n = AtherysTowns.getInstance().getNationManager().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
+        Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
 
         if ( n.isPresent() ) {
             town.setParent(n.get());

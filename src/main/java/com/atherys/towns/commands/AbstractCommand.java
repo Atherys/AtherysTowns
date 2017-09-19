@@ -2,6 +2,7 @@ package com.atherys.towns.commands;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
+import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
@@ -102,23 +103,23 @@ public abstract class AbstractCommand implements CommandExecutor, AbstractComman
         Town t = null;
         Nation n = null;
 
-        Optional<Resident> resOpt = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
+        Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
         if ( !resOpt.isPresent()) {
             return CommandResult.empty();
         } else res = resOpt.get(); // resident confirmed
 
         if ( isTownRelevant() ) {
-            if (!res.town().isPresent()) {
+            if (!res.getTown().isPresent()) {
                 TownMessage.warn(player, "You must be part of a town to do this command.");
                 return CommandResult.empty();
-            } else t = res.town().get(); // town confirmed
+            } else t = res.getTown().get(); // town confirmed
         }
 
         if ( isNationRelevant() ) {
-            if ( !res.town().get().getParent().isPresent() && action != NationRank.Action.CREATE_NATION) {
+            if ( !res.getTown().get().getParent().isPresent() && action != NationRank.Action.CREATE_NATION) {
                 TownMessage.warn(player, "You must be part of a nation to do this command.");
                 return CommandResult.empty();
-            } else n = res.town().get().getParent().get(); // nation confirmed
+            } else n = res.getTown().get().getParent().get(); // nation confirmed
         }
 
         if ( isActionRelevant() ) {

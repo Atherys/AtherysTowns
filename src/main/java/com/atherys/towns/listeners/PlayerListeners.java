@@ -1,11 +1,10 @@
 package com.atherys.towns.listeners;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.commands.plot.PlotToolCommand;
-import com.atherys.towns.db.DatabaseManager;
-import com.atherys.towns.managers.WildernessManager;
+import com.atherys.towns.managers.PlotManager;
+import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotFlags;
@@ -37,21 +36,17 @@ public class PlayerListeners {
 
     @Listener
     public void onPlayerJoin (ClientConnectionEvent.Join event) {
-        if ( !AtherysTowns.getInstance().getResidentManager().has(event.getTargetEntity().getUniqueId()) ) {
+        if ( !ResidentManager.getInstance().has(event.getTargetEntity().getUniqueId()) ) {
             Resident.create(event.getTargetEntity());
         }
     }
 
     @Listener
     public void onPlayerLeave (ClientConnectionEvent.Disconnect event ) {
-        Optional<Resident> res = AtherysTowns.getInstance().getResidentManager().get(event.getTargetEntity().getUniqueId());
-        if ( res.isPresent() ) {
-            res.get().updateLastOnline();
-            AtherysTowns.getInstance().getResidentManager().save(res.get());
-            //AtherysTowns.getInstance().getDatabase().saveResident(res.get());
-        } else {
-            AtherysTowns.getInstance().getLogger().error("Player " + event.getTargetEntity().getName() + " had no resident object attached. Could not save.");
-        }
+        ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId()).ifPresent(resident -> {
+            resident.updateLastOnline();
+            ResidentManager.getInstance().saveOne(resident);
+        });
     }
 
     @Listener
@@ -59,8 +54,8 @@ public class PlayerListeners {
     public void onPlayerMove (MoveEntityEvent event, @Root Player player) {
         if ( event.getToTransform().getLocation().getBlockPosition().equals(event.getFromTransform().getLocation().getBlockPosition() ) ) return;
 
-        Optional<Plot> plotFrom = AtherysTowns.getInstance().getPlotManager().getByLocation(event.getFromTransform().getLocation());
-        Optional<Plot> plotTo = AtherysTowns.getInstance().getPlotManager().getByLocation(event.getToTransform().getLocation());
+        Optional<Plot> plotFrom = PlotManager.getInstance().getByLocation(event.getFromTransform().getLocation());
+        Optional<Plot> plotTo = PlotManager.getInstance().getByLocation(event.getToTransform().getLocation());
 
         if ( !plotFrom.isPresent() && plotTo.isPresent() ) {
             // If player is going into a town
@@ -94,11 +89,11 @@ public class PlayerListeners {
             msg = "build";
         } else return;
 
-        AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId()).ifPresent( resident -> {
+        ResidentManager.getInstance().get(player.getUniqueId()).ifPresent( resident -> {
             for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
                 Optional<Location<World>> loc = trans.getOriginal().getLocation();
                 if ( loc.isPresent() ) {
-                    Optional<Plot> plot = AtherysTowns.getInstance().getPlotManager().getByLocation(loc.get());
+                    Optional<Plot> plot = PlotManager.getInstance().getByLocation(loc.get());
                     if (plot.isPresent()) {
                         if (!plot.get().getFlags().isAllowed(resident, flag, plot.get())) {
                             TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getParent().get().getName());
@@ -107,11 +102,11 @@ public class PlayerListeners {
                         }
                     } else {
                         // FOR WILDERNESS REGEN
-                        BlockSnapshot snap = trans.getOriginal();
+                        //BlockSnapshot snap = trans.getOriginal();
 
-                        if (WildernessManager.isItemRegenerable(snap.getExtendedState().getType()) ) {
-                            DatabaseManager.saveSnapshot(loc.get(), WildernessManager.getRegenSnapshot( event, snap ), System.currentTimeMillis());
-                        }
+                        //if (WildernessManager.isItemRegenerable(snap.getExtendedState().getType()) ) {
+                        //    DatabaseManager.saveSnapshot(loc.get(), WildernessManager.getRegenSnapshot( event, snap ), System.currentTimeMillis());
+                        //}
                     }
                 } else event.setCancelled(true);
             }
@@ -122,9 +117,9 @@ public class PlayerListeners {
     @IsCancelled(Tristate.FALSE)
     public void onPlayerPrimaryBlockInteract (InteractBlockEvent event, @Root Player player ) {
 
-        Optional<Plot> plotFrom = AtherysTowns.getInstance().getPlotManager().getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
+        Optional<Plot> plotFrom = PlotManager.getInstance().getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
         if (plotFrom.isPresent()) {
-            Optional<Resident> resOpt = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
+            Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
             if (resOpt.isPresent() && !plotFrom.get().isResidentAllowedTo(resOpt.get(), PlotFlags.Flag.SWITCH) && Settings.SWITCH_FLAG_BLOCKS.contains(event.getTargetBlock().getExtendedState().getType().getName()) ) {
                 TownMessage.warn(player, "You are not allowed to switch in this town.");
                 event.setCancelled(true);
@@ -175,16 +170,12 @@ public class PlayerListeners {
                     flag = PlotFlags.Flag.PVP;
                 }
 
-                Optional<Plot> plot = AtherysTowns.getInstance().getPlotManager().getByLocation(player.getLocation());
-                if (!plot.isPresent()) return;
-
-                Optional<Resident> resident = AtherysTowns.getInstance().getResidentManager().get(player.getUniqueId());
-                if (!resident.isPresent()) return;
-
-                if ( !plot.get().getFlags().isAllowed(resident.get(), flag, plot.get()) ) {
-                    TownMessage.warn(player, Text.of("You are not permitted to ", action, " in ", plot.get().getParent().get().getName()));
-                    event.setCancelled(true);
-                }
+                PlotManager.getInstance().getByLocation(player.getLocation()).ifPresent( plot -> ResidentManager.getInstance().get(player.getUniqueId()).ifPresent(resident -> {
+                    if ( !plot.getFlags().isAllowed(resident, flag, plot) ) {
+                        TownMessage.warn(player, Text.of("You are not permitted to ", action, " in ", plot.getParent().get().getName()));
+                        event.setCancelled(true);
+                    }
+                }));
             }
         }
     }

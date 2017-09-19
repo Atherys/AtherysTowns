@@ -1,14 +1,14 @@
 package com.atherys.towns.nation;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.NationManager;
+import com.atherys.towns.managers.ResidentManager;
+import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
-import com.atherys.towns.utils.Serialize;
 import math.geom2d.Point2D;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -18,7 +18,9 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Nation extends AreaObject<Nation> { // what is the parent of a nation?
 
@@ -51,7 +53,7 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         }
 
         public Nation build() {
-            AtherysTowns.getInstance().getNationManager().add(nation);
+            NationManager.getInstance().add(nation);
             return nation;
         }
     }
@@ -71,7 +73,7 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         super(uuid);
         this.name = name;
         this.description = description;
-        AtherysTowns.getInstance().getNationManager().add(this);
+        NationManager.getInstance().add(this);
     }
 
     public Nation(String name, Town capital) {
@@ -80,8 +82,8 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         this.description = "";
         setCapital(capital);
 
-        AtherysTowns.getInstance().getNationManager().add(this);
-        AtherysTowns.getInstance().getNationManager().save(this);
+        NationManager.getInstance().add(this);
+        NationManager.getInstance().saveOne(this);
     }
 
     public static Nation create (UUID uuid, String name, String description, List<Town> towns, List<Nation> allies, List<Nation> enemies) {
@@ -163,14 +165,15 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
     }
 
     public List<Resident> getResidents() {
-        return AtherysTowns.getInstance().getResidentManager().getByNation(this);
+        return ResidentManager.getInstance().getByNation(this);
     }
 
     public List<Town> getTowns() {
-        return AtherysTowns.getInstance().getTownManager().getByNation(this);
+        return TownManager.getInstance().getByParent(this);
     }
 
-    public Text formatInfo() {
+    @Override
+    public Text getFormattedInfo() {
 
         String leaderName = Settings.NON_PLAYER_CHARACTER_NAME;
 
@@ -213,7 +216,7 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
     }
 
     private Text getFormattedName() {
-        return Text.of(color, name).toBuilder().onHover(TextActions.showText(this.formatInfo())).build();
+        return Text.of(color, name).toBuilder().onHover(TextActions.showText(this.getFormattedInfo())).build();
     }
 
     public void setColor(TextColor color) {
@@ -232,22 +235,5 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         for ( Town t : getTowns() ) {
             t.informResidents(Text.of(s));
         }
-    }
-
-    @Override
-    public Text getFormattedInfo() {
-        return formatInfo();
-    }
-
-    @Override
-    public Map<NationManager.Table, Object> toDatabaseStorable() {
-        Map<NationManager.Table,Object> map = new HashMap<>();
-        map.put(NationManager.Table.UUID, getUUID().toString());
-        map.put(NationManager.Table.NAME, this.name);
-        map.put(NationManager.Table.LEADER_TITLE, leaderTitle);
-        map.put(NationManager.Table.COLOR, Serialize.color(color));
-        map.put(NationManager.Table.DESCRIPTION, description);
-        map.put(NationManager.Table.TAX, 0.0d);
-        return map;
     }
 }

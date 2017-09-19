@@ -37,7 +37,7 @@ public class NationCreateCommand extends AbstractNationCommand {
         }
 
         Nation newNation = Nation.create( args.<String>getOne("nationName").orElse( town + "'s Nation" ), town );
-        player.sendMessage(newNation.formatInfo());
+        player.sendMessage(newNation.getFormattedInfo());
         return CommandResult.success();
     }
 

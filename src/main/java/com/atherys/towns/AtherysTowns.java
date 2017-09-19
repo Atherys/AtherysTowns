@@ -6,15 +6,12 @@ import com.atherys.towns.commands.nation.NationMasterCommand;
 import com.atherys.towns.commands.plot.PlotMasterCommand;
 import com.atherys.towns.commands.resident.ResidentCommand;
 import com.atherys.towns.commands.town.TownMasterCommand;
-import com.atherys.towns.db.DatabaseManager;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.listeners.PlayerListeners;
 import com.atherys.towns.managers.*;
-import com.atherys.towns.nation.Nation;
-import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.town.Town;
 import com.google.inject.Inject;
+import com.mongodb.client.MongoDatabase;
 import io.github.flibio.economylite.EconomyLite;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -52,12 +49,8 @@ public class AtherysTowns {
     private static AtherysTowns instance;
 
     private Map<Class<? extends TownsObject>,DatabaseManager<? extends TownsObject>> managers = new HashMap<>();
-    private ResidentManager residentManager;
-    private PlotManager plotManager;
-    private TownManager townManager;
-    private NationManager nationManager;
 
-    private TownsDatabase database;
+    //private TownsDatabase database;
 
     private Task townBorderTask;
     private Task wildernessRegenTask;
@@ -71,26 +64,34 @@ public class AtherysTowns {
 
         Settings.getInstance();
 
-        database = TownsDatabase.getInstance();
-        if ( database == null ) return false;
+        TownsDatabase.getInstance();
 
-        nationManager = new NationManager();
-        nationManager.setup();
-        managers.put( Nation.class, nationManager);
+        TownManager.getInstance().loadAll();
 
-        townManager = new TownManager();
-        townManager.setup();
-        managers.put(Town.class, townManager);
+        PlotManager.getInstance().loadAll();
 
-        plotManager = new PlotManager();
-        plotManager.setup();
-        managers.put(Plot.class, plotManager);
+        ResidentManager.getInstance().loadAll();
 
-        residentManager = new ResidentManager();
-        residentManager.setup();
-        managers.put(Resident.class, residentManager);
+        //database = TownsDatabase.getInstance();
+        //if ( database == null ) return false;
 
-        WildernessManager.setup();
+        //nationManager = new NationManager();
+        //nationManager.setup();
+        //managers.put( Nation.class, nationManager);
+
+        //townManager = new TownManager();
+        //townManager.setup();
+        //managers.put(Town.class, townManager);
+
+        //plotManager = new PlotManager();
+        //plotManager.setup();
+        //managers.put(Plot.class, plotManager);
+
+        //residentManager = new ResidentManager();
+        //residentManager.setup();
+        //managers.put(Resident.class, residentManager);
+
+        //WildernessManager.setup();
 
         // TODO: Loading mechanism
         // TODO: Configs
@@ -111,10 +112,10 @@ public class AtherysTowns {
                 .execute(() -> {
                     for ( Player p : Sponge.getServer().getOnlinePlayers() ) {
                         if (TownsValues.get(p.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS).isPresent()){
-                            Optional<Resident> resOpt = AtherysTowns.getInstance().getResidentManager().get(p.getUniqueId());
+                            Optional<Resident> resOpt = ResidentManager.getInstance().get(p.getUniqueId());
                             if ( resOpt.isPresent() ) {
-                                if ( resOpt.get().town().isPresent() ) {
-                                    resOpt.get().town().get().showBorders(p);
+                                if ( resOpt.get().getTown().isPresent() ) {
+                                    resOpt.get().getTown().get().showBorders(p);
                                 }
                             }
                         }
@@ -123,16 +124,19 @@ public class AtherysTowns {
                 .name("atherystowns-town-border-task")
                 .submit(this);
 
-        wildernessRegenTask = Task.builder()
-                .delay(     Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
-                .interval(  Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
-                .execute(WildernessManager::task)
-                .name("atherystowns-wilderness-regen-task")
-                .submit(this);
+        //wildernessRegenTask = Task.builder()
+        //        .delay(     Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
+        //        .interval(  Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
+        //        .execute(WildernessManager::task)
+        //        .name("atherystowns-wilderness-regen-task")
+        //        .submit(this);
     }
 
     private void stop() {
-        database.saveAll();
+        ResidentManager.getInstance().saveAll();
+        PlotManager.getInstance().saveAll();
+        TownManager.getInstance().saveAll();
+        //database.saveAll();
         /*try {
             Settings.save();
         } catch (IOException e) {
@@ -158,10 +162,9 @@ public class AtherysTowns {
 
     public static AtherysTowns getInstance() { return instance; }
 
-    public ResidentManager getResidentManager() { return residentManager; }
-    public TownManager getTownManager() { return townManager; }
-    public PlotManager getPlotManager() { return plotManager; }
-    public NationManager getNationManager() { return nationManager; }
+    public static MongoDatabase getDb() {
+        return TownsDatabase.getInstance().getDatabase();
+    }
 
     public Game getGame() {
         return game;
@@ -178,9 +181,9 @@ public class AtherysTowns {
         } else return Optional.empty();
     }
 
-    public TownsDatabase getDatabase() {
-        return database;
-    }
+    //public TownsDatabase getDatabase() {
+    //    return database;
+    //}
 
     public Collection<DatabaseManager<? extends TownsObject>> getDbManagers() {
         return managers.values();

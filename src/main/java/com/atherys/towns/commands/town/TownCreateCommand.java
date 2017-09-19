@@ -1,7 +1,7 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
+import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotDefinition;
@@ -40,7 +40,7 @@ public class TownCreateCommand extends AbstractTownCommand {
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
 
-        if ( resident.town().isPresent() ) {
+        if ( resident.getTown().isPresent() ) {
             TownMessage.warn(player, Text.of("You are already part of a town. Please leave your current town first in order to create a new one.") );
             return CommandResult.empty();
         }
@@ -68,7 +68,7 @@ public class TownCreateCommand extends AbstractTownCommand {
         }
 
         if ( define.isPresent() ) {
-            Optional<Nation> n = AtherysTowns.getInstance().getNationManager().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()));
+            Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()));
             Town t = Town.create(define.get(), resident, args.<String>getOne(Text.of("townName")).orElse(player.getName() + "'s Town"), Settings.INITIAL_TOWN_AREA_LIMIT);
             if ( n.isPresent() ) t.setParent(n.get());
             else TownMessage.warn(player, "The nation you specified was invalid. Town was not added to a nation.");

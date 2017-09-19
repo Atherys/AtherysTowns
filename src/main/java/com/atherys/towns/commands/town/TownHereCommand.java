@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
@@ -32,7 +32,7 @@ public class TownHereCommand extends AbstractTownCommand {
 
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-        Optional<Town> tHere = AtherysTowns.getInstance().getTownManager().getByLocation(player.getLocation());
+        Optional<Town> tHere = TownManager.getInstance().getByLocation(player.getLocation());
         if ( tHere.isPresent() ) {
             player.sendMessage(tHere.get().getFormattedInfo());
             return CommandResult.success();

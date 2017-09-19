@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
@@ -35,9 +35,9 @@ public class TownSetMayorCommand extends AbstractTownSetCommand {
         Optional<User> newMayor = args.getOne("newMayor");
 
         if ( newMayor.isPresent() ) {
-            Optional<Resident> newMayorRes = AtherysTowns.getInstance().getResidentManager().get( newMayor.get().getUniqueId() );
+            Optional<Resident> newMayorRes = ResidentManager.getInstance().get( newMayor.get().getUniqueId() );
             if (newMayorRes.isPresent()) {
-                if ( !newMayorRes.get().town().isPresent() || ( newMayorRes.get().town().isPresent() && !newMayorRes.get().town().get().equals(town) ) ) {
+                if ( !newMayorRes.get().getTown().isPresent() || ( newMayorRes.get().getTown().isPresent() && !newMayorRes.get().getTown().get().equals(town) ) ) {
                     TownMessage.warn( player, "The player specified must be part of your town in order to replace the current mayor.");
                     return CommandResult.empty();
                 }

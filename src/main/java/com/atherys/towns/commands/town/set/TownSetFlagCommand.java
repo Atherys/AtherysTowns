@@ -45,7 +45,7 @@ public class TownSetFlagCommand extends AbstractTownSetCommand {
             return CommandResult.empty();
         }
 
-        if ( resident.can ( TownRank.Action.fromFlag(flag.get() ) ) ) {
+        if ( resident.can ( TownRank.Action.fromFlag( flag.get() ) ) ) {
 
             PlotFlags.Extent ext = extent.get();
 

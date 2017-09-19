@@ -1,12 +1,10 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import com.atherys.towns.utils.Serialize;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
@@ -19,8 +17,6 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class Plot extends AreaObject<Town> {
@@ -58,7 +54,7 @@ public class Plot extends AreaObject<Town> {
         }
 
         public Plot build() {
-            AtherysTowns.getInstance().getPlotManager().add(plot);
+            PlotManager.getInstance().add(plot);
             return plot;
         }
 
@@ -79,8 +75,8 @@ public class Plot extends AreaObject<Town> {
         this.setParent(town);
         flags = PlotFlags.regular();
         this.name = name;
-        AtherysTowns.getInstance().getPlotManager().add(this);
-        AtherysTowns.getInstance().getPlotManager().save(this);
+        PlotManager.getInstance().add(this);
+        PlotManager.getInstance().saveOne(this);
     }
 
     public static Plot create ( PlotDefinition define, Town town, String name ) {
@@ -107,6 +103,10 @@ public class Plot extends AreaObject<Town> {
         this.flags.set(flag, ext);
     }
 
+    public Town getTown() {
+        return super.getParent().get();
+    }
+
     public void showBorder(Player p) {
         for ( LineSegment2D edge : definition.edges() ) {
             for ( int i = 0; i <= edge.length(); i+=2 ) {
@@ -130,9 +130,6 @@ public class Plot extends AreaObject<Town> {
         double y = ratio*l.lastPoint().y() + (1.0 - ratio)*l.firstPoint().y();
         return new Point2D( x, y );
     }
-
-    @Override
-    public UUID getUUID() { return uuid; }
 
     @Override
     public void setName(String name) {
@@ -174,18 +171,7 @@ public class Plot extends AreaObject<Town> {
                 .build();
     }
 
-    @Override
-    public Map<PlotManager.Table, Object> toDatabaseStorable() {
-        Map<PlotManager.Table,Object> map = new HashMap<>();
-        map.put(PlotManager.Table.UUID,        this.uuid.toString());
-        map.put(PlotManager.Table.TOWN_UUID,   getParent().get().getUUID().toString());
-        map.put(PlotManager.Table.DEFINITION,  Serialize.definition(definition).toString());
-        map.put(PlotManager.Table.FLAGS,       Serialize.plotFlags(flags).toString());
-        map.put(PlotManager.Table.NAME,        name);
-        return map;
-    }
-
     public void remove() {
-        AtherysTowns.getInstance().getPlotManager().remove(this);
+        PlotManager.getInstance().remove(this);
     }
 }
