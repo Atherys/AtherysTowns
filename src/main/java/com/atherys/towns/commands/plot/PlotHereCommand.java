@@ -29,7 +29,7 @@ public class PlotHereCommand extends AbstractPlotCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         Optional<Plot> plot = PlotManager.getInstance().getByLocation( player.getLocation());
         if ( !plot.isPresent() ) {
-            TownMessage.warn(player, "You are currently standing in the wilderness.");
+            TownMessage.warn(player, "You are in the wilderness.");
             return CommandResult.empty();
         }
 

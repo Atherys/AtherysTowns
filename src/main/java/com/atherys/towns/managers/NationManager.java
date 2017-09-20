@@ -7,8 +7,12 @@ import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public final class NationManager extends AreaObjectManager<Nation> {
 
@@ -39,8 +43,14 @@ public final class NationManager extends AreaObjectManager<Nation> {
 
     @Override
     public Document toDocument(Nation object) {
-        // TODO: Convert Nation to BSON
-        return null;
+        Document doc = new Document("uuid", object.getUUID() );
+        doc.append("name", object.getName());
+        doc.append("tax", object.getTax());
+        doc.append("leader_title", object.getLeaderTitle());
+        doc.append("color", object.getColor().getId());
+        doc.append("description", object.getDescription());
+
+        return doc;
     }
 
     @Override
@@ -50,8 +60,17 @@ public final class NationManager extends AreaObjectManager<Nation> {
 
     @Override
     public boolean fromDocument(Document doc) {
-        // TODO: Convert BSON to Nation
-        return false;
+        UUID uuid = doc.get("uuid", UUID.class);// UUID.fromString( doc.getString("uuid") );
+        Nation.Builder builder = Nation.fromUUID(uuid);
+        builder.name(doc.getString("name"));
+        builder.tax(doc.getDouble("tax"));
+        builder.leaderTitle(doc.getString("leader_title"));
+        builder.color(Sponge.getGame().getRegistry().getType(TextColor.class, doc.getString("color")).orElse(TextColors.WHITE));
+        builder.description(doc.getString("description"));
+
+        builder.build();
+
+        return true;
     }
 
     public static NationManager getInstance() {

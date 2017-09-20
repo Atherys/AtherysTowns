@@ -22,6 +22,7 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
     }
 
     public Optional<T> getByUUID ( UUID uuid ) {
+        if ( uuid == null ) return Optional.empty();
         for ( T t : list ) {
             if (t.getUUID().equals(uuid)) {
                 return Optional.of(t);
@@ -61,6 +62,7 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
 
     public void remove ( T ao ) {
         list.remove(ao);
+        removeOne(ao);
     }
 
 }

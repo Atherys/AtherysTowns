@@ -103,7 +103,6 @@ public class Town extends AreaObject<Nation> {
 
     }
 
-    private Nation nation;
     private TownStatus status = TownStatus.NONE;
 
     private PlotFlags townFlags;
@@ -122,19 +121,6 @@ public class Town extends AreaObject<Nation> {
         this.description = "";
     }
 
-    private Town (UUID uuid, Nation nation, TownStatus status, PlotFlags townFlags, List<Plot> plots, int maxSize, Location<org.spongepowered.api.world.World> spawn, List<Resident> residents, String name, String motd, String description) {
-        super(uuid);
-        this.nation = nation;
-        this.status = status;
-        this.townFlags = townFlags;
-        this.maxSize = maxSize;
-        this.spawn = spawn;
-        this.name = name;
-        this.motd = motd;
-        this.description = description;
-        TownManager.getInstance().add(this);
-    }
-
     private Town ( PlotDefinition define, Resident mayor ) {
         super(UUID.randomUUID());
         this.spawn = mayor.getPlayer().get().getLocation();
@@ -142,7 +128,7 @@ public class Town extends AreaObject<Nation> {
         Plot homePlot = Plot.create(define, this, "Home");
         this.townFlags = homePlot.getFlags().copy();
         claimPlot(homePlot);
-        this.nation = null;
+        this.setParent( null );
         this.status = TownStatus.NONE;
         mayor.setTown(this, TownRank.MAYOR);
         TownManager.getInstance().add(this);
@@ -155,10 +141,6 @@ public class Town extends AreaObject<Nation> {
         TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
         TownManager.getInstance().saveOne(t);
         return t;
-    }
-
-    public static Town create(UUID uuid, Nation nation, TownStatus status, PlotFlags townFlags, List<Plot> plots, int plotLimit, Location<org.spongepowered.api.world.World> spawn, List<Resident> residents, String name, String motd, String description) {
-        return new Town(uuid, nation, status, townFlags, plots, plotLimit, spawn, residents, name, motd, description);
     }
 
     public static Town.Builder fromUUID ( UUID uuid ) {
@@ -223,33 +205,30 @@ public class Town extends AreaObject<Nation> {
     }
 
     @Override
-    public Optional<Nation> getParent() {
-        return Optional.ofNullable(nation);
-    }
-
-    @Override
     public boolean contains(World w, double x, double y) {
+        for ( Plot p : getPlots() ) {
+            if ( p.contains(w, x, y) ) return true;
+        }
         return false;
     }
 
     @Override
     public boolean contains(World w, Point2D point) {
-        return false;
+        return contains(w, point.x(), point.y());
     }
 
     @Override
     public boolean contains(Location<World> loc) {
-        return false;
+        return contains(loc.getExtent(), loc.getX(), loc.getY());
     }
 
-    public Town setNation ( Nation nation ) {
+    public void setNation ( Nation nation ) {
         if ( nation != null ) {
             TownMessage.informAll( Text.of("The town of " + name + " has joined the nation of " + nation.getName()));
         } else {
             TownMessage.informAll( Text.of("The town of " + name + " is now nationless!") );
         }
-        this.nation = nation;
-        return this;
+        this.setParent( nation );
     }
 
     public TownStatus getStatus() { return status; }
@@ -361,7 +340,7 @@ public class Town extends AreaObject<Nation> {
             Player player = p.get();
             Text question;
             if ( getParent().isPresent() ) {
-                question = Text.of("You have been invited to the town of \n", name, " in \n", nation.getName() );
+                question = Text.of("You have been invited to the town of \n", name, " in \n", getParent().get().getName() );
             } else {
                 question = Text.of("You have been invited to the town of \n", name );
             }

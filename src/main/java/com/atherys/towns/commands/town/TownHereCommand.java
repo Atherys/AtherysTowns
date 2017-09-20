@@ -1,8 +1,9 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.managers.TownManager;
+import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
@@ -32,9 +33,9 @@ public class TownHereCommand extends AbstractTownCommand {
 
     @Override
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-        Optional<Town> tHere = TownManager.getInstance().getByLocation(player.getLocation());
-        if ( tHere.isPresent() ) {
-            player.sendMessage(tHere.get().getFormattedInfo());
+        Optional<Plot> pHere = PlotManager.getInstance().getByLocation(player.getLocation());
+        if ( pHere.isPresent() ) {
+            player.sendMessage(pHere.get().getTown().getFormattedInfo());
             return CommandResult.success();
         } else {
             TownMessage.warn(player, "You are in the wilderness.");

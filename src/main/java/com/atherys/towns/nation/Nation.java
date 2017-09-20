@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Nation extends AreaObject<Nation> { // what is the parent of a nation?
+public class Nation extends AreaObject<Nation> {
 
     public static class Builder {
 
@@ -52,6 +52,11 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
             return this;
         }
 
+        public Nation.Builder tax ( double tax ) {
+            nation.setTax(tax);
+            return this;
+        }
+
         public Nation build() {
             NationManager.getInstance().add(nation);
             return nation;
@@ -62,6 +67,7 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
     private String leaderTitle = "Leader";
     private TextColor color = TextColors.WHITE;
     private String description = "";
+    private double tax = 0.0;
 
     // allies and enemies are bullshit. Let's not do them.
 
@@ -69,7 +75,7 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         super(uuid);
     }
 
-    private Nation (UUID uuid, String name, String description, List<Town> towns, List<Nation> allies, List<Nation> enemies) {
+    private Nation (UUID uuid, String name, String description) {
         super(uuid);
         this.name = name;
         this.description = description;
@@ -80,14 +86,16 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
         super(UUID.randomUUID());
         this.name = name;
         this.description = "";
-        setCapital(capital);
+        capital.setNation(this);
+        capital.setStatus(TownStatus.CAPITAL);
+        capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRank.LEADER));
 
         NationManager.getInstance().add(this);
         NationManager.getInstance().saveOne(this);
     }
 
-    public static Nation create (UUID uuid, String name, String description, List<Town> towns, List<Nation> allies, List<Nation> enemies) {
-        return new Nation( uuid, name, description, towns, allies, enemies );
+    public static Nation create (UUID uuid, String name, String description) {
+        return new Nation( uuid, name, description);
     }
 
     public static Nation create( String name, Town capital ) {
@@ -209,6 +217,14 @@ public class Nation extends AreaObject<Nation> { // what is the parent of a nati
             townsBuilder.append(resText, separator);
         }
         return townsBuilder.build();
+    }
+
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
     }
 
     public TextColor getColor() {

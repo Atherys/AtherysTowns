@@ -50,7 +50,7 @@ public class PlotDefinition extends Rectangle2D {
         return Optional.of(new PlotDefinition(  player.getWorld(), checkPlayer(player, town, loc1.toDouble(), loc2.toDouble()) ));
     }
 
-    boolean contains ( Location loc ) {
+    boolean contains ( Location<World> loc ) {
         return loc.getExtent().equals(world) && super.contains(loc.getPosition().getX(), loc.getPosition().getZ());
     }
 

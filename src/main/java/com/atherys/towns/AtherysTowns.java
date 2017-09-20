@@ -66,30 +66,13 @@ public class AtherysTowns {
 
         TownsDatabase.getInstance();
 
+        NationManager.getInstance().loadAll();
+
         TownManager.getInstance().loadAll();
 
         PlotManager.getInstance().loadAll();
 
         ResidentManager.getInstance().loadAll();
-
-        //database = TownsDatabase.getInstance();
-        //if ( database == null ) return false;
-
-        //nationManager = new NationManager();
-        //nationManager.setup();
-        //managers.put( Nation.class, nationManager);
-
-        //townManager = new TownManager();
-        //townManager.setup();
-        //managers.put(Town.class, townManager);
-
-        //plotManager = new PlotManager();
-        //plotManager.setup();
-        //managers.put(Plot.class, plotManager);
-
-        //residentManager = new ResidentManager();
-        //residentManager.setup();
-        //managers.put(Resident.class, residentManager);
 
         //WildernessManager.setup();
 
@@ -136,6 +119,7 @@ public class AtherysTowns {
         ResidentManager.getInstance().saveAll();
         PlotManager.getInstance().saveAll();
         TownManager.getInstance().saveAll();
+        NationManager.getInstance().saveAll();
         //database.saveAll();
         /*try {
             Settings.save();

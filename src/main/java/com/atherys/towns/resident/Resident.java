@@ -100,16 +100,7 @@ public class Resident implements TownsObject {
         this.unixRegisterDateSeconds = unixRegisterDateSeconds;
         this.unixLastOnlineSeconds = unixLastOnlineSeconds;
         ResidentManager.getInstance().add(uuid, this);
-    }
-
-    private Resident ( UUID uuid, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
-        this.town = town;
-        this.uuid = uuid;
-        this.townRank = townRank;
-        this.nationRank = nationRank;
-        this.unixRegisterDateSeconds = unixRegisterDateSeconds;
-        this.unixLastOnlineSeconds = unixLastOnlineSeconds;
-        ResidentManager.getInstance().add(uuid, this);
+        ResidentManager.getInstance().saveOne(this);
     }
 
     public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
@@ -118,10 +109,6 @@ public class Resident implements TownsObject {
 
     public static Resident create ( User player ) {
         return new Resident( player, null, TownRank.NONE, NationRank.NONE, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
-    }
-
-    public static Resident create( UUID uuid ) {
-        return new Resident( uuid, null, TownRank.NONE, NationRank.NONE, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
     }
 
     public String getName() {

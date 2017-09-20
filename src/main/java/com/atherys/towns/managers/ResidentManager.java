@@ -58,12 +58,12 @@ public final class ResidentManager extends DatabaseManager<Resident> {
 
     @Override
     public Document toDocument(Resident object) {
-        Document doc = new Document( "uuid", object.getUUID().toString() );
+        Document doc = new Document( "uuid", object.getUUID() );
 
         if ( object.getTown().isPresent() ) {
-            doc.append( "town", object.getTown().get().getUUID().toString() );
+            doc.append( "town", object.getTown().get().getUUID() );
         } else {
-            doc.append( "town", "None" );
+            doc.append( "town", null );
         }
 
         doc.append("registered", object.getRegisteredSeconds());
@@ -76,12 +76,13 @@ public final class ResidentManager extends DatabaseManager<Resident> {
 
     @Override
     public boolean fromDocument ( Document doc ) {
-        UUID uuid = UUID.fromString(doc.getString("uuid"));
+        UUID uuid =  doc.get("uuid", UUID.class);//UUID.fromString(doc.getString("uuid"));
 
         Resident.Builder builder = Resident.fromUUID(uuid);
 
-        if (!Objects.equals(doc.getString("town"), "None")) {
-            Optional<Town> t = TownManager.getInstance().getByUUID(UUID.fromString(doc.getString("town")));
+        UUID town_uuid = doc.get("town", UUID.class);
+        if ( town_uuid != null ) {
+            Optional<Town> t = TownManager.getInstance().getByUUID(town_uuid);
             TownRank rank = TownRank.fromId(doc.getInteger("town_rank"));
             t.ifPresent(town -> {
                 builder.town(town, rank);

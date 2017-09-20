@@ -32,8 +32,8 @@ public final class TownManager extends AreaObjectManager<Town> {
 
     @Override
     public Document toDocument(Town object) {
-        Document doc = new Document("uuid", object.getUUID().toString() );
-        doc.append("nation", object.getParent().isPresent() ? object.getParent().get().getUUID().toString() : "None" );
+        Document doc = new Document("uuid", object.getUUID() );
+        doc.append("nation", object.getParent().isPresent() ? object.getParent().get().getUUID() : null );
         doc.append("status", object.getStatus().id());
         doc.append("name", object.getName());
 
@@ -65,9 +65,11 @@ public final class TownManager extends AreaObjectManager<Town> {
 
     @Override
     public boolean fromDocument(Document doc) {
-        Town.Builder builder = Town.fromUUID(UUID.fromString(doc.getString("uuid")));
-        if ( !doc.getString("nation").equals("None") ) {
-            Optional<Nation> nation = NationManager.getInstance().getByUUID( UUID.fromString( doc.getString("nation") ) );
+        Town.Builder builder = Town.fromUUID( doc.get("uuid", UUID.class) ); // UUID.fromString(doc.getString("uuid")));
+
+        UUID nation_uuid = doc.get("nation", UUID.class);
+        if ( nation_uuid != null ) {
+            Optional<Nation> nation = NationManager.getInstance().getByUUID( nation_uuid );
             nation.ifPresent( n -> {
                 builder.nation( n );
                 builder.status(TownStatus.fromId(doc.getInteger("status")));

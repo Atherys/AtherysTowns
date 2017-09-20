@@ -42,7 +42,7 @@ public abstract class DatabaseManager<T extends TownsObject> {
         for ( T object : objects ) {
             updates.add(
                     new UpdateOneModel<>(
-                            new Document(),
+                            new Document("uuid", object.getUUID()),
                             new Document("$set", toDocument(object)),
                             new UpdateOptions().upsert(true)
                     )
@@ -84,6 +84,10 @@ public abstract class DatabaseManager<T extends TownsObject> {
         }
 
         AtherysTowns.getInstance().getLogger().info( "[MongoDB] " + this.getClass().getSimpleName() + " Loaded " + loaded + "/" + found );
+    }
+
+    public void removeOne ( T object ) {
+        collection().deleteOne( new Document( "uuid", object.getUUID().toString() ) );
     }
 
 }

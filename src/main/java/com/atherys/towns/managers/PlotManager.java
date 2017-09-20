@@ -36,8 +36,8 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     @Override
     public Document toDocument(Plot object) {
 
-        Document doc = new Document("uuid", object.getUUID().toString());
-        doc.append("town", object.getTown().getUUID().toString() );
+        Document doc = new Document("uuid", object.getUUID() );
+        doc.append("town", object.getTown().getUUID() );
         doc.append("name", object.getName());
 
         Document definition = new Document()
@@ -65,11 +65,11 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     @Override
     public boolean fromDocument(Document doc) {
 
-        UUID uuid = UUID.fromString( doc.getString("uuid") );
+        UUID uuid = doc.get("uuid", UUID.class); // UUID.fromString( doc.getString("uuid") );
         Plot.Builder builder = Plot.fromUUID(uuid);
 
         // load parent
-        Optional<Town> parent = TownManager.getInstance().getByUUID( UUID.fromString( doc.getString("town") ) );
+        Optional<Town> parent = TownManager.getInstance().getByUUID( doc.get("town", UUID.class) );
         if ( parent.isPresent() ) {
             builder.town(parent.get());
         } else {
