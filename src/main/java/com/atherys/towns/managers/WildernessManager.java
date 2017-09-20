@@ -74,7 +74,6 @@ public final class WildernessManager {
                             break;
                         }
                     }
-
                 }
             });
         }
