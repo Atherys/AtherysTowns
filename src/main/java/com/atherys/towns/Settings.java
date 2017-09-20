@@ -1,6 +1,5 @@
 package com.atherys.towns;
 
-import com.atherys.towns.managers.WildernessManager;
 import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.resident.ranks.TownsAction;
@@ -408,10 +407,10 @@ public final class Settings {
     public static String                DB_USER =                       Settings.get("user", "database", "user");
     public static String                DB_PASSWORD =                   Settings.get("password", "database", "password");
     public static int                   TOWN_SPAWN_DELAY =              Settings.get(10, "spawn", "delay");
-    public static int                   WILDERNESS_REGEN_RATE =         Settings.get(60, "wilderness", "regenRate");
-    public static TimeUnit              WILDERNESS_REGEN_RATE_UNIT =    TimeUnit.valueOf(Settings.get("SECONDS", "wilderness", "regenUnit") );
-    public static WildernessManager.WildernessRegenFilter WILDERNESS_REGEN_FILTER = new WildernessManager.WildernessRegenFilter();
-    public static List<String>                SWITCH_FLAG_BLOCKS =      new ArrayList<>();
+    public static boolean               WILDERNESS_REGEN_ENABLED =      Settings.get(true, "wilderness", "regen", "enabled");
+    public static int                   WILDERNESS_REGEN_RATE =         Settings.get(60, "wilderness", "regen", "rate");
+    public static TimeUnit              WILDERNESS_REGEN_RATE_UNIT =    TimeUnit.valueOf(Settings.get("SECONDS", "wilderness", "regen", "unit") );
+    public static List<String>          SWITCH_FLAG_BLOCKS =            new ArrayList<>();
 
     public static Map<TownRank,List<TownsAction>>   TOWN_RANK_PERMISSIONS = new HashMap<>();
     static {
@@ -528,6 +527,10 @@ public final class Settings {
         ) );
     }
 
+    public ConfigurationNode getRoot() {
+        return root;
+    }
+
     public Optional<Object> getValue (String... path ) {
         return Optional.ofNullable(root.getNode((Object[]) path).getValue());
     }
@@ -552,9 +555,11 @@ public final class Settings {
         return root.getNode((Object[]) path).getString(defaultValue);
     }
 
-    public static Settings getInstance() {
-        return instance;
+    public boolean getBool(boolean defaultValue, String... path) {
+        return root.getNode((Object[]) path).getBoolean(defaultValue);
     }
+
+    private static boolean get ( boolean defaultValue, String... path ) { return instance.getBool(defaultValue, path); }
 
     private static int get ( int defaultValue, String... path ) {
         return instance.getInt(defaultValue, path);
@@ -627,13 +632,13 @@ public final class Settings {
         }
 
         // load wilderness regen filter
-        WILDERNESS_REGEN_FILTER = new WildernessManager.WildernessRegenFilter();
-        for ( ConfigurationNode node : root.getNode("wilderness", "regenFilter").getChildrenList() ) {
-            int percent = node.getNode("%").getInt(100);
-            String alt =  node.getNode("alt").getString("minecraft:stone");
-            String type = (String) node.getKey();
-            WILDERNESS_REGEN_FILTER.addItem(type, new WildernessManager.WildernessRegenFilter.RegenData(percent, type) );
-        }
+        //WILDERNESS_REGEN_FILTER = new WildernessManager.WildernessRegenFilter();
+        //for ( ConfigurationNode node : root.getNode("wilderness", "regenFilter").getChildrenList() ) {
+        //    int percent = node.getNode("%").getInt(100);
+        //    String alt =  node.getNode("alt").getString("minecraft:stone");
+        //    String type = (String) node.getKey();
+        //    WILDERNESS_REGEN_FILTER.addItem(type, new WildernessManager.WildernessRegenFilter.RegenData(percent, type) );
+        //}
 
         // load switch flag blocks
         SWITCH_FLAG_BLOCKS = new ArrayList<>();
@@ -643,6 +648,10 @@ public final class Settings {
             AtherysTowns.getInstance().getLogger().error("Could not load switch flag blocks.");
             e.printStackTrace();
         }
+    }
+
+    public static Settings getInstance() {
+        return instance;
     }
 }
 
