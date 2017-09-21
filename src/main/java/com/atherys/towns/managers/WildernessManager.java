@@ -118,6 +118,7 @@ public final class WildernessManager {
 
         DeleteResult deleteResult = collection().deleteMany(Filters.lte("timestamp", timestamp));
         AtherysTowns.getInstance().getLogger().info( "[Regeneration] " + restored + " snapshot(s) restored, and " + deleteResult.getDeletedCount() + " snapshot(s) deleted.");
+        Settings.getInstance().getRoot().getNode("wilderness", "regen", "last").setValue(timestamp);
     }
 
     private void insertOne ( BlockSnapshot snapshot ) {

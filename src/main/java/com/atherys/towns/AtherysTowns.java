@@ -80,11 +80,6 @@ public class AtherysTowns {
             getLogger().warn("No economy service found. No features relating to economy will function!");
         }
 
-        //WildernessManager.setup();
-
-        // TODO: Loading mechanism
-        // TODO: Configs
-
         return true;
     }
 
@@ -114,12 +109,14 @@ public class AtherysTowns {
                 .name("atherystowns-town-border-task")
                 .submit(this);
 
-        //wildernessRegenTask = Task.builder()
-        //        .delay(     Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
-        //        .interval(  Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT )
-        //        .execute(WildernessManager::task)
-        //        .name("atherystowns-wilderness-regen-task")
-        //        .submit(this);
+        if ( Settings.WILDERNESS_REGEN_ENABLED ) {
+            wildernessRegenTask = Task.builder()
+                    //.delay(  ) TODO: When launching, delay this regen task to ensure it is run every WILDERNESS_REGEN_RATE units of time.
+                    .interval(Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT)
+                    .execute(() -> WildernessManager.getInstance().regenerate(System.currentTimeMillis()))
+                    .name("atherystowns-wilderness-regen-task")
+                    .submit(this);
+        }
     }
 
     private void stop() {
@@ -127,19 +124,7 @@ public class AtherysTowns {
         PlotManager.getInstance().saveAll();
         TownManager.getInstance().saveAll();
         NationManager.getInstance().saveAll();
-        //database.saveAll();
-        /*try {
-            Settings.save();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.severe("Settings file could not save.");
-        }*/
     }
-
-   /* @Listener
-    public void onInit (GameInitializationEvent event) {
-        init();
-    }*/
 
     @Listener
     public void onStart (GameStartedServerEvent event) {
@@ -172,8 +157,4 @@ public class AtherysTowns {
     public EconomyService getEconomyService() {
         return economyService;
     }
-
-    //public TownsDatabase getDatabase() {
-    //    return database;
-    //}
 }
