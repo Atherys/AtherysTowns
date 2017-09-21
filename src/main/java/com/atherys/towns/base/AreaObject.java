@@ -3,7 +3,6 @@ package com.atherys.towns.base;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.Settings;
 import com.atherys.towns.resident.Resident;
-import io.github.flibio.economylite.EconomyLite;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.service.economy.Currency;
@@ -42,12 +41,12 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
                 UniqueAccount resAcc = acc.get();
 
                 // if offered amount is less than 0
-                if ( amount.compareTo(BigDecimal.ZERO) == -1 ) {
+                if (amount.compareTo(BigDecimal.ZERO) < 0) {
                     return false;
                 }
 
                 // if offered amount is more than what resident has
-                if ( amount.compareTo(resAcc.getBalance(currency)) == 1 ) {
+                if (amount.compareTo(resAcc.getBalance(currency)) > 0) {
                     return false;
                 }
 
@@ -67,12 +66,12 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
                 UniqueAccount resAcc = acc.get();
 
                 // if demanded amount is less than 0
-                if ( amount.compareTo(BigDecimal.ZERO) == -1 ) {
+                if (amount.compareTo(BigDecimal.ZERO) < 0) {
                     return false;
                 }
 
                 // if demanded amount is more than what bank has
-                if ( amount.compareTo(bank.getBalance(currency)) == 1 ) {
+                if (amount.compareTo(bank.getBalance(currency)) > 0) {
                     return false;
                 }
 
@@ -89,8 +88,8 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
     public Optional<T> getParent() { return Optional.ofNullable(parent); }
 
     private Optional<UniqueAccount> createBank () {
-        if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
-            return EconomyLite.getEconomyService().getOrCreateAccount(uuid);
+        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
+            return AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
         } else return Optional.empty();
     }
 
@@ -99,9 +98,9 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
             Text.Builder builder = Text.builder();
             builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET));
             Text.Builder hoverText = Text.builder();
-            Iterator<Map.Entry<org.spongepowered.api.service.economy.Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
+            Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
             while ( iter.hasNext() ) {
-                Map.Entry<org.spongepowered.api.service.economy.Currency,BigDecimal> entry = iter.next();
+                Map.Entry<Currency,BigDecimal> entry = iter.next();
                 hoverText.append(Text.of(Settings.SECONDARY_COLOR, entry.getValue(), Settings.DECORATION_COLOR, " ", entry.getKey().getDisplayName() ) );
                 if ( iter.hasNext() ) {
                     hoverText.append(Text.of("\n"));

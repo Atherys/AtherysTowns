@@ -6,10 +6,9 @@ import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.town.Town;
+import com.atherys.towns.utils.DbUtils;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.world.World;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -40,14 +39,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         doc.append("town", object.getTown().getUUID() );
         doc.append("name", object.getName());
 
-        Document definition = new Document()
-                .append("world", object.getDefinition().getWorld().getUniqueId().toString())
-                .append("x", object.getDefinition().getX())
-                .append("y", object.getDefinition().getY())
-                .append("w", object.getDefinition().getWidth())
-                .append("h", object.getDefinition().getHeight());
-
-        doc.append("definition", definition);
+        doc.append("definition", DbUtils.Serialize.definition(object.getDefinition()) );
 
         Document flags = new Document();
         object.getFlags().getAll().forEach( (k,v) -> flags.append(k.name(), v.name()));
@@ -80,21 +72,13 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         builder.name(doc.getString("name"));
 
         // load definition
-        Document definition = doc.get("definition", Document.class);
-        Optional<World> world = Sponge.getServer().getWorld( UUID.fromString( definition.getString("world") ) );
-        if ( world.isPresent() ) {
-            PlotDefinition define = new PlotDefinition(
-                    world.get(),
-                    definition.getDouble("x"),
-                    definition.getDouble("y"),
-                    definition.getDouble("w"),
-                    definition.getDouble("h")
-            );
-            builder.definition(define);
-        } else {
-            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure. Had improper definition.");
+        Optional<PlotDefinition> definition = DbUtils.Deserialize.definition(doc.get("definition", Document.class));
+        if ( !definition.isPresent() ) {
+            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure.");
             return false;
         }
+
+        builder.definition(definition.get());
 
         // load flags
         Document flags = doc.get("flags", Document.class);

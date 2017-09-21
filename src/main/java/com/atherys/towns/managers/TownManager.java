@@ -6,7 +6,7 @@ import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
-import com.flowpowered.math.vector.Vector3d;
+import com.atherys.towns.utils.DbUtils;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.spongepowered.api.Sponge;
@@ -42,14 +42,7 @@ public final class TownManager extends AreaObjectManager<Town> {
         doc.append("flags", flags);
 
         doc.append("max_size", object.getMaxSize());
-
-        Vector3d spawnPosition = object.getSpawn().getPosition();
-        doc.append("spawn", new Document()
-            .append("world", object.getSpawn().getExtent().getUniqueId().toString() )
-            .append("x", spawnPosition.getX())
-            .append("y", spawnPosition.getY())
-            .append("z", spawnPosition.getZ())
-        );
+        doc.append("spawn", DbUtils.Serialize.location(object.getSpawn()) );
 
         doc.append("color", object.getColor().getId());
         doc.append("motd", object.getMOTD());
@@ -87,16 +80,9 @@ public final class TownManager extends AreaObjectManager<Town> {
         builder.maxSize(doc.getInteger("max_size"));
 
         // load spawn
-        Document spawnDoc = doc.get("spawn", Document.class);
-        Vector3d spawnPos = new Vector3d(
-                spawnDoc.getDouble("x"),
-                spawnDoc.getDouble("y"),
-                spawnDoc.getDouble("z")
-        );
-        Optional<World> spawnWorld = Sponge.getServer().getWorld( UUID.fromString( spawnDoc.getString("world") ) );
-        if ( spawnWorld.isPresent() ) {
-            Location<World> spawn = new Location<>( spawnWorld.get(), spawnPos );
-            builder.spawn(spawn);
+        Optional<Location<World>> spawn = DbUtils.Deserialize.location(doc.get("spawn", Document.class));
+        if ( spawn.isPresent() ) {
+            builder.spawn(spawn.get());
         } else {
             AtherysTowns.getInstance().getLogger().error("[MongoDB] Town load failure. Had improper spawn.");
             return false;

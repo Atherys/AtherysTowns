@@ -22,7 +22,7 @@ public abstract class DatabaseManager<T extends TownsObject> {
 
     abstract Document toDocument ( T object );
 
-    public void saveOne(T object) {
+    public void saveOne ( T object ) {
         Bson update = new Document ( "$set", toDocument(object) );
 
         UpdateOptions options = new UpdateOptions().upsert(true);
@@ -70,7 +70,7 @@ public abstract class DatabaseManager<T extends TownsObject> {
         }
     }
 
-    abstract boolean fromDocument (Document doc );
+    abstract boolean fromDocument ( Document doc );
 
     public void loadAll() {
         int found = 0;

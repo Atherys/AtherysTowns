@@ -5,10 +5,12 @@ import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.commands.plot.PlotToolCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.managers.ResidentManager;
+import com.atherys.towns.managers.WildernessManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
+import com.google.gson.Gson;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.type.HandTypes;
@@ -35,14 +37,14 @@ import java.util.Optional;
 public class PlayerListeners {
 
     @Listener
-    public void onPlayerJoin (ClientConnectionEvent.Join event) {
-        if ( !ResidentManager.getInstance().has(event.getTargetEntity().getUniqueId()) ) {
+    public void onPlayerJoin(ClientConnectionEvent.Join event) {
+        if (!ResidentManager.getInstance().has(event.getTargetEntity().getUniqueId())) {
             Resident.create(event.getTargetEntity());
         }
     }
 
     @Listener
-    public void onPlayerLeave (ClientConnectionEvent.Disconnect event ) {
+    public void onPlayerLeave(ClientConnectionEvent.Disconnect event) {
         ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId()).ifPresent(resident -> {
             resident.updateLastOnline();
             ResidentManager.getInstance().saveOne(resident);
@@ -51,36 +53,47 @@ public class PlayerListeners {
 
     @Listener
     @IsCancelled(Tristate.FALSE)
-    public void onPlayerMove (MoveEntityEvent event, @Root Player player) {
-        if ( event.getToTransform().getLocation().getBlockPosition().equals(event.getFromTransform().getLocation().getBlockPosition() ) ) return;
+    public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
+        if (event.getToTransform().getLocation().getBlockPosition().equals(event.getFromTransform().getLocation().getBlockPosition()))
+            return;
 
         Optional<Plot> plotFrom = PlotManager.getInstance().getByLocation(event.getFromTransform().getLocation());
         Optional<Plot> plotTo = PlotManager.getInstance().getByLocation(event.getToTransform().getLocation());
 
-        if ( !plotFrom.isPresent() && plotTo.isPresent() ) {
+        if (!plotFrom.isPresent() && plotTo.isPresent()) {
             // If player is going into a town
             TownMessage.enterTown(player, plotTo.get().getParent().get());
-        } else if ( plotFrom.isPresent() && !plotTo.isPresent() ) {
+        } else if (plotFrom.isPresent() && !plotTo.isPresent()) {
             // If player is coming out of a town
             TownMessage.leaveTown(player, plotFrom.get().getParent().get());
-        } else if ( plotFrom.isPresent() && plotTo.isPresent() ) {
+        } else if (plotFrom.isPresent() && plotTo.isPresent()) {
             // player is moving between 2 plots
-            if ( !plotFrom.get().getName().equals(plotTo.get().getName()) && !plotTo.get().getName().equals("None") ) {
-                TownMessage.subtitleAnnounce(player, Text.of( Settings.SECONDARY_COLOR, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~" ) );
+            if (!plotFrom.get().getName().equals(plotTo.get().getName()) && !plotTo.get().getName().equals("None")) {
+                TownMessage.subtitleAnnounce(player, Text.of(Settings.SECONDARY_COLOR, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~"));
             }
-            if ( !plotFrom.get().getFlags().equals(plotTo.get().getFlags()) ) {
+            if (!plotFrom.get().getFlags().equals(plotTo.get().getFlags())) {
                 player.sendMessage(plotTo.get().getFlags().differencesFormatted(plotFrom.get().getFlags()));
             }
         }
     }
 
+    private static Gson gson = new Gson();
+
+    //@Listener
+    //@IsCancelled(Tristate.FALSE)
+    //public void onPlayerChangeBlocks (ChangeBlockEvent.Break event, @Root Player player ) {
+    //    for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
+    //        Map<?, ?> serializedBlock = trans.getOriginal().toContainer().getMap(DataQuery.of()).get();
+    //        String serializedString = gson.toJson(serializedBlock);
+    //        System.out.println( serializedString );
+    //    }
+    //}
+
     @Listener
     @IsCancelled(Tristate.FALSE)
     public void onPlayerChangeBlocks ( ChangeBlockEvent event, @Root Player player ) {
-
         PlotFlags.Flag flag;
         String msg;
-
         if ( event instanceof ChangeBlockEvent.Break ) {
             flag = PlotFlags.Flag.DESTROY;
             msg = "destroy";
@@ -88,7 +101,6 @@ public class PlayerListeners {
             flag = PlotFlags.Flag.BUILD;
             msg = "build";
         } else return;
-
         ResidentManager.getInstance().get(player.getUniqueId()).ifPresent( resident -> {
             for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
                 Optional<Location<World>> loc = trans.getOriginal().getLocation();
@@ -96,17 +108,12 @@ public class PlayerListeners {
                     Optional<Plot> plot = PlotManager.getInstance().getByLocation(loc.get());
                     if (plot.isPresent()) {
                         if (!plot.get().getFlags().isAllowed(resident, flag, plot.get())) {
-                            TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getParent().get().getName());
+                            TownMessage.warn(player, "You are not permitted to ", msg, " in ", plot.get().getTown().getName());
                             event.setCancelled(true);
                             return;
                         }
                     } else {
-                        // FOR WILDERNESS REGEN
-                        //BlockSnapshot snap = trans.getOriginal();
-
-                        //if (WildernessManager.isItemRegenerable(snap.getExtendedState().getType()) ) {
-                        //    DatabaseManager.saveSnapshot(loc.get(), WildernessManager.getRegenSnapshot( event, snap ), System.currentTimeMillis());
-                        //}
+                        WildernessManager.getInstance().saveOne(trans);
                     }
                 } else event.setCancelled(true);
             }

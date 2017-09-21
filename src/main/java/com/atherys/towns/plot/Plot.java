@@ -172,6 +172,7 @@ public class Plot extends AreaObject<Town> {
     }
 
     public void remove() {
+        // TODO: When a plot is claimed and unclaimed, the plot is still stored in the database
         PlotManager.getInstance().remove(this);
     }
 }

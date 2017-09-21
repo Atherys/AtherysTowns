@@ -1,18 +1,17 @@
 package com.atherys.towns;
 
-import com.atherys.towns.base.TownsObject;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.commands.nation.NationMasterCommand;
 import com.atherys.towns.commands.plot.PlotMasterCommand;
 import com.atherys.towns.commands.resident.ResidentCommand;
 import com.atherys.towns.commands.town.TownMasterCommand;
+import com.atherys.towns.commands.wilderness.WildernessRegenCommand;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.listeners.PlayerListeners;
 import com.atherys.towns.managers.*;
 import com.atherys.towns.resident.Resident;
 import com.google.inject.Inject;
 import com.mongodb.client.MongoDatabase;
-import io.github.flibio.economylite.EconomyLite;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -21,12 +20,9 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.economy.EconomyService;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -48,9 +44,8 @@ public class AtherysTowns {
 
     private static AtherysTowns instance;
 
-    private Map<Class<? extends TownsObject>,DatabaseManager<? extends TownsObject>> managers = new HashMap<>();
-
-    //private TownsDatabase database;
+    private boolean economyEnabled = false;
+    private EconomyService economyService;
 
     private Task townBorderTask;
     private Task wildernessRegenTask;
@@ -66,6 +61,8 @@ public class AtherysTowns {
 
         TownsDatabase.getInstance();
 
+        WildernessManager.getInstance();
+
         NationManager.getInstance().loadAll();
 
         TownManager.getInstance().loadAll();
@@ -73,6 +70,15 @@ public class AtherysTowns {
         PlotManager.getInstance().loadAll();
 
         ResidentManager.getInstance().loadAll();
+
+        Optional<EconomyService> serviceOptional = Sponge.getServiceManager().provide(EconomyService.class);
+        if ( serviceOptional.isPresent() ) {
+            economyService = serviceOptional.get();
+            economyEnabled = true;
+        } else {
+            economyEnabled = false;
+            getLogger().warn("No economy service found. No features relating to economy will function!");
+        }
 
         //WildernessManager.setup();
 
@@ -89,6 +95,7 @@ public class AtherysTowns {
         PlotMasterCommand.getInstance().register();
         TownMasterCommand.getInstance().register();
         NationMasterCommand.getInstance().register();
+        WildernessRegenCommand.getInstance().register();
 
         townBorderTask = Task.builder()
                 .interval( Settings.TOWN_BORDER_UPDATE_RATE, TimeUnit.SECONDS )
@@ -158,18 +165,15 @@ public class AtherysTowns {
         return this.logger;
     }
 
-    public Optional<EconomyLite> getEconomyPlugin() {
-        Optional<PluginContainer> econOpt = game.getPluginManager().getPlugin("economylite");
-        if ( econOpt.isPresent() ) {
-            return Optional.of(EconomyLite.getInstance());
-        } else return Optional.empty();
+    public boolean isEconomyEnabled() {
+        return economyEnabled;
+    }
+
+    public EconomyService getEconomyService() {
+        return economyService;
     }
 
     //public TownsDatabase getDatabase() {
     //    return database;
     //}
-
-    public Collection<DatabaseManager<? extends TownsObject>> getDbManagers() {
-        return managers.values();
-    }
 }

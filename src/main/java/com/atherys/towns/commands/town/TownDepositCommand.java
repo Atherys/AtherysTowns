@@ -6,7 +6,6 @@ import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
-import io.github.flibio.economylite.EconomyLite;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -37,9 +36,9 @@ public class TownDepositCommand extends AbstractTownCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         if ( town == null ) return CommandResult.empty();
 
-        if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
+        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
             BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(EconomyLite.getCurrencyService().getDefaultCurrency());
+            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().getDefaultCurrency());
 
             if ( town.getBank().isPresent() ) {
                 boolean result = town.deposit( resident, amount, currency );

@@ -12,7 +12,6 @@ import com.atherys.towns.resident.ranks.TownsAction;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.Question;
 import com.atherys.towns.utils.UserUtils;
-import io.github.flibio.economylite.EconomyLite;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -250,8 +249,8 @@ public class Resident implements TownsObject {
     }
 
     public Optional<UniqueAccount> getBank() {
-        if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
-            return EconomyLite.getEconomyService().getOrCreateAccount(uuid);
+        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
+            return AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
         }
         return Optional.empty();
     }
@@ -266,8 +265,8 @@ public class Resident implements TownsObject {
 
     public Text getFormattedBank() {
         Optional<UniqueAccount> bankOpt = Optional.empty();
-        if ( AtherysTowns.getInstance().getEconomyPlugin().isPresent() ) {
-            bankOpt = EconomyLite.getEconomyService().getOrCreateAccount(uuid);
+        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
+            bankOpt = AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
         }
         if ( bankOpt.isPresent() ) {
             UniqueAccount bank = bankOpt.get();
