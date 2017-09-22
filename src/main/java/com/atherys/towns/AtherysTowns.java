@@ -50,10 +50,6 @@ public class AtherysTowns {
     private Task townBorderTask;
     private Task wildernessRegenTask;
 
-    public Task getTownBorderTask() {
-        return townBorderTask;
-    }
-
     private boolean init() {
         instance = this;
 
