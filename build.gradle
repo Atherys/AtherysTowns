@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:5.1.0',
+    compile 'org.spongepowered:spongeapi:6.0.0',
             'com.github.Flibio:EconomyLite:v2.12.0',
             'math.geom2d:javaGeom:0.11.1',
             'org.mongodb:mongodb-driver:3.5.0'
