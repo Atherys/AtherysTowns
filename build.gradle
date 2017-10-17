@@ -9,7 +9,7 @@ sourceSets {
     main {
         resources {
             srcDirs "src/main/"
-            exclude "src/main/java/"
+            exclude "java/**"
         }
     }
 }
