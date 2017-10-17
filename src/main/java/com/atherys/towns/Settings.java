@@ -232,7 +232,11 @@ public final class Settings {
         File configFile = new File("config/" + AtherysTowns.ID, "/config.conf");
         try {
             if ( !configFile.exists() ) {
-                defaultConfig.copyToFile(configFile.toPath(), true, true);
+                if ( configFile.mkdirs() && configFile.createNewFile() ) {
+                    defaultConfig.copyToFile(configFile.toPath(), true, true);
+                } else {
+                    AtherysTowns.getInstance().getLogger().error("Could not create config directories and/or file.");
+                }
             }
         } catch (IOException e) {
             AtherysTowns.getInstance().getLogger().error("Could not create town config.");
@@ -244,7 +248,11 @@ public final class Settings {
         File filterFile = new File("config/" + AtherysTowns.ID, "/wilderness_filter.json");
         try {
             if ( !filterFile.exists() ) {
-                wildernessFilter.copyToFile(filterFile.toPath(), true, true);
+                if ( filterFile.mkdirs() && filterFile.createNewFile() ) {
+                    wildernessFilter.copyToFile(filterFile.toPath(), true, true);
+                } else {
+                    AtherysTowns.getInstance().getLogger().error("Could not create wilderness filter directories and/or file.");
+                }
             }
         } catch (IOException e) {
             AtherysTowns.getInstance().getLogger().error("Could not create wilderness filter file.");
