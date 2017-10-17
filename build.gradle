@@ -8,7 +8,8 @@ sourceCompatibility = 1.8
 sourceSets {
     main {
         resources {
-            srcDirs "src/main/resources", "src/main/resources/assets"
+            srcDirs "src/main/"
+            exclude "src/main/java/"
         }
     }
 }
