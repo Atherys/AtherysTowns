@@ -361,6 +361,7 @@ public class Town extends AreaObject<Nation> {
                                     return;
                                 }
                                 r.setTown(this, TownRank.RESIDENT);
+                                this.informResidents(Text.of(resident.getName(), " has joined the town."));
                             }
                         }
                     })

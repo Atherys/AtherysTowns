@@ -1,6 +1,7 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.towns.commands.town.set.AbstractTownSetCommand;
+import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ranks.TownRank;
@@ -34,6 +35,8 @@ public class TownMasterCommand extends AbstractTownCommand {
     public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
         if ( resident.getTown().isPresent() ) {
             player.sendMessage(resident.getTown().get().getFormattedInfo());
+        } else {
+            TownMessage.warn(player, "You are not part of a town.");
         }
         return CommandResult.empty();
     }
