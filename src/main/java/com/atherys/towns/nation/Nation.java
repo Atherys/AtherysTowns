@@ -247,9 +247,9 @@ public class Nation extends AreaObject<Nation> {
         return leaderTitle;
     }
 
-    public void informResidents ( String s ) {
+    public void informResidents ( Text s ) {
         for ( Town t : getTowns() ) {
-            t.informResidents(Text.of(s));
+            t.informResidents(s);
         }
     }
 }

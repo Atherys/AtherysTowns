@@ -44,7 +44,7 @@ public class NationDepositCommand extends AbstractNationCommand {
             Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
 
             nation.deposit(resident, amount, currency);
-            nation.informResidents ( player.getName() + " has deposited " + amount.toString() + " " + currency.getDisplayName() + " into the nation bank." );
+            nation.informResidents ( Text.of ( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
             return CommandResult.success();
         }
 

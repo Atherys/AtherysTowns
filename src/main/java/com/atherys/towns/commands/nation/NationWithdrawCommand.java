@@ -44,6 +44,7 @@ public class NationWithdrawCommand extends AbstractNationCommand {
             Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
 
             nation.withdraw(resident, amount, currency);
+            nation.informResidents ( Text.of ( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
             return CommandResult.success();
         }
 
