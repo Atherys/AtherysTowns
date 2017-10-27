@@ -6,6 +6,7 @@ import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.service.economy.Currency;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -88,9 +89,8 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
     public Optional<T> getParent() { return Optional.ofNullable(parent); }
 
     private Optional<UniqueAccount> createBank () {
-        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
-            return AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
-        } else return Optional.empty();
+        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
+        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
     }
 
     protected Text getFormattedBank() {

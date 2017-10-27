@@ -44,9 +44,6 @@ public class AtherysTowns {
 
     private static AtherysTowns instance;
 
-    private boolean economyEnabled = false;
-    private EconomyService economyService;
-
     private Task townBorderTask;
     private Task wildernessRegenTask;
 
@@ -67,12 +64,7 @@ public class AtherysTowns {
 
         ResidentManager.getInstance().loadAll();
 
-        Optional<EconomyService> serviceOptional = Sponge.getServiceManager().provide(EconomyService.class);
-        if ( serviceOptional.isPresent() ) {
-            economyService = serviceOptional.get();
-            economyEnabled = true;
-        } else {
-            economyEnabled = false;
+        if ( getEconomyService().isPresent() ) {
             getLogger().warn("No economy service found. No features relating to economy will function!");
         }
 
@@ -146,11 +138,7 @@ public class AtherysTowns {
         return this.logger;
     }
 
-    public boolean isEconomyEnabled() {
-        return economyEnabled;
-    }
-
-    public EconomyService getEconomyService() {
-        return economyService;
+    public Optional<EconomyService> getEconomyService() {
+        return Sponge.getServiceManager().provide(EconomyService.class);
     }
 }

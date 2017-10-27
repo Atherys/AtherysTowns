@@ -16,6 +16,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.Currency;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -249,10 +250,8 @@ public class Resident implements TownsObject {
     }
 
     public Optional<UniqueAccount> getBank() {
-        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
-            return AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
-        }
-        return Optional.empty();
+        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
+        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
     }
 
     public void setNationRank(NationRank nationRank) {
@@ -264,27 +263,30 @@ public class Resident implements TownsObject {
     }
 
     public Text getFormattedBank() {
-        Optional<UniqueAccount> bankOpt = Optional.empty();
-        if ( AtherysTowns.getInstance().isEconomyEnabled() ) {
-            bankOpt = AtherysTowns.getInstance().getEconomyService().getOrCreateAccount(uuid);
-        }
-        if ( bankOpt.isPresent() ) {
-            UniqueAccount bank = bankOpt.get();
-            Text.Builder builder = Text.builder();
-            builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET));
-            Text.Builder hoverText = Text.builder();
-            Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
-            while ( iter.hasNext() ) {
-                Map.Entry<Currency,BigDecimal> entry = iter.next();
-                hoverText.append(Text.of(Settings.SECONDARY_COLOR, entry.getValue(), Settings.DECORATION_COLOR, " ", entry.getKey().getDisplayName() ) );
-                if ( iter.hasNext() ) {
-                    hoverText.append(Text.of("\n"));
+        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
+
+        if ( economy.isPresent() ) {
+            Optional<UniqueAccount> bankOpt = this.getBank();
+
+            if ( bankOpt.isPresent() ) {
+                UniqueAccount bank = bankOpt.get();
+                Text.Builder builder = Text.builder();
+                builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET));
+                Text.Builder hoverText = Text.builder();
+                Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<Currency, BigDecimal> entry = iter.next();
+                    hoverText.append(Text.of(Settings.SECONDARY_COLOR, entry.getValue(), Settings.DECORATION_COLOR, " ", entry.getKey().getDisplayName()));
+                    if (iter.hasNext()) {
+                        hoverText.append(Text.of("\n"));
+                    }
                 }
+                return builder.onHover(TextActions.showText(hoverText.build())).build();
             }
-            return builder.onHover(TextActions.showText(hoverText.build())).build();
-        } else {
-            return Text.of("None");
+
         }
+
+        return Text.of("None");
     }
 
     //@Override

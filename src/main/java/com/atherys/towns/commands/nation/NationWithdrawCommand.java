@@ -39,9 +39,9 @@ public class NationWithdrawCommand extends AbstractNationCommand {
             return CommandResult.empty();
         }
 
-        if ( AtherysTowns.getInstance().isEconomyEnabled() && nation != null ) {
+        if ( AtherysTowns.getInstance().getEconomyService().isPresent() && nation != null ) {
             BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().getDefaultCurrency());
+            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
 
             nation.withdraw(resident, amount, currency);
             return CommandResult.success();
