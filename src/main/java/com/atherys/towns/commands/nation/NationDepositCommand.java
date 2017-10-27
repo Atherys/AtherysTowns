@@ -43,8 +43,9 @@ public class NationDepositCommand extends AbstractNationCommand {
             BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
             Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
 
-            nation.deposit(resident, amount, currency);
-            nation.informResidents ( Text.of ( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            if ( nation.deposit(resident, amount, currency) )
+                nation.informResidents ( Text.of ( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            else TownMessage.warn(player, "Deposit Failed.");
             return CommandResult.success();
         }
 

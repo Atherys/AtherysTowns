@@ -43,8 +43,9 @@ public class NationWithdrawCommand extends AbstractNationCommand {
             BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
             Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
 
-            nation.withdraw(resident, amount, currency);
-            nation.informResidents ( Text.of ( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            if ( nation.withdraw(resident, amount, currency) )
+                nation.informResidents ( Text.of ( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            else TownMessage.warn(player, "Withdraw Failed.");
             return CommandResult.success();
         }
 
