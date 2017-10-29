@@ -22,7 +22,6 @@ public class ResidentCommand implements CommandExecutor {
     public static void register() {
         CommandSpec spec = CommandSpec.builder()
                 .executor(new ResidentCommand())
-                .permission("atherys.towns.commands.resident")
                 .description(Text.of("Used to get information on a resident."))
                 .arguments(GenericArguments.optional(GenericArguments.user(Text.of("player"))))
                 .build();

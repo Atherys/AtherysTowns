@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -14,23 +15,12 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class TownBorderCommand extends AbstractTownCommand {
+public class TownBorderCommand extends TownsSimpleCommand {
 
-    TownBorderCommand () {
-        super(
-                new String[] { "border" },
-                "border",
-                Text.of("Used to see the plot borders of your town."),
-                TownRank.Action.SHOW_TOWN_BORDER,
-                true,
-                false,
-                true,
-                true
-        );
-    }
+    private static TownBorderCommand instance = new TownBorderCommand();
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( !TownsValues.get( player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS ).isPresent() ) {
             TownsValues.set( player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS, true );
             TownMessage.inform( player, "Now showing town borders.");
@@ -44,10 +34,14 @@ public class TownBorderCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.town.commands.town.border")
-                .description( Text.of("Used to see the borders of a town.") )
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to toggle the town border" ) )
+                .permission( TownAction.SHOW_TOWN_BORDER.getPermission() )
+                .executor( this )
                 .build();
+    }
+
+    public static TownBorderCommand getInstance() {
+        return instance;
     }
 }

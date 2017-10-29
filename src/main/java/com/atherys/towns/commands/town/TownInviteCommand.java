@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,35 +17,27 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownInviteCommand extends AbstractTownCommand {
+public class TownInviteCommand extends TownsSimpleCommand {
 
-    TownInviteCommand() {
-        super(
-                new String[] { "invite", "add" },
-                "invite [player]",
-                Text.of("Used to invite a player to your town."),
-                TownRank.Action.INVITE_PLAYER,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownInviteCommand instance = new TownInviteCommand();
+
+    public static TownInviteCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) {
             return CommandResult.empty();
         }
 
-        Optional<Player> invitee = args.getOne("player");
-        if ( !invitee.isPresent() ) {
+        Optional<Player> invitedPlayer = args.getOne("player");
+        if ( !invitedPlayer.isPresent() ) {
             TownMessage.warn( player, "You must provide a valid ( online ) player whom to invite to your town." );
             return CommandResult.empty();
         }
 
-        Player p = invitee.get();
+        Player p = invitedPlayer.get();
         Optional<Resident> otherRes = ResidentManager.getInstance().get( p.getUniqueId() );
 
         if ( otherRes.isPresent() ) {
@@ -63,11 +56,13 @@ public class TownInviteCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.invite")
-                .description(Text.of("Used to invite a resident to the town."))
-                .arguments(GenericArguments.onlyOne(GenericArguments.player(Text.of("player"))))
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to invite somebody to the town." ) )
+                .permission( TownAction.INVITE_PLAYER.getPermission() )
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.player(Text.of("player")))
+                )
+                .executor( this )
                 .build();
     }
 }

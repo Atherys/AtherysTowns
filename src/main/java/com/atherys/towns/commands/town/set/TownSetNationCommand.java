@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town.set;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,19 +18,16 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TownSetNationCommand extends AbstractTownSetCommand {
+public class TownSetNationCommand extends TownsSimpleCommand {
 
-    TownSetNationCommand() {
-        super(
-                new String[] { "nation" },
-                "nation <newNation>",
-                Text.of("Used to change the nation your town belongs to."),
-                TownRank.Action.SET_NATION
-        );
+    private static TownSetNationCommand instance = new TownSetNationCommand();
+
+    public static TownSetNationCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
@@ -46,11 +44,13 @@ public class TownSetNationCommand extends AbstractTownSetCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.nation")
-                .description(Text.of("Used to set the nation of the town."))
-                .arguments( GenericArguments.remainingJoinedStrings( Text.of("nation") ) )
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to change the nation of the town." ) )
+                .permission( TownAction.SET_NATION.getPermission() )
+                .arguments(
+                        GenericArguments.remainingJoinedStrings(Text.of("nation"))
+                )
+                .executor( new TownSetNationCommand() )
                 .build();
     }
 }

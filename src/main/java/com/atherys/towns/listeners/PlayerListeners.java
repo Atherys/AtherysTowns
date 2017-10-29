@@ -38,7 +38,9 @@ public class PlayerListeners {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        if (!ResidentManager.getInstance().has(event.getTargetEntity().getUniqueId())) {
+        Optional<Resident> resident = ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId());
+
+        if ( !resident.isPresent() ) {
             Resident.create(event.getTargetEntity());
         }
     }

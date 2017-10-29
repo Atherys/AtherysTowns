@@ -4,6 +4,7 @@ import com.atherys.towns.Settings;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
+import com.atherys.towns.permissions.actions.TownAction;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -18,20 +19,26 @@ public class PlotFlags {
     }
 
     public enum Flag {
-        PVP             (Extent.ALL, Extent.NONE),
-        BUILD           (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        DESTROY         (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        SWITCH          (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        DAMAGE_ENTITY   (Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        JOIN            (Extent.ALL, Extent.NONE);
+        PVP             (TownAction.SET_FLAG_PVP, Extent.ALL, Extent.NONE),
+        BUILD           (TownAction.SET_FLAG_BUILD, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        DESTROY         (TownAction.SET_FLAG_DESTROY, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        SWITCH          (TownAction.SET_FLAG_SWITCH, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        DAMAGE_ENTITY   (TownAction.SET_FLAG_DAMAGE_ENTITY, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
+        JOIN            (TownAction.SET_FLAG_JOIN, Extent.ALL, Extent.NONE);
 
+        private TownAction action;
         private Extent[] permittedExtents;
 
-        Flag ( Extent... permittedExtents ) {
+        Flag ( TownAction action, Extent... permittedExtents ) {
+            this.action = action;
             this.permittedExtents = permittedExtents;
         }
 
-        public boolean checkExtent ( Extent extent ) {
+        public TownAction getAction() {
+            return action;
+        }
+
+        public boolean checkExtent (Extent extent ) {
             for ( Extent e : permittedExtents ) {
                 if ( e.equals(extent) ) return true;
             }

@@ -1,9 +1,10 @@
 package com.atherys.towns.commands.town.set;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -15,19 +16,16 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nullable;
 
-public class TownSetSpawnCommand extends AbstractTownSetCommand{
+public class TownSetSpawnCommand extends TownsSimpleCommand {
 
-    TownSetSpawnCommand() {
-        super(
-                new String[] { "spawn" },
-                "spawn",
-                Text.of( "Used to change the town Spawn." ),
-                TownRank.Action.SET_MOTD
-        );
+    private static TownSetSpawnCommand instance = new TownSetSpawnCommand();
+
+    public static TownSetSpawnCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if (town == null) return CommandResult.empty();
 
         Location<World> loc = player.getLocation();
@@ -45,10 +43,9 @@ public class TownSetSpawnCommand extends AbstractTownSetCommand{
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.spawn")
-                .description(Text.of("Used to set the Spawn of the town."))
-                .executor(this)
+                .description( Text.of( "Used to change the spawn point of the town." ) )
+                .permission( TownAction.SET_SPAWN.getPermission() )
+                .executor( new TownSetSpawnCommand() )
                 .build();
     }
-
 }

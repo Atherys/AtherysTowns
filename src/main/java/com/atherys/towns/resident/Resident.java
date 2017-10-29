@@ -6,9 +6,7 @@ import com.atherys.towns.base.TownsObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.resident.ranks.NationRank;
-import com.atherys.towns.resident.ranks.TownRank;
-import com.atherys.towns.resident.ranks.TownsAction;
+import com.atherys.towns.permissions.ranks.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.Question;
 import com.atherys.towns.utils.UserUtils;
@@ -24,6 +22,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.text.format.TextStyles;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -43,19 +42,19 @@ public class Resident implements TownsObject {
             res = new Resident( uuid );
         }
 
-        public Resident.Builder town ( Town town, TownRank rank ) {
+        public Resident.Builder town ( Town town, TownRank2 rank ) {
             if ( town != null ) {
                 res.setTown(town, rank);
             }
             return this;
         }
 
-        public Resident.Builder townRank ( TownRank rank ) {
+        public Resident.Builder townRank ( TownRank2 rank ) {
             res.setTownRank(rank);
             return this;
         }
 
-        public Resident.Builder nationRank ( NationRank rank ) {
+        public Resident.Builder nationRank ( NationRank2 rank ) {
             res.setNationRank(rank);
             return this;
         }
@@ -79,9 +78,9 @@ public class Resident implements TownsObject {
 
     private UUID uuid;
 
-    private Town town;
-    private TownRank townRank = TownRank.NONE;
-    private NationRank nationRank = NationRank.NONE;
+    @Nullable private Town town;
+    @Nullable private TownRank2 townRank;
+    @Nullable private NationRank2 nationRank;
 
     private long unixRegisterDateSeconds = 0;
     private long unixLastOnlineSeconds = 0;
@@ -92,7 +91,7 @@ public class Resident implements TownsObject {
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
-    private Resident ( User player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
+    private Resident ( User player, Town town, TownRank2 townRank, NationRank2 nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
         this.town = town;
         this.uuid = player.getUniqueId();
         this.townRank = townRank;
@@ -103,12 +102,12 @@ public class Resident implements TownsObject {
         ResidentManager.getInstance().saveOne(this);
     }
 
-    public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
+    public static Resident create ( Player player, Town town, TownRank2 townRank, NationRank2 nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
         return new Resident( player, town, townRank, nationRank, unixRegisterDateSeconds, unixLastOnlineSeconds );
     }
 
     public static Resident create ( User player ) {
-        return new Resident( player, null, TownRank.NONE, NationRank.NONE, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
+        return new Resident( player, null, null, null, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
     }
 
     public String getName() {
@@ -139,20 +138,20 @@ public class Resident implements TownsObject {
         return NationManager.getInstance().getByResident(this);
     }
 
-    public void setTown( Town town, TownRank rank ) {
+    public void setTown( Town town, TownRank2 rank ) {
         this.town = town;
         this.townRank = rank;
     }
 
-    public TownRank getTownRank() {
+    public TownRank2 getTownRank() {
         return townRank;
     }
 
-    public NationRank getNationRank() {
+    public NationRank2 getNationRank() {
         return nationRank;
     }
 
-    public Resident setTownRank(TownRank townRank) {
+    public Resident setTownRank(TownRank2 townRank) {
         this.townRank = townRank;
         return this;
     }
@@ -220,21 +219,21 @@ public class Resident implements TownsObject {
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, getPlayer().isPresent() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, nation, Settings.DECORATION_COLOR, " )\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank.formattedName() ) )
+                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank == null ? "None" : townRank.getName() ) )
                 .build();
     }
 
-    public boolean can ( TownsAction action ) {
-        return !action.isNone() && ( Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action) || Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action) );
-    }
-
-    public boolean can (TownRank.Action action) {
-        return !action.equals(TownRank.Action.NONE) && Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action);
-    }
-
-    public boolean can (NationRank.Action action) {
-        return !action.equals(NationRank.Action.NONE) && Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action);
-    }
+    //public boolean can ( TownsAction action ) {
+    //    return !action.isNone() && ( Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action) || Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action) );
+    //}
+//
+    //public boolean can (TownRank.Action action) {
+    //    return !action.equals(TownRank.Action.NONE) && Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action);
+    //}
+//
+    //public boolean can (NationRank.Action action) {
+    //    return !action.equals(NationRank.Action.NONE) && Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action);
+    //}
 
     public Resident leaveTown() {
         Optional<Player> player = getPlayer();
@@ -242,7 +241,7 @@ public class Resident implements TownsObject {
                 // yes
                 commandSource -> {
                     if ( getTown().isPresent() ) {
-                        this.setTown(null, TownRank.NONE);
+                        this.setTown(null, null);
                         getTown().get().warnResidents(Text.of( this.getName() + " has left the town."));
                     }
                 }));
@@ -254,7 +253,7 @@ public class Resident implements TownsObject {
         return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
     }
 
-    public void setNationRank(NationRank nationRank) {
+    public void setNationRank(NationRank2 nationRank) {
         this.nationRank = nationRank;
     }
 

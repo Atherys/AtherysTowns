@@ -6,7 +6,7 @@ import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.NationRank;
+import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
 import math.geom2d.Point2D;

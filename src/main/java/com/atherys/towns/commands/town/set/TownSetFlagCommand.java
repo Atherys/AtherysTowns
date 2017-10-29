@@ -1,11 +1,12 @@
 package com.atherys.towns.commands.town.set;
 
 import com.atherys.towns.Settings;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,19 +18,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownSetFlagCommand extends AbstractTownSetCommand {
+public class TownSetFlagCommand extends TownsSimpleCommand {
 
-    TownSetFlagCommand() {
-        super(
-                new String[] { "flag" },
-                "flag <flag> <extent>",
-                Text.of( "Used to change a town flag to ecompass a different extent." ),
-                TownRank.Action.SET_FLAGS
-        );
+    private static TownSetFlagCommand instance = new TownSetFlagCommand();
+
+    public static TownSetFlagCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         Optional<PlotFlags.Flag> flag = args.getOne("flag");
@@ -45,7 +43,9 @@ public class TownSetFlagCommand extends AbstractTownSetCommand {
             return CommandResult.empty();
         }
 
-        if ( resident.can ( TownRank.Action.fromFlag( flag.get() ) ) ) {
+
+
+        if ( player.hasPermission( flag.get().getAction().getPermission() ) ) {
 
             PlotFlags.Extent ext = extent.get();
 
@@ -67,13 +67,13 @@ public class TownSetFlagCommand extends AbstractTownSetCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.flag")
-                .description(Text.of("Used to set the extent of a town flag."))
+                .description( Text.of( "Used to change a town flag." ) )
+                .permission( TownAction.SET_FLAGS.getPermission() )
                 .arguments(
                         GenericArguments.enumValue(Text.of("flag"), PlotFlags.Flag.class),
                         GenericArguments.enumValue(Text.of("extent"), PlotFlags.Extent.class)
                 )
-                .executor(this)
+                .executor( new TownSetFlagCommand() )
                 .build();
     }
 }

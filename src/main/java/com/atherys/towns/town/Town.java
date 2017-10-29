@@ -11,7 +11,7 @@ import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.utils.Question;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
@@ -124,13 +124,13 @@ public class Town extends AreaObject<Nation> {
     private Town ( PlotDefinition define, Resident mayor ) {
         super(UUID.randomUUID());
         this.spawn = mayor.getPlayer().get().getLocation();
-        mayor.setTownRank(TownRank.MAYOR);
+        mayor.setTownRank(Settings.TOWN_LEADER_RANK);
         Plot homePlot = Plot.create(define, this, "Home");
         this.townFlags = homePlot.getFlags().copy();
         claimPlot(homePlot);
         this.setParent( null );
         this.status = TownStatus.NONE;
-        mayor.setTown(this, TownRank.MAYOR);
+        mayor.setTown(this, Settings.TOWN_LEADER_RANK);
         TownManager.getInstance().add(this);
     }
 

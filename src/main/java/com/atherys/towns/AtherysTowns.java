@@ -22,6 +22,7 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.permission.PermissionService;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,18 @@ public class AtherysTowns {
     private boolean init() {
         instance = this;
 
+        if ( !getPermissionService().isPresent() ) {
+            getLogger().warn("No permission service found. This plugin requires a permissions plugin utilizing the Sponge Permissions API to function properly. Aborting start.");
+            return false;
+        }
+
+        if ( !getEconomyService().isPresent() ) {
+            getLogger().warn("No economy service found. No features relating to economy will function!");
+        }
+
         Settings.getInstance();
+
+        RankManager.getInstance().load();
 
         TownsDatabase.getInstance();
 
@@ -64,10 +76,6 @@ public class AtherysTowns {
 
         ResidentManager.getInstance().loadAll();
 
-        if ( getEconomyService().isPresent() ) {
-            getLogger().warn("No economy service found. No features relating to economy will function!");
-        }
-
         return true;
     }
 
@@ -75,9 +83,9 @@ public class AtherysTowns {
         game.getEventManager().registerListeners(this, new PlayerListeners());
 
         ResidentCommand.register();
-        PlotMasterCommand.getInstance().register();
-        TownMasterCommand.getInstance().register();
-        NationMasterCommand.getInstance().register();
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), PlotMasterCommand.getInstance().getSpec(), "plot", "p");
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), TownMasterCommand.getInstance().getSpec(), "town", "t");
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), NationMasterCommand.getInstance().getSpec(), "nation", "n");
         WildernessRegenCommand.getInstance().register();
 
         townBorderTask = Task.builder()
@@ -140,5 +148,9 @@ public class AtherysTowns {
 
     public Optional<EconomyService> getEconomyService() {
         return Sponge.getServiceManager().provide(EconomyService.class);
+    }
+
+    public Optional<PermissionService> getPermissionService() {
+        return Sponge.getServiceManager().provide(PermissionService.class);
     }
 }

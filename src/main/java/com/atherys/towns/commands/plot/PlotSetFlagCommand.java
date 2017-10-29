@@ -1,13 +1,14 @@
 package com.atherys.towns.commands.plot;
 
 import com.atherys.towns.Settings;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -19,21 +20,15 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class PlotSetFlagCommand extends AbstractPlotCommand {
+public class PlotSetFlagCommand extends TownsSimpleCommand {
+    private static PlotSetFlagCommand instance = new PlotSetFlagCommand();
 
-    PlotSetFlagCommand() {
-        super(
-                new String[] {"setflag", "flag"},
-                "setflag <flag> <extent>",
-                Text.of("Used to modify the flags of a single plot."),
-                TownRank.Action.MODIFY_PLOT_FLAG,
-                true,
-                true
-        );
+    public static PlotSetFlagCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
 
         Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation(player.getLocation());
         if ( !plotOpt.isPresent() ) {
@@ -59,7 +54,7 @@ public class PlotSetFlagCommand extends AbstractPlotCommand {
             return CommandResult.empty();
         }
 
-        if ( resident.can ( TownRank.Action.fromFlag(flag.get() ) ) ) {
+        if ( player.hasPermission( flag.get().getAction().getPermission() ) ) {
 
             PlotFlags.Extent ext = extent.get();
 
@@ -69,11 +64,11 @@ public class PlotSetFlagCommand extends AbstractPlotCommand {
             }
 
             plot.setFlag( flag.get(), ext );
-            town.informResidents( Text.of("Flag ", flag.get().name(), " for plot ", plot.getName() ," changed to ", ext.getName()) );
+            town.informResidents( Text.of("Flag ", flag.get().name(), " for plot ", plot.getName() ," changed to ", ext ) );
 
             return CommandResult.success();
         } else {
-            TownMessage.warn( player, "Your town rank does not permit you to change the " + flag.get().name() + " flag.");
+            TownMessage.warn( player, "Your town rank does not permit you to change the ", flag.get(),  " flag.");
             return CommandResult.empty();
         }
     }
@@ -81,13 +76,13 @@ public class PlotSetFlagCommand extends AbstractPlotCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.plot.setflag")
-                .description(Text.of("Used to modify the flags of a plot."))
+                .description( Text.of("Used to change the extent of a flag in a single plot.") )
+                .executor( this )
                 .arguments(
-                        GenericArguments.enumValue(Text.of("flag"), PlotFlags.Flag.class),
-                        GenericArguments.enumValue(Text.of("extent"), PlotFlags.Extent.class)
+                        GenericArguments.enumValue( Text.of("flag"), PlotFlags.Flag.class ),
+                        GenericArguments.enumValue( Text.of("extent"), PlotFlags.Extent.class )
                 )
-                .executor(this)
+                .permission(TownAction.MODIFY_PLOT_FLAG.getPermission())
                 .build();
     }
 }

@@ -1,11 +1,12 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,24 +17,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownUnclaimCommand extends AbstractTownCommand {
+public class TownUnclaimCommand extends TownsSimpleCommand {
 
-    TownUnclaimCommand() {
-        super(
-                new String[] { "unclaim" },
-                "unclaim",
-                Text.of("Used to unclaim the plot ( from your own town ) you are currently standing in."),
-                TownRank.Action.UNCLAIM_PLOT,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownUnclaimCommand instance = new TownUnclaimCommand();
+
+    public static TownUnclaimCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) {
             return CommandResult.empty();
         }
@@ -53,7 +46,7 @@ public class TownUnclaimCommand extends AbstractTownCommand {
         }
 
         if ( town.getPlots().size() <= 1 ) {
-            TownMessage.warn( player, "You cannot unclaim your last plot!" );
+            TownMessage.warn( player, "You cannot unclaim your only plot!" );
             return CommandResult.empty();
         }
 
@@ -65,10 +58,10 @@ public class TownUnclaimCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.unclaim")
-                .description(Text.of( "Used to unclaim a plot belonging to your town." ) )
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to unclaim the plot you are currently standing on." ) )
+                .permission( TownAction.UNCLAIM_PLOT.getPermission() )
+                .executor( this )
                 .build();
     }
 }

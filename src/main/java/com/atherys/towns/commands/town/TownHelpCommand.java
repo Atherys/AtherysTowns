@@ -1,41 +1,46 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.towns.Settings;
-import com.atherys.towns.commands.AbstractCommand;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
+import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextStyles;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 
-public class TownHelpCommand extends AbstractTownCommand {
+public class TownHelpCommand extends TownsSimpleCommand {
 
-    TownHelpCommand () {
-        super(
-                new String[] { "help" },
-                "help",
-                Text.of("Used to get help for the Master Towns Command."),
-                TownRank.Action.NONE,
-                false,
-                false,
-                false,
-                true
-        );
+    private static TownHelpCommand instance = new TownHelpCommand();
+
+    public static TownHelpCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/t(own) Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
-        for ( AbstractCommand cmd : TownMasterCommand.getInstance().getChildren() ) {
-            cmd.sendInfo(player);
+
+        for (Map.Entry<List<String>, CommandCallable> entry : TownMasterCommand.getInstance().getChildren().entrySet() ) {
+            Text helpMsg = Text.builder()
+                    .append( Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, entry.getValue().getUsage(player) ) )
+                    .onHover(TextActions.showText(
+                            entry.getValue().getHelp( player ).orElse( Text.of("Help Unavailable") )
+                    ))
+                    .onClick(TextActions.suggestCommand( entry.getValue().getUsage( player ).toPlain() ) )
+                    .build();
+            player.sendMessage( helpMsg );
         }
+
         player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/t(own) Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
         return CommandResult.empty();
     }
@@ -43,9 +48,8 @@ public class TownHelpCommand extends AbstractTownCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.commands.towns.help")
-                .description(Text.of("Get help for the Towns Master Command(s)."))
-                .executor(this)
+                .description( Text.of ( "Used to get help for the Master Towns Command." ) )
+                .executor( this )
                 .build();
     }
 }

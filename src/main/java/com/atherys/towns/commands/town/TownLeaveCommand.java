@@ -1,9 +1,9 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.messaging.TownMessage;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -13,39 +13,28 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class TownLeaveCommand extends AbstractTownCommand {
+public class TownLeaveCommand extends TownsSimpleCommand {
 
-    TownLeaveCommand() {
-        super(
-                new String[] { "leave" },
-                "leave",
-                Text.of("Use this to leave your town."),
-                TownRank.Action.LEAVE_TOWN,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownLeaveCommand instance = new TownLeaveCommand();
+
+    public static TownLeaveCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
-        if ( resident.getTownRank().equals(TownRank.MAYOR) ) {
-            TownMessage.warn( player, "You are the mayor of the town. You can either leave the town for dead ( /t ruin ) or promote another mayor ( /t mayor <playerName> ) and then leave." );
-            return CommandResult.empty();
-        }
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
 
         resident.leaveTown();
+
         return CommandResult.success();
     }
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.leave")
-                .description(Text.of("Used to leave a town."))
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to leave a town. If you are not part of a town, this command will not function." ) )
+                .permission( TownAction.LEAVE_TOWN.getPermission() )
+                .executor( new TownLeaveCommand() )
                 .build();
     }
 }

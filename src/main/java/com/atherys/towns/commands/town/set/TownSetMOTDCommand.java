@@ -1,8 +1,9 @@
 package com.atherys.towns.commands.town.set;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -13,19 +14,16 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class TownSetMOTDCommand extends AbstractTownSetCommand {
+public class TownSetMOTDCommand extends TownsSimpleCommand {
 
-    TownSetMOTDCommand() {
-        super(
-                new String[] { "motd" },
-                "motd <message>",
-                Text.of( "Used to change the town MOTD." ),
-                TownRank.Action.SET_MOTD
-        );
+    private static TownSetMOTDCommand instance = new TownSetMOTDCommand();
+
+    public static TownSetMOTDCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         String motd = (String) args.getOne("newMOTD").orElse( town.getMOTD() );
@@ -38,10 +36,12 @@ public class TownSetMOTDCommand extends AbstractTownSetCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.motd")
-                .description(Text.of("Used to set the MOTD of the town."))
-                .arguments(GenericArguments.remainingJoinedStrings(Text.of("newMOTD")))
-                .executor(this)
+                .description( Text.of( "Used to change the MOTD of the town." ) )
+                .permission( TownAction.SET_MOTD.getPermission() )
+                .arguments(
+                        GenericArguments.remainingJoinedStrings(Text.of("newMOTD"))
+                )
+                .executor( new TownSetMOTDCommand() )
                 .build();
     }
 }

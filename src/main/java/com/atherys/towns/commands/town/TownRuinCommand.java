@@ -1,9 +1,10 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
 import com.atherys.towns.utils.Question;
@@ -15,23 +16,16 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class TownRuinCommand extends AbstractTownCommand {
+public class TownRuinCommand extends TownsSimpleCommand {
 
-    TownRuinCommand() {
-        super(
-                new String[] { "ruin", "destroy" },
-                "ruin",
-                Text.of("Used to destroy the town. Doing this will eject all residents and unclaim all plots. The town would cease to exist."),
-                TownRank.Action.RUIN_TOWN,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownRuinCommand instance = new TownRuinCommand();
+
+    public static TownRuinCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         player.sendBookView( Question.asBookView( Question.asText(
@@ -52,10 +46,9 @@ public class TownRuinCommand extends AbstractTownCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.commands.town.ruin")
-                .description(Text.of("Used to leave a town to ruins."))
-                .executor(this)
+                .description( Text.of( "Used to ruin a town. This will remove the town from the game, unclaim all it's plots and leave all residents homeless." ) )
+                .permission( TownAction.RUIN_TOWN.getPermission() )
+                .executor( new TownRuinCommand() )
                 .build();
-
     }
 }

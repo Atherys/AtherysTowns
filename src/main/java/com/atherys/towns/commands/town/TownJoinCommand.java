@@ -1,11 +1,12 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -18,24 +19,16 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TownJoinCommand extends AbstractTownCommand {
+public class TownJoinCommand extends TownsSimpleCommand {
 
-    TownJoinCommand() {
-        super(
-                new String[] { "join" },
-                "join <townName>",
-                Text.of( "Used to join a town." ),
-                TownRank.Action.JOIN_TOWN,
-                false,
-                false,
-                true,
-                true
-        );
+    private static TownJoinCommand instance = new TownJoinCommand();
+
+    public static TownJoinCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         Optional<Town> tOpt = TownManager.getInstance().getByName(args.<String>getOne("townName").orElse(UUID.randomUUID().toString()));
 
         if ( !tOpt.isPresent() ) {
@@ -63,11 +56,13 @@ public class TownJoinCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.town.command.town.join")
-                .description(Text.of("Used to join a town with an open door policy."))
-                .arguments(GenericArguments.remainingJoinedStrings(Text.of("townName")))
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to join a town. If you are already part of a town, you must leave your current town first." ) )
+                .permission( TownAction.JOIN_TOWN.getPermission() )
+                .arguments(
+                        GenericArguments.remainingJoinedStrings(Text.of("townName"))
+                )
+                .executor( this )
                 .build();
     }
 }
