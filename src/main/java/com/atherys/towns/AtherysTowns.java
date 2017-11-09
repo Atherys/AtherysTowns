@@ -62,8 +62,6 @@ public class AtherysTowns {
 
         Settings.getInstance();
 
-        RankManager.getInstance().load();
-
         TownsDatabase.getInstance();
 
         WildernessManager.getInstance();

@@ -2,12 +2,13 @@ package com.atherys.towns.commands.town.set;
 
 import com.atherys.towns.Settings;
 import com.atherys.towns.commands.TownsSimpleCommand;
-import com.atherys.towns.managers.RankManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRankRegistry;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -49,10 +50,10 @@ public class TownSetRankCommand extends TownsSimpleCommand {
             return CommandResult.empty();
         }
 
-        String rankName = (String) args.getOne("newRank").orElse(targetRes.getTownRank().getName());
-        Optional<TownRank2> rank = RankManager.getInstance().getTownRankByName(rankName);
+        String rankName = (String) args.getOne("newRank").orElse ( targetRes.getTownRank().getId() );
+        Optional<TownRank> rank = TownRankRegistry.getInstance().getById(rankName);
         if ( rank.isPresent() ) {
-            if ( rank.get().equals(Settings.TOWN_LEADER_RANK) ) {
+            if ( rank.get().equals ( Settings.TOWN_LEADER_RANK) ) {
                 TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
                 return CommandResult.empty();
             }
@@ -68,7 +69,7 @@ public class TownSetRankCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the rank of a resident in the town." ) )
-                .permission( TownAction.SET_RANK.getPermission() )
+                .permission( TownActions.SET_RANK.getPermission() )
                 .arguments(
                         GenericArguments.player(Text.of("player")),
                         GenericArguments.string(Text.of("newRank"))

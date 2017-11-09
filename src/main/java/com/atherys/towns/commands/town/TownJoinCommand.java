@@ -4,9 +4,9 @@ import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -58,7 +58,7 @@ public class TownJoinCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to join a town. If you are already part of a town, you must leave your current town first." ) )
-                .permission( TownAction.JOIN_TOWN.getPermission() )
+                .permission( TownActions.JOIN_TOWN.getPermission() )
                 .arguments(
                         GenericArguments.remainingJoinedStrings(Text.of("townName"))
                 )

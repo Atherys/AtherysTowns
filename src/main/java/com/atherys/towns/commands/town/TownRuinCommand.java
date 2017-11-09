@@ -3,7 +3,7 @@ package com.atherys.towns.commands.town;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
@@ -47,7 +47,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to ruin a town. This will remove the town from the game, unclaim all it's plots and leave all residents homeless." ) )
-                .permission( TownAction.RUIN_TOWN.getPermission() )
+                .permission( TownActions.RUIN_TOWN.getPermission() )
                 .executor( new TownRuinCommand() )
                 .build();
     }

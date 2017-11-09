@@ -42,19 +42,19 @@ public class Resident implements TownsObject {
             res = new Resident( uuid );
         }
 
-        public Resident.Builder town ( Town town, TownRank2 rank ) {
+        public Resident.Builder town ( Town town, TownRank rank ) {
             if ( town != null ) {
                 res.setTown(town, rank);
             }
             return this;
         }
 
-        public Resident.Builder townRank ( TownRank2 rank ) {
+        public Resident.Builder townRank ( TownRank rank ) {
             res.setTownRank(rank);
             return this;
         }
 
-        public Resident.Builder nationRank ( NationRank2 rank ) {
+        public Resident.Builder nationRank ( NationRank rank ) {
             res.setNationRank(rank);
             return this;
         }
@@ -79,8 +79,8 @@ public class Resident implements TownsObject {
     private UUID uuid;
 
     @Nullable private Town town;
-    @Nullable private TownRank2 townRank;
-    @Nullable private NationRank2 nationRank;
+    @Nullable private TownRank townRank;
+    @Nullable private NationRank nationRank;
 
     private long unixRegisterDateSeconds = 0;
     private long unixLastOnlineSeconds = 0;
@@ -91,7 +91,7 @@ public class Resident implements TownsObject {
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
-    private Resident ( User player, Town town, TownRank2 townRank, NationRank2 nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
+    private Resident ( User player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
         this.town = town;
         this.uuid = player.getUniqueId();
         this.townRank = townRank;
@@ -102,7 +102,7 @@ public class Resident implements TownsObject {
         ResidentManager.getInstance().saveOne(this);
     }
 
-    public static Resident create ( Player player, Town town, TownRank2 townRank, NationRank2 nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
+    public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
         return new Resident( player, town, townRank, nationRank, unixRegisterDateSeconds, unixLastOnlineSeconds );
     }
 
@@ -138,20 +138,25 @@ public class Resident implements TownsObject {
         return NationManager.getInstance().getByResident(this);
     }
 
-    public void setTown( Town town, TownRank2 rank ) {
+    public void setTown( Town town, TownRank rank ) {
         this.town = town;
         this.townRank = rank;
     }
 
-    public TownRank2 getTownRank() {
+    public TownRank getTownRank() {
         return townRank;
     }
 
-    public NationRank2 getNationRank() {
+    public NationRank getNationRank() {
         return nationRank;
     }
 
-    public Resident setTownRank(TownRank2 townRank) {
+    public Resident setTownRank(TownRank townRank) {
+        Optional<? extends User> user = this.getUser();
+        if ( user.isPresent() && this.townRank != null ) {
+            this.townRank.removePermissions( user.get() );
+            townRank.addPermissions( user.get() );
+        }
         this.townRank = townRank;
         return this;
     }
@@ -253,7 +258,12 @@ public class Resident implements TownsObject {
         return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
     }
 
-    public void setNationRank(NationRank2 nationRank) {
+    public void setNationRank ( NationRank nationRank ) {
+        Optional<? extends User> user = this.getUser();
+        if ( user.isPresent() && this.nationRank != null ) {
+            this.nationRank.removePermissions( user.get() );
+            nationRank.addPermissions( user.get() );
+        }
         this.nationRank = nationRank;
     }
 

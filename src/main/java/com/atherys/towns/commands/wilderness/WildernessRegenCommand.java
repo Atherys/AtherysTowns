@@ -20,7 +20,7 @@ public class WildernessRegenCommand {
 
     public void register() {
         CommandSpec spec = CommandSpec.builder()
-                .permission("atherys.towns.wilderness.regen")
+                .permission("atherystowns.wilderness.regen")
                 .description(Text.of("Wilderness Regen Command."))
                 .executor(EXECUTOR)
                 .build();

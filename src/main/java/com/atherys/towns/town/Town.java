@@ -7,11 +7,12 @@ import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.utils.Question;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
@@ -296,7 +297,7 @@ public class Town extends AreaObject<Nation> {
             Text resText = Text.builder()
                     .append(Text.of(r.getName()))
                     .onHover(TextActions.showText(Text.of(
-                            primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET,        textColor, tr.formattedName(), "\n",
+                            primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET,        textColor, tr.getName(), "\n",
                             primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, r.getFormattedLastOnlineDate()
 
                     ) ) )
@@ -360,7 +361,7 @@ public class Town extends AreaObject<Nation> {
                                     TownMessage.warn((Player) commandSource, Text.of("You cannot join a town while you are part of another! Please leave your current town first."));
                                     return;
                                 }
-                                r.setTown(this, TownRank.RESIDENT);
+                                r.setTown(this, TownRanks.RESIDENT);
                                 this.informResidents(Text.of(resident.getName(), " has joined the town."));
                             }
                         }
@@ -379,14 +380,14 @@ public class Town extends AreaObject<Nation> {
 
     public void setMayor(Resident newMayor) {
         if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this) ) {
-            getMayor().ifPresent( resident -> resident.setTownRank(TownRank.CO_MAYOR) );
-            newMayor.setTownRank(TownRank.MAYOR);
+            getMayor().ifPresent( resident -> resident.setTownRank(TownRanks.CO_MAYOR) );
+            newMayor.setTownRank(TownRanks.MAYOR);
         }
     }
 
     public Optional<Resident> getMayor() {
         for ( Resident r : getResidents() ) {
-            if ( r.getTownRank().equals(TownRank.MAYOR) ) return Optional.of(r);
+            if ( r.getTownRank().equals(TownRanks.MAYOR) ) return Optional.of(r);
         }
         return Optional.empty();
     }

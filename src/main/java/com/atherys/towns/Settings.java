@@ -1,6 +1,5 @@
 package com.atherys.towns;
 
-import com.atherys.towns.managers.RankManager;
 import com.atherys.towns.permissions.ranks.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
@@ -59,11 +58,8 @@ public final class Settings {
     public static JsonObject            WILDERNESS_REGEN_FILTER;
     public static List<String>          SWITCH_FLAG_BLOCKS =            new ArrayList<>();
 
-    public static NationRank2 NATION_RANKS;
-    public static TownRank2 TOWN_RANKS;
-
-    public static NationRank2 NATION_LEADER_RANK;
-    public static TownRank2 TOWN_LEADER_RANK;
+    public static NationRank NATION_LEADER_RANK = NationRanks.LEADER;
+    public static TownRank TOWN_LEADER_RANK = TownRanks.MAYOR;
 
     //public static Map<TownRank,List<TownsActionOld>>   TOWN_RANK_PERMISSIONS = new HashMap<>();
     //static {
@@ -259,33 +255,31 @@ public final class Settings {
             e.printStackTrace();
         }
 
-        RankManager.getInstance();
-
         JsonParser parser = new JsonParser();
 
-        Asset permissions = AtherysTowns.getInstance().getGame().getAssetManager().getAsset( AtherysTowns.getInstance(), "ranks.json").get();
-
-        File permissionsFile = new File("config/" + AtherysTowns.ID, "/ranks.json");
-        try {
-            if ( !permissionsFile.exists() ) {
-                if ( permissionsFile.mkdirs() && permissionsFile.createNewFile() ) {
-                    permissions.copyToFile(permissionsFile.toPath(), true, true);
-                } else {
-                    AtherysTowns.getInstance().getLogger().error("Could not create ranks directories and/or file.");
-                }
-            }
-        } catch (IOException e) {
-            AtherysTowns.getInstance().getLogger().error("Could not create ranks file.");
-            e.printStackTrace();
-        }
-
-        try {
-            JsonObject object = parser.parse( new FileReader(permissionsFile) ).getAsJsonObject();
-            RankManager.getInstance().fromJson ( object );
-        } catch (FileNotFoundException | NoSuchElementException e) {
-            AtherysTowns.getInstance().getLogger().error("Could not parse ranks json.");
-            e.printStackTrace();
-        }
+        //Asset permissions = AtherysTowns.getInstance().getGame().getAssetManager().getAsset( AtherysTowns.getInstance(), "ranks.json").get();
+//
+        //File permissionsFile = new File("config/" + AtherysTowns.ID, "/ranks.json");
+        //try {
+        //    if ( !permissionsFile.exists() ) {
+        //        if ( permissionsFile.mkdirs() && permissionsFile.createNewFile() ) {
+        //            permissions.copyToFile(permissionsFile.toPath(), true, true);
+        //        } else {
+        //            AtherysTowns.getInstance().getLogger().error("Could not create ranks directories and/or file.");
+        //        }
+        //    }
+        //} catch (IOException e) {
+        //    AtherysTowns.getInstance().getLogger().error("Could not create ranks file.");
+        //    e.printStackTrace();
+        //}
+//
+        //try {
+        //    JsonObject object = parser.parse( new FileReader(permissionsFile) ).getAsJsonObject();
+        //    RankManager.getInstance().fromJson ( object );
+        //} catch (FileNotFoundException | NoSuchElementException e) {
+        //    AtherysTowns.getInstance().getLogger().error("Could not parse ranks json.");
+        //    e.printStackTrace();
+        //}
 
         try {
             WILDERNESS_REGEN_FILTER = parser.parse( new FileReader(filterFile) ).getAsJsonObject();

@@ -1,14 +1,23 @@
 package com.atherys.towns.permissions.ranks;
 
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownsAction;
+import org.spongepowered.api.CatalogType;
+import org.spongepowered.api.util.annotation.CatalogedBy;
 
 import java.util.List;
 
-public class TownRank {
+@CatalogedBy( TownRanks.class )
+public class TownRank extends Rank implements CatalogType {
 
-    private int id;
-    private String name;
     private NationRank defaultNationRank;
-    private List<TownAction> permittedActions;
 
+    protected TownRank (String id, String name, List<TownsAction> permittedActions, NationRank defaultNationRank ) {
+        super(id, name, permittedActions);
+        this.defaultNationRank = defaultNationRank;
+        TownRankRegistry.getInstance().add(this);
+    }
+
+    public NationRank getDefaultNationRank() {
+        return defaultNationRank;
+    }
 }

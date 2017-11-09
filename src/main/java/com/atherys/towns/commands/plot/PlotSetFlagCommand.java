@@ -5,7 +5,7 @@ import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
@@ -82,7 +82,7 @@ public class PlotSetFlagCommand extends TownsSimpleCommand {
                         GenericArguments.enumValue( Text.of("flag"), PlotFlags.Flag.class ),
                         GenericArguments.enumValue( Text.of("extent"), PlotFlags.Extent.class )
                 )
-                .permission(TownAction.MODIFY_PLOT_FLAG.getPermission())
+                .permission(TownActions.MODIFY_PLOT_FLAG.getPermission())
                 .build();
     }
 }

@@ -3,8 +3,8 @@ package com.atherys.towns.commands.town.set;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -44,7 +44,7 @@ public class TownSetSpawnCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the spawn point of the town." ) )
-                .permission( TownAction.SET_SPAWN.getPermission() )
+                .permission( TownActions.SET_SPAWN.getPermission() )
                 .executor( new TownSetSpawnCommand() )
                 .build();
     }

@@ -5,8 +5,8 @@ import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
+import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
 import math.geom2d.Point2D;
@@ -88,7 +88,7 @@ public class Nation extends AreaObject<Nation> {
         this.description = "";
         capital.setNation(this);
         capital.setStatus(TownStatus.CAPITAL);
-        capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRank.LEADER));
+        capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRanks.LEADER));
 
         NationManager.getInstance().add(this);
         NationManager.getInstance().saveOne(this);
@@ -121,7 +121,7 @@ public class Nation extends AreaObject<Nation> {
         Optional<Town> capital = getCapital();
         capital.ifPresent(town -> town.setStatus(TownStatus.TOWN));
         newCapital.setStatus(TownStatus.CAPITAL);
-        newCapital.getMayor().ifPresent(resident -> resident.setNationRank(NationRank.LEADER));
+        newCapital.getMayor().ifPresent(resident -> resident.setNationRank(NationRanks.LEADER));
         return this;
     }
 

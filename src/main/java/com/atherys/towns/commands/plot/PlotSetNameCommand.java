@@ -5,7 +5,7 @@ import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
@@ -61,7 +61,7 @@ public class PlotSetNameCommand extends TownsSimpleCommand {
                 .arguments(
                         GenericArguments.string(Text.of("name"))
                 )
-                .permission(TownAction.MODIFY_PLOT_NAME.getPermission())
+                .permission(TownActions.MODIFY_PLOT_NAME.getPermission())
                 .build();
     }
 }

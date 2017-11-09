@@ -4,7 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.NationAction;
+import com.atherys.towns.permissions.actions.NationActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
@@ -50,7 +50,7 @@ public class NationDepositCommand extends TownsSimpleCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission(NationAction.NATION_DEPOSIT.getPermission())
+                .permission( NationActions.NATION_DEPOSIT.getPermission() )
                 .description( Text.of("Used to deposit money into the town's bank") )
                 .arguments(
                         GenericArguments.doubleNum(Text.of("amount")),

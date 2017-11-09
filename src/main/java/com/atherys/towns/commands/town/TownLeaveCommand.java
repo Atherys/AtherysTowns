@@ -2,7 +2,7 @@ package com.atherys.towns.commands.town;
 
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
@@ -33,7 +33,7 @@ public class TownLeaveCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to leave a town. If you are not part of a town, this command will not function." ) )
-                .permission( TownAction.LEAVE_TOWN.getPermission() )
+                .permission( TownActions.LEAVE_TOWN.getPermission() )
                 .executor( new TownLeaveCommand() )
                 .build();
     }

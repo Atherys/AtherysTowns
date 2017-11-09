@@ -4,9 +4,9 @@ import com.atherys.towns.Settings;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -68,7 +68,7 @@ public class TownSetFlagCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change a town flag." ) )
-                .permission( TownAction.SET_FLAGS.getPermission() )
+                .permission( TownActions.SET_FLAGS.getPermission() )
                 .arguments(
                         GenericArguments.enumValue(Text.of("flag"), PlotFlags.Flag.class),
                         GenericArguments.enumValue(Text.of("extent"), PlotFlags.Extent.class)

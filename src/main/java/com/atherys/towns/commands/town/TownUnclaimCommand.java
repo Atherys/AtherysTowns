@@ -4,9 +4,9 @@ import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -60,7 +60,7 @@ public class TownUnclaimCommand extends TownsSimpleCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description( Text.of( "Used to unclaim the plot you are currently standing on." ) )
-                .permission( TownAction.UNCLAIM_PLOT.getPermission() )
+                .permission( TownActions.UNCLAIM_PLOT.getPermission() )
                 .executor( this )
                 .build();
     }

@@ -3,7 +3,7 @@ package com.atherys.towns.commands.nation;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
@@ -39,7 +39,7 @@ public class NationCreateCommand extends TownsSimpleCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission(TownAction.CREATE_NATION.getPermission())
+                .permission(TownActions.CREATE_NATION.getPermission())
                 .description(Text.of("Used to create a new nation."))
                 .arguments(GenericArguments.remainingJoinedStrings(Text.of("nationName")))
                 .executor(this)
