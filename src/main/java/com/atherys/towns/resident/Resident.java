@@ -144,11 +144,11 @@ public class Resident implements TownsObject {
     }
 
     public TownRank getTownRank() {
-        return townRank;
+        return townRank == null ? TownRanks.NONE : townRank;
     }
 
     public NationRank getNationRank() {
-        return nationRank;
+        return nationRank == null ? NationRanks.NONE : nationRank;
     }
 
     public Resident setTownRank(TownRank townRank) {

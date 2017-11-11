@@ -32,13 +32,13 @@ public class TownHelpCommand extends TownsSimpleCommand {
 
         for (Map.Entry<List<String>, CommandCallable> entry : TownMasterCommand.getInstance().getChildren().entrySet() ) {
             Text helpMsg = Text.builder()
-                    .append( Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, entry.getValue().getUsage(player) ) )
+                    .append( Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, "/t ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) ) )
                     .onHover(TextActions.showText(
-                            entry.getValue().getHelp( player ).orElse( Text.of("Help Unavailable") )
+                            entry.getValue().getHelp(player).orElse(Text.of("Help Unavailable"))
                     ))
-                    .onClick(TextActions.suggestCommand( entry.getValue().getUsage( player ).toPlain() ) )
+                    .onClick(TextActions.suggestCommand(entry.getValue().getUsage(player).toPlain()))
                     .build();
-            player.sendMessage( helpMsg );
+            player.sendMessage(helpMsg);
         }
 
         player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/t(own) Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));

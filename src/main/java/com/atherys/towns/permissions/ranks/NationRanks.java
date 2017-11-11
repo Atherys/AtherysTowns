@@ -28,4 +28,5 @@ public final class NationRanks {
             NationActions.NATION_DEPOSIT
     ));
 
+    public static final NationRank NONE = new NationRank( "none", "None", Arrays.asList());
 }
