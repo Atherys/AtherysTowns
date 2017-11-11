@@ -27,13 +27,14 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
     public void showHelp ( String cmd, Player player ) {
         player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
         for (Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
+            Text cmdHelp = Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
             Text helpMsg = Text.builder()
-                    .append( Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) ) )
+                    .append( cmdHelp )
                     .onHover(TextActions.showText(
                             entry.getValue().getHelp(player).orElse(Text.of("Help Unavailable"))
                     ))
                     .onClick(
-                            TextActions.suggestCommand( "/" + cmd + " " + entry.getValue().getUsage(player).toPlain() )
+                            TextActions.suggestCommand( cmdHelp.toPlain() )
                     )
                     .build();
             player.sendMessage(helpMsg);
