@@ -72,7 +72,7 @@ public class Town extends AreaObject<Nation> {
             return this;
         }
 
-        public Town.Builder spawn(Location spawn) {
+        public Town.Builder spawn ( Location spawn ) {
             town.setSpawn(spawn);
             return this;
         }
@@ -125,13 +125,12 @@ public class Town extends AreaObject<Nation> {
     private Town ( PlotDefinition define, Resident mayor ) {
         super(UUID.randomUUID());
         this.spawn = mayor.getPlayer().get().getLocation();
-        mayor.setTownRank(Settings.TOWN_LEADER_RANK);
         Plot homePlot = Plot.create(define, this, "Home");
         this.townFlags = homePlot.getFlags().copy();
-        claimPlot(homePlot);
+        claimPlot ( homePlot );
         this.setParent( null );
         this.status = TownStatus.NONE;
-        mayor.setTown(this, Settings.TOWN_LEADER_RANK);
+        mayor.setTown( this, Settings.TOWN_LEADER_RANK );
         TownManager.getInstance().add(this);
     }
 

@@ -95,27 +95,6 @@ public class Resident implements TownsObject {
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
-    private Resident ( User player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds) {
-        this.town = town;
-        this.uuid = player.getUniqueId();
-        this.townRank = townRank;
-        this.nationRank = nationRank;
-        this.unixRegisterDateSeconds = unixRegisterDateSeconds;
-        this.unixLastOnlineSeconds = unixLastOnlineSeconds;
-        ResidentManager.getInstance().add(uuid, this);
-        ResidentManager.getInstance().saveOne(this);
-
-        updatePermissions();
-    }
-
-    public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
-        return new Resident( player, town, townRank, nationRank, unixRegisterDateSeconds, unixLastOnlineSeconds );
-    }
-
-    public static Resident create ( User player ) {
-        return new Resident( player, null, null, null, System.currentTimeMillis() / 1000L, System.currentTimeMillis() / 1000L );
-    }
-
     public String getName() {
         if ( !getUser().isPresent() ) return Settings.NON_PLAYER_CHARACTER_NAME;
         return getUser().get().getName();

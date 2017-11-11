@@ -15,7 +15,7 @@ public abstract class Rank {
 
     private String id;
     private String name;
-    private Subject permissions;
+    protected Subject permissions;
 
     protected Rank ( String id, String name, List<? extends TownsAction> permittedActions ) {
         this.id = id;
@@ -32,6 +32,8 @@ public abstract class Rank {
         for ( TownsAction action : permittedActions ) {
             permissions.getSubjectData().setPermission( new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE );
         }
+
+        permissions.getSubjectData().addParent( new LinkedHashSet<>(), service.get().getGroupSubjects().get("atherystowns") );
     }
 
     public void addPermissions ( User player ) {

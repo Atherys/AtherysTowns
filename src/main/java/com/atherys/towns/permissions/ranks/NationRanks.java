@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public final class NationRanks {
 
-    public static final NationRank LEADER = new NationRank( "leader", "Leader", Arrays.asList(
+    public static final NationRank LEADER = new NationRank( "nation_leader", "Leader", Arrays.asList(
             NationActions.CHAT,
             NationActions.NATION_DEPOSIT,
             NationActions.NATION_WITHDRAW,
@@ -17,16 +17,16 @@ public final class NationRanks {
             NationActions.SET_LEADER_TITLE
     ));
 
-    public static final NationRank CO_LEADER = new NationRank( "leader", "Co-Leader", Arrays.asList(
+    public static final NationRank CO_LEADER = new NationRank( "nation_co_leader", "Co-Leader", Arrays.asList(
             NationActions.CHAT,
             NationActions.NATION_DEPOSIT,
             NationActions.NATION_WITHDRAW
     ));
 
-    public static final NationRank RESIDENT = new NationRank( "resident", "Resident", Arrays.asList(
+    public static final NationRank RESIDENT = new NationRank( "nation_resident", "Resident", Arrays.asList(
             NationActions.CHAT,
             NationActions.NATION_DEPOSIT
     ));
 
-    public static final NationRank NONE = new NationRank( "none", "None", Arrays.asList());
+    public static final NationRank NONE = new NationRank( "nation_none", "None", Arrays.asList());
 }
