@@ -33,6 +33,7 @@ public class NationMasterCommand extends TownsMasterCommand {
     public CommandSpec getSpec() {
         return CommandSpec.builder()
                 .description(Text.of("Master Nation command."))
+                .children(getChildren())
                 .executor(this)
                 .build();
     }
