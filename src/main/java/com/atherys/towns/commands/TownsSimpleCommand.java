@@ -29,17 +29,17 @@ public abstract class TownsSimpleCommand implements CommandExecutor {
 
         Player player = (Player) src;
         Resident res;
-        Town t = null;
-        Nation n = null;
+        @Nullable Town t = null;
+        @Nullable Nation n = null;
 
         Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
-        if ( !resOpt.isPresent()) {
+        if ( !resOpt.isPresent() ) {
             return CommandResult.empty();
         } else res = resOpt.get();
 
         if ( res.getTown().isPresent() ) t = res.getTown().get();
 
-        if ( res.getTown().get().getParent().isPresent() ) n = res.getTown().get().getParent().get();
+        if ( t != null && t.getParent().isPresent() ) n = t.getParent().get();
 
         return execute( player, args, res, t, n );
     }
