@@ -87,7 +87,7 @@ public abstract class DatabaseManager<T extends TownsObject> {
     }
 
     public void removeOne ( T object ) {
-        collection().deleteOne( new Document( "uuid", object.getUUID().toString() ) );
+        collection().deleteOne( new Document( "uuid", object.getUUID() ) );
     }
 
 }
