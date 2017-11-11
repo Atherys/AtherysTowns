@@ -25,7 +25,7 @@ public class NationCreateCommand extends TownsSimpleCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        if ( nation != null ) {
+        if ( town == null || nation != null ) {
             TownMessage.warn(player, "You must leave your current nation and be the mayor of an independent town in order to create a new nation.");
             return CommandResult.empty();
         }
