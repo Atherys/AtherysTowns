@@ -71,6 +71,7 @@ public class Resident implements TownsObject {
 
         public Resident build() {
             ResidentManager.getInstance().add(res.getUUID(),res);
+            res.updatePermissions();
             return res;
         }
     }
@@ -100,6 +101,8 @@ public class Resident implements TownsObject {
         this.unixLastOnlineSeconds = unixLastOnlineSeconds;
         ResidentManager.getInstance().add(uuid, this);
         ResidentManager.getInstance().saveOne(this);
+
+        updatePermissions();
     }
 
     public static Resident create ( Player player, Town town, TownRank townRank, NationRank nationRank, long unixRegisterDateSeconds, long unixLastOnlineSeconds ) {
@@ -143,6 +146,11 @@ public class Resident implements TownsObject {
         this.townRank = rank;
     }
 
+    public void updatePermissions() {
+        setTownRank( getTownRank() );
+        setNationRank( getNationRank() );
+    }
+
     public TownRank getTownRank() {
         return townRank == null ? TownRanks.NONE : townRank;
     }
@@ -151,10 +159,10 @@ public class Resident implements TownsObject {
         return nationRank == null ? NationRanks.NONE : nationRank;
     }
 
-    public Resident setTownRank(TownRank townRank) {
+    public Resident setTownRank ( TownRank townRank ) {
         Optional<? extends User> user = this.getUser();
-        if ( user.isPresent() && this.townRank != null ) {
-            this.townRank.removePermissions( user.get() );
+        if ( user.isPresent() ) {
+            getTownRank().removePermissions( user.get() );
             townRank.addPermissions( user.get() );
         }
         this.townRank = townRank;
@@ -260,8 +268,8 @@ public class Resident implements TownsObject {
 
     public void setNationRank ( NationRank nationRank ) {
         Optional<? extends User> user = this.getUser();
-        if ( user.isPresent() && this.nationRank != null ) {
-            this.nationRank.removePermissions( user.get() );
+        if ( user.isPresent() ) {
+            getNationRank().removePermissions( user.get() );
             nationRank.addPermissions( user.get() );
         }
         this.nationRank = nationRank;
