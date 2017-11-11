@@ -432,7 +432,6 @@ public class Town extends AreaObject<Nation> {
             resident.setTown(null, TownRanks.NONE)
         );
         TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
-
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
     }
 
