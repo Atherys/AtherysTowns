@@ -6,7 +6,10 @@ import com.atherys.towns.base.TownsObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.ranks.*;
+import com.atherys.towns.permissions.ranks.NationRank;
+import com.atherys.towns.permissions.ranks.NationRanks;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.Question;
 import com.atherys.towns.utils.UserUtils;
@@ -143,7 +146,8 @@ public class Resident implements TownsObject {
 
     public void setTown( Town town, TownRank rank ) {
         this.town = town;
-        this.townRank = rank;
+        setTownRank( rank );
+        setNationRank( rank.getDefaultNationRank() );
     }
 
     public void updatePermissions() {
@@ -248,17 +252,16 @@ public class Resident implements TownsObject {
     //    return !action.equals(NationRank.Action.NONE) && Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action);
     //}
 
-    public Resident leaveTown() {
+    public void leaveTown() {
         Optional<Player> player = getPlayer();
         player.ifPresent(player1 -> Question.poll(player1, Text.of("Would you like to leave your current town?"), Question.Type.YES_NO,
                 // yes
                 commandSource -> {
                     if ( getTown().isPresent() ) {
-                        this.setTown(null, null);
+                        this.setTown(null, TownRanks.NONE);
                         getTown().get().warnResidents(Text.of( this.getName() + " has left the town."));
                     }
                 }));
-        return this;
     }
 
     public Optional<UniqueAccount> getBank() {
