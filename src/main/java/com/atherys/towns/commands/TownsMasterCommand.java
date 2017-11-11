@@ -24,17 +24,21 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
         children.put(Arrays.asList(aliases), callable);
     }
 
-    protected void showHelp ( String cmd, Player player ) {
+    public void showHelp ( String cmd, Player player ) {
+        player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
         for (Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
             Text helpMsg = Text.builder()
                     .append( Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) ) )
                     .onHover(TextActions.showText(
                             entry.getValue().getHelp(player).orElse(Text.of("Help Unavailable"))
                     ))
-                    .onClick(TextActions.suggestCommand(entry.getValue().getUsage(player).toPlain()))
+                    .onClick(
+                            TextActions.suggestCommand( "/" + cmd + " " + entry.getValue().getUsage(player).toPlain() )
+                    )
                     .build();
             player.sendMessage(helpMsg);
         }
+        player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
     }
 
 }
