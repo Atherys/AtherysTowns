@@ -428,7 +428,9 @@ public class Town extends AreaObject<Nation> {
     public void ruin() {
 
         getPlots().forEach(Plot::remove); // remove all plots.
-        getResidents().forEach(Resident::leaveTown); // force all residents to leave the town
+        getResidents().forEach( resident ->
+            resident.setTown(null, TownRanks.NONE)
+        );
         TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
 
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
