@@ -1,8 +1,16 @@
 package com.atherys.towns.commands.town.set;
 
 import com.atherys.towns.commands.TownsMasterCommand;
+import com.atherys.towns.nation.Nation;
+import com.atherys.towns.resident.Resident;
+import com.atherys.towns.town.Town;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+
+import javax.annotation.Nullable;
 
 public class TownSetMasterCommand extends TownsMasterCommand {
 
@@ -22,6 +30,12 @@ public class TownSetMasterCommand extends TownsMasterCommand {
 
     public static TownSetMasterCommand getInstance() {
         return instance;
+    }
+
+    @Override
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+        showHelp( "t set", player );
+        return CommandResult.empty();
     }
 
     @Override
