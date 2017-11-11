@@ -38,21 +38,10 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
         if ( bank != null) {
             Optional<UniqueAccount> acc = res.getBank();
             if ( acc.isPresent() ) {
-                Cause cause = Cause.builder().named(NamedCause.of("towns-deposit", this)).build();
                 UniqueAccount resAcc = acc.get();
+                Cause cause = Cause.builder().named( NamedCause.of ( "towns-deposit", this) ).build();
 
-                // if offered amount is less than 0
-                if (amount.compareTo(BigDecimal.ZERO) < 0) {
-                    return false;
-                }
-
-                // if offered amount is more than what resident has
-                if (amount.compareTo(resAcc.getBalance(currency)) > 0) {
-                    return false;
-                }
-
-                resAcc.withdraw(currency, amount, cause);
-                bank.deposit(currency, amount, cause);
+                resAcc.transfer( bank, currency, amount, cause );
                 return true;
             }
         }
@@ -63,21 +52,10 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
         if ( bank != null ) {
             Optional<UniqueAccount> acc = res.getBank();
             if ( acc.isPresent() ) {
-                Cause cause = Cause.builder().named(NamedCause.of("towns-withdraw", this)).build();
+                Cause cause = Cause.builder().named( NamedCause.of ( "towns-withdraw", this) ).build();
                 UniqueAccount resAcc = acc.get();
 
-                // if demanded amount is less than 0
-                if (amount.compareTo(BigDecimal.ZERO) < 0) {
-                    return false;
-                }
-
-                // if demanded amount is more than what bank has
-                if (amount.compareTo(bank.getBalance(currency)) > 0) {
-                    return false;
-                }
-
-                resAcc.deposit(currency, amount, cause);
-                bank.withdraw(currency, amount, cause);
+                bank.transfer( resAcc, currency, amount, cause );
                 return true;
             }
         }
