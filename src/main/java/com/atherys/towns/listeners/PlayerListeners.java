@@ -41,7 +41,10 @@ public class PlayerListeners {
         Optional<Resident> resident = ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId());
 
         if ( !resident.isPresent() ) {
-            Resident.create(event.getTargetEntity());
+            Resident.fromUUID( event.getTargetEntity().getUniqueId() )
+            .registerTimestamp( System.currentTimeMillis() )
+            .updateLastOnline()
+            .build();
         }
     }
 
