@@ -340,9 +340,9 @@ public class Town extends AreaObject<Nation> {
             Player player = p.get();
             Text question;
             if ( getParent().isPresent() ) {
-                question = Text.of("You have been invited to the town of \n", name, " in \n", getParent().get().getName() );
+                question = Text.of("You have been invited to the town of ", name, " in ", getParent().get().getName() );
             } else {
-                question = Text.of("You have been invited to the town of \n", name );
+                question = Text.of("You have been invited to the town of ", name );
             }
 
             TextColor primary = Settings.PRIMARY_COLOR;
