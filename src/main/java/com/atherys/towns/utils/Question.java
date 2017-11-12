@@ -1,6 +1,5 @@
 package com.atherys.towns.utils;
 
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
@@ -137,14 +136,17 @@ public class Question {
     }
 
     public void pollChat ( @Nonnull Player player ) {
+        questions.put( id, this );
         player.sendMessage( this.asText() );
     }
 
     public void pollBook ( @Nonnull Player player ) {
+        questions.put( id, this );
         player.sendBookView( BookView.builder().addPage( asText() ).build() );
     }
 
     public void pollViewButton ( @Nonnull Player player, @Nonnull Text buttonText ) {
+        questions.put( id, this );
         Text text = Text.builder()
                 .append(buttonText)
                 .onHover(TextActions.showText(Text.of(TextColors.AQUA, "Click to View")))
