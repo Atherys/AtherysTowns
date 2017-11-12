@@ -21,13 +21,18 @@ repositories {
         url 'https://repo.spongepowered.org/maven'
     }
     maven {
-        name = 'jitpack'
-        url 'https://jitpack.io/'
+        name = 'luckperms'
+        url 'https://repo.lucko.me/'
     }
+    //maven {
+    //    name = 'jitpack'
+    //    url 'https://jitpack.io/'
+    //}
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:6.0.0',
+    compile 'me.lucko.luckperms:luckperms-api:3.4',
+            'org.spongepowered:spongeapi:6.0.0',
             'math.geom2d:javaGeom:0.11.1',
             'org.mongodb:mongodb-driver:3.5.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'

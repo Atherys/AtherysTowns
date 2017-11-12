@@ -1,5 +1,6 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.Settings;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -27,19 +28,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
-
-        player.sendBookView( Question.asBookView( Question.asText(
-                Text.of("Are you sure you want to destroy your town? Doing this will eject all residents and unclaim all plots."),
-                Question.Type.YES_NO,
-                (commandSource -> {
-                    if ( town.getStatus() == TownStatus.CAPITAL ) {
-                        TownMessage.warn( player, "You cannot destroy the capital of a nation!");
-                        return;
-                    }
-                    town.ruin();
-                })
-        ) ) );
-
+        if ( resident.getTownRank().equals(Settings.TOWN_LEADER_RANK ) ) ruinTown( player, town );
         return CommandResult.success();
     }
 
@@ -50,5 +39,16 @@ public class TownRuinCommand extends TownsSimpleCommand {
                 .permission( TownActions.RUIN_TOWN.getPermission() )
                 .executor( new TownRuinCommand() )
                 .build();
+    }
+
+    private void ruinTown( Player player, Town town ) {
+        Question ruin = Question.of( Text.of("Are you sure you want to destroy your town? Doing so will eject all residents and unclaim all plots.") )
+                .addAnswer( Question.Answer.of( Text.of("Yes"), player1 -> {
+                    if ( town.getStatus().equals( TownStatus.CAPITAL ) ) {
+                        TownMessage.warn( player, "You cannot destroy the capital of a nation!");
+                    } else town.ruin();
+                }))
+                .build();
+        ruin.pollBook( player );
     }
 }

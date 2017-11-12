@@ -13,7 +13,7 @@ import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.utils.Question;
+//import com.atherys.towns.utils.old.Question;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
@@ -333,50 +333,6 @@ public class Town extends AreaObject<Nation> {
         p.remove();
     }
 
-    public void inviteResident(Resident resident) {
-        Optional<Player> p = resident.getPlayer();
-
-        if ( p.isPresent() ) {
-            Player player = p.get();
-            Text question;
-            if ( getParent().isPresent() ) {
-                question = Text.of("You have been invited to the town of ", name, " in ", getParent().get().getName() );
-            } else {
-                question = Text.of("You have been invited to the town of ", name );
-            }
-
-            TextColor primary = Settings.PRIMARY_COLOR;
-            TextColor secondary = Settings.SECONDARY_COLOR;
-
-            Text view = Question.asViewButton(
-                Question.asText(question, Question.Type.ACCEPT_REFUSE,
-                    // yes
-                    (commandSource -> {
-                        if ( commandSource instanceof Player ) {
-                            Optional<Resident> res = ResidentManager.getInstance().get(((Player) commandSource).getUniqueId());
-                            if ( res.isPresent() ) {
-                                Resident r = res.get();
-                                if ( r.getTown().isPresent() ) {
-                                    TownMessage.warn((Player) commandSource, Text.of("You cannot join a town while you are part of another! Please leave your current town first."));
-                                    return;
-                                }
-                                r.setTown(this, TownRanks.RESIDENT);
-                                this.informResidents(Text.of(resident.getName(), " has joined the town."));
-                            }
-                        }
-                    })
-                    ,
-                    // no
-                    (commandSource -> this.warnResidents(Text.of( resident.getName(), " has refused to join the town.") ))
-                )
-                ,
-                Text.of( "\n", TownMessage.MSG_PREFIX,  TextStyles.BOLD, primary, "[", secondary, "Click Here To View", primary, "]" )
-            );
-
-            TownMessage.inform(player, question, view);
-        }
-    }
-
     public void setMayor(Resident newMayor) {
         if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this) ) {
             getMayor().ifPresent( resident -> resident.setTownRank(TownRanks.CO_MAYOR) );
@@ -482,17 +438,4 @@ public class Town extends AreaObject<Nation> {
     public void setSpawn(Location spawn) {
         this.spawn = spawn;
     }
-
-    //@Override
-    //public Document toBSON() {
-    //    Document serialized = new Document("_id", this.uuid);
-    //    serialized.append("nation", nation.getUUID());
-    //    serialized.put("status", status.id());
-//
-    //    Document flags = new Document();
-    //    townFlags.forEach((k,v) -> flags.put(k.name(), v.name()));
-    //    serialized.put("flags", flags);
-//
-    //    return serialized;
-    //}
 }

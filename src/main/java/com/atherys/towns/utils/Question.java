@@ -8,132 +8,149 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import javax.annotation.Nonnull;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Question {
 
-    private static final Text questionDecorationTop = Text.of(TextColors.DARK_AQUA, "{", TextColors.AQUA, "Question", TextColors.DARK_AQUA, "}\n");
-    private static final Text questionDecorationBottom = Text.of(TextColors.DARK_AQUA, "\n");
+    private static final Text QUESTION_DECORATION_TOP = Text.of(TextColors.DARK_AQUA, "{", TextColors.AQUA, "Question", TextColors.DARK_AQUA, "}\n");
+    private static final Text QUESTION_DECORATION_BOT = Text.of(TextColors.DARK_AQUA, "\n");
 
-    // TODO: Figure out question tracking
-    private static final Map<UUID,Text> playerQuestionMap = new HashMap<>();
+    private static Map<UUID,Question> questions = new HashMap<>();
 
-    public enum Type {
-        YES_NO("Yes", "No"),
-        CONFIRM_CANCEL("Confirm", "Cancel"),
-        APPROVE_DENY("Approve", "Deny"),
-        ACCEPT_REFUSE("Accept", "Refuse");
+    public static class Builder {
 
-        Text yes;
-        Text no;
+        private Question question;
 
-        Type ( String yes, String no ) {
-            this.yes = Text.of(TextColors.DARK_GREEN, TextStyles.BOLD, yes);
-            this.no = Text.of(TextColors.DARK_RED, TextStyles.BOLD, no);
+        private Builder( Text question ) {
+            this.question = new Question( question );
         }
 
-        public Text getYesText() { return yes; }
-        public Text getNoText()  { return no; }
+        public Builder addAnswer ( Answer answer ) {
+            question.addAnswer( answer );
+            return this;
+        }
+
+        public Question build() {
+            return question;
+        }
+
     }
 
-    private static Consumer<CommandSource> finalAction = commandSource -> {
-        playerQuestionMap.remove( ( (Player) commandSource ).getUniqueId() );
-    };
+    public static class Answer {
 
-    /**
-     *
-     * @param player The player who will answer the question
-     * @param question The question to be asked
-     * @param type the type of answers
-     * @param yes what happens if the player selects the "yes" option
-     * @param no what happens if the player selects the "no" option
-     * @return the question as transformed into text.
-     */
-    public static Text poll (Player player, Text question, Type type, Consumer<CommandSource> yes, Consumer<CommandSource> no ) {
-        Text q = asText(question, type, yes, no);
-        playerQuestionMap.put(player.getUniqueId(), q );
-        player.sendMessage(q);
-        return q;
+        private Text text;
+        private Consumer<Player> action;
+
+        private Answer(Text text) {
+            this.text = text;
+        }
+
+        private Answer(Text text, Consumer<Player> action) {
+            this.text = text;
+            this.action = action;
+        }
+
+        public static Answer of(Text name, Consumer<Player> action) {
+            return new Answer(name, action);
+        }
+
+        public Text getText() {
+            return text;
+        }
+
+        Consumer<Player> getAction() {
+            return action;
+        }
+
+        public void setAction(Consumer<Player> action) {
+            this.action = action;
+        }
+
+        public void execute(Player source) {
+            action.accept(source);
+        }
     }
 
-    /**
-     *
-     * @param player The player who will answer the question
-     * @param question The question to be asked
-     * @param type the type of answers
-     * @param yes what happens if the player selects the "yes" option
-     * @return the question as transformed into text.
-     */
-    public static Text poll ( Player player, Text question, Type type, Consumer<CommandSource> yes ) {
-        Text q = asText(question, type, yes );
-        playerQuestionMap.put(player.getUniqueId(), q );
-        player.sendMessage(q);
-        return q;
+
+    private UUID id;
+    private Text question;
+    private List<Answer> answers;
+
+    Question ( Text question ) {
+        this.question = question;
+        this.answers = new LinkedList<>();
+        this.id = UUID.randomUUID();
     }
 
-    /**
-     *
-     * @param question The question to be asked
-     * @param type the type of answers
-     * @param yes what happens if the player selects the "yes" option
-     * @param no what happens if the player selects the "no" option
-     * @return the question as transformed into text.
-     */
-    public static Text asText ( Text question, Type type, Consumer<CommandSource> yes, Consumer<CommandSource> no ) {
-        return Text.builder()
-                .append(questionDecorationTop)
-                .append(question, Text.of("\n\n"))
-                .append(Text.of(TextStyles.RESET, TextColors.RESET, "["))
-                .append(getYesAnswer(type, yes))
-                .append(Text.of(TextStyles.RESET, TextColors.RESET, "]["))
-                .append(getNoAnswer(type, no))
-                .append(Text.of(TextStyles.RESET, TextColors.RESET, "]\n"))
-                .append(questionDecorationBottom)
-                .build();
+    public static Builder of(Text question) {
+        return new Builder( question );
     }
 
-    /**
-     *
-     * @param question The question to be asked
-     * @param type the type of answers
-     * @param yes what happens if the player selects the "yes" option
-     * @return the question as transformed into text.
-     */
-    public static Text asText ( Text question, Type type, Consumer<CommandSource> yes ) {
-        return asText(question, type, yes, (commandSource -> {} ) );
+    public UUID getId() {
+        return id;
     }
 
-    public static Text getYesAnswer ( Type type, Consumer<CommandSource> yes ) {
-        return type.getYesText().toBuilder()
-                .onClick( TextActions.executeCallback(yes.andThen(finalAction) ) )
-                .onHover( TextActions.showText( Text.of( "Click here to Agree" ) ) ).build();
+    public Text getQuestion() {
+        return question;
     }
 
-    public static Text getNoAnswer ( Type type, Consumer<CommandSource> no ) {
-        return type.getNoText().toBuilder()
-                .onClick( TextActions.executeCallback(no.andThen(finalAction)) )
-                .onHover( TextActions.showText( Text.of( "Click here to Refuse" ) ) ).build();
+    public List<Answer> getAnswers() {
+        return answers;
     }
 
-    public static BookView asBookView ( Text question ) {
-        return BookView.builder()
-                .addPage(question)
-                .build();
+    void addAnswer ( Answer answer ) {
+        this.answers.add(answer);
     }
 
-    public static Text asViewButton ( Text question, Text buttonText ) {
-        return Text.builder()
+    public Text asText() {
+        Text.Builder builder = Text.builder();
+        builder.append( QUESTION_DECORATION_TOP );
+        builder.append( question );
+        builder.append( Text.of("\n") );
+
+        for ( Answer answer : answers ) {
+            builder.append( Text.of( TextStyles.RESET, TextColors.RESET, "[" ) );
+            builder.append( Text.builder().append( answer.getText() )
+                    .onHover( TextActions.showText( Text.of("Click to answer") ) )
+                    .onClick( TextActions.executeCallback(source -> {
+                        if ( !(source instanceof Player) ) {
+                            source.sendMessage( Text.of(TextColors.RED, "Must be a player to reply to a question.") );
+                            return;
+                        }
+
+                        if ( questions.containsKey( this.id ) ) {
+                            answer.execute( (Player) source );
+                            questions.remove( this.id );
+                        } else {
+                            source.sendMessage( Text.of(TextColors.RED, "You have already responded to that question!") );
+                        }
+                    }
+                    ))
+                    .build() );
+            builder.append( Text.of( TextStyles.RESET, TextColors.RESET, "]\n" ) );
+        }
+
+        builder.append( QUESTION_DECORATION_BOT );
+        return builder.build();
+    }
+
+    public void pollChat ( @Nonnull Player player ) {
+        player.sendMessage( this.asText() );
+    }
+
+    public void pollBook ( @Nonnull Player player ) {
+        player.sendBookView( BookView.builder().addPage( asText() ).build() );
+    }
+
+    public void pollViewButton ( @Nonnull Player player, @Nonnull Text buttonText ) {
+        Text text = Text.builder()
                 .append(buttonText)
                 .onHover(TextActions.showText(Text.of(TextColors.AQUA, "Click to View")))
-                .onClick(TextActions.executeCallback(commandSource -> {
-                    if ( commandSource instanceof Player ) {
-                        ((Player) commandSource).sendBookView(asBookView(question));
-                    }
-                }))
+                .onClick(TextActions.executeCallback(source -> { if ( source instanceof Player ) this.pollBook((Player) source); }))
                 .build();
-    }
 
+        player.sendMessage( text );
+    }
 }

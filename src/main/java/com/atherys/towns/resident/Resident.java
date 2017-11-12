@@ -11,7 +11,6 @@ import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
-import com.atherys.towns.utils.Question;
 import com.atherys.towns.utils.UserUtils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -217,30 +216,6 @@ public class Resident implements TownsObject {
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, nation, Settings.DECORATION_COLOR, " )\n") )
                 .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank == null ? "None" : townRank.getName() ) )
                 .build();
-    }
-
-    //public boolean can ( TownsAction action ) {
-    //    return !action.isNone() && ( Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action) || Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action) );
-    //}
-//
-    //public boolean can (TownRank.Action action) {
-    //    return !action.equals(TownRank.Action.NONE) && Settings.TOWN_RANK_PERMISSIONS.get(townRank).contains(action);
-    //}
-//
-    //public boolean can (NationRank.Action action) {
-    //    return !action.equals(NationRank.Action.NONE) && Settings.NATION_RANK_PERMISSIONS.get(nationRank).contains(action);
-    //}
-
-    public void leaveTown() {
-        Optional<Player> player = getPlayer();
-        player.ifPresent(player1 -> Question.poll(player1, Text.of("Would you like to leave your current town?"), Question.Type.YES_NO,
-                // yes
-                commandSource -> {
-                    if ( getTown().isPresent() ) {
-                        this.setTown(null, TownRanks.NONE);
-                        getTown().get().warnResidents(Text.of( this.getName() + " has left the town."));
-                    }
-                }));
     }
 
     public Optional<UniqueAccount> getBank() {
