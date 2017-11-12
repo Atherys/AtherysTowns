@@ -347,6 +347,15 @@ public class Town extends AreaObject<Nation> {
         return Optional.empty();
     }
 
+    public Optional<Resident> getResident ( UUID uuid ) {
+        for ( Resident resident : getResidents() ) {
+            if ( resident.getUUID().equals(uuid) ) {
+                return Optional.of( resident );
+            }
+        }
+        return Optional.empty();
+    }
+
     public String getMOTD() {
         return motd;
     }
