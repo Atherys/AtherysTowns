@@ -33,7 +33,8 @@ public class TownKickCommand extends TownsSimpleCommand {
         if ( town == null ) return CommandResult.empty();
         Optional<Resident> res = town.getResident( user.get().getUniqueId() );
 
-        if ( res.isPresent() ) {
+        // if the resident is present and their rank is NOT greater than the rank of the resident attempting to kick them
+        if ( res.isPresent() && !res.get().getTownRank().isRankGreaterThan( resident.getTownRank() ) ) {
             res.get().setTown(null, TownRanks.NONE);
             town.warnResidents( Text.of( user.get().getName(), " has been kicked from the town by ", resident.getName() ) );
         }

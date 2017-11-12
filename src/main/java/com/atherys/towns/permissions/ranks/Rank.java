@@ -15,9 +15,11 @@ public abstract class Rank {
 
     private String id;
     private String name;
+
+    protected Rank child;
     protected Subject permissions;
 
-    protected Rank ( String id, String name, List<? extends TownsAction> permittedActions ) {
+    protected Rank ( String id, String name, List<? extends TownsAction> permittedActions, Rank child ) {
         this.id = id;
         this.name = name;
 
@@ -34,6 +36,8 @@ public abstract class Rank {
         }
 
         permissions.getSubjectData().addParent( new LinkedHashSet<>(), service.get().getGroupSubjects().get("atherystowns") );
+
+        this.child = child;
     }
 
     public void addPermissions ( User player ) {
@@ -56,5 +60,13 @@ public abstract class Rank {
 
     public String getName() {
         return name;
+    }
+
+    public Rank getChild() {
+        return child;
+    }
+
+    public boolean isRankGreaterThan ( Rank rank ) {
+        return this.child != null && ( this.child == rank || this.child.isRankGreaterThan(rank) );
     }
 }
