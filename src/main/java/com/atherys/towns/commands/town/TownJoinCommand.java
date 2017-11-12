@@ -44,7 +44,7 @@ public class TownJoinCommand extends TownsSimpleCommand {
             Town t = tOpt.get();
 
             if ( t.getTownFlags().get(PlotFlags.Flag.JOIN) == PlotFlags.Extent.ALL ) {
-                t.inviteResident(resident);
+                TownInviteCommand.getInstance().inviteResident( resident, t );
             } else {
                 TownMessage.warn(player, "The town you are trying to join requires an invitation.");
                 return CommandResult.empty();

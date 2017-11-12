@@ -70,7 +70,7 @@ public class TownInviteCommand extends TownsSimpleCommand {
                 .build();
     }
 
-    private void inviteResident(Resident resident, Town town) {
+    public void inviteResident(Resident resident, Town town) {
         Optional<Player> p = resident.getPlayer();
 
         if ( p.isPresent() ) {
