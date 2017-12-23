@@ -25,6 +25,7 @@ public class TownMasterCommand extends TownsMasterCommand {
         addChild( TownCreateCommand.getInstance().getSpec(),    "create"            );
         addChild( TownJoinCommand.getInstance().getSpec(),      "join"              );
         addChild( TownLeaveCommand.getInstance().getSpec(),     "leave"             );
+        addChild( TownKickCommand.getInstance().getSpec(),      "kick"              );
         addChild( TownSpawnCommand.getInstance().getSpec(),     "spawn", "home"     );
         addChild( TownDepositCommand.getInstance().getSpec(),   "deposit"           );
         addChild( TownWithdrawCommand.getInstance().getSpec(),  "withdraw"          );

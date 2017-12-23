@@ -29,7 +29,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
-        if ( resident.getTownRank().equals(Settings.TOWN_LEADER_RANK ) ) ruinTown( player, town );
+        if ( resident.getTownRank().equals(Settings.TOWN_LEADER_RANK ) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
         return CommandResult.success();
     }
 

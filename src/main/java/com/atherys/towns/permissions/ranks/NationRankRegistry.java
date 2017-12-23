@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class NationRankRegistry implements CatalogRegistryModule<NationRank> {
+public final class NationRankRegistry implements CatalogRegistryModule<NationRank> {
 
     private static NationRankRegistry instance = new NationRankRegistry();
 

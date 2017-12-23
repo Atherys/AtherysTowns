@@ -9,8 +9,8 @@ import java.util.List;
 @CatalogedBy( NationRanks.class )
 public class NationRank extends Rank implements CatalogType {
 
-    protected NationRank ( String id, String name, List<? extends TownsAction> permittedActions) {
-        super(id, name, permittedActions);
+    protected NationRank ( String id, String name, List<? extends TownsAction> permittedActions, NationRank child) {
+        super(id, name, permittedActions, child);
         NationRankRegistry.getInstance().add(this);
     }
 
