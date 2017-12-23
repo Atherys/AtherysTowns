@@ -1,4 +1,4 @@
-group 'AtherysTowns'
+group 'com.atherys'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
