@@ -1,6 +1,6 @@
 package com.atherys.towns.nation;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
@@ -183,7 +183,7 @@ public class Nation extends AreaObject<Nation> {
     @Override
     public Text getFormattedInfo() {
 
-        String leaderName = Settings.NON_PLAYER_CHARACTER_NAME;
+        String leaderName = TownsConfig.NON_PLAYER_CHARACTER_NAME;
 
         Optional<Town> capital = getCapital();
         if ( capital.isPresent() ) {
@@ -194,13 +194,13 @@ public class Nation extends AreaObject<Nation> {
         List<Town> towns = getTowns();
 
         return Text.builder()
-                .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
+                .append(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
                 .append(Text.of(color, TextStyles.BOLD, getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Description: ", TextStyles.RESET, Settings.TEXT_COLOR, description, "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, leaderTitle, ": ", TextStyles.RESET, Settings.TEXT_COLOR, leaderName + "\n" ) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Towns[", Settings.TEXT_COLOR, towns.size(), Settings.PRIMARY_COLOR ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedTowns(towns) ) )
+                .append(Text.of(TextColors.RESET, TownsConfig.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET) )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Description: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, description, "\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getFormattedBank(), "\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, leaderTitle, ": ", TextStyles.RESET, TownsConfig.TEXT_COLOR, leaderName + "\n" ) )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Towns[", TownsConfig.TEXT_COLOR, towns.size(), TownsConfig.PRIMARY_COLOR ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedTowns(towns) ) )
                 .build();
     }
 
@@ -210,7 +210,7 @@ public class Nation extends AreaObject<Nation> {
         for ( Town t : towns ) {
             Text resText = Text.builder()
                     .append(Text.of(t.getName()))
-                    .onHover(TextActions.showText(Text.of(Settings.SECONDARY_COLOR, "Click for more info!")) )
+                    .onHover(TextActions.showText(Text.of(TownsConfig.SECONDARY_COLOR, "Click for more info!")) )
                     .onClick(TextActions.runCommand("/town info " + t.getName() ) )
                     .build();
 

@@ -1,6 +1,7 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.Settings;
+import com.atherys.core.utils.Question;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -8,7 +9,6 @@ import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
-import com.atherys.towns.utils.Question;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
@@ -29,7 +29,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
-        if ( resident.getTownRank().equals(Settings.TOWN_LEADER_RANK ) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
+        if ( resident.getTownRank().equals(TownsConfig.TOWN_LEADER_RANK ) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
         return CommandResult.success();
     }
 

@@ -1,6 +1,6 @@
 package com.atherys.towns.listeners;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.commands.plot.PlotToolCommand;
 import com.atherys.towns.managers.PlotManager;
@@ -74,7 +74,7 @@ public class PlayerListeners {
         } else if (plotFrom.isPresent() && plotTo.isPresent()) {
             // player is moving between 2 plots
             if (!plotFrom.get().getName().equals(plotTo.get().getName()) && !plotTo.get().getName().equals("None")) {
-                TownMessage.subtitleAnnounce(player, Text.of(Settings.SECONDARY_COLOR, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~"));
+                TownMessage.subtitleAnnounce(player, Text.of(TownsConfig.SECONDARY_COLOR, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~"));
             }
             if (!plotFrom.get().getFlags().equals(plotTo.get().getFlags())) {
                 player.sendMessage(plotTo.get().getFlags().differencesFormatted(plotFrom.get().getFlags()));
@@ -132,7 +132,7 @@ public class PlayerListeners {
         Optional<Plot> plotFrom = PlotManager.getInstance().getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
         if (plotFrom.isPresent()) {
             Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
-            if (resOpt.isPresent() && !plotFrom.get().isResidentAllowedTo(resOpt.get(), PlotFlags.Flag.SWITCH) && Settings.SWITCH_FLAG_BLOCKS.contains(event.getTargetBlock().getExtendedState().getType().getName()) ) {
+            if (resOpt.isPresent() && !plotFrom.get().isResidentAllowedTo(resOpt.get(), PlotFlags.Flag.SWITCH) && TownsConfig.SWITCH_FLAG_BLOCKS.contains(event.getTargetBlock().getExtendedState().getType().getName()) ) {
                 TownMessage.warn(player, "You are not allowed to switch in this town.");
                 event.setCancelled(true);
                 return;

@@ -1,7 +1,7 @@
 package com.atherys.towns.base;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -79,7 +79,7 @@ public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaOb
             Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
             while ( iter.hasNext() ) {
                 Map.Entry<Currency,BigDecimal> entry = iter.next();
-                hoverText.append(Text.of(Settings.SECONDARY_COLOR, entry.getValue(), Settings.DECORATION_COLOR, " ", entry.getKey().getDisplayName() ) );
+                hoverText.append(Text.of(TownsConfig.SECONDARY_COLOR, entry.getValue(), TownsConfig.DECORATION_COLOR, " ", entry.getKey().getDisplayName() ) );
                 if ( iter.hasNext() ) {
                     hoverText.append(Text.of("\n"));
                 }

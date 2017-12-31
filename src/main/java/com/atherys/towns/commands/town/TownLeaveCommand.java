@@ -1,12 +1,12 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.core.utils.Question;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import com.atherys.towns.utils.Question;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;

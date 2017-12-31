@@ -1,6 +1,6 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.resident.Resident;
@@ -163,11 +163,11 @@ public class Plot extends AreaObject<Town> {
         if ( parent.getParent().isPresent() ) nationName = parent.getParent().get().getName();
 
         return Text.builder()
-                .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(Settings.TERTIARY_COLOR, TextStyles.BOLD, name, TextStyles.RESET) )
-                .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append( Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), Settings.PRIMARY_COLOR, " ( ", Settings.TEXT_COLOR, nationName, Settings.PRIMARY_COLOR, " )\n" ))
-                .append( Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Flags: ", TextStyles.RESET, flags.formattedSingleLine(), "\n") )
+                .append(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
+                .append(Text.of(TownsConfig.TERTIARY_COLOR, TextStyles.BOLD, name, TextStyles.RESET) )
+                .append(Text.of(TextColors.RESET, TownsConfig.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
+                .append( Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), TownsConfig.PRIMARY_COLOR, " ( ", TownsConfig.TEXT_COLOR, nationName, TownsConfig.PRIMARY_COLOR, " )\n" ))
+                .append( Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Flags: ", TextStyles.RESET, flags.formattedSingleLine(), "\n") )
                 .build();
     }
 

@@ -1,6 +1,6 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
@@ -124,12 +124,12 @@ public class PlotDefinition extends Rectangle2D {
         double size_x = test.getWidth();
         double size_z = test.getHeight();
 
-        if ( size_x < Settings.MIN_SIZE_PLOT_SIDE || size_z < Settings.MIN_SIZE_PLOT_SIDE ) {
-            TownMessage.warn(player, Text.of("Sides of plot must be at least " + Settings.MIN_SIZE_PLOT_SIDE + " blocks wide!"));
+        if ( size_x < TownsConfig.MIN_SIZE_PLOT_SIDE || size_z < TownsConfig.MIN_SIZE_PLOT_SIDE ) {
+            TownMessage.warn(player, Text.of("Sides of plot must be at least " + TownsConfig.MIN_SIZE_PLOT_SIDE + " blocks wide!"));
             throw new DefinitionNotValidException();
         }
-        if ( size_x * size_z > Settings.MAX_PLOT_AREA ) {
-            TownMessage.warn(player, Text.of("Maximum area of a plot is " + Settings.MAX_PLOT_AREA + " blocks!"));
+        if ( size_x * size_z > TownsConfig.MAX_PLOT_AREA ) {
+            TownMessage.warn(player, Text.of("Maximum area of a plot is " + TownsConfig.MAX_PLOT_AREA + " blocks!"));
             throw new DefinitionNotValidException();
         }
         if ( PlotManager.getInstance().checkIntersection( new PlotDefinition( player.getWorld(), test ) ) ) {

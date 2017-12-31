@@ -1,6 +1,6 @@
 package com.atherys.towns.commands;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -25,9 +25,9 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
     }
 
     public void showHelp ( String cmd, Player player ) {
-        player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
+        player.sendMessage(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, TownsConfig.DECORATION_COLOR, " } =---------=.o0o." ));
         for (Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
-            Text cmdHelp = Text.of( TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
+            Text cmdHelp = Text.of( TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
             Text helpMsg = Text.builder()
                     .append( cmdHelp )
                     .onHover(TextActions.showText(
@@ -39,7 +39,7 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
                     .build();
             player.sendMessage(helpMsg);
         }
-        player.sendMessage(Text.of(Settings.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, Settings.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, Settings.DECORATION_COLOR, " } =---------=.o0o." ));
+        player.sendMessage(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, TownsConfig.DECORATION_COLOR, " } =---------=.o0o." ));
     }
 
 }

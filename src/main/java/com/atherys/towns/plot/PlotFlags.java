@@ -1,6 +1,6 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownAction;
@@ -192,7 +192,7 @@ public class PlotFlags {
     public Text formatted() {
         Text.Builder textBuilder = Text.builder();
         for ( Map.Entry<Flag,Extent> flag : flags.entrySet() ) {
-            textBuilder.append( Text.of(Settings.PRIMARY_COLOR, flag.getKey().name(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, flag.getValue().toString(), Settings.DECORATION_COLOR, " ) \n" ) );
+            textBuilder.append( Text.of(TownsConfig.PRIMARY_COLOR, flag.getKey().name(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, flag.getValue().toString(), TownsConfig.DECORATION_COLOR, " ) \n" ) );
         }
         return textBuilder.build();
     }
@@ -200,7 +200,7 @@ public class PlotFlags {
     public Text formattedSingleLine() {
         Text.Builder textBuilder = Text.builder();
         for ( Map.Entry<Flag,Extent> flag : flags.entrySet() ) {
-            textBuilder.append( Text.of(Settings.PRIMARY_COLOR, flag.getKey().name(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, flag.getValue().toString(), Settings.DECORATION_COLOR, " ); " ) );
+            textBuilder.append( Text.of(TownsConfig.PRIMARY_COLOR, flag.getKey().name(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, flag.getValue().toString(), TownsConfig.DECORATION_COLOR, " ); " ) );
         }
         return textBuilder.build();
     }
@@ -219,13 +219,13 @@ public class PlotFlags {
 
     public Text differencesFormatted(PlotFlags flags) {
         Text.Builder diffBuilder = Text.builder();
-        diffBuilder.append( Text.of( Settings.DECORATION_COLOR, ".o0o.-{ " ) );
+        diffBuilder.append( Text.of( TownsConfig.DECORATION_COLOR, ".o0o.-{ " ) );
         for ( Map.Entry<Flag,Extent> entry : flags.getAll().entrySet() ) {
             if ( !entry.getValue().equals( this.flags.get(entry.getKey()) ) ) {
-                diffBuilder.append( Text.of( Settings.PRIMARY_COLOR, entry.getKey().name(), " ( ", Settings.WARNING_COLOR, entry.getValue().name(), Settings.PRIMARY_COLOR, " ) ", TextColors.RESET ) );
+                diffBuilder.append( Text.of( TownsConfig.PRIMARY_COLOR, entry.getKey().name(), " ( ", TownsConfig.WARNING_COLOR, entry.getValue().name(), TownsConfig.PRIMARY_COLOR, " ) ", TextColors.RESET ) );
             }
         }
-        diffBuilder.append( Text.of( Settings.DECORATION_COLOR, " }-.o0o." ) );
+        diffBuilder.append( Text.of( TownsConfig.DECORATION_COLOR, " }-.o0o." ) );
         return diffBuilder.build();
     }
 }

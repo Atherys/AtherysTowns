@@ -1,7 +1,7 @@
 package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.utils.DbUtils;
@@ -34,7 +34,7 @@ public final class WildernessManager {
     private Map<String,Map<String,Double>> filter = new HashMap<>();
 
     private WildernessManager() {
-        Settings.WILDERNESS_REGEN_FILTER.entrySet().forEach( (entry) -> {
+        TownsConfig.WILDERNESS_REGEN_FILTER.entrySet().forEach( (entry) -> {
             Map<String,Double> alts = new HashMap<>();
             entry.getValue().getAsJsonObject().entrySet().forEach( (alt) -> alts.put( alt.getKey(), alt.getValue().getAsDouble() ));
             filter.put(entry.getKey(), alts);
@@ -118,7 +118,7 @@ public final class WildernessManager {
 
         DeleteResult deleteResult = collection().deleteMany(Filters.lte("timestamp", timestamp));
         AtherysTowns.getInstance().getLogger().info( "[Regeneration] " + restored + " snapshot(s) restored, and " + deleteResult.getDeletedCount() + " snapshot(s) deleted.");
-        Settings.getInstance().getRoot().getNode("wilderness", "regen", "last").setValue(timestamp);
+        TownsConfig.getInstance().getRoot().getNode("wilderness", "regen", "last").setValue(timestamp);
     }
 
     private void insertOne ( BlockSnapshot snapshot ) {

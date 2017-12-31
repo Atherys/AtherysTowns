@@ -1,6 +1,6 @@
 package com.atherys.towns.db;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -16,9 +16,9 @@ public class TownsDatabase {
     MongoDatabase db;
 
     private TownsDatabase() {
-        MongoCredential credential = MongoCredential.createCredential( Settings.DB_USER, Settings.DB_USER_DB, Settings.DB_PASSWORD.toCharArray() );
-        client = new MongoClient( new ServerAddress(Settings.DB_HOST, Settings.DB_PORT), Arrays.asList(credential) );
-        db = client.getDatabase(Settings.DB_DATABASE);
+        MongoCredential credential = MongoCredential.createCredential( TownsConfig.DB_USER, TownsConfig.DB_USER_DB, TownsConfig.DB_PASSWORD.toCharArray() );
+        client = new MongoClient( new ServerAddress(TownsConfig.DB_HOST, TownsConfig.DB_PORT), Arrays.asList(credential) );
+        db = client.getDatabase(TownsConfig.DB_DATABASE);
     }
 
     public MongoDatabase getDatabase() {

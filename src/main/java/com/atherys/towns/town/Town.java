@@ -1,6 +1,6 @@
 package com.atherys.towns.town;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.managers.ResidentManager;
@@ -111,7 +111,7 @@ public class Town extends AreaObject<Nation> {
     private Location<World> spawn;
 
     private String name;
-    private TextColor color = Settings.SECONDARY_COLOR;
+    private TextColor color = TownsConfig.SECONDARY_COLOR;
     private String motd = "Message of the day.";
     private String description = "Town description.";
 
@@ -130,7 +130,7 @@ public class Town extends AreaObject<Nation> {
         claimPlot ( homePlot );
         this.setParent( null );
         this.status = TownStatus.NONE;
-        mayor.setTown( this, Settings.TOWN_LEADER_RANK );
+        mayor.setTown( this, TownsConfig.TOWN_LEADER_RANK );
         TownManager.getInstance().add(this);
     }
 
@@ -250,7 +250,7 @@ public class Town extends AreaObject<Nation> {
             plotSize += p.getDefinition().area();
         }
 
-        String mayorName = Settings.NON_PLAYER_CHARACTER_NAME;
+        String mayorName = TownsConfig.NON_PLAYER_CHARACTER_NAME;
         Optional<Resident> mayor = getMayor();
         if ( mayor.isPresent() ) mayorName = mayor.get().getName();
 
@@ -262,9 +262,9 @@ public class Town extends AreaObject<Nation> {
         Text pvp = Text.of( TextStyles.BOLD, TextColors.GREEN, "( PvP On )" );
         if ( townFlags.get(PlotFlags.Flag.PVP) == PlotFlags.Extent.NONE ) pvp = Text.of( TextStyles.BOLD, TextColors.RED, "( PvP Off )" );
 
-        TextColor decoration = Settings.DECORATION_COLOR;
-        TextColor primary = Settings.PRIMARY_COLOR;
-        TextColor textColor = Settings.TEXT_COLOR;
+        TextColor decoration = TownsConfig.DECORATION_COLOR;
+        TextColor primary = TownsConfig.PRIMARY_COLOR;
+        TextColor textColor = TownsConfig.TEXT_COLOR;
 
         return Text.builder()
                 .append(Text.of(decoration, ".o0o.______.[ ", TextColors.RESET))
@@ -286,8 +286,8 @@ public class Town extends AreaObject<Nation> {
         Text.Builder residentsBuilder = Text.builder();
         Text separator = Text.of(", ");
 
-        TextColor primary = Settings.PRIMARY_COLOR;
-        TextColor textColor = Settings.TEXT_COLOR;
+        TextColor primary = TownsConfig.PRIMARY_COLOR;
+        TextColor textColor = TownsConfig.TEXT_COLOR;
 
         int iterations = 0;
         for ( Resident r : residentsByLastOnline ) {

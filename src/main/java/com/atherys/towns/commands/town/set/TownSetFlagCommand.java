@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -33,13 +33,13 @@ public class TownSetFlagCommand extends TownsSimpleCommand {
         Optional<PlotFlags.Flag> flag = args.getOne("flag");
 
         if ( !flag.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid flag. Possible flags: ", Settings.PRIMARY_COLOR, PlotFlags.Flag.values() );
+            TownMessage.warn( player, "You must provide a valid flag. Possible flags: ", TownsConfig.PRIMARY_COLOR, PlotFlags.Flag.values() );
             return CommandResult.empty();
         }
 
         Optional<PlotFlags.Extent> extent = args.getOne("extent");
         if ( !extent.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid extent. Possible extents: ", Settings.PRIMARY_COLOR, PlotFlags.Extent.values() );
+            TownMessage.warn( player, "You must provide a valid extent. Possible extents: ", TownsConfig.PRIMARY_COLOR, PlotFlags.Extent.values() );
             return CommandResult.empty();
         }
 

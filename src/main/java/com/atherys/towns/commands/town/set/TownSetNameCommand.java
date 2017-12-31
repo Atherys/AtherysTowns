@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -29,8 +29,8 @@ public class TownSetNameCommand extends TownsSimpleCommand {
         if ( town == null ) return CommandResult.empty();
 
         String name = (String) args.getOne("newName").orElse( town.getName() );
-        if ( name.length() > Settings.MAX_TOWN_NAME_LENGTH ) {
-            TownMessage.warn(player, "Town name must not exceed " + Settings.MAX_TOWN_NAME_LENGTH + " symbols.");
+        if ( name.length() > TownsConfig.MAX_TOWN_NAME_LENGTH ) {
+            TownMessage.warn(player, "Town name must not exceed " + TownsConfig.MAX_TOWN_NAME_LENGTH + " symbols.");
             return CommandResult.empty();
         }
         town.setName(name);

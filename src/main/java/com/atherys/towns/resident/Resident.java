@@ -1,7 +1,7 @@
 package com.atherys.towns.resident;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.Settings;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.base.TownsObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
@@ -11,7 +11,6 @@ import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
-import com.atherys.towns.utils.UserUtils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -95,7 +94,7 @@ public class Resident implements TownsObject {
     }
 
     public String getName() {
-        if ( !getUser().isPresent() ) return Settings.NON_PLAYER_CHARACTER_NAME;
+        if ( !getUser().isPresent() ) return TownsConfig.NON_PLAYER_CHARACTER_NAME;
         return getUser().get().getName();
     }
 
@@ -207,14 +206,14 @@ public class Resident implements TownsObject {
         }
 
         return Text.builder()
-                .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(Settings.TEXT_COLOR, TextStyles.BOLD, getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedRegisterDate(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, Settings.TEXT_COLOR, getPlayer().isPresent() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), Settings.DECORATION_COLOR, " ( ", Settings.TEXT_COLOR, nation, Settings.DECORATION_COLOR, " )\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, Settings.TEXT_COLOR, townRank == null ? "None" : townRank.getName() ) )
+                .append(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
+                .append(Text.of(TownsConfig.TEXT_COLOR, TextStyles.BOLD, getName(), TextStyles.RESET ) )
+                .append(Text.of(TextColors.RESET, TownsConfig.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getFormattedRegisterDate(), "\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getPlayer().isPresent() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getFormattedBank(), "\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, nation, TownsConfig.DECORATION_COLOR, " )\n") )
+                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, townRank == null ? "None" : townRank.getName() ) )
                 .build();
     }
 
@@ -250,7 +249,7 @@ public class Resident implements TownsObject {
                 Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
                 while (iter.hasNext()) {
                     Map.Entry<Currency, BigDecimal> entry = iter.next();
-                    hoverText.append(Text.of(Settings.SECONDARY_COLOR, entry.getValue(), Settings.DECORATION_COLOR, " ", entry.getKey().getDisplayName()));
+                    hoverText.append(Text.of(TownsConfig.SECONDARY_COLOR, entry.getValue(), TownsConfig.DECORATION_COLOR, " ", entry.getKey().getDisplayName()));
                     if (iter.hasNext()) {
                         hoverText.append(Text.of("\n"));
                     }
