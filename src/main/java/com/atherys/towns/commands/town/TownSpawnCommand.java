@@ -41,8 +41,8 @@ public class TownSpawnCommand extends TownsSimpleCommand {
                     player.setLocationSafely( spawn );
                     TownMessage.inform(player, "You have returned to your town's spawn!");
                 })
-                .name("atherystowns-spawn-task-" + player.getName())
-                .submit(AtherysTowns.getInstance());
+                .name( "atherystowns-spawn-task-" + player.getName() )
+                .submit( AtherysTowns.getInstance() );
 
         return CommandResult.success();
     }

@@ -47,7 +47,7 @@ public class TownSetNameCommand extends TownsSimpleCommand {
                 .arguments(
                         GenericArguments.remainingJoinedStrings(Text.of("newName"))
                 )
-                .executor( new TownSetNameCommand() )
+                .executor( this )
                 .build();
     }
 }

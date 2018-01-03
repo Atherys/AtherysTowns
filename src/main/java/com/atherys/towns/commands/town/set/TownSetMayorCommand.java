@@ -59,7 +59,7 @@ public class TownSetMayorCommand extends TownsSimpleCommand {
                 .arguments(
                         GenericArguments.user(Text.of("newMayor"))
                 )
-                .executor( new TownSetMayorCommand() )
+                .executor( this )
                 .build();
     }
 }

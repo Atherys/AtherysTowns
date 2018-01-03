@@ -45,7 +45,7 @@ public class TownSetSpawnCommand extends TownsSimpleCommand {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the spawn point of the town." ) )
                 .permission( TownActions.SET_SPAWN.getPermission() )
-                .executor( new TownSetSpawnCommand() )
+                .executor( this )
                 .build();
     }
 }

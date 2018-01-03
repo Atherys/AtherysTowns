@@ -5,27 +5,27 @@ import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
+import com.atherys.towns.utils.WildernessFilter;
 import com.google.gson.JsonObject;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class TownsConfig extends PluginConfig {
-
 
     @Setting ( "colors" )
     public ColorConfig COLORS = new ColorConfig();
 
     @ConfigSerializable
-    private static class ColorConfig {
+    public static class ColorConfig {
 
         @Setting( "decoration" )
         public TextColor DECORATION = TextColors.GOLD;
@@ -50,7 +50,7 @@ public final class TownsConfig extends PluginConfig {
     public TownConfig TOWN = new TownConfig();
 
     @ConfigSerializable
-    private static class TownConfig {
+    public static class TownConfig {
 
         @Setting ( "border_update_rate" )
         public int BORDER_UPDATE_RATE = 4;
@@ -78,7 +78,7 @@ public final class TownsConfig extends PluginConfig {
     @Setting ( "titles" )
     public TitleConfig TITLES = new TitleConfig();
 
-    private static class TitleConfig {
+    public static class TitleConfig {
 
         @Setting ( "fade_in_ticks" )
         public int FADE_IN = 5;
@@ -104,7 +104,7 @@ public final class TownsConfig extends PluginConfig {
     public DatabaseConfig DATABASE = new DatabaseConfig();
 
     @ConfigSerializable
-    private static class DatabaseConfig {
+    public static class DatabaseConfig {
 
         @Setting( "host" )
         public String HOST = "localhost";
@@ -130,7 +130,7 @@ public final class TownsConfig extends PluginConfig {
     public WildernessConfig WILDERNESS_REGEN = new WildernessConfig();
 
     @ConfigSerializable
-    private static class WildernessConfig {
+    public static class WildernessConfig {
 
         @Setting ( "enabled" )
         public boolean ENABLED = true;
@@ -141,9 +141,31 @@ public final class TownsConfig extends PluginConfig {
         @Setting ( "time_units" )
         public TimeUnit UNIT = TimeUnit.SECONDS;
 
-        @Setting ( "filter" )
-        public Map<String,Map<String,Double>> FILTER = new HashMap<>();
+        @Setting
+        public WildernessFilter FILTER = new WildernessFilter();
 
+        @Setting
+        public long LAST = 0;
+
+    }
+
+    @Setting
+    public List<BlockType> SWITCH_FLAG_BLOCKS = new ArrayList<>();
+    {
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.ENDER_CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPPED_CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.ACACIA_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.BIRCH_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.DARK_OAK_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.IRON_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.JUNGLE_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.SPRUCE_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPDOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.LEVER);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.STONE_BUTTON);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_BUTTON);
     }
 
     public static TextColor             DECORATION_COLOR =              TextColors.GOLD;
@@ -178,7 +200,6 @@ public final class TownsConfig extends PluginConfig {
     public static TimeUnit              WILDERNESS_REGEN_RATE_UNIT =    TimeUnit.SECONDS;
 
     public static JsonObject            WILDERNESS_REGEN_FILTER;
-    public static List<String>          SWITCH_FLAG_BLOCKS =            new ArrayList<>();
 
     public static NationRank NATION_LEADER_RANK = NationRanks.LEADER;
     public static TownRank TOWN_LEADER_RANK = TownRanks.MAYOR;

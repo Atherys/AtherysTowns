@@ -9,7 +9,6 @@ public class TownsValues {
 
     public enum TownsKey {
         PLOT_SELECTOR_1ST,
-        TOWN_CHAT,
         TOWN_BORDERS,
         PLOT_SELECTOR_2ND
     }
@@ -17,10 +16,14 @@ public class TownsValues {
     private static final Map<UUID, Map<TownsKey, Object>> values = new HashMap<>();
 
     public static void set(UUID uuid, TownsKey key, Object value) {
-        if (!values.containsKey(uuid)) {
-            values.put(uuid, new HashMap<>());
+        Map<TownsKey, Object> vals;
+        if ( !values.containsKey(uuid) ) {
+            vals = new HashMap<>();
+            values.put( uuid, vals );
+        } else {
+            vals = values.get( uuid );
         }
-        values.get(uuid).put(key, value);
+        vals.put(key, value);
     }
 
     public static Optional<Object> get ( UUID uuid, TownsKey key ) {

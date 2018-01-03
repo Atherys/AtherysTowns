@@ -50,7 +50,7 @@ public class TownSetNationCommand extends TownsSimpleCommand {
                 .arguments(
                         GenericArguments.remainingJoinedStrings(Text.of("nation"))
                 )
-                .executor( new TownSetNationCommand() )
+                .executor( this )
                 .build();
     }
 }

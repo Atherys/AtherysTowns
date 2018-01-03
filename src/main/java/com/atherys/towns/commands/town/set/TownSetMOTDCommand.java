@@ -41,7 +41,7 @@ public class TownSetMOTDCommand extends TownsSimpleCommand {
                 .arguments(
                         GenericArguments.remainingJoinedStrings(Text.of("newMOTD"))
                 )
-                .executor( new TownSetMOTDCommand() )
+                .executor( this )
                 .build();
     }
 }

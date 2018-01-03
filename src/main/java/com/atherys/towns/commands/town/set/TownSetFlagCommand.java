@@ -73,7 +73,7 @@ public class TownSetFlagCommand extends TownsSimpleCommand {
                         GenericArguments.enumValue(Text.of("flag"), PlotFlags.Flag.class),
                         GenericArguments.enumValue(Text.of("extent"), PlotFlags.Extent.class)
                 )
-                .executor( new TownSetFlagCommand() )
+                .executor( this )
                 .build();
     }
 }
