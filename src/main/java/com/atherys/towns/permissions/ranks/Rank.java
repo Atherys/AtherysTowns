@@ -56,6 +56,6 @@ public abstract class Rank {
     }
 
     public boolean isRankGreaterThan ( Rank rank ) {
-        return this.child != null && ( this.child == rank || this.child.isRankGreaterThan(rank) );
+        return this.getChild() != null && ( this.getChild() == rank || this.getChild().isRankGreaterThan(rank) );
     }
 }
