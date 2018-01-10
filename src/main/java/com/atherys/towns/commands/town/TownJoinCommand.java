@@ -5,7 +5,8 @@ import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownActions;
-import com.atherys.towns.plot.PlotFlags;
+import com.atherys.towns.plot.flags.Extents;
+import com.atherys.towns.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
@@ -43,7 +44,7 @@ public class TownJoinCommand extends TownsSimpleCommand {
 
             Town t = tOpt.get();
 
-            if ( t.getTownFlags().get(PlotFlags.Flag.JOIN) == PlotFlags.Extent.ALL ) {
+            if ( t.getTownFlags().get( Flags.JOIN ) == Extents.ANY ) {
                 TownInviteCommand.getInstance().inviteResident( resident, t );
             } else {
                 TownMessage.warn(player, "The town you are trying to join requires an invitation.");

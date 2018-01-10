@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.plot;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
@@ -42,8 +42,8 @@ public class PlotSetNameCommand extends TownsSimpleCommand {
         }
 
         Optional<String> name = args.getOne("name");
-        if ( !name.isPresent() || name.get().length() > TownsConfig.MAX_TOWN_NAME_LENGTH ) {
-            TownMessage.warn( player, "You must provide a valid name no longer than ", TownsConfig.MAX_TOWN_NAME_LENGTH, " symbols." );
+        if ( !name.isPresent() || name.get().length() > AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH ) {
+            TownMessage.warn( player, "You must provide a valid name no longer than ", AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH, " symbols." );
             return CommandResult.empty();
         }
 

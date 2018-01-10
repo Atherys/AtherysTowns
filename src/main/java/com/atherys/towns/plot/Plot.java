@@ -1,71 +1,33 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.core.views.Viewable;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
+import com.atherys.towns.views.PlotView;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Optional;
 import java.util.UUID;
 
-public class Plot extends AreaObject<Town> {
-
-    public static class Builder {
-
-        Plot plot;
-
-        Builder () {
-            this.plot = new Plot(UUID.randomUUID());
-        }
-
-        Builder ( UUID uuid ) {
-            this.plot = new Plot(uuid);
-        }
-
-        public Plot.Builder definition(PlotDefinition definition) {
-            plot.setDefinition(definition);
-            return this;
-        }
-
-        public Plot.Builder town ( Town town ) {
-            plot.setParent(town);
-            return this;
-        }
-
-        public Plot.Builder flags ( PlotFlags flags ) {
-            plot.setFlags(flags);
-            return this;
-        }
-
-        public Plot.Builder name(String name) {
-            plot.setName(name);
-            return this;
-        }
-
-        public Plot build() {
-            PlotManager.getInstance().add(plot);
-            return plot;
-        }
-
-    }
+public class Plot extends AreaObject<Town> implements Viewable<PlotView> {
 
     private PlotDefinition definition;
     private PlotFlags flags;
 
     private String name;
 
-    private Plot ( UUID uuid ) {
+    Plot(UUID uuid) {
         super ( uuid );
     }
 
@@ -83,11 +45,11 @@ public class Plot extends AreaObject<Town> {
         return new Plot(define, town, name);
     }
 
-    public Plot.Builder builder() { return new Plot.Builder(); }
+    public PlotBuilder builder() { return new PlotBuilder(); }
 
-    public static Plot.Builder fromUUID(UUID uuid) { return new Plot.Builder(uuid); }
+    public static PlotBuilder fromUUID(UUID uuid) { return new PlotBuilder(uuid); }
 
-    public boolean isResidentAllowedTo (Resident res, PlotFlags.Flag flag) { return this.flags.isAllowed(res, flag, this); }
+    public boolean isResidentAllowedTo (Resident res, Flag flag) { return this.flags.isAllowed(res, flag, this); }
 
     public PlotDefinition getDefinition() { return definition; }
 
@@ -99,7 +61,7 @@ public class Plot extends AreaObject<Town> {
 
     public void setFlags( PlotFlags flags ) { this.flags = flags.copy(); }
 
-    public void setFlag(PlotFlags.Flag flag, PlotFlags.Extent ext) {
+    public void setFlag( Flag flag, Extent ext ) {
         this.flags.set(flag, ext);
     }
 
@@ -154,25 +116,13 @@ public class Plot extends AreaObject<Town> {
         return definition.contains(loc);
     }
 
-    @Override
-    public Text getFormattedInfo() {
-
-        Town parent = getParent().get();
-
-        String nationName = "None";
-        if ( parent.getParent().isPresent() ) nationName = parent.getParent().get().getName();
-
-        return Text.builder()
-                .append(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(TownsConfig.TERTIARY_COLOR, TextStyles.BOLD, name, TextStyles.RESET) )
-                .append(Text.of(TextColors.RESET, TownsConfig.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append( Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), TownsConfig.PRIMARY_COLOR, " ( ", TownsConfig.TEXT_COLOR, nationName, TownsConfig.PRIMARY_COLOR, " )\n" ))
-                .append( Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Flags: ", TextStyles.RESET, flags.formattedSingleLine(), "\n") )
-                .build();
-    }
-
     public void remove() {
         // TODO: When a plot is claimed and unclaimed, the plot is still stored in the database
         PlotManager.getInstance().remove(this);
+    }
+
+    @Override
+    public Optional<PlotView> createView() {
+        return Optional.of( new PlotView(this) );
     }
 }

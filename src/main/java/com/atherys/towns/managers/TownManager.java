@@ -4,7 +4,9 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
+import com.atherys.towns.plot.flags.*;
 import com.atherys.towns.town.Town;
+import com.atherys.towns.town.TownBuilder;
 import com.atherys.towns.town.TownStatus;
 import com.atherys.towns.utils.DbUtils;
 import com.mongodb.client.MongoCollection;
@@ -15,6 +17,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,7 +41,7 @@ public final class TownManager extends AreaObjectManager<Town> {
         doc.append("name", object.getName());
 
         Document flags = new Document();
-        object.getTownFlags().getAll().forEach( (k,v) -> flags.append(k.name(), v.name()));
+        object.getTownFlags().getAll().forEach( (k,v) -> flags.append( k.getId(), v.getId() ) );
         doc.append("flags", flags);
 
         doc.append("max_size", object.getMaxSize());
@@ -53,12 +56,12 @@ public final class TownManager extends AreaObjectManager<Town> {
 
     @Override
     public void saveAll() {
-        super.saveAll(list);
+        super.saveAll( getAll() );
     }
 
     @Override
     public boolean fromDocument(Document doc) {
-        Town.Builder builder = Town.fromUUID( doc.get("uuid", UUID.class) ); // UUID.fromString(doc.getString("uuid")));
+        TownBuilder builder = Town.fromUUID( doc.get("uuid", UUID.class) ); // UUID.fromString(doc.getString("uuid")));
 
         UUID nation_uuid = doc.get("nation", UUID.class);
         if ( nation_uuid != null ) {
@@ -74,7 +77,12 @@ public final class TownManager extends AreaObjectManager<Town> {
         // load flags
         Document flags = doc.get("flags", Document.class);
         PlotFlags plotFlags = PlotFlags.regular();
-        flags.forEach( (k,v) -> plotFlags.set(PlotFlags.Flag.valueOf(k), PlotFlags.Extent.valueOf((String) v)));
+        for ( Map.Entry<String, Object> flagData : flags.entrySet() ) {
+            Optional<Flag> flag = FlagRegistry.getInstance().getById( flagData.getKey() );
+            if ( !flag.isPresent() ) continue;
+            Extent extent = ExtentRegistry.getInstance().getById( (String) flagData.getValue() ).orElse(Extents.NONE);
+            plotFlags.set( flag.get(), extent );
+        }
         builder.flags(plotFlags);
 
         builder.maxSize(doc.getInteger("max_size"));

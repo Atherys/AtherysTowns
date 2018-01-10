@@ -31,7 +31,7 @@ public class NationCreateCommand extends TownsSimpleCommand {
         }
 
         Nation newNation = Nation.create( args.<String>getOne("nationName").orElse( town + "'s Nation" ), town );
-        player.sendMessage(newNation.getFormattedInfo());
+        newNation.createView().ifPresent( view -> view.show( player ) );
 
         return CommandResult.success();
     }

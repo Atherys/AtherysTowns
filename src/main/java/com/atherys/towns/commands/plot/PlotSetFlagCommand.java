@@ -1,13 +1,15 @@
 package com.atherys.towns.commands.plot;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
-import com.atherys.towns.plot.PlotFlags;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.Flag;
+import com.atherys.towns.plot.flags.FlagRegistry;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
@@ -42,29 +44,29 @@ public class PlotSetFlagCommand extends TownsSimpleCommand {
             return CommandResult.empty();
         }
 
-        Optional<PlotFlags.Flag> flag = args.getOne("flag");
+        Optional<Flag> flag = args.getOne("flag");
         if ( !flag.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid flag. Possible flags: ", TownsConfig.PRIMARY_COLOR, PlotFlags.Flag.values() );
+            TownMessage.warn( player, "You must provide a valid flag. Possible flags: ", AtherysTowns.getConfig().COLORS.PRIMARY, FlagRegistry.getInstance().getAll() );
             return CommandResult.empty();
         }
 
-        Optional<PlotFlags.Extent> extent = args.getOne("extent");
+        Optional<Extent> extent = args.getOne("extent");
         if ( !extent.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid extent. Possible extents: ", TownsConfig.PRIMARY_COLOR, PlotFlags.Extent.values() );
+            TownMessage.warn( player, "You must provide a valid extent. Possible extents: ", AtherysTowns.getConfig().COLORS.PRIMARY, FlagRegistry.getInstance().getAll() );
             return CommandResult.empty();
         }
 
         if ( player.hasPermission( flag.get().getAction().getPermission() ) ) {
 
-            PlotFlags.Extent ext = extent.get();
+            Extent ext = extent.get();
 
             if ( !flag.get().checkExtent( ext ) ) {
-                TownMessage.warn( player, "You cannot use the ", ext.getName(), " extent with the ", flag.get().name(), " flag");
+                TownMessage.warn( player, "You cannot use the ", ext.getName(), " extent with the ", flag.get().getName(), " flag");
                 return CommandResult.empty();
             }
 
             plot.setFlag( flag.get(), ext );
-            town.informResidents( Text.of("Flag ", flag.get().name(), " for plot ", plot.getName() ," changed to ", ext ) );
+            town.informResidents( Text.of("Flag ", flag.get().getName(), " for plot ", plot.getName() ," changed to ", ext ) );
 
             return CommandResult.success();
         } else {
@@ -79,8 +81,8 @@ public class PlotSetFlagCommand extends TownsSimpleCommand {
                 .description( Text.of("Used to change the extent of a flag in a single plot.") )
                 .executor( this )
                 .arguments(
-                        GenericArguments.enumValue( Text.of("flag"), PlotFlags.Flag.class ),
-                        GenericArguments.enumValue( Text.of("extent"), PlotFlags.Extent.class )
+                        GenericArguments.catalogedElement( Text.of("flag"), Flag.class ),
+                        GenericArguments.catalogedElement( Text.of("extent"), Extent.class )
                 )
                 .permission(TownActions.MODIFY_PLOT_FLAG.getPermission())
                 .build();

@@ -1,7 +1,6 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.TownsConfig;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -32,11 +31,11 @@ public class TownSpawnCommand extends TownsSimpleCommand {
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
-        TownMessage.inform( player, "You will be teleported home in ", TownsConfig.TOWN_SPAWN_DELAY, " seconds.");
+        TownMessage.inform( player, "You will be teleported home in ", AtherysTowns.getConfig().TOWN.SPAWN_DELAY, " seconds.");
 
         Location<World> spawn = town.getSpawn();
         Task.builder()
-                .delay(TownsConfig.TOWN_SPAWN_DELAY, TimeUnit.SECONDS)
+                .delay( AtherysTowns.getConfig().TOWN.SPAWN_DELAY, TimeUnit.SECONDS)
                 .execute( () -> {
                     player.setLocationSafely( spawn );
                     TownMessage.inform(player, "You have returned to your town's spawn!");

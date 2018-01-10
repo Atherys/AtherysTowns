@@ -1,82 +1,30 @@
 package com.atherys.towns.resident;
 
+import com.atherys.core.utils.UserUtils;
+import com.atherys.core.views.Viewable;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.TownsConfig;
 import com.atherys.towns.base.TownsObject;
 import com.atherys.towns.managers.NationManager;
-import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
+import com.atherys.towns.views.ResidentView;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextFormat;
-import org.spongepowered.api.text.format.TextStyles;
 
 import javax.annotation.Nullable;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
-public class Resident implements TownsObject {
-
-    public static Resident.Builder fromUUID ( UUID uuid ) {
-        return new Builder(uuid);
-    }
-
-    public static class Builder {
-
-        Resident res;
-
-        Builder ( UUID uuid ) {
-            res = new Resident( uuid );
-        }
-
-        public Resident.Builder town ( Town town, TownRank rank ) {
-            if ( town != null ) {
-                res.setTown(town, rank);
-            }
-            return this;
-        }
-
-        public Resident.Builder townRank ( TownRank rank ) {
-            res.setTownRank(rank);
-            return this;
-        }
-
-        public Resident.Builder nationRank ( NationRank rank ) {
-            res.setNationRank(rank);
-            return this;
-        }
-
-        public Resident.Builder registerTimestamp ( long time ) {
-            res.setRegisteredTimestamp(time);
-            return this;
-        }
-
-        public Resident.Builder updateLastOnline () {
-            res.updateLastOnline();
-            return this;
-        }
-
-        public Resident build() {
-            ResidentManager.getInstance().add(res.getUUID(),res);
-            res.updatePermissions();
-            return res;
-        }
-    }
-
+public class Resident implements TownsObject, Viewable<ResidentView> {
 
     private UUID uuid;
 
@@ -87,17 +35,20 @@ public class Resident implements TownsObject {
     private long unixRegisterDateSeconds = 0;
     private long unixLastOnlineSeconds = 0;
 
-    private Resident( UUID uuid) {
+    protected Resident( UUID uuid) {
         this.uuid = uuid;
         unixRegisterDateSeconds = System.currentTimeMillis() / 1000L;
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
-    public String getName() {
-        if ( !getUser().isPresent() ) return TownsConfig.NON_PLAYER_CHARACTER_NAME;
-        return getUser().get().getName();
+    public static ResidentBuilder fromUUID (UUID uuid ) {
+        return new ResidentBuilder(uuid);
     }
 
+    public String getName() {
+        if ( !getUser().isPresent() ) return AtherysTowns.getConfig().TOWN.NPC_NAME;
+        return getUser().get().getName();
+    }
 
     // return user object regardless if player is online or not
     private Optional<? extends User> getUser() {
@@ -110,6 +61,10 @@ public class Resident implements TownsObject {
             if ( player.getUniqueId().equals(uuid) ) return Optional.of(player);
         }
         return Optional.empty();
+    }
+
+    public boolean isOnline() {
+        return getPlayer().isPresent();
     }
 
     public Optional<Town> getTown() {
@@ -158,14 +113,6 @@ public class Resident implements TownsObject {
         return Date.from( Instant.ofEpochSecond(unixRegisterDateSeconds) );
     }
 
-    public String getFormattedRegisterDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getRegisterDate());
-    }
-
-    public String getFormattedLastOnlineDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(getLastOnlineDate());
-    }
-
     public Date getLastOnlineDate() {
         return Date.from( Instant.ofEpochSecond(unixLastOnlineSeconds) );
     }
@@ -182,39 +129,6 @@ public class Resident implements TownsObject {
     @Override
     public void setName(String name) {
 
-    }
-
-    @Override
-    public Text getFormattedInfo() {
-
-        TextFormat format = TextFormat.NONE;
-        String townName = "None";
-        Text townLore = Text.EMPTY;
-        Text nation = Text.of("None");
-
-        if ( getTown().isPresent() ) {
-
-            townName = getTown().get().getName();
-            format = format.color( getTown().get().getColor() );
-            format = format.style( TextStyles.BOLD );
-
-            townLore = getTown().get().getFormattedInfo();
-            if ( town.getParent().isPresent() ) {
-                nation = Text.of ( town.getParent().get().getColor(), town.getParent().get().getName() );
-                nation = nation.toBuilder().onHover(TextActions.showText( town.getParent().get().getFormattedInfo() ) ).build();
-            }
-        }
-
-        return Text.builder()
-                .append(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(TownsConfig.TEXT_COLOR, TextStyles.BOLD, getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, TownsConfig.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Registered: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getFormattedRegisterDate(), "\n") )
-                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getPlayer().isPresent() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
-                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Town: ", TextStyles.RESET, Text.of( format, townName, TextStyles.RESET).toBuilder().onHover(TextActions.showText(townLore)).build(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, nation, TownsConfig.DECORATION_COLOR, " )\n") )
-                .append(Text.of(TextColors.RESET, TownsConfig.PRIMARY_COLOR, TextStyles.BOLD, "Rank: ", TextStyles.RESET, TownsConfig.TEXT_COLOR, townRank == null ? "None" : townRank.getName() ) )
-                .build();
     }
 
     public Optional<UniqueAccount> getBank() {
@@ -235,42 +149,8 @@ public class Resident implements TownsObject {
         this.unixRegisterDateSeconds = registeredTimestamp;
     }
 
-    public Text getFormattedBank() {
-        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-
-        if ( economy.isPresent() ) {
-            Optional<UniqueAccount> bankOpt = this.getBank();
-
-            if ( bankOpt.isPresent() ) {
-                UniqueAccount bank = bankOpt.get();
-                Text.Builder builder = Text.builder();
-                builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET));
-                Text.Builder hoverText = Text.builder();
-                Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<Currency, BigDecimal> entry = iter.next();
-                    hoverText.append(Text.of(TownsConfig.SECONDARY_COLOR, entry.getValue(), TownsConfig.DECORATION_COLOR, " ", entry.getKey().getDisplayName()));
-                    if (iter.hasNext()) {
-                        hoverText.append(Text.of("\n"));
-                    }
-                }
-                return builder.onHover(TextActions.showText(hoverText.build())).build();
-            }
-
-        }
-
-        return Text.of("None");
+    @Override
+    public Optional<ResidentView> createView() {
+        return Optional.of( new ResidentView(this) );
     }
-
-    //@Override
-    //public Document toBSON() {
-    //    Document serialized = new Document();
-    //    serialized.append("_id", this.getUUID());
-    //    serialized.append("town", town.getUUID());
-    //    serialized.append("last_online", this.getLastOnlineSeconds());
-    //    serialized.append("registered", this.getRegisteredSeconds());
-    //    serialized.append("town_rank", this.townRank.id());
-    //    serialized.append("nation_rank", this.nationRank.id());
-    //    return serialized;
-    //}
 }

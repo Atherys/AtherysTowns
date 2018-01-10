@@ -25,10 +25,10 @@ public class PlotToolCommand extends TownsSimpleCommand {
     private static final ItemStack PLOT_SELECTOR_TOOL = ItemStack.builder()
             .itemType(ItemTypes.STONE_AXE)
             .quantity(1)
-            .keyValue( Keys.DISPLAY_NAME, Text.of(TextStyles.BOLD, "Plot Selector") )
-            .keyValue( Keys.ITEM_LORE, Arrays.asList( Text.of("Use this tool to create a plot definition"), Text.of("by left-clicking at the first location, "), Text.of("and right-clicking at the second.") ) )
-            .keyValue( Keys.CAN_DROP_AS_ITEM, false )
-            .keyValue( Keys.COLOR, Color.BLUE)
+            .add( Keys.DISPLAY_NAME, Text.of(TextStyles.BOLD, "Plot Selector") )
+            .add( Keys.ITEM_LORE, Arrays.asList( Text.of("Use this tool to create a plot definition"), Text.of("by left-clicking at the first location, "), Text.of("and right-clicking at the second.") ) )
+            .add( Keys.CAN_DROP_AS_ITEM, false )
+            .add( Keys.COLOR, Color.BLUE)
             .build();
     private static PlotToolCommand instance = new PlotToolCommand();
 

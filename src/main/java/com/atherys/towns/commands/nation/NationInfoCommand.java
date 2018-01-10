@@ -30,7 +30,7 @@ public class NationInfoCommand extends TownsSimpleCommand {
             if ( residentNation.isPresent() ) return residentNation.get().getName();
             return "";
         }));
-        nationOptional.ifPresent(nation1 -> player.sendMessage(nation1.getFormattedInfo()));
+        nationOptional.ifPresent(nation1 -> nation1.createView().ifPresent( view -> view.show( player ) ) );
         return CommandResult.success();
     }
 

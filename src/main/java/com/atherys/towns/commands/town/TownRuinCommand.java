@@ -1,7 +1,7 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.core.utils.Question;
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -29,7 +29,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
-        if ( resident.getTownRank().equals(TownsConfig.TOWN_LEADER_RANK ) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
+        if ( resident.getTownRank().equals(AtherysTowns.getConfig().TOWN.TOWN_LEADER) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
         return CommandResult.success();
     }
 

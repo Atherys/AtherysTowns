@@ -4,6 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.*;
 import com.atherys.towns.resident.Resident;
+import com.atherys.towns.resident.ResidentBuilder;
 import com.atherys.towns.town.Town;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -77,7 +78,7 @@ public final class ResidentManager extends DatabaseManager<Resident> {
     public boolean fromDocument ( Document doc ) {
         UUID uuid =  doc.get("uuid", UUID.class);//UUID.fromString(doc.getString("uuid"));
 
-        Resident.Builder builder = Resident.fromUUID(uuid);
+        ResidentBuilder builder = Resident.fromUUID(uuid);
 
         UUID town_uuid = doc.get("town", UUID.class);
         if ( town_uuid != null ) {

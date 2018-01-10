@@ -1,138 +1,18 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.TownsConfig;
-import com.atherys.towns.managers.NationManager;
-import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownAction;
-import com.atherys.towns.permissions.actions.TownActions;
+import com.atherys.core.views.Viewable;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.Extents;
+import com.atherys.towns.plot.flags.Flag;
+import com.atherys.towns.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
+import com.atherys.towns.views.PlotFlagsView;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class PlotFlags {
-
-    private interface ExtentChecker<R,F,T,B> {
-        B apply(R resident, F flag, T plot);
-    }
-
-    public enum Flag {
-        PVP             (TownActions.SET_FLAG_PVP, Extent.ALL, Extent.NONE),
-        BUILD           (TownActions.SET_FLAG_BUILD, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        DESTROY         (TownActions.SET_FLAG_DESTROY, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        SWITCH          (TownActions.SET_FLAG_SWITCH, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        DAMAGE_ENTITY   (TownActions.SET_FLAG_DAMAGE_ENTITY, Extent.ALL, /*Extent.ALLIES, Extent.ENEMIES,*/ Extent.NATION, Extent.TOWN, Extent.NONE),
-        JOIN            (TownActions.SET_FLAG_JOIN, Extent.ALL, Extent.NONE);
-
-        private TownAction action;
-        private Extent[] permittedExtents;
-
-        Flag (TownAction action, Extent... permittedExtents ) {
-            this.action = action;
-            this.permittedExtents = permittedExtents;
-        }
-
-        public TownAction getAction() {
-            return action;
-        }
-
-        public boolean checkExtent (Extent extent ) {
-            for ( Extent e : permittedExtents ) {
-                if ( e.equals(extent) ) return true;
-            }
-            return false;
-        }
-    }
-
-    public enum Extent {
-        NULL("",                (resident, flag, plot) -> true ),
-        NONE("%none%",          (resident, flag, plot) -> false ),
-        ALL("%all%",            (resident, flag, plot) -> true ),
-        TOWN("%town%",          (resident, flag, plot) -> {
-            if ( resident.getTown().isPresent() ) {
-                if ( resident.getTown().get().equals( plot.getParent().get() ) ) return true;
-            }
-            return false;
-        }),
-        NATION("%nation%",      (resident, flag, plot) -> {
-            Optional<Nation> resNation = NationManager.getInstance().getByResident(resident);
-            Optional<Nation> plotNation = NationManager.getInstance().getByPlot(plot);
-            // if resident has no nation, and the plot has a nation flag, then that means the resident's permission is indeterminate. Return false;
-            // if plot has no nation, but has a nation flag, that means nobody who is part of a nation should have permission;
-            if ( !resNation.isPresent() || !plotNation.isPresent() ) return false;
-            // if resident's town and plot's town have same nation
-            if ( resident.getTown().isPresent() ) {
-                if ( resNation.get().equals(plotNation.get()) ) return true;
-            }
-            return false;
-        })
-        //,
-        //ALLIES("%allies%",      (resident, flag, plot) -> {
-        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-        //    // if resident's town's nation and plot's town's nation are allied
-        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
-        //        if ( resNation.get().equals(plotNation.get()) || resNation.get().isAlliedWith(plotNation.get()) ) return true;
-        //    }
-        //    return false;
-        //}),
-        //NEUTRALS("%neutrals%",  (resident, flag, plot) -> {
-        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-        //    // if neither nations have any diplomatic relationships ( ie they are neither enemies nor allies )
-        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
-        //        if ( !resNation.get().isAlliedWith(plotNation.get()) && !resNation.get().isEnemiesWith(plotNation.get()) ) return true;
-        //    }
-        //    return false;
-        //}),
-        //ENEMIES("%enemies%",    (resident, flag, plot) -> {
-        //    Optional<Nation> resNation = AtherysTowns.getInstance().getNationManager().getByResident(resident);
-        //    Optional<Nation> plotNation = AtherysTowns.getInstance().getNationManager().getByPlot(plot);
-        //    // if resident's town's nation and plot's town's nation are at war
-        //    if ( resNation.isPresent() && plotNation.isPresent() ) {
-        //        if ( resNation.get().equals(plotNation.get()) || resNation.get().isEnemiesWith(plotNation.get()) ) return true;
-        //    }
-        //    return false;
-        //})
-        ;
-
-        private String name;
-        private ExtentChecker<Resident,Flag,Plot,Boolean> checker;
-        public static final Extent[] VALUES = values();
-
-        Extent ( String name, ExtentChecker<Resident,Flag,Plot,Boolean> checker ) {
-            this.name = name;
-            this.checker = checker;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean check ( Resident res, Flag flag, Plot plot ) { return checker.apply(res, flag, plot); }
-
-        public static Extent fromName(String name) {
-            for (Extent extent : VALUES) {
-                if (extent.name.equals(name)) {
-                    return extent;
-                }
-            }
-            return NULL;
-        }
-
-        public static String list() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("[ ");
-            for ( Extent e : VALUES ) {
-                builder.append(e.name).append("; ");
-            }
-            builder.append(" ]");
-            return builder.toString();
-        }
-    }
+public class PlotFlags implements Viewable<PlotFlagsView> {
 
     private Map<Flag,Extent> flags;
 
@@ -151,12 +31,12 @@ public class PlotFlags {
     }
 
     public static PlotFlags regular() {
-        return   create(    PlotFlags.Flag.BUILD,           PlotFlags.Extent.TOWN   )
-                .set(       PlotFlags.Flag.DESTROY,         PlotFlags.Extent.TOWN   )
-                .set(       PlotFlags.Flag.PVP,             PlotFlags.Extent.ALL    )
-                .set(       PlotFlags.Flag.SWITCH,          PlotFlags.Extent.TOWN   )
-                .set(       PlotFlags.Flag.DAMAGE_ENTITY,   PlotFlags.Extent.TOWN   )
-                .set(       PlotFlags.Flag.JOIN,             PlotFlags.Extent.NONE  );
+        return   create(    Flags.BUILD,           Extents.TOWN   )
+                .set(       Flags.DESTROY,         Extents.TOWN   )
+                .set(       Flags.PVP,             Extents.ANY    )
+                .set(       Flags.SWITCH,          Extents.TOWN   )
+                .set(       Flags.DAMAGE_ENTITY,   Extents.TOWN   )
+                .set(       Flags.JOIN,            Extents.NONE   );
     }
 
     public PlotFlags set ( Flag flag, Extent value ) {
@@ -189,22 +69,6 @@ public class PlotFlags {
         return copy;
     }
 
-    public Text formatted() {
-        Text.Builder textBuilder = Text.builder();
-        for ( Map.Entry<Flag,Extent> flag : flags.entrySet() ) {
-            textBuilder.append( Text.of(TownsConfig.PRIMARY_COLOR, flag.getKey().name(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, flag.getValue().toString(), TownsConfig.DECORATION_COLOR, " ) \n" ) );
-        }
-        return textBuilder.build();
-    }
-
-    public Text formattedSingleLine() {
-        Text.Builder textBuilder = Text.builder();
-        for ( Map.Entry<Flag,Extent> flag : flags.entrySet() ) {
-            textBuilder.append( Text.of(TownsConfig.PRIMARY_COLOR, flag.getKey().name(), TownsConfig.DECORATION_COLOR, " ( ", TownsConfig.TEXT_COLOR, flag.getValue().toString(), TownsConfig.DECORATION_COLOR, " ); " ) );
-        }
-        return textBuilder.build();
-    }
-
     public Map<Flag,Extent> getAll() { return flags; }
 
     public boolean equals ( PlotFlags flags ) {
@@ -217,15 +81,8 @@ public class PlotFlags {
         return true;
     }
 
-    public Text differencesFormatted(PlotFlags flags) {
-        Text.Builder diffBuilder = Text.builder();
-        diffBuilder.append( Text.of( TownsConfig.DECORATION_COLOR, ".o0o.-{ " ) );
-        for ( Map.Entry<Flag,Extent> entry : flags.getAll().entrySet() ) {
-            if ( !entry.getValue().equals( this.flags.get(entry.getKey()) ) ) {
-                diffBuilder.append( Text.of( TownsConfig.PRIMARY_COLOR, entry.getKey().name(), " ( ", TownsConfig.WARNING_COLOR, entry.getValue().name(), TownsConfig.PRIMARY_COLOR, " ) ", TextColors.RESET ) );
-            }
-        }
-        diffBuilder.append( Text.of( TownsConfig.DECORATION_COLOR, " }-.o0o." ) );
-        return diffBuilder.build();
+    @Override
+    public Optional<PlotFlagsView> createView() {
+        return Optional.of ( new PlotFlagsView( this ) );
     }
 }

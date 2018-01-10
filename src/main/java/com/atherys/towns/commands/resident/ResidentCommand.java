@@ -41,7 +41,7 @@ public class ResidentCommand implements CommandExecutor {
                     System.out.println(user.get().getUniqueId().toString());
                     Optional<Resident> res = ResidentManager.getInstance().get(user.get().getUniqueId());
                     if ( res.isPresent() ) {
-                        src.sendMessage(res.get().getFormattedInfo());
+                        res.get().createView().ifPresent( view -> view.show( (Player) src ) );
                     } else {
                         TownMessage.warn((Player) src, "Resident does not exist.");
                     }
@@ -51,7 +51,7 @@ public class ResidentCommand implements CommandExecutor {
                 // get own resident
                 Optional<Resident> res = ResidentManager.getInstance().get(((Player) src).getUniqueId());
                 // send src resident info
-                res.ifPresent(resident -> src.sendMessage(resident.getFormattedInfo()));
+                res.ifPresent(resident -> resident.createView().ifPresent( view -> view.show( (Player) src ) ) );
             }
 
         return CommandResult.empty();

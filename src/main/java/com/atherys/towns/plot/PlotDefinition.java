@@ -1,6 +1,6 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class PlotDefinition extends Rectangle2D {
 
-    World world;
+    private World world;
 
     public PlotDefinition ( World world, double x, double y, double width, double height ) {
         super ( x, y, width, height );
@@ -117,19 +117,19 @@ public class PlotDefinition extends Rectangle2D {
         return false;
     }
 
-    private static Rectangle2D checkPlayer (Player player, Town town, Vector3d pos1, Vector3d pos2 ) throws DefinitionNotValidException, DefinitionNotPresentException {
+    private static Rectangle2D checkPlayer (Player player, Town town, Vector3d pos1, Vector3d pos2 ) throws DefinitionNotValidException {
         Tuple<Vector3d,Vector3d> positions = format(pos1,pos2);
         PlotDefinition test = new PlotDefinition( player.getWorld(), new Rectangle2D( new Point2D(positions.getFirst().getX(), positions.getFirst().getZ()), new Point2D(positions.getSecond().getX(), positions.getSecond().getZ()) ) );
 
         double size_x = test.getWidth();
         double size_z = test.getHeight();
 
-        if ( size_x < TownsConfig.MIN_SIZE_PLOT_SIDE || size_z < TownsConfig.MIN_SIZE_PLOT_SIDE ) {
-            TownMessage.warn(player, Text.of("Sides of plot must be at least " + TownsConfig.MIN_SIZE_PLOT_SIDE + " blocks wide!"));
+        if ( size_x < AtherysTowns.getConfig().TOWN.MIN_PLOT_SIZE || size_z < AtherysTowns.getConfig().TOWN.MIN_PLOT_SIZE ) {
+            TownMessage.warn(player, Text.of("Sides of plot must be at least " + AtherysTowns.getConfig().TOWN.MIN_PLOT_SIZE + " blocks wide!"));
             throw new DefinitionNotValidException();
         }
-        if ( size_x * size_z > TownsConfig.MAX_PLOT_AREA ) {
-            TownMessage.warn(player, Text.of("Maximum area of a plot is " + TownsConfig.MAX_PLOT_AREA + " blocks!"));
+        if ( size_x * size_z > AtherysTowns.getConfig().TOWN.MAX_PLOT_AREA ) {
+            TownMessage.warn(player, Text.of("Maximum area of a plot is " + AtherysTowns.getConfig().TOWN.MAX_PLOT_AREA + " blocks!"));
             throw new DefinitionNotValidException();
         }
         if ( PlotManager.getInstance().checkIntersection( new PlotDefinition( player.getWorld(), test ) ) ) {

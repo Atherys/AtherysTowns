@@ -13,14 +13,4 @@ public class NationRank extends Rank implements CatalogType {
         super(id, name, permittedActions, child);
         NationRankRegistry.getInstance().add(this);
     }
-
-    @Override
-    public String getId() {
-        return super.getId();
-    }
-
-    @Override
-    public String getName() {
-        return super.getName();
-    }
 }

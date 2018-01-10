@@ -30,7 +30,7 @@ public final class TownRanks {
             TownActions.TOWN_WITHDRAW,
             TownActions.MODIFY_PLOT_FLAG,
             TownActions.MODIFY_PLOT_NAME
-    ), NationRanks.RESIDENT, TownRanks.CO_MAYOR);
+    ), NationRanks.RESIDENT, TownRanks.CO_MAYOR );
 
     public static final TownRank CO_MAYOR = new TownRank ( "co_mayor", "Co-Mayor", Arrays.asList(
             TownActions.CHAT,

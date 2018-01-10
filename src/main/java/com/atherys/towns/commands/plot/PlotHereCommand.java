@@ -32,7 +32,7 @@ public class PlotHereCommand extends TownsSimpleCommand {
             return CommandResult.empty();
         }
 
-        player.sendMessage( plot.get().getFormattedInfo() );
+        plot.get().createView().ifPresent( view -> view.show( player ) );
 
         return CommandResult.empty();
     }

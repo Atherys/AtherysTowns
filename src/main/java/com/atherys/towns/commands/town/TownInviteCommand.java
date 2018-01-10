@@ -1,7 +1,7 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.core.utils.Question;
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
@@ -95,7 +95,7 @@ public class TownInviteCommand extends TownsSimpleCommand {
                     }))
                     .build();
 
-            invite.pollViewButton( p.get(), Text.of( TownMessage.MSG_PREFIX, TownsConfig.TERTIARY_COLOR, "You have been invited to join the town of ", town.getName(), ". Click here to respond." ) );
+            invite.pollViewButton( p.get(), Text.of( TownMessage.MSG_PREFIX, AtherysTowns.getConfig().COLORS.TERTIARY, "You have been invited to join the town of ", town.getName(), ". Click here to respond." ) );
         }
     }
 }

@@ -86,7 +86,7 @@ public abstract class DatabaseManager<T extends TownsObject> {
         AtherysTowns.getInstance().getLogger().info( "[MongoDB] " + this.getClass().getSimpleName() + " Loaded " + loaded + "/" + found );
     }
 
-    public void removeOne ( T object ) {
+    protected void removeOne ( T object ) {
         collection().deleteOne( new Document( "uuid", object.getUUID() ) );
     }
 

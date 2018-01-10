@@ -1,10 +1,11 @@
 package com.atherys.towns.commands;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.Arrays;
@@ -25,9 +26,13 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
     }
 
     public void showHelp ( String cmd, Player player ) {
-        player.sendMessage(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, TownsConfig.DECORATION_COLOR, " } =---------=.o0o." ));
+
+        TextColor decoration = AtherysTowns.getConfig().COLORS.DECORATION;
+        TextColor primary = AtherysTowns.getConfig().COLORS.PRIMARY;
+
+        player.sendMessage(Text.of(decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd," Help", TextStyles.RESET, decoration, " } =---------=.o0o." ));
         for (Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
-            Text cmdHelp = Text.of( TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
+            Text cmdHelp = Text.of( TextStyles.BOLD, primary, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
             Text helpMsg = Text.builder()
                     .append( cmdHelp )
                     .onHover(TextActions.showText(
@@ -39,7 +44,7 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
                     .build();
             player.sendMessage(helpMsg);
         }
-        player.sendMessage(Text.of(TownsConfig.DECORATION_COLOR, ".o0o.=---------= { ", TextStyles.BOLD, TownsConfig.PRIMARY_COLOR, "/", cmd," Help", TextStyles.RESET, TownsConfig.DECORATION_COLOR, " } =---------=.o0o." ));
+        player.sendMessage(Text.of(decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd," Help", TextStyles.RESET, decoration, " } =---------=.o0o." ));
     }
 
 }

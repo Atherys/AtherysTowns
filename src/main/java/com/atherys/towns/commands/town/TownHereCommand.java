@@ -28,7 +28,7 @@ public class TownHereCommand extends TownsSimpleCommand {
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         Optional<Plot> pHere = PlotManager.getInstance().getByLocation(player.getLocation());
         if ( pHere.isPresent() ) {
-            player.sendMessage(pHere.get().getTown().getFormattedInfo());
+            pHere.get().createView().ifPresent( view -> view.show(player) );
             return CommandResult.success();
         } else {
             TownMessage.warn(player, "You are in the wilderness.");

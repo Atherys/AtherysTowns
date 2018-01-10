@@ -27,12 +27,9 @@ public final class WildernessManager {
 
     private WildernessFilter filter;
 
-    private WildernessManager() {
-        //TownsConfig.WILDERNESS_REGEN_FILTER.entrySet().forEach( (entry) -> {
-        //    Map<String,Double> alts = new HashMap<>();
-        //    entry.getValue().getAsJsonObject().entrySet().forEach( (alt) -> alts.put( alt.getKey(), alt.getValue().getAsDouble() ));
-        //    filter.put(entry.getKey(), alts);
-        //});
+    private WildernessManager() { }
+
+    public void init() {
         this.filter = AtherysTowns.getConfig().WILDERNESS_REGEN.FILTER;
         collection().createIndex(new Document("location", 1), new IndexOptions().unique(true));
     }

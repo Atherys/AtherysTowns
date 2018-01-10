@@ -1,6 +1,6 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.TownsConfig;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
@@ -53,7 +53,7 @@ public class TownSetRankCommand extends TownsSimpleCommand {
         String rankName = (String) args.getOne("newRank").orElse ( targetRes.getTownRank().getId() );
         Optional<TownRank> rank = TownRankRegistry.getInstance().getById(rankName);
         if ( rank.isPresent() ) {
-            if ( rank.get().equals ( TownsConfig.TOWN_LEADER_RANK) ) {
+            if ( rank.get().equals ( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) ) {
                 TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
                 return CommandResult.empty();
             }
