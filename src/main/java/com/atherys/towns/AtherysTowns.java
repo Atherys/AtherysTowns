@@ -61,7 +61,7 @@ public class AtherysTowns {
     private static boolean init = false;
     private TownsConfig config;
 
-    private String workingDir = "configs/" + ID + "/";
+    private String workingDir = "config/" + ID + "/";
 
     private Task townBorderTask;
     private Task wildernessRegenTask;
@@ -80,7 +80,7 @@ public class AtherysTowns {
 
         Optional<PermissionService> permissionService = Sponge.getServiceManager().provide(PermissionService.class);
         if ( !permissionService.isPresent() ) {
-            getLogger().warn("No permission service found. This plugin requires a permissions plugin utilizing the Sponge Permissions API to function properly. Aborting start.");
+            getLogger().warn("No permission service found. This plugin requires a permissions plugin implementing the Sponge Permissions API to function properly. Aborting start.");
             init = false;
             return;
         }
