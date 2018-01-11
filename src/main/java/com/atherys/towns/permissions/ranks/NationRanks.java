@@ -6,6 +6,19 @@ import java.util.Arrays;
 
 public final class NationRanks {
 
+    public static final NationRank NONE = new NationRank( "nation_none", "None", Arrays.asList(), null);
+
+    public static final NationRank RESIDENT = new NationRank( "nation_resident", "Resident", Arrays.asList(
+            NationActions.CHAT,
+            NationActions.NATION_DEPOSIT
+    ), NationRanks.NONE);
+
+    public static final NationRank CO_LEADER = new NationRank( "nation_co_leader", "Co-Leader", Arrays.asList(
+            NationActions.CHAT,
+            NationActions.NATION_DEPOSIT,
+            NationActions.NATION_WITHDRAW
+    ), NationRanks.RESIDENT);
+
     public static final NationRank LEADER = new NationRank( "nation_leader", "Leader", Arrays.asList(
             NationActions.CHAT,
             NationActions.NATION_DEPOSIT,
@@ -16,17 +29,4 @@ public final class NationRanks {
             NationActions.SET_RANK,
             NationActions.SET_LEADER_TITLE
     ), NationRanks.CO_LEADER);
-
-    public static final NationRank CO_LEADER = new NationRank( "nation_co_leader", "Co-Leader", Arrays.asList(
-            NationActions.CHAT,
-            NationActions.NATION_DEPOSIT,
-            NationActions.NATION_WITHDRAW
-    ), NationRanks.RESIDENT);
-
-    public static final NationRank RESIDENT = new NationRank( "nation_resident", "Resident", Arrays.asList(
-            NationActions.CHAT,
-            NationActions.NATION_DEPOSIT
-    ), NationRanks.NONE);
-
-    public static final NationRank NONE = new NationRank( "nation_none", "None", Arrays.asList(), null);
 }
