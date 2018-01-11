@@ -9,6 +9,18 @@ import com.atherys.towns.commands.wilderness.WildernessRegenCommand;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.listeners.PlayerListeners;
 import com.atherys.towns.managers.*;
+import com.atherys.towns.permissions.actions.NationAction;
+import com.atherys.towns.permissions.actions.NationActionRegistry;
+import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActionRegistry;
+import com.atherys.towns.permissions.ranks.NationRank;
+import com.atherys.towns.permissions.ranks.NationRankRegistry;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRankRegistry;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.ExtentRegistry;
+import com.atherys.towns.plot.flags.Flag;
+import com.atherys.towns.plot.flags.FlagRegistry;
 import com.atherys.towns.resident.Resident;
 import com.google.inject.Inject;
 import com.mongodb.client.MongoDatabase;
@@ -58,6 +70,13 @@ public class AtherysTowns {
 
     private void init() {
         instance = this;
+
+        game.getRegistry().registerModule( Extent.class, ExtentRegistry.getInstance() );
+        game.getRegistry().registerModule( Flag.class, FlagRegistry.getInstance() );
+        game.getRegistry().registerModule( TownAction.class, TownActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationAction.class, NationActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationRank.class, NationRankRegistry.getInstance() );
+        game.getRegistry().registerModule( TownRank.class, TownRankRegistry.getInstance() );
 
         Optional<PermissionService> permissionService = Sponge.getServiceManager().provide(PermissionService.class);
         if ( !permissionService.isPresent() ) {

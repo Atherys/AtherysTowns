@@ -14,6 +14,8 @@ public class NationAction implements CatalogType, TownsAction {
         this.id = id;
         this.name = name;
         this.permission = permission;
+
+        NationActionRegistry.getInstance().add( this );
     }
 
     @Override
