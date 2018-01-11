@@ -4,7 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.permissions.actions.TownsAction;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.LinkedHashSet;
@@ -16,7 +16,7 @@ public abstract class Rank {
     private String name;
 
     protected Rank child;
-    protected Subject permissions;
+    protected SubjectReference permissions;
 
     protected Rank ( String id, String name, List<? extends TownsAction> permittedActions, Rank child ) {
         this.id = id;
@@ -24,23 +24,23 @@ public abstract class Rank {
 
         PermissionService service = AtherysTowns.getPermissionService();
 
-        permissions = service.getGroupSubjects().getSubject( id ).get();
+        permissions = service.getGroupSubjects().newSubjectReference( id );
+        permissions.resolve().thenAccept( subject -> {
+            for ( TownsAction action : permittedActions ) {
+                subject.getSubjectData().setPermission( new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE );
+            }
 
-        for ( TownsAction action : permittedActions ) {
-            permissions.getSubjectData().setPermission( new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE );
-        }
-
-        permissions.getSubjectData().addParent( new LinkedHashSet<>(), service.getGroupSubjects().getSubject("atherystowns").get().asSubjectReference() );
-
+            subject.getSubjectData().addParent( new LinkedHashSet<>(), service.getGroupSubjects().newSubjectReference("atherystowns") );
+        });
         this.child = child;
     }
 
     public void addPermissions ( User player ) {
-        player.getSubjectData().addParent( new LinkedHashSet<>(), permissions.asSubjectReference() );
+        player.getSubjectData().addParent( new LinkedHashSet<>(), permissions );
     }
 
     public void removePermissions ( User player ) {
-        player.getSubjectData().removeParent( new LinkedHashSet<>(), permissions.asSubjectReference() );
+        player.getSubjectData().removeParent( new LinkedHashSet<>(), permissions );
     }
 
     public String getId() {
