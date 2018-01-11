@@ -83,6 +83,7 @@ public final class TownsConfig extends PluginConfig {
     @Setting ( "titles" )
     public TitleConfig TITLES = new TitleConfig();
 
+    @ConfigSerializable
     public static class TitleConfig {
 
         @Setting ( "fade_in_ticks" )
