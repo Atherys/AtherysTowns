@@ -150,15 +150,15 @@ public final class TownsConfig extends PluginConfig {
         @Setting ( "time_units" )
         public TimeUnit UNIT = TimeUnit.SECONDS;
 
-        @Setting
+        @Setting ( "filter" )
         public WildernessFilter FILTER = new WildernessFilter();
 
-        @Setting
+        @Setting ( "last_regen" )
         public long LAST = 0;
 
     }
 
-    @Setting
+    @Setting ( "switch_flag_blocks" )
     public List<BlockType> SWITCH_FLAG_BLOCKS = new ArrayList<>();
     {
         SWITCH_FLAG_BLOCKS.add(BlockTypes.CHEST);
