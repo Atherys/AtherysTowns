@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 public final class TownsConfig extends PluginConfig {
 
+    @Setting ( "defaultConfig" )
+    public boolean DEFAULT = true;
+
     @Setting ( "colors" )
     public ColorConfig COLORS = new ColorConfig();
 

@@ -100,6 +100,12 @@ public class AtherysTowns {
             return;
         }
 
+        if ( config.DEFAULT ) {
+            getLogger().warn("Config set to default. Plugin will not initialize further than this.");
+            init = false;
+            return;
+        }
+
         TownsDatabase.getInstance().init();
 
         WildernessManager.getInstance().init();
