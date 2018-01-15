@@ -59,7 +59,9 @@ public class AtherysTowns {
 
     private static AtherysTowns instance;
     private static boolean init = false;
+
     private TownsConfig config;
+    private TownsDatabase database;
 
     private String workingDir = "config/" + ID + "/";
 
@@ -106,7 +108,7 @@ public class AtherysTowns {
             return;
         }
 
-        TownsDatabase.getInstance().init();
+        database = TownsDatabase.getInstance();
 
         WildernessManager.getInstance().init();
 
@@ -161,10 +163,10 @@ public class AtherysTowns {
     }
 
     private void stop() {
-        ResidentManager.getInstance().saveAll();
-        PlotManager.getInstance().saveAll();
-        TownManager.getInstance().saveAll();
-        NationManager.getInstance().saveAll();
+        ResidentManager.getInstance().saveAll( ResidentManager.getInstance().getAll() );
+        PlotManager.getInstance().saveAll( PlotManager.getInstance().getAll() );
+        TownManager.getInstance().saveAll( TownManager.getInstance().getAll() );
+        NationManager.getInstance().saveAll( NationManager.getInstance().getAll() );
     }
 
     @Listener
@@ -210,5 +212,9 @@ public class AtherysTowns {
 
     public static TownsConfig getConfig() {
         return AtherysTowns.getInstance().config;
+    }
+
+    public static TownsDatabase getDatabase() {
+        return getInstance().database;
     }
 }

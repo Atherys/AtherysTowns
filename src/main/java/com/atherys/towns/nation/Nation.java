@@ -51,7 +51,7 @@ public class Nation extends AreaObject<Nation> implements Viewable<NationView> {
         capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRanks.LEADER));
 
         NationManager.getInstance().add(this);
-        NationManager.getInstance().saveOne(this);
+        NationManager.getInstance().save(this);
     }
 
     public static Nation create (UUID uuid, String name, String description) {

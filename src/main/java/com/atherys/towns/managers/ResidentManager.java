@@ -1,23 +1,23 @@
 package com.atherys.towns.managers;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
+import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.*;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ResidentBuilder;
 import com.atherys.towns.town.Town;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import java.util.*;
 
-public final class ResidentManager extends DatabaseManager<Resident> {
+public final class ResidentManager extends AbstractMongoDatabaseManager<Resident> {
 
     private static ResidentManager instance = new ResidentManager();
 
     public List<Resident> getByTown(Town town) {
         List<Resident> residents = new ArrayList<>();
-        for ( Resident res : playerResidentMap.values() ) {
+        for ( Resident res : super.getCache().values() ) {
             if ( res.getTown().isPresent() && res.getTown().get().equals(town) ) {
                 residents.add(res);
             }
@@ -27,7 +27,7 @@ public final class ResidentManager extends DatabaseManager<Resident> {
 
     public List<Resident> getByNation(Nation nation) {
         List<Resident> residents = new ArrayList<>();
-        for ( Resident res : playerResidentMap.values() ) {
+        for ( Resident res : super.getCache().values() ) {
             Optional<Town> town = res.getTown();
             if ( town.isPresent() ) {
                 if ( town.get().getParent().isPresent() && town.get().getParent().get().equals(nation) ) residents.add(res);
@@ -36,28 +36,16 @@ public final class ResidentManager extends DatabaseManager<Resident> {
         return residents;
     }
 
-    private Map<UUID,Resident> playerResidentMap = new HashMap<>();
-
     private ResidentManager () {
+        super(TownsDatabase.getInstance(), "residents");
     }
 
-    public Optional<Resident> get ( UUID uuid ) {
-        Resident res = playerResidentMap.get(uuid);
-        if ( res == null ) return Optional.empty();
-        return Optional.of(playerResidentMap.get(uuid));
-    }
+    public boolean has ( UUID uuid ) { return super.getCache().containsKey(uuid); }
 
-    public void add ( UUID uuid, Resident resident ) { playerResidentMap.put(uuid, resident); }
-
-    public boolean has ( UUID uuid ) { return playerResidentMap.containsKey(uuid); }
+    public Collection<Resident> getAll() { return super.getCache().values(); }
 
     @Override
-    public MongoCollection<Document> collection() {
-        return AtherysTowns.getDb().getCollection("residents");
-    }
-
-    @Override
-    public Document toDocument(Resident object) {
+    public Optional<Document> toDocument(Resident object) {
         Document doc = new Document( "uuid", object.getUUID() );
 
         if ( object.getTown().isPresent() ) {
@@ -71,11 +59,11 @@ public final class ResidentManager extends DatabaseManager<Resident> {
         doc.append("town_rank", object.getTownRank().getId() );
         doc.append("nation_rank", object.getNationRank().getId() );
 
-        return doc;
+        return Optional.of(doc);
     }
 
     @Override
-    public boolean fromDocument ( Document doc ) {
+    public Optional<Resident> fromDocument ( Document doc ) {
         UUID uuid =  doc.get("uuid", UUID.class);//UUID.fromString(doc.getString("uuid"));
 
         ResidentBuilder builder = Resident.fromUUID(uuid);
@@ -91,14 +79,7 @@ public final class ResidentManager extends DatabaseManager<Resident> {
         }
         builder.registerTimestamp( doc.getLong("registered") );
         builder.updateLastOnline();
-        builder.build();
-
-        return true;
-    }
-
-    @Override
-    public void saveAll() {
-        this.saveAll(playerResidentMap.values());
+        return Optional.of( builder.build() );
     }
 
     public static ResidentManager getInstance() {

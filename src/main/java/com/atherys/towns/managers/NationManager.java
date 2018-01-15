@@ -1,12 +1,10 @@
 package com.atherys.towns.managers;
 
-import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.nation.NationBuilder;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.format.TextColor;
@@ -20,6 +18,7 @@ public final class NationManager extends AreaObjectManager<Nation> {
     private static NationManager instance = new NationManager();
 
     private NationManager() {
+        super( "nations" );
     }
 
     public Optional<Nation> getByPlot ( Plot plot ) {
@@ -38,12 +37,7 @@ public final class NationManager extends AreaObjectManager<Nation> {
     }
 
     @Override
-    public MongoCollection<Document> collection() {
-        return TownsDatabase.getInstance().getDatabase().getCollection("nations");
-    }
-
-    @Override
-    public Document toDocument(Nation object) {
+    public Optional<Document> toDocument(Nation object) {
         Document doc = new Document("uuid", object.getUUID() );
         doc.append("name", object.getName());
         doc.append("tax", object.getTax());
@@ -51,16 +45,11 @@ public final class NationManager extends AreaObjectManager<Nation> {
         doc.append("color", object.getColor().getId());
         doc.append("description", object.getDescription());
 
-        return doc;
+        return Optional.of(doc);
     }
 
     @Override
-    public void saveAll() {
-        super.saveAll( getAll() );
-    }
-
-    @Override
-    public boolean fromDocument(Document doc) {
+    public Optional<Nation> fromDocument(Document doc) {
         UUID uuid = doc.get("uuid", UUID.class);// UUID.fromString( doc.getString("uuid") );
         NationBuilder builder = Nation.fromUUID(uuid);
         builder.name(doc.getString("name"));
@@ -69,9 +58,7 @@ public final class NationManager extends AreaObjectManager<Nation> {
         builder.color(Sponge.getGame().getRegistry().getType(TextColor.class, doc.getString("color")).orElse(TextColors.WHITE));
         builder.description(doc.getString("description"));
 
-        builder.build();
-
-        return true;
+        return Optional.of( builder.build() );
     }
 
     public static NationManager getInstance() {

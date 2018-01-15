@@ -38,7 +38,7 @@ public class Plot extends AreaObject<Town> implements Viewable<PlotView> {
         flags = PlotFlags.regular();
         this.name = name;
         PlotManager.getInstance().add(this);
-        PlotManager.getInstance().saveOne(this);
+        PlotManager.getInstance().save(this);
     }
 
     public static Plot create ( PlotDefinition define, Town town, String name ) {

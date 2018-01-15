@@ -1,7 +1,6 @@
 package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotBuilder;
 import com.atherys.towns.plot.PlotDefinition;
@@ -9,7 +8,6 @@ import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.plot.flags.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.DbUtils;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import java.util.Map;
@@ -21,6 +19,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     private static PlotManager instance = new PlotManager();
 
     private PlotManager() {
+        super( "plots" );
     }
 
     public boolean checkIntersection (PlotDefinition definition ) {
@@ -31,12 +30,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     }
 
     @Override
-    public MongoCollection<Document> collection() {
-        return TownsDatabase.getInstance().getDatabase().getCollection("plots");
-    }
-
-    @Override
-    public Document toDocument(Plot object) {
+    public Optional<Document> toDocument(Plot object) {
 
         Document doc = new Document("uuid", object.getUUID() );
         doc.append("town", object.getTown().getUUID() );
@@ -49,16 +43,11 @@ public final class PlotManager extends AreaObjectManager<Plot> {
 
         doc.append("flags", flags);
 
-        return doc;
+        return Optional.of(doc);
     }
 
     @Override
-    public void saveAll() {
-        super.saveAll( getAll() );
-    }
-
-    @Override
-    public boolean fromDocument(Document doc) {
+    public Optional<Plot> fromDocument(Document doc) {
 
         UUID uuid = doc.get("uuid", UUID.class); // UUID.fromString( doc.getString("uuid") );
         PlotBuilder builder = Plot.fromUUID(uuid);
@@ -69,7 +58,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
             builder.town(parent.get());
         } else {
             AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
-            return false;
+            return Optional.empty();
         }
 
         builder.name(doc.getString("name"));
@@ -77,8 +66,8 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         // load definition
         Optional<PlotDefinition> definition = DbUtils.Deserialize.definition(doc.get("definition", Document.class));
         if ( !definition.isPresent() ) {
-            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure.");
-            return false;
+            AtherysTowns.getInstance().getLogger().error("[MongoDB] Plot load failure. Plot definition could not be deserialized.");
+            return Optional.empty();
         }
 
         builder.definition(definition.get());
@@ -94,8 +83,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         }
         builder.flags(plotFlags);
 
-        builder.build();
-        return true;
+        return Optional.of( builder.build() );
     }
 
     public static PlotManager getInstance() {
