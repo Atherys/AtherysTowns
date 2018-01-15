@@ -183,6 +183,7 @@ public final class TownsConfig extends PluginConfig {
         super( AtherysTowns.getInstance().getWorkingDirectory(), "config.conf" );
 
         TypeSerializers.getDefaultSerializers().registerType( TypeToken.of(WildernessFilter.FilterNode.class), WildernessFilter.FilterNode.empty() );
+        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of(WildernessFilter.class), new WildernessFilter() );
     }
 }
 

@@ -3,7 +3,6 @@ package com.atherys.towns.utils;
 import com.google.common.reflect.TypeToken;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.spongepowered.api.Sponge;
@@ -15,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@ConfigSerializable
-public class WildernessFilter {
+public class WildernessFilter implements TypeSerializer<WildernessFilter> {
 
     public static class FilterNode implements TypeSerializer<FilterNode> {
 
@@ -93,5 +91,27 @@ public class WildernessFilter {
 
     public FilterNode getAlternatives ( String blockId ) {
         return filter.getOrDefault( blockId, FilterNode.empty() );
+    }
+
+    @Override
+    public WildernessFilter deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+        WildernessFilter filter = new WildernessFilter();
+        for ( ConfigurationNode child : value.getChildrenList() ) {
+            Optional<BlockType> block = Sponge.getRegistry().getType( BlockType.class, child.getKey().toString() );
+            if ( block.isPresent() ) {
+                filter.filter.put( block.get(), child.getValue( TypeToken.of( FilterNode.class ) ) );
+            } else {
+                throw new ObjectMappingException(child.getKey() + " is not a valid BlockType.");
+            }
+        }
+
+        return filter;
+    }
+
+    @Override
+    public void serialize(TypeToken<?> type, WildernessFilter obj, ConfigurationNode value) throws ObjectMappingException {
+        for ( Map.Entry<BlockType, FilterNode> nodes : obj.filter.entrySet() ) {
+            value.getNode( nodes.getKey().getName() ).setValue( TypeToken.of( FilterNode.class ), nodes.getValue() );
+        }
     }
 }
