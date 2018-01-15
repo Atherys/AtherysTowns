@@ -1,6 +1,5 @@
 package com.atherys.towns.utils;
 
-import com.atherys.towns.AtherysTowns;
 import com.google.common.reflect.TypeToken;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -63,20 +62,20 @@ public class WildernessFilter {
         @Override
         public FilterNode deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
             FilterNode node = FilterNode.empty();
-            value.getChildrenList().forEach( child -> {
+            for ( ConfigurationNode child : value.getChildrenList() ) {
                 Optional<BlockType> block = Sponge.getRegistry().getType( BlockType.class, child.getKey().toString() );
                 if ( block.isPresent() ) {
                     node.add( block.get(), child.getDouble() );
                 } else {
-                    AtherysTowns.getInstance().getLogger().error( child.getKey() + " is not a valid BlockType." );
+                    throw new ObjectMappingException(child.getKey() + " is not a valid BlockType.");
                 }
-            });
+            }
             return node;
         }
 
         @Override
         public void serialize(TypeToken<?> type, FilterNode obj, ConfigurationNode value) throws ObjectMappingException {
-            obj.blocks.forEach( (k,v) -> value.getNode(k).setValue(v));
+            obj.blocks.forEach( (k,v) -> value.getNode( k.getName() ).setValue(v));
         }
     }
 
