@@ -154,6 +154,12 @@ public final class TownsConfig extends PluginConfig {
 
         @Setting ( "filter" )
         public WildernessFilter FILTER = new WildernessFilter();
+        {
+            WildernessFilter.FilterNode ironOreFilter = WildernessFilter.FilterNode.empty();
+            ironOreFilter.add( BlockTypes.STONE, 0.5 );
+            ironOreFilter.add( BlockTypes.IRON_ORE, 0.5 );
+            FILTER.set( BlockTypes.IRON_ORE, ironOreFilter );
+        }
 
         @Setting ( "last_regen" )
         public long LAST = 0;
