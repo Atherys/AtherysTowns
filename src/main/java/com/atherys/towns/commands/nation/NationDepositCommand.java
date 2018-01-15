@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.nation;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.NationActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,23 +18,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
-public class NationDepositCommand extends AbstractNationCommand {
+public class NationDepositCommand extends TownsSimpleCommand {
 
-    protected NationDepositCommand() {
-        super(
-                new String[] { "deposit" },
-                "deposit <amount> [currency]",
-                Text.of("Used to deposit money into the nation bank account."),
-                NationRank.Action.NATION_DEPOSIT,
-                true,
-                true,
-                true,
-                true
-        );
+    private static NationDepositCommand instance = new NationDepositCommand();
+
+    public static NationDepositCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( !args.getOne("amount").isPresent() ) {
             TownMessage.warn(player, "You must provide an amount to deposit.");
             return CommandResult.empty();
@@ -56,7 +50,7 @@ public class NationDepositCommand extends AbstractNationCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.town.commands.town.deposit")
+                .permission( NationActions.NATION_DEPOSIT.getPermission() )
                 .description( Text.of("Used to deposit money into the town's bank") )
                 .arguments(
                         GenericArguments.doubleNum(Text.of("amount")),

@@ -1,4 +1,4 @@
-group 'AtherysTowns'
+group 'com.atherys'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -17,18 +17,23 @@ sourceSets {
 repositories {
     mavenCentral()
     maven {
-        name = 'sponge'
+        name 'sponge'
         url 'https://repo.spongepowered.org/maven'
     }
     maven {
-        name = 'jitpack'
-        url 'https://jitpack.io/'
+        name 'atherys'
+        credentials {
+            username 'gitlab'
+            password 'YaWK3BT3d3mpJYA2'
+        }
+        url 'https://nexus.atherys.com/repository/maven-releases/'
     }
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:6.0.0',
+    compile 'org.spongepowered:spongeapi:7.0.0-SNAPSHOT',
             'math.geom2d:javaGeom:0.11.1',
-            'org.mongodb:mongodb-driver:3.5.0'
+            'org.mongodb:mongodb-driver:3.5.0',
+            'com.atherys:AtherysCore:1.0.1'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

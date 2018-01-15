@@ -1,5 +1,6 @@
 package com.atherys.towns.commands.plot;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -15,25 +16,23 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class PlotHereCommand extends AbstractPlotCommand {
+public class PlotHereCommand extends TownsSimpleCommand {
 
-    PlotHereCommand() {
-        super(
-                new String[] { "here", "get" },
-                "here",
-                Text.of("Used to get information on the plot you are currently standing on.")
-        );
+    private static PlotHereCommand instance = new PlotHereCommand();
+
+    public static PlotHereCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         Optional<Plot> plot = PlotManager.getInstance().getByLocation( player.getLocation());
         if ( !plot.isPresent() ) {
             TownMessage.warn(player, "You are in the wilderness.");
             return CommandResult.empty();
         }
 
-        player.sendMessage( plot.get().getFormattedInfo() );
+        plot.get().createView().ifPresent( view -> view.show( player ) );
 
         return CommandResult.empty();
     }
@@ -41,9 +40,9 @@ public class PlotHereCommand extends AbstractPlotCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.plot.here")
-                .description(Text.of("Used to get information on the plot you are currently standing in ( if any )."))
+                .description( Text.of( "Used to get information on the plot you are currently standing in." ) )
                 .executor(this)
                 .build();
     }
+
 }

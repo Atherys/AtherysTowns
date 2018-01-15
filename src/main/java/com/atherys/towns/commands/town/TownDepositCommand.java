@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,23 +18,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
-public class TownDepositCommand extends AbstractTownCommand {
+public class TownDepositCommand extends TownsSimpleCommand {
 
-    TownDepositCommand () {
-        super(
-                new String[] { "deposit" },
-                "deposit <amount> [currency]",
-                Text.of("Used to store currency into your town's bank."),
-                TownRank.Action.TOWN_DEPOSIT,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownDepositCommand instance = new TownDepositCommand();
+
+    public static TownDepositCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() ) {
@@ -49,19 +43,18 @@ public class TownDepositCommand extends AbstractTownCommand {
         }
 
         return CommandResult.empty();
-
     }
 
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.town.commands.town.deposit")
-                .description( Text.of("Used to deposit money into the town's bank") )
+                .description( Text.of( "Used to deposit money into the town bank." ) )
+                .permission( TownActions.TOWN_DEPOSIT.getPermission() )
                 .arguments(
                         GenericArguments.doubleNum(Text.of("amount")),
-                        GenericArguments.optional( GenericArguments.catalogedElement(Text.of("currency"), Currency.class) )
+                        GenericArguments.optional(GenericArguments.catalogedElement(Text.of("currency"), Currency.class))
                 )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 }

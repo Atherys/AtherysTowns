@@ -9,6 +9,18 @@ import com.atherys.towns.commands.wilderness.WildernessRegenCommand;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.listeners.PlayerListeners;
 import com.atherys.towns.managers.*;
+import com.atherys.towns.permissions.actions.NationAction;
+import com.atherys.towns.permissions.actions.NationActionRegistry;
+import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActionRegistry;
+import com.atherys.towns.permissions.ranks.NationRank;
+import com.atherys.towns.permissions.ranks.NationRankRegistry;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRankRegistry;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.ExtentRegistry;
+import com.atherys.towns.plot.flags.Flag;
+import com.atherys.towns.plot.flags.FlagRegistry;
 import com.atherys.towns.resident.Resident;
 import com.google.inject.Inject;
 import com.mongodb.client.MongoDatabase;
@@ -17,12 +29,15 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.permission.PermissionService;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -31,10 +46,10 @@ import static com.atherys.towns.AtherysTowns.*;
 @Plugin( id=AtherysTowns.ID, name=NAME, description = DESCRIPTION, version=VERSION)
 public class AtherysTowns {
 
-    final static String ID = "atherystowns";
-    final static String NAME = "A'therys Towns";
-    final static String DESCRIPTION = "A custom plugin responsible for agile land management. Created for the A'therys Horizons server.";
-    final static String VERSION = "1.0.0a";
+    public final static String ID = "atherystowns";
+    public final static String NAME = "A'therys Towns";
+    public final static String DESCRIPTION = "A custom plugin responsible for agile land management. Created for the A'therys Horizons server.";
+    public final static String VERSION = "1.0.0a";
 
     @Inject
     private Game game;
@@ -43,18 +58,57 @@ public class AtherysTowns {
     private Logger logger;
 
     private static AtherysTowns instance;
+    private static boolean init = false;
+    private TownsConfig config;
+
+    private String workingDir = "config/" + ID + "/";
 
     private Task townBorderTask;
     private Task wildernessRegenTask;
 
-    private boolean init() {
+    private PermissionService permissionService;
+
+    private void init() {
         instance = this;
 
-        Settings.getInstance();
+        game.getRegistry().registerModule( Extent.class, ExtentRegistry.getInstance() );
+        game.getRegistry().registerModule( Flag.class, FlagRegistry.getInstance() );
+        game.getRegistry().registerModule( TownAction.class, TownActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationAction.class, NationActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationRank.class, NationRankRegistry.getInstance() );
+        game.getRegistry().registerModule( TownRank.class, TownRankRegistry.getInstance() );
 
-        TownsDatabase.getInstance();
+        Optional<PermissionService> permissionService = Sponge.getServiceManager().provide(PermissionService.class);
+        if ( !permissionService.isPresent() ) {
+            getLogger().warn("No permission service found. This plugin requires a permissions plugin implementing the Sponge Permissions API to function properly. Aborting start.");
+            init = false;
+            return;
+        }
 
-        WildernessManager.getInstance();
+        this.permissionService = permissionService.get();
+
+        if ( !getEconomyService().isPresent() ) {
+            getLogger().warn("No economy service found. No features relating to economy will function!");
+        }
+
+        try {
+            config = new TownsConfig();
+            config.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+            init = false;
+            return;
+        }
+
+        if ( config.DEFAULT ) {
+            getLogger().warn("Config set to default. Plugin will not initialize further than this.");
+            init = false;
+            return;
+        }
+
+        TownsDatabase.getInstance().init();
+
+        WildernessManager.getInstance().init();
 
         NationManager.getInstance().loadAll();
 
@@ -64,24 +118,20 @@ public class AtherysTowns {
 
         ResidentManager.getInstance().loadAll();
 
-        if ( getEconomyService().isPresent() ) {
-            getLogger().warn("No economy service found. No features relating to economy will function!");
-        }
-
-        return true;
+        init = true;
     }
 
     private void start() {
         game.getEventManager().registerListeners(this, new PlayerListeners());
 
         ResidentCommand.register();
-        PlotMasterCommand.getInstance().register();
-        TownMasterCommand.getInstance().register();
-        NationMasterCommand.getInstance().register();
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), PlotMasterCommand.getInstance().getSpec(), "plot", "p");
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), TownMasterCommand.getInstance().getSpec(), "town", "t");
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), NationMasterCommand.getInstance().getSpec(), "nation", "n");
         WildernessRegenCommand.getInstance().register();
 
         townBorderTask = Task.builder()
-                .interval( Settings.TOWN_BORDER_UPDATE_RATE, TimeUnit.SECONDS )
+                .interval( getConfig().TOWN.BORDER_UPDATE_RATE, TimeUnit.SECONDS )
                 .execute(() -> {
                     for ( Player p : Sponge.getServer().getOnlinePlayers() ) {
                         if (TownsValues.get(p.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS).isPresent()){
@@ -97,11 +147,14 @@ public class AtherysTowns {
                 .name("atherystowns-town-border-task")
                 .submit(this);
 
-        if ( Settings.WILDERNESS_REGEN_ENABLED ) {
+        if ( getConfig().WILDERNESS_REGEN.ENABLED ) {
+            long elapsed = System.currentTimeMillis() - getConfig().WILDERNESS_REGEN.LAST;
+            long delay = getConfig().WILDERNESS_REGEN.RATE - elapsed;
+
             wildernessRegenTask = Task.builder()
-                    //.delay(  ) TODO: When launching, delay this regen task to ensure it is run every WILDERNESS_REGEN_RATE units of time.
-                    .interval(Settings.WILDERNESS_REGEN_RATE, Settings.WILDERNESS_REGEN_RATE_UNIT)
-                    .execute(() -> WildernessManager.getInstance().regenerate(System.currentTimeMillis()))
+                    .delay( delay, getConfig().WILDERNESS_REGEN.UNIT )
+                    .interval( getConfig().WILDERNESS_REGEN.RATE, getConfig().WILDERNESS_REGEN.UNIT )
+                    .execute(() -> WildernessManager.getInstance().regenerate( System.currentTimeMillis() ) )
                     .name("atherystowns-wilderness-regen-task")
                     .submit(this);
         }
@@ -115,8 +168,13 @@ public class AtherysTowns {
     }
 
     @Listener
+    public void onInit (GameInitializationEvent event) {
+        init();
+    }
+
+    @Listener
     public void onStart (GameStartedServerEvent event) {
-        if ( init() ) start();
+        if ( init ) start();
     }
 
     @Listener
@@ -140,5 +198,17 @@ public class AtherysTowns {
 
     public Optional<EconomyService> getEconomyService() {
         return Sponge.getServiceManager().provide(EconomyService.class);
+    }
+
+    public static PermissionService getPermissionService() {
+        return getInstance().permissionService;
+    }
+
+    public String getWorkingDirectory() {
+        return workingDir;
+    }
+
+    public static TownsConfig getConfig() {
+        return AtherysTowns.getInstance().config;
     }
 }

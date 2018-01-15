@@ -8,31 +8,21 @@ import java.util.*;
 
 public abstract class AreaObjectManager<T extends BaseAreaObject> extends DatabaseManager<T> {
 
-    protected List<T> list;
-
-    AreaObjectManager() {
-        list = new LinkedList<>();
-    }
+    private Map<UUID,T> objects = new HashMap<>();
 
     public Optional<T> getByName(String name) {
-        for ( T n : list ) {
+        for ( T n : objects.values() ) {
             if ( n.getName().contains(name) ) return Optional.of(n);
         }
         return Optional.empty();
     }
 
     public Optional<T> getByUUID ( UUID uuid ) {
-        if ( uuid == null ) return Optional.empty();
-        for ( T t : list ) {
-            if (t.getUUID().equals(uuid)) {
-                return Optional.of(t);
-            }
-        }
-        return Optional.empty();
+        return Optional.ofNullable( objects.get( uuid ) );
     }
 
     public Optional<T> getByLocation ( Location<World> loc ) {
-        for ( T t : list ) {
+        for ( T t : objects.values() ) {
             if ( t.contains(loc) ) {
                 return Optional.of(t);
             }
@@ -40,16 +30,16 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
         return Optional.empty();
     }
 
-    public List<T> getAll() { return list; }
+    public Collection<T> getAll() { return objects.values(); }
 
     public void add ( T ao ) {
-        if ( list.contains(ao) ) return;
-        list.add(ao);
+        if ( objects.containsKey( ao.getUUID() ) ) return;
+        objects.put( ao.getUUID(), ao );
     }
 
     public <P extends BaseAreaObject> List<T> getByParent ( P test ) {
         List<T> children = new ArrayList<>();
-        for ( T t : list ) {
+        for ( T t : objects.values() ) {
             Optional<? extends BaseAreaObject> parent = t.getParent();
             if ( parent.isPresent() ) {
                 if ( parent.get().equals(test) ) {
@@ -61,7 +51,7 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
     }
 
     public void remove ( T ao ) {
-        list.remove(ao);
+        objects.remove( ao.getUUID() );
         removeOne(ao);
     }
 

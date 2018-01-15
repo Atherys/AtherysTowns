@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town.set;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,19 +18,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownSetMayorCommand extends AbstractTownSetCommand {
+public class TownSetMayorCommand extends TownsSimpleCommand {
 
-    TownSetMayorCommand() {
-        super(
-                new String[] { "mayor" },
-                "mayor <player>",
-                Text.of("Used to change the mayor of a town."),
-                TownRank.Action.SET_MAYOR
-        );
+    private static TownSetMayorCommand instance = new TownSetMayorCommand();
+
+    public static TownSetMayorCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         Optional<User> newMayor = args.getOne("newMayor");
@@ -56,10 +54,12 @@ public class TownSetMayorCommand extends AbstractTownSetCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.mayor")
-                .description(Text.of("Used to set a new mayor for the town."))
-                .arguments(GenericArguments.user(Text.of("newMayor")))
-                .executor(this)
+                .description( Text.of( "Used to change the mayor of the town." ) )
+                .permission( TownActions.SET_MAYOR.getPermission() )
+                .arguments(
+                        GenericArguments.user(Text.of("newMayor"))
+                )
+                .executor( this )
                 .build();
     }
 }

@@ -1,11 +1,11 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,26 +16,19 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownHereCommand extends AbstractTownCommand {
+public class TownHereCommand extends TownsSimpleCommand {
 
-    TownHereCommand() {
-        super(
-                new String[] { "here" },
-                "here",
-                Text.of("Used to get the town you are currently standing in."),
-                TownRank.Action.NONE,
-                false,
-                false,
-                false,
-                true
-        );
+    private static TownHereCommand instance = new TownHereCommand();
+
+    public static TownHereCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         Optional<Plot> pHere = PlotManager.getInstance().getByLocation(player.getLocation());
         if ( pHere.isPresent() ) {
-            player.sendMessage(pHere.get().getTown().getFormattedInfo());
+            pHere.get().createView().ifPresent( view -> view.show(player) );
             return CommandResult.success();
         } else {
             TownMessage.warn(player, "You are in the wilderness.");
@@ -45,10 +38,9 @@ public class TownHereCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.here")
-                .description(Text.of("Used to get information on the town you are currently standing in.") )
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to get information on the town you are currently standing in." ) )
+                .executor( this )
                 .build();
     }
 }

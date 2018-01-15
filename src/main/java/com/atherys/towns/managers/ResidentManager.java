@@ -2,9 +2,9 @@ package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.ranks.*;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.NationRank;
-import com.atherys.towns.resident.ranks.TownRank;
+import com.atherys.towns.resident.ResidentBuilder;
 import com.atherys.towns.town.Town;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -68,8 +68,8 @@ public final class ResidentManager extends DatabaseManager<Resident> {
 
         doc.append("registered", object.getRegisteredSeconds());
         doc.append("last_online", object.getLastOnlineSeconds());
-        doc.append("town_rank", object.getTownRank().id() );
-        doc.append("nation_rank", object.getNationRank().id() );
+        doc.append("town_rank", object.getTownRank().getId() );
+        doc.append("nation_rank", object.getNationRank().getId() );
 
         return doc;
     }
@@ -78,15 +78,15 @@ public final class ResidentManager extends DatabaseManager<Resident> {
     public boolean fromDocument ( Document doc ) {
         UUID uuid =  doc.get("uuid", UUID.class);//UUID.fromString(doc.getString("uuid"));
 
-        Resident.Builder builder = Resident.fromUUID(uuid);
+        ResidentBuilder builder = Resident.fromUUID(uuid);
 
         UUID town_uuid = doc.get("town", UUID.class);
         if ( town_uuid != null ) {
             Optional<Town> t = TownManager.getInstance().getByUUID(town_uuid);
-            TownRank rank = TownRank.fromId(doc.getInteger("town_rank"));
+            Optional<TownRank> rank = TownRankRegistry.getInstance().getById ( doc.getString("town_rank") );
             t.ifPresent(town -> {
-                builder.town(town, rank);
-                builder.nationRank(NationRank.fromId(doc.getInteger("nation_rank")));
+                builder.town(town, rank.orElse(TownRanks.RESIDENT) );
+                builder.nationRank ( NationRankRegistry.getInstance().getById( doc.getString("nation_rank") ).orElse( NationRanks.RESIDENT ) );
             });
         }
         builder.registerTimestamp( doc.getLong("registered") );

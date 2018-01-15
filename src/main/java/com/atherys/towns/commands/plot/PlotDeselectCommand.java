@@ -1,5 +1,6 @@
 package com.atherys.towns.commands.plot;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
@@ -13,18 +14,16 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class PlotDeselectCommand extends AbstractPlotCommand {
+public class PlotDeselectCommand extends TownsSimpleCommand {
 
-    PlotDeselectCommand() {
-        super(
-                new String[] {"desel", "deselect"},
-                "desel",
-                Text.of("Used to erase the current plot selector tool selection")
-        );
+    private static PlotDeselectCommand instance = new PlotDeselectCommand();
+
+    public static PlotDeselectCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         TownsValues.remove(player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_1ST);
         TownsValues.remove(player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_2ND);
         TownMessage.inform(player,               Text.of("Deselected.")                );
@@ -34,9 +33,9 @@ public class PlotDeselectCommand extends AbstractPlotCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.plot.deselect")
-                .description(Text.of("Used to deselect your current plot selection."))
+                .description( Text.of( "Used to deselect your current plot definition selection ( if any )." ) )
                 .executor(this)
                 .build();
     }
+
 }

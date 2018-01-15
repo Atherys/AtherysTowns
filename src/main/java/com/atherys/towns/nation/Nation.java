@@ -1,20 +1,19 @@
 package com.atherys.towns.nation;
 
-import com.atherys.towns.Settings;
+import com.atherys.core.views.Viewable;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
+import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.NationRank;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
+import com.atherys.towns.views.NationView;
 import math.geom2d.Point2D;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -22,46 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Nation extends AreaObject<Nation> {
-
-    public static class Builder {
-
-        Nation nation;
-
-        Builder ( UUID uuid ) {
-            nation = new Nation(uuid);
-        }
-
-        public Nation.Builder name ( String name ) {
-            nation.setName(name);
-            return this;
-        }
-
-        public Nation.Builder color(TextColor color) {
-            nation.setColor(color);
-            return this;
-        }
-
-        public Nation.Builder description ( String description ) {
-            nation.setDescription(description);
-            return this;
-        }
-
-        public Nation.Builder leaderTitle(String title) {
-            nation.setLeaderTitle(title);
-            return this;
-        }
-
-        public Nation.Builder tax ( double tax ) {
-            nation.setTax(tax);
-            return this;
-        }
-
-        public Nation build() {
-            NationManager.getInstance().add(nation);
-            return nation;
-        }
-    }
+public class Nation extends AreaObject<Nation> implements Viewable<NationView> {
 
     private String name;
     private String leaderTitle = "Leader";
@@ -88,7 +48,7 @@ public class Nation extends AreaObject<Nation> {
         this.description = "";
         capital.setNation(this);
         capital.setStatus(TownStatus.CAPITAL);
-        capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRank.LEADER));
+        capital.getMayor().ifPresent(resident -> resident.setNationRank(NationRanks.LEADER));
 
         NationManager.getInstance().add(this);
         NationManager.getInstance().saveOne(this);
@@ -102,12 +62,12 @@ public class Nation extends AreaObject<Nation> {
         return new Nation( name, capital );
     }
 
-    public static Nation.Builder builder() {
-        return new Nation.Builder(UUID.randomUUID());
+    public static NationBuilder builder() {
+        return new NationBuilder(UUID.randomUUID());
     }
 
-    public static Nation.Builder fromUUID ( UUID uuid ) {
-        return new Nation.Builder(uuid);
+    public static NationBuilder fromUUID ( UUID uuid ) {
+        return new NationBuilder(uuid);
     }
 
     public Optional<Town> getCapital() {
@@ -121,7 +81,7 @@ public class Nation extends AreaObject<Nation> {
         Optional<Town> capital = getCapital();
         capital.ifPresent(town -> town.setStatus(TownStatus.TOWN));
         newCapital.setStatus(TownStatus.CAPITAL);
-        newCapital.getMayor().ifPresent(resident -> resident.setNationRank(NationRank.LEADER));
+        newCapital.getMayor().ifPresent(resident -> resident.setNationRank(NationRanks.LEADER));
         return this;
     }
 
@@ -180,45 +140,6 @@ public class Nation extends AreaObject<Nation> {
         return TownManager.getInstance().getByParent(this);
     }
 
-    @Override
-    public Text getFormattedInfo() {
-
-        String leaderName = Settings.NON_PLAYER_CHARACTER_NAME;
-
-        Optional<Town> capital = getCapital();
-        if ( capital.isPresent() ) {
-            Optional<Resident> leader = capital.get().getMayor();
-            if ( leader.isPresent() ) leaderName = leader.get().getName();
-        }
-
-        List<Town> towns = getTowns();
-
-        return Text.builder()
-                .append(Text.of(Settings.DECORATION_COLOR, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(color, TextStyles.BOLD, getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, Settings.DECORATION_COLOR, " ].______.o0o.\n", TextColors.RESET) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Description: ", TextStyles.RESET, Settings.TEXT_COLOR, description, "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Bank: ", TextStyles.RESET, Settings.TEXT_COLOR, getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, leaderTitle, ": ", TextStyles.RESET, Settings.TEXT_COLOR, leaderName + "\n" ) )
-                .append(Text.of(TextColors.RESET, Settings.PRIMARY_COLOR, TextStyles.BOLD, "Towns[", Settings.TEXT_COLOR, towns.size(), Settings.PRIMARY_COLOR ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedTowns(towns) ) )
-                .build();
-    }
-
-    private Text getFormattedTowns( List<Town> towns ) {
-        Text.Builder townsBuilder = Text.builder();
-        Text separator = Text.of(", ");
-        for ( Town t : towns ) {
-            Text resText = Text.builder()
-                    .append(Text.of(t.getName()))
-                    .onHover(TextActions.showText(Text.of(Settings.SECONDARY_COLOR, "Click for more info!")) )
-                    .onClick(TextActions.runCommand("/town info " + t.getName() ) )
-                    .build();
-
-            townsBuilder.append(resText, separator);
-        }
-        return townsBuilder.build();
-    }
-
     public double getTax() {
         return tax;
     }
@@ -229,10 +150,6 @@ public class Nation extends AreaObject<Nation> {
 
     public TextColor getColor() {
         return color;
-    }
-
-    private Text getFormattedName() {
-        return Text.of(color, name).toBuilder().onHover(TextActions.showText(this.getFormattedInfo())).build();
     }
 
     public void setColor(TextColor color) {
@@ -251,5 +168,10 @@ public class Nation extends AreaObject<Nation> {
         for ( Town t : getTowns() ) {
             t.informResidents(s);
         }
+    }
+
+    @Override
+    public Optional<NationView> createView() {
+        return Optional.of ( new NationView( this ) );
     }
 }

@@ -2,6 +2,7 @@ package com.atherys.towns.managers;
 
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.nation.NationBuilder;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
@@ -55,13 +56,13 @@ public final class NationManager extends AreaObjectManager<Nation> {
 
     @Override
     public void saveAll() {
-        super.saveAll(list);
+        super.saveAll( getAll() );
     }
 
     @Override
     public boolean fromDocument(Document doc) {
         UUID uuid = doc.get("uuid", UUID.class);// UUID.fromString( doc.getString("uuid") );
-        Nation.Builder builder = Nation.fromUUID(uuid);
+        NationBuilder builder = Nation.fromUUID(uuid);
         builder.name(doc.getString("name"));
         builder.tax(doc.getDouble("tax"));
         builder.leaderTitle(doc.getString("leader_title"));

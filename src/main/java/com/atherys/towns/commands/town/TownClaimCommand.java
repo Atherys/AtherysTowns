@@ -1,11 +1,12 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -18,25 +19,16 @@ import org.spongepowered.api.world.Chunk;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownClaimCommand extends AbstractTownCommand {
+public class TownClaimCommand extends TownsSimpleCommand {
 
-    TownClaimCommand() {
-        super(
-                new String[] { "claim" },
-                "claim [claimChunk?]",
-                Text.of("Used to claim a new plot for the town."),
-                TownRank.Action.CLAIM_PLOT,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownClaimCommand instance = new TownClaimCommand();
 
+    public static TownClaimCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         PlotDefinition define;
 
         if ( town != null ) {
@@ -94,12 +86,12 @@ public class TownClaimCommand extends AbstractTownCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.claim")
-                .description(Text.of( "Used to claim a new plot for your town!" ) )
+                .description( Text.of( "Used to claim new plots for your town using the plot tool." ) )
+                .permission( TownActions.CLAIM_PLOT.getPermission() )
                 .arguments(
                         GenericArguments.optional(GenericArguments.string(Text.of("claimChunk?")))
                 )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 }

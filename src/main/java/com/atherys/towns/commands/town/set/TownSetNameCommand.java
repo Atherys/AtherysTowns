@@ -1,10 +1,12 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -15,24 +17,21 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nullable;
 
-public class TownSetNameCommand extends AbstractTownSetCommand {
+public class TownSetNameCommand extends TownsSimpleCommand {
 
-    TownSetNameCommand() {
-        super(
-                new String[] { "name" },
-                "name [newName]",
-                Text.of("Used to change the name of the town."),
-                TownRank.Action.SET_NAME
-        );
+    private static TownSetNameCommand instance = new TownSetNameCommand();
+
+    public static TownSetNameCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         String name = (String) args.getOne("newName").orElse( town.getName() );
-        if ( name.length() > Settings.MAX_TOWN_NAME_LENGTH ) {
-            TownMessage.warn(player, "Town name must not exceed " + Settings.MAX_TOWN_NAME_LENGTH + " symbols.");
+        if ( name.length() > AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH ) {
+            TownMessage.warn(player, "Town name must not exceed " + AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH + " symbols.");
             return CommandResult.empty();
         }
         town.setName(name);
@@ -44,10 +43,12 @@ public class TownSetNameCommand extends AbstractTownSetCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.name")
-                .description(Text.of("Used to set the name of the town."))
-                .arguments(GenericArguments.remainingJoinedStrings(Text.of("newName")))
-                .executor(this)
+                .description( Text.of( "Used to change the name of the town." ) )
+                .permission( TownActions.SET_NAME.getPermission() )
+                .arguments(
+                        GenericArguments.remainingJoinedStrings(Text.of("newName"))
+                )
+                .executor( this )
                 .build();
     }
 }

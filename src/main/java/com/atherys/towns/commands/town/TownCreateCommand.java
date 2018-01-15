@@ -1,12 +1,13 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.Settings;
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -22,24 +23,16 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-public class TownCreateCommand extends AbstractTownCommand {
+public class TownCreateCommand extends TownsSimpleCommand {
 
-    TownCreateCommand() {
-        super(
-                new String[] { "create", "new" },
-                "create [townName]",
-                Text.of( "Used to create a new town" ),
-                TownRank.Action.NONE,
-                false,
-                false,
-                false,
-                true
-        );
+    private static TownCreateCommand instance = new TownCreateCommand();
+
+    public static TownCreateCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( resident.getTown().isPresent() ) {
             TownMessage.warn(player, Text.of("You are already part of a town. Please leave your current town first in order to create a new one.") );
             return CommandResult.empty();
@@ -69,10 +62,11 @@ public class TownCreateCommand extends AbstractTownCommand {
 
         if ( define.isPresent() ) {
             Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()));
-            Town t = Town.create(define.get(), resident, args.<String>getOne(Text.of("townName")).orElse(player.getName() + "'s Town"), Settings.INITIAL_TOWN_AREA_LIMIT);
+            Town t = Town.create(define.get(), resident, args.<String>getOne(Text.of("townName")).orElse(player.getName() + "'s Town"), AtherysTowns.getConfig().TOWN.INITIAL_AREA );
             if ( n.isPresent() ) t.setParent(n.get());
             else TownMessage.warn(player, "The nation you specified was invalid. Town was not added to a nation.");
-            player.sendMessage(t.getFormattedInfo());
+
+            t.createView().ifPresent( view -> view.show(player) );
         }
 
         return CommandResult.success();
@@ -80,11 +74,14 @@ public class TownCreateCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.create")
-                .description(Text.of("Used to create a new town!"))
-                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("townName"))), GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("nation"))))
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to create a new town. If you are already part of a town, you must leave your current town first." ) )
+                .permission( TownActions.CREATE_TOWN.getPermission() )
+                .arguments(
+                        GenericArguments.optional(GenericArguments.string(Text.of("townName"))),
+                        GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("nation")))
+                )
+                .executor( this )
                 .build();
     }
 }

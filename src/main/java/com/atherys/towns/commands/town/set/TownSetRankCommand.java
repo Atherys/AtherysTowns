@@ -1,10 +1,14 @@
 package com.atherys.towns.commands.town.set;
 
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
+import com.atherys.towns.permissions.ranks.TownRank;
+import com.atherys.towns.permissions.ranks.TownRankRegistry;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,20 +20,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownSetRankCommand extends AbstractTownSetCommand {
+public class TownSetRankCommand extends TownsSimpleCommand {
 
-    TownSetRankCommand() {
-        super(
-                new String[] { "rank" },
-                "rank <player> <newRank>",
-                Text.of("Used to change the rank of a town resident."),
-                TownRank.Action.SET_RANK
-        );
+    private static TownSetRankCommand instance = new TownSetRankCommand();
+
+    public static TownSetRankCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         Optional<Player> target = args.getOne("player");
@@ -50,16 +50,17 @@ public class TownSetRankCommand extends AbstractTownSetCommand {
             return CommandResult.empty();
         }
 
-        TownRank rank = (TownRank) args.getOne("newRank").orElse(targetRes.getTownRank());
-        if ( rank.equals(TownRank.MAYOR) ) {
-            TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
-            return CommandResult.empty();
-        } else if ( rank.equals(TownRank.NONE) ) {
-            rank = TownRank.RESIDENT;
-        }
+        String rankName = (String) args.getOne("newRank").orElse ( targetRes.getTownRank().getId() );
+        Optional<TownRank> rank = TownRankRegistry.getInstance().getById(rankName);
+        if ( rank.isPresent() ) {
+            if ( rank.get().equals ( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) ) {
+                TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
+                return CommandResult.empty();
+            }
 
-        targetRes.setTownRank( rank );
-        town.informResidents(Text.of( targetRes.getName() + " has been given the rank of " + rank.formattedName() ));
+            targetRes.setTownRank( rank.get() );
+            town.informResidents(Text.of( targetRes.getName(), " has been given the rank of ", rank.get().getName() ));
+        }
 
         return CommandResult.success();
     }
@@ -67,13 +68,13 @@ public class TownSetRankCommand extends AbstractTownSetCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.towns.commands.town.set.rank")
-                .description(Text.of("Used to set the rank of another resident."))
+                .description( Text.of( "Used to change the rank of a resident in the town." ) )
+                .permission( TownActions.SET_RANK.getPermission() )
                 .arguments(
                         GenericArguments.player(Text.of("player")),
-                        GenericArguments.enumValue(Text.of("newRank"), TownRank.class)
+                        GenericArguments.string(Text.of("newRank"))
                 )
-                .executor(this)
+                .executor( new TownSetRankCommand() )
                 .build();
     }
 }

@@ -1,18 +1,21 @@
 package com.atherys.towns.town;
 
-import com.atherys.towns.Settings;
+import com.atherys.core.views.Viewable;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
+import com.atherys.towns.plot.flags.Extent;
+import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
-import com.atherys.towns.utils.Question;
+import com.atherys.towns.views.TownView;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
@@ -20,88 +23,18 @@ import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-public class Town extends AreaObject<Nation> {
+//import com.atherys.towns.utils.old.Question;
 
-    public static class Builder {
-
-        Town town;
-
-        Builder ( Town town ) {
-            this.town = town;
-        }
-
-        Builder ( UUID uuid ) {
-            town = new Town(uuid);
-        }
-
-        Builder () {
-            town = new Town(UUID.randomUUID());
-        }
-
-        public Town.Builder nation ( Nation nation ) {
-            if ( nation == null ) return this;
-            town.setParent(nation);
-            return this;
-        }
-
-        public Town.Builder status ( TownStatus status ) {
-            town.setStatus( status );
-            return this;
-        }
-
-        public Town.Builder flags ( PlotFlags flags ) {
-            town.setFlags ( flags );
-            return this;
-        }
-
-        public Town.Builder maxSize ( int max ) {
-            town.setMaxSize(max);
-            return this;
-        }
-
-        public Town.Builder spawn(Location spawn) {
-            town.setSpawn(spawn);
-            return this;
-        }
-
-        public Town.Builder name ( String name ) {
-            town.setName(name);
-            return this;
-        }
-
-        public Town.Builder motd ( String motd ) {
-            town.setMOTD( motd );
-            return this;
-        }
-
-        public Town.Builder description ( String desc ) {
-            town.setDescription(desc);
-            return this;
-        }
-
-        public Town.Builder color ( TextColor color ) {
-            town.setColor(color);
-            return this;
-        }
-
-        public Town build() {
-            TownManager.getInstance().add(town);
-            return town;
-        }
-
-    }
+public class Town extends AreaObject<Nation> implements Viewable<TownView> {
 
     private TownStatus status = TownStatus.NONE;
 
@@ -110,11 +43,11 @@ public class Town extends AreaObject<Nation> {
     private Location<World> spawn;
 
     private String name;
-    private TextColor color = Settings.SECONDARY_COLOR;
+    private TextColor color = AtherysTowns.getConfig().COLORS.SECONDARY;
     private String motd = "Message of the day.";
     private String description = "Town description.";
 
-    private Town( UUID uuid ) {
+    protected Town( UUID uuid ) {
         super(uuid);
         this.townFlags = PlotFlags.regular();
         this.motd = "";
@@ -124,13 +57,12 @@ public class Town extends AreaObject<Nation> {
     private Town ( PlotDefinition define, Resident mayor ) {
         super(UUID.randomUUID());
         this.spawn = mayor.getPlayer().get().getLocation();
-        mayor.setTownRank(TownRank.MAYOR);
         Plot homePlot = Plot.create(define, this, "Home");
         this.townFlags = homePlot.getFlags().copy();
-        claimPlot(homePlot);
+        claimPlot ( homePlot );
         this.setParent( null );
         this.status = TownStatus.NONE;
-        mayor.setTown(this, TownRank.MAYOR);
+        mayor.setTown( this, AtherysTowns.getConfig().TOWN.TOWN_LEADER );
         TownManager.getInstance().add(this);
     }
 
@@ -143,12 +75,12 @@ public class Town extends AreaObject<Nation> {
         return t;
     }
 
-    public static Town.Builder fromUUID ( UUID uuid ) {
-        return new Town.Builder( uuid );
+    public static TownBuilder fromUUID ( UUID uuid ) {
+        return new TownBuilder( uuid );
     }
 
-    public static Town.Builder builder() {
-        return new Town.Builder();
+    public static TownBuilder builder() {
+        return new TownBuilder();
     }
 
     public void setFlags(PlotFlags flags) {
@@ -197,7 +129,7 @@ public class Town extends AreaObject<Nation> {
         return townFlags;
     }
 
-    public void setFlag ( PlotFlags.Flag flag, PlotFlags.Extent extents ) {
+    public void setFlag ( Flag flag, Extent extents ) {
         this.townFlags.set(flag, extents);
         for ( Plot p : getPlots() ) {
             p.getFlags().set(flag, extents);
@@ -237,78 +169,6 @@ public class Town extends AreaObject<Nation> {
         this.status = status;
     }
 
-    @Override
-    public Text getFormattedInfo() {
-
-        String nationName = "None";
-        if ( getParent().isPresent() ) {
-            nationName = getParent().get().getName();
-        }
-
-        long plotSize = 0;
-        for ( Plot p : getPlots() ) {
-            plotSize += p.getDefinition().area();
-        }
-
-        String mayorName = Settings.NON_PLAYER_CHARACTER_NAME;
-        Optional<Resident> mayor = getMayor();
-        if ( mayor.isPresent() ) mayorName = mayor.get().getName();
-
-        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-        DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
-        symbols.setGroupingSeparator(',');
-        formatter.setDecimalFormatSymbols(symbols);
-
-        Text pvp = Text.of( TextStyles.BOLD, TextColors.GREEN, "( PvP On )" );
-        if ( townFlags.get(PlotFlags.Flag.PVP) == PlotFlags.Extent.NONE ) pvp = Text.of( TextStyles.BOLD, TextColors.RED, "( PvP Off )" );
-
-        TextColor decoration = Settings.DECORATION_COLOR;
-        TextColor primary = Settings.PRIMARY_COLOR;
-        TextColor textColor = Settings.TEXT_COLOR;
-
-        return Text.builder()
-                .append(Text.of(decoration, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(color, TextStyles.BOLD, name, TextStyles.RESET, " ", pvp) )
-                .append(Text.of(TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "MOTD: ", TextStyles.RESET,         textColor, motd, "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET,  textColor, description, "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET,         textColor, super.getFormattedBank(), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET,        Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET).toBuilder().onHover(TextActions.showText(townFlags.formatted())).build(), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET,       textColor, nationName + "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET,         textColor, formatter.format( plotSize ), "/", formatter.format(maxSize), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format(maxSize - plotSize), " remaining )", "\n" ) )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET,        textColor, mayorName + "\n" ) )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Residents[",                       textColor, getResidents().size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedResidents() ) )
-                .build();
-    }
-
-    private Text getFormattedResidents() {
-        List<Resident> residentsByLastOnline = sortResidentsByDate(getResidents());
-        Text.Builder residentsBuilder = Text.builder();
-        Text separator = Text.of(", ");
-
-        TextColor primary = Settings.PRIMARY_COLOR;
-        TextColor textColor = Settings.TEXT_COLOR;
-
-        int iterations = 0;
-        for ( Resident r : residentsByLastOnline ) {
-            if ( iterations == 25 ) break;
-            TownRank tr = r.getTownRank();
-            Text resText = Text.builder()
-                    .append(Text.of(r.getName()))
-                    .onHover(TextActions.showText(Text.of(
-                            primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET,        textColor, tr.formattedName(), "\n",
-                            primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, r.getFormattedLastOnlineDate()
-
-                    ) ) )
-                    .onClick(TextActions.runCommand("/res " + r.getName()) )
-                    .build();
-
-            residentsBuilder.append(resText, separator);
-            iterations++;
-        }
-        return residentsBuilder.build();
-    }
-
     private List<Resident> sortResidentsByDate(List<Resident> list) {
         Resident res;
         for ( int i = 0; i < list.size(); i++ ) {
@@ -333,60 +193,25 @@ public class Town extends AreaObject<Nation> {
         p.remove();
     }
 
-    public void inviteResident(Resident resident) {
-        Optional<Player> p = resident.getPlayer();
-
-        if ( p.isPresent() ) {
-            Player player = p.get();
-            Text question;
-            if ( getParent().isPresent() ) {
-                question = Text.of("You have been invited to the town of \n", name, " in \n", getParent().get().getName() );
-            } else {
-                question = Text.of("You have been invited to the town of \n", name );
-            }
-
-            TextColor primary = Settings.PRIMARY_COLOR;
-            TextColor secondary = Settings.SECONDARY_COLOR;
-
-            Text view = Question.asViewButton(
-                Question.asText(question, Question.Type.ACCEPT_REFUSE,
-                    // yes
-                    (commandSource -> {
-                        if ( commandSource instanceof Player ) {
-                            Optional<Resident> res = ResidentManager.getInstance().get(((Player) commandSource).getUniqueId());
-                            if ( res.isPresent() ) {
-                                Resident r = res.get();
-                                if ( r.getTown().isPresent() ) {
-                                    TownMessage.warn((Player) commandSource, Text.of("You cannot join a town while you are part of another! Please leave your current town first."));
-                                    return;
-                                }
-                                r.setTown(this, TownRank.RESIDENT);
-                                this.informResidents(Text.of(resident.getName(), " has joined the town."));
-                            }
-                        }
-                    })
-                    ,
-                    // no
-                    (commandSource -> this.warnResidents(Text.of( resident.getName(), " has refused to join the town.") ))
-                )
-                ,
-                Text.of( "\n", TownMessage.MSG_PREFIX,  TextStyles.BOLD, primary, "[", secondary, "Click Here To View", primary, "]" )
-            );
-
-            TownMessage.inform(player, question, view);
-        }
-    }
-
     public void setMayor(Resident newMayor) {
         if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this) ) {
-            getMayor().ifPresent( resident -> resident.setTownRank(TownRank.CO_MAYOR) );
-            newMayor.setTownRank(TownRank.MAYOR);
+            getMayor().ifPresent( resident -> resident.setTownRank(TownRanks.CO_MAYOR) );
+            newMayor.setTownRank(TownRanks.MAYOR);
         }
     }
 
     public Optional<Resident> getMayor() {
         for ( Resident r : getResidents() ) {
-            if ( r.getTownRank().equals(TownRank.MAYOR) ) return Optional.of(r);
+            if ( r.getTownRank().equals(TownRanks.MAYOR) ) return Optional.of(r);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Resident> getResident ( UUID uuid ) {
+        for ( Resident resident : getResidents() ) {
+            if ( resident.getUUID().equals(uuid) ) {
+                return Optional.of( resident );
+            }
         }
         return Optional.empty();
     }
@@ -427,9 +252,10 @@ public class Town extends AreaObject<Nation> {
     public void ruin() {
 
         getPlots().forEach(Plot::remove); // remove all plots.
-        getResidents().forEach(Resident::leaveTown); // force all residents to leave the town
+        getResidents().forEach( resident ->
+            resident.setTown(null, TownRanks.NONE)
+        );
         TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
-
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
     }
 
@@ -478,20 +304,12 @@ public class Town extends AreaObject<Nation> {
         return false;
     }
 
-    public void setSpawn(Location spawn) {
+    public void setSpawn(Location<World> spawn) {
         this.spawn = spawn;
     }
 
-    //@Override
-    //public Document toBSON() {
-    //    Document serialized = new Document("_id", this.uuid);
-    //    serialized.append("nation", nation.getUUID());
-    //    serialized.put("status", status.id());
-//
-    //    Document flags = new Document();
-    //    townFlags.forEach((k,v) -> flags.put(k.name(), v.name()));
-    //    serialized.put("flags", flags);
-//
-    //    return serialized;
-    //}
+    @Override
+    public Optional<TownView> createView() {
+        return Optional.of( new TownView( this ) );
+    }
 }

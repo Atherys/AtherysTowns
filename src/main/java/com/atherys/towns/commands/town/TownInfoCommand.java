@@ -1,10 +1,10 @@
 package com.atherys.towns.commands.town;
 
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,31 +16,23 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class TownInfoCommand extends AbstractTownCommand {
+public class TownInfoCommand extends TownsSimpleCommand {
 
-    protected TownInfoCommand() {
-        super(
-                new String[] { "info", "get" },
-                "info [townName]",
-                Text.of("Used to get information on either your own or another town."),
-                TownRank.Action.NONE,
-                false,
-                false,
-                false,
-                true
-        );
+    private static TownInfoCommand instance = new TownInfoCommand();
+
+    public static TownInfoCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
-
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         Optional<String> townName = args.getOne("townName");
 
         if ( !townName.isPresent() ) {
 
             if (resident.getTown().isPresent()) {
                 Town t = resident.getTown().get();
-                player.sendMessage(t.getFormattedInfo());
+                t.createView().ifPresent( view -> view.show(player) );
                 return CommandResult.success();
             } else {
                 TownMessage.warn(player, Text.of("You are not part of a town!"));
@@ -61,7 +53,7 @@ public class TownInfoCommand extends AbstractTownCommand {
             }
 
             if ( tOpt.isPresent() ) {
-                player.sendMessage(tOpt.get().getFormattedInfo());
+                tOpt.get().createView().ifPresent( view -> view.show(player) );
             } else {
                 TownMessage.warn(player, error);
                 return CommandResult.empty();
@@ -73,11 +65,12 @@ public class TownInfoCommand extends AbstractTownCommand {
 
     @Override
     public CommandSpec getSpec() {
-        return  CommandSpec.builder()
-                .permission("atherys.towns.commands.town.info")
-                .description(Text.of("Used to get information on a town."))
-                .arguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("townName"))))
-                .executor(this)
+        return CommandSpec.builder()
+                .description( Text.of( "Used to get information on a town based on it's name." ) )
+                .arguments(
+                        GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("townName")))
+                )
+                .executor( this )
                 .build();
     }
 }

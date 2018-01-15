@@ -1,10 +1,11 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
-import com.atherys.towns.resident.ranks.TownRank;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,23 +18,16 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
-public class TownWithdrawCommand extends AbstractTownCommand {
+public class TownWithdrawCommand extends TownsSimpleCommand {
 
-    TownWithdrawCommand() {
-        super(
-                new String[] { "withdraw" },
-                "withdraw <amount> [currency]",
-                Text.of("Used to withdraw currency from the town bank."),
-                TownRank.Action.TOWN_WITHDRAW,
-                true,
-                false,
-                true,
-                true
-        );
+    private static TownWithdrawCommand instance = new TownWithdrawCommand();
+
+    public static TownWithdrawCommand getInstance() {
+        return instance;
     }
 
     @Override
-    public CommandResult townsExecute(@Nullable Nation nation, @Nullable Town town, Resident resident, Player player, CommandContext args) {
+    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() ) {
@@ -42,7 +36,7 @@ public class TownWithdrawCommand extends AbstractTownCommand {
 
             if ( town.getBank().isPresent() ) {
                 boolean result = town.withdraw( resident, amount, currency );
-                if ( result ) town.informResidents(Text.of( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getDisplayName(), " into the town bank."));
+                if ( result ) town.informResidents(Text.of( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getDisplayName(), " from the town bank."));
                 else TownMessage.warn(player, "Withdraw Failed.");
                 return CommandResult.success();
             }
@@ -54,13 +48,13 @@ public class TownWithdrawCommand extends AbstractTownCommand {
     @Override
     public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .permission("atherys.town.commands.town.withdraw")
-                .description( Text.of("Used to withdraw money from the town's bank") )
+                .description( Text.of( "Used to withdraw money from the town bank." ) )
+                .permission( TownActions.TOWN_WITHDRAW.getPermission() )
                 .arguments(
                         GenericArguments.doubleNum(Text.of("amount") ),
                         GenericArguments.optional( GenericArguments.catalogedElement(Text.of("currency"), Currency.class) )
                 )
-                .executor(this)
+                .executor( new TownWithdrawCommand() )
                 .build();
     }
 }

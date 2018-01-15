@@ -3,13 +3,16 @@ package com.atherys.towns.managers;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.plot.Plot;
+import com.atherys.towns.plot.PlotBuilder;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
+import com.atherys.towns.plot.flags.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.DbUtils;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,7 +24,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
     }
 
     public boolean checkIntersection (PlotDefinition definition ) {
-        for ( Plot p : list ) {
+        for ( Plot p : getAll() ) {
             if ( p.getDefinition().intersects(definition) ) return true;
         }
         return false;
@@ -42,7 +45,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         doc.append("definition", DbUtils.Serialize.definition(object.getDefinition()) );
 
         Document flags = new Document();
-        object.getFlags().getAll().forEach( (k,v) -> flags.append(k.name(), v.name()));
+        object.getFlags().getAll().forEach( (k,v) -> flags.append( k.getId(), v.getId() ) );
 
         doc.append("flags", flags);
 
@@ -51,14 +54,14 @@ public final class PlotManager extends AreaObjectManager<Plot> {
 
     @Override
     public void saveAll() {
-        super.saveAll(list);
+        super.saveAll( getAll() );
     }
 
     @Override
     public boolean fromDocument(Document doc) {
 
         UUID uuid = doc.get("uuid", UUID.class); // UUID.fromString( doc.getString("uuid") );
-        Plot.Builder builder = Plot.fromUUID(uuid);
+        PlotBuilder builder = Plot.fromUUID(uuid);
 
         // load parent
         Optional<Town> parent = TownManager.getInstance().getByUUID( doc.get("town", UUID.class) );
@@ -83,12 +86,15 @@ public final class PlotManager extends AreaObjectManager<Plot> {
         // load flags
         Document flags = doc.get("flags", Document.class);
         PlotFlags plotFlags = PlotFlags.empty();
-        flags.forEach( (k,v) -> plotFlags.set(PlotFlags.Flag.valueOf(k), PlotFlags.Extent.valueOf((String) v)));
+        for ( Map.Entry<String, Object> flagData : flags.entrySet() ) {
+            Optional<Flag> flag = FlagRegistry.getInstance().getById( flagData.getKey() );
+            if ( !flag.isPresent() ) continue;
+            Extent extent = ExtentRegistry.getInstance().getById( (String) flagData.getValue() ).orElse(Extents.NONE);
+            plotFlags.set( flag.get(), extent );
+        }
         builder.flags(plotFlags);
 
         builder.build();
-
-        // TODO: Convert BSON to Plot
         return true;
     }
 
