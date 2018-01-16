@@ -152,7 +152,7 @@ public class AtherysTowns {
 
         if ( getConfig().WILDERNESS_REGEN.ENABLED ) {
             long elapsed = System.currentTimeMillis() - getConfig().WILDERNESS_REGEN.LAST;
-            long delay = getConfig().WILDERNESS_REGEN.RATE - elapsed;
+            long delay = getConfig().WILDERNESS_REGEN.UNIT.toMillis( getConfig().WILDERNESS_REGEN.RATE ) - elapsed;
 
             wildernessRegenTask = Task.builder()
                     .delay( delay, getConfig().WILDERNESS_REGEN.UNIT )
