@@ -32,6 +32,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.atherys.towns.AtherysTowns.*;
 
-@Plugin( id=AtherysTowns.ID, name=NAME, description = DESCRIPTION, version=VERSION)
+@Plugin( id=AtherysTowns.ID, name=NAME, description = DESCRIPTION, version=VERSION, dependencies = @Dependency( id = "atheryscore" ) )
 public class AtherysTowns {
 
     public final static String ID = "atherystowns";
