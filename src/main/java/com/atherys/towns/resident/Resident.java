@@ -133,11 +133,7 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     }
 
     public void setNationRank ( NationRank nationRank ) {
-        Optional<? extends User> user = this.getUser();
-        if ( user.isPresent() ) {
-            getNationRank().removePermissions( user.get() );
-            nationRank.addPermissions( user.get() );
-        }
+        getNationRank().updatePermissions( this.uuid, nationRank );
         this.nationRank = nationRank;
     }
 
