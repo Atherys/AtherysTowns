@@ -43,7 +43,7 @@ public class ResidentBuilder {
     }
 
     public Resident build() {
-        ResidentManager.getInstance().add(res.getUUID(),res);
+        ResidentManager.getInstance().save(res);
         res.updatePermissions();
         return res;
     }

@@ -1,7 +1,6 @@
 package com.atherys.towns.managers;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.plot.flags.*;
@@ -9,7 +8,6 @@ import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownBuilder;
 import com.atherys.towns.town.TownStatus;
 import com.atherys.towns.utils.DbUtils;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.format.TextColor;
@@ -26,15 +24,11 @@ public final class TownManager extends AreaObjectManager<Town> {
     private static TownManager instance = new TownManager();
 
     private TownManager() {
+        super( "towns" );
     }
 
     @Override
-    public MongoCollection<Document> collection() {
-        return TownsDatabase.getInstance().getDatabase().getCollection("towns");
-    }
-
-    @Override
-    public Document toDocument(Town object) {
+    public Optional<Document> toDocument(Town object) {
         Document doc = new Document("uuid", object.getUUID() );
         doc.append("nation", object.getParent().isPresent() ? object.getParent().get().getUUID() : null );
         doc.append("status", object.getStatus().id());
@@ -51,16 +45,11 @@ public final class TownManager extends AreaObjectManager<Town> {
         doc.append("motd", object.getMOTD());
         doc.append("description", object.getDescription());
 
-        return doc;
+        return Optional.of( doc );
     }
 
     @Override
-    public void saveAll() {
-        super.saveAll( getAll() );
-    }
-
-    @Override
-    public boolean fromDocument(Document doc) {
+    public Optional<Town> fromDocument(Document doc) {
         TownBuilder builder = Town.fromUUID( doc.get("uuid", UUID.class) ); // UUID.fromString(doc.getString("uuid")));
 
         UUID nation_uuid = doc.get("nation", UUID.class);
@@ -93,16 +82,14 @@ public final class TownManager extends AreaObjectManager<Town> {
             builder.spawn(spawn.get());
         } else {
             AtherysTowns.getInstance().getLogger().error("[MongoDB] Town load failure. Had improper spawn.");
-            return false;
+            return Optional.empty();
         }
 
         builder.color( Sponge.getGame().getRegistry().getType(TextColor.class, doc.getString("color")).orElse(TextColors.WHITE)  );
         builder.motd(doc.getString("motd"));
         builder.description(doc.getString("description"));
 
-        builder.build();
-
-        return true;
+        return Optional.of( builder.build() );
     }
 
     public static TownManager getInstance() {

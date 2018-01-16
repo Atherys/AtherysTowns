@@ -1,5 +1,6 @@
 package com.atherys.towns;
 
+import com.atherys.core.database.mongo.MongoDatabaseConfig;
 import com.atherys.core.utils.PluginConfig;
 import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.NationRanks;
@@ -112,30 +113,7 @@ public final class TownsConfig extends PluginConfig {
     }
 
     @Setting ( "database" )
-    public DatabaseConfig DATABASE = new DatabaseConfig();
-
-    @ConfigSerializable
-    public static class DatabaseConfig {
-
-        @Setting( "host" )
-        public String HOST = "localhost";
-
-        @Setting( "port" )
-        public int PORT = 27017;
-
-        @Setting( "name" )
-        public String NAME = "core_Database";
-
-        @Setting( "userDb" )
-        public String USER_DB = "user_Database";
-
-        @Setting( "username" )
-        public String USERNAME = "username";
-
-        @Setting( "password" )
-        public String PASSWORD = "password";
-
-    }
+    public MongoDatabaseConfig DATABASE = new MongoDatabaseConfig();
 
     @Setting ( "wilderness_regen" )
     public WildernessConfig WILDERNESS_REGEN = new WildernessConfig();

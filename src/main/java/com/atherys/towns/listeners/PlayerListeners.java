@@ -52,7 +52,7 @@ public class PlayerListeners {
     public void onPlayerLeave(ClientConnectionEvent.Disconnect event) {
         ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId()).ifPresent(resident -> {
             resident.updateLastOnline();
-            ResidentManager.getInstance().saveOne(resident);
+            ResidentManager.getInstance().save(resident);
         });
     }
 

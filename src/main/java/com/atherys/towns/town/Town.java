@@ -64,6 +64,7 @@ public class Town extends AreaObject<Nation> implements Viewable<TownView> {
         this.status = TownStatus.NONE;
         mayor.setTown( this, AtherysTowns.getConfig().TOWN.TOWN_LEADER );
         TownManager.getInstance().add(this);
+        TownManager.getInstance().save(this);
     }
 
     public static Town create( PlotDefinition definition, Resident mayor, String name, int maxAllowedPlots ) {
@@ -71,7 +72,6 @@ public class Town extends AreaObject<Nation> implements Viewable<TownView> {
         t.setName(name);
         t.setMaxSize(maxAllowedPlots);
         TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
-        TownManager.getInstance().saveOne(t);
         return t;
     }
 

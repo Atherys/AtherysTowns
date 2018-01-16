@@ -1,28 +1,32 @@
 package com.atherys.towns.managers;
 
+import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
 import com.atherys.towns.base.BaseAreaObject;
+import com.atherys.towns.db.TownsDatabase;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.*;
 
-public abstract class AreaObjectManager<T extends BaseAreaObject> extends DatabaseManager<T> {
+public abstract class AreaObjectManager<T extends BaseAreaObject> extends AbstractMongoDatabaseManager<T> {
 
-    private Map<UUID,T> objects = new HashMap<>();
+    protected AreaObjectManager( String collectionName ) {
+        super(TownsDatabase.getInstance(), collectionName);
+    }
 
     public Optional<T> getByName(String name) {
-        for ( T n : objects.values() ) {
+        for ( T n : super.getCache().values() ) {
             if ( n.getName().contains(name) ) return Optional.of(n);
         }
         return Optional.empty();
     }
 
     public Optional<T> getByUUID ( UUID uuid ) {
-        return Optional.ofNullable( objects.get( uuid ) );
+        return Optional.ofNullable( super.getCache().get( uuid ) );
     }
 
     public Optional<T> getByLocation ( Location<World> loc ) {
-        for ( T t : objects.values() ) {
+        for ( T t : super.getCache().values() ) {
             if ( t.contains(loc) ) {
                 return Optional.of(t);
             }
@@ -30,16 +34,16 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
         return Optional.empty();
     }
 
-    public Collection<T> getAll() { return objects.values(); }
+    public Collection<T> getAll() { return super.getCache().values(); }
 
     public void add ( T ao ) {
-        if ( objects.containsKey( ao.getUUID() ) ) return;
-        objects.put( ao.getUUID(), ao );
+        if ( super.getCache().containsKey( ao.getUUID() ) ) return;
+        super.getCache().put( ao.getUUID(), ao );
     }
 
     public <P extends BaseAreaObject> List<T> getByParent ( P test ) {
         List<T> children = new ArrayList<>();
-        for ( T t : objects.values() ) {
+        for ( T t : super.getCache().values() ) {
             Optional<? extends BaseAreaObject> parent = t.getParent();
             if ( parent.isPresent() ) {
                 if ( parent.get().equals(test) ) {
@@ -48,11 +52,6 @@ public abstract class AreaObjectManager<T extends BaseAreaObject> extends Databa
             }
         }
         return children;
-    }
-
-    public void remove ( T ao ) {
-        objects.remove( ao.getUUID() );
-        removeOne(ao);
     }
 
 }

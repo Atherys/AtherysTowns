@@ -1,10 +1,8 @@
 package com.atherys.towns.base;
 
-import java.util.UUID;
+import com.atherys.core.database.api.DBObject;
 
-public interface TownsObject {
-
-    UUID getUUID();
+public interface TownsObject extends DBObject {
 
     void setName(String name);
 
