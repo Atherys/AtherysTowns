@@ -15,7 +15,6 @@ import com.atherys.towns.views.ResidentView;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 
@@ -24,7 +23,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public class Resident implements TownsObject, Viewable<ResidentView> {
 
@@ -55,10 +53,6 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     // return user object regardless if player is online or not
     private Optional<? extends User> getUser() {
         return UserUtils.getUser(uuid);
-    }
-
-    private CompletableFuture<GameProfile> getProfile() {
-        return Sponge.getServer().getGameProfileManager().get( uuid );
     }
 
     // returns player object IF player is online
@@ -102,12 +96,7 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     }
 
     public Resident setTownRank ( TownRank townRank ) {
-        CompletableFuture<GameProfile> user = this.getProfile();
-        // TODO: This needs to be fixed.
-        if ( user.isPresent() ) {
-            getTownRank().removePermissions( user.get() );
-            townRank.addPermissions( user.get() );
-        }
+        getTownRank().updatePermissions ( this.uuid, townRank );
         this.townRank = townRank;
         return this;
     }

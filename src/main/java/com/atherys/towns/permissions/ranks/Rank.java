@@ -9,6 +9,7 @@ import org.spongepowered.api.util.Tristate;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class Rank {
 
@@ -37,6 +38,13 @@ public abstract class Rank {
 
     public void addPermissions ( User player ) {
         player.getSubjectData().addParent( new LinkedHashSet<>(), permissions );
+    }
+
+    public void updatePermissions ( UUID uuid, Rank newRank ) {
+        AtherysTowns.getPermissionService().getUserSubjects().loadSubject( uuid.toString() ).thenAccept( subject -> {
+            subject.getSubjectData().removeParent( new LinkedHashSet<>(), this.permissions );
+            subject.getSubjectData().addParent( new LinkedHashSet<>(), newRank.permissions );
+        });
     }
 
     public void removePermissions ( User player ) {
