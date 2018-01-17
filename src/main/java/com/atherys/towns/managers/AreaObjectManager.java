@@ -1,6 +1,7 @@
 package com.atherys.towns.managers;
 
 import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.base.BaseAreaObject;
 import com.atherys.towns.db.TownsDatabase;
 import org.spongepowered.api.world.Location;
@@ -11,7 +12,7 @@ import java.util.*;
 public abstract class AreaObjectManager<T extends BaseAreaObject> extends AbstractMongoDatabaseManager<T> {
 
     protected AreaObjectManager( String collectionName ) {
-        super(TownsDatabase.getInstance(), collectionName);
+        super(AtherysTowns.getInstance().getLogger(), TownsDatabase.getInstance(), collectionName );
     }
 
     public Optional<T> getByName(String name) {

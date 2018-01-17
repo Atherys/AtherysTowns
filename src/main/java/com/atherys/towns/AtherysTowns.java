@@ -49,7 +49,7 @@ import static com.atherys.towns.AtherysTowns.*;
         description = DESCRIPTION,
         version =     VERSION,
         dependencies = {
-            @Dependency( id = "atheryscore" )
+            @Dependency( id = "atheryscore", optional = false )
 } )
 public class AtherysTowns {
     public final static String ID = "atherystowns";

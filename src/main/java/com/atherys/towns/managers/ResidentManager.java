@@ -1,6 +1,7 @@
 package com.atherys.towns.managers;
 
 import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.*;
@@ -37,7 +38,7 @@ public final class ResidentManager extends AbstractMongoDatabaseManager<Resident
     }
 
     private ResidentManager () {
-        super(TownsDatabase.getInstance(), "residents");
+        super(AtherysTowns.getInstance().getLogger(), TownsDatabase.getInstance(), "residents");
     }
 
     public boolean has ( UUID uuid ) { return super.getCache().containsKey(uuid); }
