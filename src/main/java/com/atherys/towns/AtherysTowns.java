@@ -44,9 +44,14 @@ import java.util.concurrent.TimeUnit;
 
 import static com.atherys.towns.AtherysTowns.*;
 
-@Plugin( id=AtherysTowns.ID, name=NAME, description = DESCRIPTION, version=VERSION, dependencies = @Dependency( id = "atheryscore" ) )
+@Plugin( id =         ID,
+        name =        NAME,
+        description = DESCRIPTION,
+        version =     VERSION,
+        dependencies = {
+            @Dependency( id = "atheryscore" )
+} )
 public class AtherysTowns {
-
     public final static String ID = "atherystowns";
     public final static String NAME = "A'therys Towns";
     public final static String DESCRIPTION = "A custom plugin responsible for agile land management. Created for the A'therys Horizons server.";
@@ -187,7 +192,7 @@ public class AtherysTowns {
 
     @Listener
     public void onStop (GameStoppingServerEvent event ) {
-        stop();
+        if ( init ) stop();
     }
 
     public static AtherysTowns getInstance() { return instance; }
