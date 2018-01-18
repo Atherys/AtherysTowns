@@ -15,11 +15,13 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public final class WildernessManager {
 
@@ -27,11 +29,31 @@ public final class WildernessManager {
 
     private WildernessFilter filter;
 
+    private Task wildernessRegenTask;
+
     private WildernessManager() { }
 
     public void init() {
-        this.filter = AtherysTowns.getConfig().WILDERNESS_REGEN.FILTER;
-        collection().createIndex(new Document("location", 1), new IndexOptions().unique(true));
+
+        if ( AtherysTowns.getConfig().WILDERNESS_REGEN.ENABLED ) {
+
+            this.filter = AtherysTowns.getConfig().WILDERNESS_REGEN.FILTER;
+            collection().createIndex(new Document("location", 1), new IndexOptions().unique(true));
+
+            long delay = AtherysTowns.getConfig().WILDERNESS_REGEN.RATE;
+
+            if ( AtherysTowns.getConfig().WILDERNESS_REGEN.LAST != 0 ) {
+                long elapsed = System.currentTimeMillis() - AtherysTowns.getConfig().WILDERNESS_REGEN.LAST;
+                delay = AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT.toMillis( AtherysTowns.getConfig().WILDERNESS_REGEN.RATE ) - elapsed;
+            }
+
+            wildernessRegenTask = Task.builder()
+                    .delay( AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT.convert( delay, TimeUnit.MILLISECONDS ), AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
+                    .interval( AtherysTowns.getConfig().WILDERNESS_REGEN.RATE, AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
+                    .execute(() -> WildernessManager.getInstance().regenerate( System.currentTimeMillis() ) )
+                    .name("atherystowns-wilderness-regen-task")
+                    .submit(this);
+        }
     }
 
     private MongoCollection<Document> collection() {

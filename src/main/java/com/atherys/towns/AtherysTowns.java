@@ -154,23 +154,6 @@ public class AtherysTowns {
                 })
                 .name("atherystowns-town-border-task")
                 .submit(this);
-
-        if ( getConfig().WILDERNESS_REGEN.ENABLED ) {
-
-            long delay = getConfig().WILDERNESS_REGEN.RATE;
-
-            if ( getConfig().WILDERNESS_REGEN.LAST != 0 ) {
-                long elapsed = System.currentTimeMillis() - getConfig().WILDERNESS_REGEN.LAST;
-                delay = getConfig().WILDERNESS_REGEN.UNIT.toMillis( getConfig().WILDERNESS_REGEN.RATE ) - elapsed;
-            }
-
-            wildernessRegenTask = Task.builder()
-                    .delay( getConfig().WILDERNESS_REGEN.UNIT.convert( delay, TimeUnit.MILLISECONDS ), getConfig().WILDERNESS_REGEN.UNIT )
-                    .interval( getConfig().WILDERNESS_REGEN.RATE, getConfig().WILDERNESS_REGEN.UNIT )
-                    .execute(() -> WildernessManager.getInstance().regenerate( System.currentTimeMillis() ) )
-                    .name("atherystowns-wilderness-regen-task")
-                    .submit(this);
-        }
     }
 
     private void stop() {
