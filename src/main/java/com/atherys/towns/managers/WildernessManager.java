@@ -48,7 +48,7 @@ public final class WildernessManager {
             }
 
             wildernessRegenTask = Task.builder()
-                    .delay( AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT.convert( delay, TimeUnit.MILLISECONDS ), AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
+                    .delay( AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT.convert( delay < 0 ? 0 : delay, TimeUnit.MILLISECONDS ) , AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
                     .interval( AtherysTowns.getConfig().WILDERNESS_REGEN.RATE, AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
                     .execute(() -> WildernessManager.getInstance().regenerate( System.currentTimeMillis() ) )
                     .name("atherystowns-wilderness-regen-task")
