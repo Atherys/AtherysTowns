@@ -52,7 +52,7 @@ public final class WildernessManager {
                     .interval( AtherysTowns.getConfig().WILDERNESS_REGEN.RATE, AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT )
                     .execute(() -> WildernessManager.getInstance().regenerate( System.currentTimeMillis() ) )
                     .name("atherystowns-wilderness-regen-task")
-                    .submit(this);
+                    .submit( AtherysTowns.getInstance() );
         }
     }
 
