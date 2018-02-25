@@ -116,6 +116,11 @@ public class AtherysTowns {
 
         database = TownsDatabase.getInstance();
 
+        init = true;
+    }
+
+    private void start() {
+
         WildernessManager.getInstance().init();
 
         NationManager.getInstance().loadAll();
@@ -126,10 +131,6 @@ public class AtherysTowns {
 
         ResidentManager.getInstance().loadAll();
 
-        init = true;
-    }
-
-    private void start() {
         game.getEventManager().registerListeners(this, new PlayerListeners());
 
         ResidentCommand.register();
