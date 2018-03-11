@@ -30,7 +30,7 @@ public class TownJoinCommand extends TownsSimpleCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        Optional<Town> tOpt = TownManager.getInstance().getByName(args.<String>getOne("townName").orElse(UUID.randomUUID().toString()));
+        Optional<Town> tOpt = TownManager.getInstance().getFirstByName(args.<String>getOne("townName").orElse(UUID.randomUUID().toString()));
 
         if ( !tOpt.isPresent() ) {
             TownMessage.warn(player, "That town doesn't exist!");

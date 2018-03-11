@@ -1,33 +1,28 @@
 package com.atherys.towns.plot;
 
 import com.atherys.core.views.Viewable;
-import com.atherys.towns.base.AreaObject;
+import com.atherys.towns.base.AbstractAreaObject;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.plot.flags.Extent;
 import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.views.PlotView;
-import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
-import math.geom2d.line.LineSegment2D;
-import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleTypes;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class Plot extends AreaObject<Town> implements Viewable<PlotView> {
+public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView> {
 
     private PlotDefinition definition;
     private PlotFlags flags;
 
     private String name;
 
-    Plot(UUID uuid) {
+    Plot( UUID uuid ) {
         super ( uuid );
     }
 
@@ -47,13 +42,13 @@ public class Plot extends AreaObject<Town> implements Viewable<PlotView> {
 
     public PlotBuilder builder() { return new PlotBuilder(); }
 
-    public static PlotBuilder fromUUID(UUID uuid) { return new PlotBuilder(uuid); }
+    public static PlotBuilder fromUUID ( UUID uuid ) { return new PlotBuilder(uuid); }
 
-    public boolean isResidentAllowedTo (Resident res, Flag flag) { return this.flags.isAllowed(res, flag, this); }
+    public boolean isResidentAllowedTo ( Resident res, Flag flag ) { return this.flags.isAllowed( res, flag, this ); }
 
     public PlotDefinition getDefinition() { return definition; }
 
-    public void setDefinition(PlotDefinition definition) {
+    public void setDefinition( PlotDefinition definition ) {
         this.definition = definition;
     }
 
@@ -67,30 +62,6 @@ public class Plot extends AreaObject<Town> implements Viewable<PlotView> {
 
     public Town getTown() {
         return super.getParent().get();
-    }
-
-    public void showBorder(Player p) {
-        for ( LineSegment2D edge : definition.edges() ) {
-            for ( int i = 0; i <= edge.length(); i+=2 ) {
-                Point2D twoD = interpolationByDistance(edge, i);
-                Vector3d loc = new Vector3d( twoD.x(), p.getLocation().getBlockY() + 1, twoD.y() );
-                p.spawnParticles(ParticleEffect.builder()
-                        .velocity(Vector3d.from(0, 0.08, 0))
-                        .type(ParticleTypes.BARRIER)
-                        .quantity(1)
-                        .build(), loc);
-            }
-        }
-    }
-
-    private static Point2D interpolationByDistance(LineSegment2D l, double d) {
-        if ( d == 0 ) return l.firstPoint();
-        if ( d == l.length() ) return l.lastPoint();
-        double len = l.length();
-        double ratio = d/len;
-        double x = ratio*l.lastPoint().x() + (1.0 - ratio)*l.firstPoint().x();
-        double y = ratio*l.lastPoint().y() + (1.0 - ratio)*l.firstPoint().y();
-        return new Point2D( x, y );
     }
 
     @Override

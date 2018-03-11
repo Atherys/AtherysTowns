@@ -64,7 +64,7 @@ public class PlotDefinition extends Rectangle2D {
 
     // Smaller one first
     // Larger one second
-    private static Tuple<Vector3d,Vector3d> format (Vector3d A, Vector3d B ){
+    private static Tuple<Vector3d,Vector3d> format ( Vector3d A, Vector3d B ){
         if        ( A.getX() >= B.getX() && A.getZ() >= B.getZ() ) {
             return Tuple.of( B, A.add(1,0,1) );
 

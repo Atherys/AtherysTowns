@@ -1,66 +1,31 @@
 package com.atherys.towns.base;
 
-import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.resident.Resident;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.service.economy.Currency;
-import org.spongepowered.api.service.economy.EconomyService;
-import org.spongepowered.api.service.economy.account.UniqueAccount;
+import math.geom2d.Point2D;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
 
-public abstract class AreaObject<T extends BaseAreaObject> implements BaseAreaObject {
+/**
+ * An AreaObject is defined as any arbitrarily shaped 2-dimensional area which can contain points. AreaObjects can have parents, but this is not guaranteed.<br>
+ * The tree for AreaObjects in the Towns plugin is as follows:<br>
+ * <br>
+ * null<br>
+ *  | is a parent of<br>
+ * Nation<br>
+ *  | is a parent of<br>
+ * Town<br>
+ *  | is a parent of<br>
+ * Plot<br>
+ */
+public interface AreaObject extends TownsObject {
 
-    protected UUID uuid;
-    private T parent;
-    private UniqueAccount bank;
+    Optional<? extends AreaObject> getParent();
 
-    protected AreaObject ( UUID uuid ) {
-        this.uuid = uuid;
-        createBank().ifPresent(uniqueAccount -> bank = uniqueAccount);
-    }
+    boolean contains ( World w, double x, double y );
 
-    public UUID getUUID() { return uuid; }
+    boolean contains ( World w, Point2D point );
 
-    public Optional<UniqueAccount> getBank() { return Optional.ofNullable(bank); }
+    boolean contains ( Location<World> loc );
 
-    public boolean deposit ( Resident res, BigDecimal amount, Currency currency ) {
-        if ( bank != null ) {
-            Optional<UniqueAccount> acc = res.getBank();
-            if ( acc.isPresent() ) {
-                UniqueAccount resAcc = acc.get();
-                Cause cause = Cause.builder().append( res ).build( EventContext.empty() );
-
-                resAcc.transfer( bank, currency, amount, cause );
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean withdraw ( Resident res, BigDecimal amount, Currency currency ) {
-        if ( bank != null ) {
-            Optional<UniqueAccount> acc = res.getBank();
-            if ( acc.isPresent() ) {
-                UniqueAccount resAcc = acc.get();
-                Cause cause = Cause.builder().append( res ).build( EventContext.empty() );
-
-                bank.transfer( resAcc, currency, amount, cause );
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void setParent ( T parent ) { this.parent = parent; }
-
-    public Optional<T> getParent() { return Optional.ofNullable(parent); }
-
-    private Optional<UniqueAccount> createBank () {
-        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
-    }
 }

@@ -61,7 +61,7 @@ public class TownCreateCommand extends TownsSimpleCommand {
         }
 
         if ( define.isPresent() ) {
-            Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()));
+            Optional<Nation> n = NationManager.getInstance().getFirstByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()));
             Town t = Town.create(define.get(), resident, args.<String>getOne(Text.of("townName")).orElse(player.getName() + "'s Town"), AtherysTowns.getConfig().TOWN.INITIAL_AREA );
             if ( n.isPresent() ) t.setParent(n.get());
             else TownMessage.warn(player, "The nation you specified was invalid. Town was not added to a nation.");

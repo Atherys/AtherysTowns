@@ -49,7 +49,7 @@ public class TownInfoCommand extends TownsSimpleCommand {
                 tOpt = TownManager.getInstance().getByLocation(player.getLocation());
             } else {
                 error = Text.of("No such town exists.");
-                tOpt = TownManager.getInstance().getByName(townName.get());
+                tOpt = TownManager.getInstance().getFirstByName(townName.get());
             }
 
             if ( tOpt.isPresent() ) {

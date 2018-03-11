@@ -1,7 +1,7 @@
 package com.atherys.towns.utils;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.base.AreaObject;
+import com.atherys.towns.base.AbstractAreaObject;
 import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public final class FormatUtils {
 
-    public static Text getFormattedBank( AreaObject<?> ao ) {
+    public static Text getFormattedBank( AbstractAreaObject<?> ao ) {
         Optional<UniqueAccount> bank = ao.getBank();
         return bank.map(FormatUtils::getFormattedBank).orElseGet(() -> Text.of("None"));
     }

@@ -1,7 +1,7 @@
 package com.atherys.towns.nation;
 
 import com.atherys.core.views.Viewable;
-import com.atherys.towns.base.AreaObject;
+import com.atherys.towns.base.AbstractAreaObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Nation extends AreaObject<Nation> implements Viewable<NationView> {
+public class Nation extends AbstractAreaObject<Nation> implements Viewable<NationView> {
 
     private String name;
     private String leaderTitle = "Leader";
@@ -29,20 +29,20 @@ public class Nation extends AreaObject<Nation> implements Viewable<NationView> {
     private String description = "";
     private double tax = 0.0;
 
-    // allies and enemies are bullshit. Let's not do them.
+    // TODO: Allies & Enemies
 
-    public Nation(UUID uuid) {
+    protected Nation(UUID uuid) {
         super(uuid);
     }
 
-    private Nation (UUID uuid, String name, String description) {
+    private Nation ( UUID uuid, String name, String description ) {
         super(uuid);
         this.name = name;
         this.description = description;
         NationManager.getInstance().add(this);
     }
 
-    public Nation(String name, Town capital) {
+    private Nation ( String name, Town capital ) {
         super(UUID.randomUUID());
         this.name = name;
         this.description = "";

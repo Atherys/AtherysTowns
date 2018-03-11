@@ -2,6 +2,7 @@ package com.atherys.towns.commands.nation;
 
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.managers.NationManager;
+import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
@@ -25,12 +26,23 @@ public class NationInfoCommand extends TownsSimpleCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        Optional<Nation> nationOptional = NationManager.getInstance().getByName(args.<String>getOne("nation").orElseGet( () -> {
+
+        String nationName = args.<String>getOne("nation").orElseGet( () -> {
             Optional<Nation> residentNation = resident.getNation();
             if ( residentNation.isPresent() ) return residentNation.get().getName();
-            return "";
-        }));
-        nationOptional.ifPresent(nation1 -> nation1.createView().ifPresent( view -> view.show( player ) ) );
+            return "None";
+        });
+
+        if ( nationName.equals("None") ) return CommandResult.success();
+
+        Optional<Nation> nationOptional = NationManager.getInstance().getFirstByName(nationName);
+
+        if ( nationOptional.isPresent() ) {
+            nationOptional.get().createView().ifPresent( view -> view.show( player ) );
+        } else {
+            TownMessage.warn(player, "No nation found.");
+        }
+
         return CommandResult.success();
     }
 

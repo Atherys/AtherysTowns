@@ -30,7 +30,7 @@ public class TownSetNationCommand extends TownsSimpleCommand {
     protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
         if ( town == null ) return CommandResult.empty();
 
-        Optional<Nation> n = NationManager.getInstance().getByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
+        Optional<Nation> n = NationManager.getInstance().getFirstByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
 
         if ( n.isPresent() ) {
             town.setParent(n.get());
