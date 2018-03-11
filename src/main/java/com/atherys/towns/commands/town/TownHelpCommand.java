@@ -16,20 +16,20 @@ public class TownHelpCommand extends TownsSimpleCommand {
 
     private static TownHelpCommand instance = new TownHelpCommand();
 
-    public static TownHelpCommand getInstance() {
+    public static TownHelpCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         TownMasterCommand.getInstance().showHelp( "t", player );
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .description( Text.of ( "Used to get help for the Master Towns Command." ) )
+                .description( Text.of( "Used to get help for the Master Towns Command." ) )
                 .executor( this )
                 .build();
     }

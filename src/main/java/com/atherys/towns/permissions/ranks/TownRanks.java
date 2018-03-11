@@ -6,26 +6,26 @@ import java.util.Arrays;
 
 public final class TownRanks {
 
-    public static final TownRank NONE = new TownRank ( "none", "None", Arrays.asList(
+    public static final TownRank NONE = new TownRank( "none", "None", Arrays.asList(
             TownActions.CREATE_TOWN,
             TownActions.JOIN_TOWN
-    ), NationRanks.RESIDENT, null);
+    ), NationRanks.RESIDENT, null );
 
-    public static final TownRank RESIDENT = new TownRank ( "resident", "Resident", Arrays.asList(
+    public static final TownRank RESIDENT = new TownRank( "resident", "Resident", Arrays.asList(
             TownActions.CHAT,
             TownActions.JOIN_TOWN,
             TownActions.LEAVE_TOWN,
             TownActions.TOWN_DEPOSIT
-    ), NationRanks.RESIDENT, TownRanks.NONE);
+    ), NationRanks.RESIDENT, TownRanks.NONE );
 
-    public static final TownRank CITIZEN = new TownRank ( "citizen", "Citizen", Arrays.asList(
+    public static final TownRank CITIZEN = new TownRank( "citizen", "Citizen", Arrays.asList(
             TownActions.CHAT,
             TownActions.JOIN_TOWN,
             TownActions.LEAVE_TOWN,
             TownActions.TOWN_DEPOSIT
-    ), NationRanks.RESIDENT, TownRanks.RESIDENT);
+    ), NationRanks.RESIDENT, TownRanks.RESIDENT );
 
-    public static final TownRank ASSISTANT = new TownRank ( "assistant", "Assistant", Arrays.asList(
+    public static final TownRank ASSISTANT = new TownRank( "assistant", "Assistant", Arrays.asList(
             TownActions.CHAT,
             TownActions.JOIN_TOWN,
             TownActions.LEAVE_TOWN,
@@ -36,9 +36,9 @@ public final class TownRanks {
             TownActions.SET_COLOR,
             TownActions.SHOW_TOWN_BORDER,
             TownActions.TOWN_DEPOSIT
-    ), NationRanks.RESIDENT, TownRanks.CITIZEN);
+    ), NationRanks.RESIDENT, TownRanks.CITIZEN );
 
-    public static final TownRank CO_MAYOR = new TownRank ( "co_mayor", "Co-Mayor", Arrays.asList(
+    public static final TownRank CO_MAYOR = new TownRank( "co_mayor", "Co-Mayor", Arrays.asList(
             TownActions.CHAT,
             TownActions.INVITE_PLAYER,
             TownActions.KICK_PLAYER,
@@ -57,9 +57,9 @@ public final class TownRanks {
             TownActions.TOWN_WITHDRAW,
             TownActions.MODIFY_PLOT_FLAG,
             TownActions.MODIFY_PLOT_NAME
-    ), NationRanks.RESIDENT, TownRanks.ASSISTANT);
+    ), NationRanks.RESIDENT, TownRanks.ASSISTANT );
 
-    public static final TownRank MAYOR = new TownRank ( "mayor", "Mayor", Arrays.asList(
+    public static final TownRank MAYOR = new TownRank( "mayor", "Mayor", Arrays.asList(
             TownActions.CHAT,
             TownActions.INVITE_PLAYER,
             TownActions.KICK_PLAYER,

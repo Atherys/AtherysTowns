@@ -20,28 +20,28 @@ public class TownSetSpawnCommand extends TownsSimpleCommand {
 
     private static TownSetSpawnCommand instance = new TownSetSpawnCommand();
 
-    public static TownSetSpawnCommand getInstance() {
+    public static TownSetSpawnCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        if (town == null) return CommandResult.empty();
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        if ( town == null ) return CommandResult.empty();
 
         Location<World> loc = player.getLocation();
 
-        if (town.contains(loc)) {
-            town.setSpawn(loc);
-            town.informResidents(Text.of("Town Spawn changed to ", loc.getBlockPosition().toString() ));
+        if ( town.contains( loc ) ) {
+            town.setSpawn( loc );
+            town.informResidents( Text.of( "Town Spawn changed to ", loc.getBlockPosition().toString() ) );
         } else {
-            TownMessage.warn(player, "Town Spawn must be located within the borders of the town.");
+            TownMessage.warn( player, "Town Spawn must be located within the borders of the town." );
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the spawn point of the town." ) )
                 .permission( TownActions.SET_SPAWN.getPermission() )

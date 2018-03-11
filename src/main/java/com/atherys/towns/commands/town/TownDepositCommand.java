@@ -22,22 +22,23 @@ public class TownDepositCommand extends TownsSimpleCommand {
 
     private static TownDepositCommand instance = new TownDepositCommand();
 
-    public static TownDepositCommand getInstance() {
+    public static TownDepositCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() ) {
-            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
+            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne( "amount" ).orElse( 0.0d ) );
+            Currency currency = args.<Currency>getOne( "currency" ).orElse( AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency() );
 
             if ( town.getBank().isPresent() ) {
                 boolean result = town.deposit( resident, amount, currency );
-                if ( result ) town.informResidents(Text.of( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the town bank."));
-                else TownMessage.warn(player, "Deposit Failed.");
+                if ( result )
+                    town.informResidents( Text.of( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the town bank." ) );
+                else TownMessage.warn( player, "Deposit Failed." );
                 return CommandResult.success();
             }
         }
@@ -46,13 +47,13 @@ public class TownDepositCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to deposit money into the town bank." ) )
                 .permission( TownActions.TOWN_DEPOSIT.getPermission() )
                 .arguments(
-                        GenericArguments.doubleNum(Text.of("amount")),
-                        GenericArguments.optional(GenericArguments.catalogedElement(Text.of("currency"), Currency.class))
+                        GenericArguments.doubleNum( Text.of( "amount" ) ),
+                        GenericArguments.optional( GenericArguments.catalogedElement( Text.of( "currency" ), Currency.class ) )
                 )
                 .executor( this )
                 .build();

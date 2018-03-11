@@ -21,17 +21,17 @@ public class TownUnclaimCommand extends TownsSimpleCommand {
 
     private static TownUnclaimCommand instance = new TownUnclaimCommand();
 
-    public static TownUnclaimCommand getInstance() {
+    public static TownUnclaimCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) {
             return CommandResult.empty();
         }
 
-        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation(player.getLocation());
+        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation( player.getLocation() );
 
         if ( !plotOpt.isPresent() ) {
             TownMessage.warn( player, "You must be standing on a plot owned by your town in order to unclaim." );
@@ -40,8 +40,8 @@ public class TownUnclaimCommand extends TownsSimpleCommand {
 
         Plot p = plotOpt.get();
 
-        if ( !p.getParent().isPresent() || !p.getParent().get().equals(town) ) {
-            TownMessage.warn(player, "You cannot unclaim the plots of another town!" );
+        if ( !p.getParent().isPresent() || !p.getParent().get().equals( town ) ) {
+            TownMessage.warn( player, "You cannot unclaim the plots of another town!" );
             return CommandResult.empty();
         }
 
@@ -50,14 +50,14 @@ public class TownUnclaimCommand extends TownsSimpleCommand {
             return CommandResult.empty();
         }
 
-        town.unclaimPlot ( p );
+        town.unclaimPlot( p );
         TownMessage.inform( player, "Plot Unclaimed." );
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to unclaim the plot you are currently standing on." ) )
                 .permission( TownActions.UNCLAIM_PLOT.getPermission() )

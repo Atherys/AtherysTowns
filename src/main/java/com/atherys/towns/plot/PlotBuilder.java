@@ -10,34 +10,34 @@ public final class PlotBuilder {
     private Plot plot;
 
     PlotBuilder () {
-        this.plot = new Plot(UUID.randomUUID());
+        this.plot = new Plot( UUID.randomUUID() );
     }
 
     PlotBuilder ( UUID uuid ) {
-        this.plot = new Plot(uuid);
+        this.plot = new Plot( uuid );
     }
 
     public PlotBuilder definition ( PlotDefinition definition ) {
-        plot.setDefinition ( definition );
+        plot.setDefinition( definition );
         return this;
     }
 
     public PlotBuilder town ( Town town ) {
-        plot.setParent ( town );
+        plot.setParent( town );
         return this;
     }
 
     public PlotBuilder flags ( PlotFlags flags ) {
-        plot.setFlags ( flags );
+        plot.setFlags( flags );
         return this;
     }
 
     public PlotBuilder name ( String name ) {
-        plot.setName ( name );
+        plot.setName( name );
         return this;
     }
 
-    public Plot build() {
+    public Plot build () {
         PlotManager.getInstance().add( plot );
         return plot;
     }

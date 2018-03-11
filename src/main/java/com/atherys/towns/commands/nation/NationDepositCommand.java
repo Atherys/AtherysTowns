@@ -22,41 +22,41 @@ public class NationDepositCommand extends TownsSimpleCommand {
 
     private static NationDepositCommand instance = new NationDepositCommand();
 
-    public static NationDepositCommand getInstance() {
+    public static NationDepositCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        if ( !args.getOne("amount").isPresent() ) {
-            TownMessage.warn(player, "You must provide an amount to deposit.");
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        if ( !args.getOne( "amount" ).isPresent() ) {
+            TownMessage.warn( player, "You must provide an amount to deposit." );
             return CommandResult.empty();
         }
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() && nation != null ) {
-            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
+            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne( "amount" ).orElse( 0.0d ) );
+            Currency currency = args.<Currency>getOne( "currency" ).orElse( AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency() );
 
-            if ( nation.deposit(resident, amount, currency) )
-                nation.informResidents ( Text.of ( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
-            else TownMessage.warn(player, "Deposit Failed.");
+            if ( nation.deposit( resident, amount, currency ) )
+                nation.informResidents( Text.of( player.getName(), " has deposited ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            else TownMessage.warn( player, "Deposit Failed." );
             return CommandResult.success();
         }
 
-        TownMessage.warn(player, "Nation deposit failed.");
+        TownMessage.warn( player, "Nation deposit failed." );
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .permission( NationActions.NATION_DEPOSIT.getPermission() )
-                .description( Text.of("Used to deposit money into the town's bank") )
+                .description( Text.of( "Used to deposit money into the town's bank" ) )
                 .arguments(
-                        GenericArguments.doubleNum(Text.of("amount")),
-                        GenericArguments.optional( GenericArguments.catalogedElement(Text.of("currency"), Currency.class) )
+                        GenericArguments.doubleNum( Text.of( "amount" ) ),
+                        GenericArguments.optional( GenericArguments.catalogedElement( Text.of( "currency" ), Currency.class ) )
                 )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 }

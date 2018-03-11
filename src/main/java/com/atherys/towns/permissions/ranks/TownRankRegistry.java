@@ -11,11 +11,12 @@ public final class TownRankRegistry implements CatalogRegistryModule<TownRank> {
 
     private static TownRankRegistry instance = new TownRankRegistry();
 
-    private Map<String,TownRank> ranks = new HashMap<>();
+    private Map<String, TownRank> ranks = new HashMap<>();
 
-    private TownRankRegistry() {}
+    private TownRankRegistry () {
+    }
 
-    public static TownRankRegistry getInstance() {
+    public static TownRankRegistry getInstance () {
         return instance;
     }
 
@@ -24,12 +25,12 @@ public final class TownRankRegistry implements CatalogRegistryModule<TownRank> {
     }
 
     @Override
-    public Optional<TownRank> getById(String id) {
-        return Optional.ofNullable( ranks.get(id) );
+    public Optional<TownRank> getById ( String id ) {
+        return Optional.ofNullable( ranks.get( id ) );
     }
 
     @Override
-    public Collection<TownRank> getAll() {
+    public Collection<TownRank> getAll () {
         return ranks.values();
     }
 

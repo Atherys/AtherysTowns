@@ -9,14 +9,16 @@ public interface TownsObject extends DBObject {
 
     /**
      * Set the name of this object
+     *
      * @param name The new name
      */
-    void setName(String name);
+    void setName ( String name );
 
     /**
      * Retrieve the name of this object
+     *
      * @return The name
      */
-    String getName();
+    String getName ();
 
 }

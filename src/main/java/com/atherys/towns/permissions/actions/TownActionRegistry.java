@@ -11,11 +11,12 @@ public final class TownActionRegistry implements CatalogRegistryModule<TownActio
 
     private static TownActionRegistry instance = new TownActionRegistry();
 
-    private Map<String,TownAction> actions = new HashMap<>();
+    private Map<String, TownAction> actions = new HashMap<>();
 
-    private TownActionRegistry() {}
+    private TownActionRegistry () {
+    }
 
-    public static TownActionRegistry getInstance() {
+    public static TownActionRegistry getInstance () {
         return instance;
     }
 
@@ -24,12 +25,12 @@ public final class TownActionRegistry implements CatalogRegistryModule<TownActio
     }
 
     @Override
-    public Optional<TownAction> getById(String id) {
-        return Optional.ofNullable( actions.get(id) );
+    public Optional<TownAction> getById ( String id ) {
+        return Optional.ofNullable( actions.get( id ) );
     }
 
     @Override
-    public Collection<TownAction> getAll() {
+    public Collection<TownAction> getAll () {
         return actions.values();
     }
 }

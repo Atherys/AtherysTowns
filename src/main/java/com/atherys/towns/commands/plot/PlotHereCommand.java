@@ -20,15 +20,15 @@ public class PlotHereCommand extends TownsSimpleCommand {
 
     private static PlotHereCommand instance = new PlotHereCommand();
 
-    public static PlotHereCommand getInstance() {
+    public static PlotHereCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        Optional<Plot> plot = PlotManager.getInstance().getByLocation( player.getLocation());
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        Optional<Plot> plot = PlotManager.getInstance().getByLocation( player.getLocation() );
         if ( !plot.isPresent() ) {
-            TownMessage.warn(player, "You are in the wilderness.");
+            TownMessage.warn( player, "You are in the wilderness." );
             return CommandResult.empty();
         }
 
@@ -38,10 +38,10 @@ public class PlotHereCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to get information on the plot you are currently standing in." ) )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 

@@ -24,55 +24,55 @@ public class TownSetRankCommand extends TownsSimpleCommand {
 
     private static TownSetRankCommand instance = new TownSetRankCommand();
 
-    public static TownSetRankCommand getInstance() {
+    public static TownSetRankCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        Optional<Player> target = args.getOne("player");
+        Optional<Player> target = args.getOne( "player" );
         if ( !target.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid player.");
+            TownMessage.warn( player, "You must provide a valid player." );
             return CommandResult.empty();
         }
 
         Optional<Resident> targetResOpt = ResidentManager.getInstance().get( target.get().getUniqueId() );
         if ( !targetResOpt.isPresent() ) {
-            TownMessage.warn( player, "You must provide a valid resident.");
+            TownMessage.warn( player, "You must provide a valid resident." );
             return CommandResult.empty();
         }
 
         Resident targetRes = targetResOpt.get();
         if ( !targetRes.getTown().isPresent() || !town.equals( targetRes.getTown().get() ) ) {
-            TownMessage.warn( player, "The specified resident must be part of your town.");
+            TownMessage.warn( player, "The specified resident must be part of your town." );
             return CommandResult.empty();
         }
 
-        String rankName = (String) args.getOne("newRank").orElse ( targetRes.getTownRank().getId() );
-        Optional<TownRank> rank = TownRankRegistry.getInstance().getById(rankName);
+        String rankName = (String) args.getOne( "newRank" ).orElse( targetRes.getTownRank().getId() );
+        Optional<TownRank> rank = TownRankRegistry.getInstance().getById( rankName );
         if ( rank.isPresent() ) {
-            if ( rank.get().equals ( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) ) {
-                TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'");
+            if ( rank.get().equals( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) ) {
+                TownMessage.warn( player, "You cannot set the town mayor using this command. Please use '/t set mayor'" );
                 return CommandResult.empty();
             }
 
             targetRes.setTownRank( rank.get() );
-            town.informResidents(Text.of( targetRes.getName(), " has been given the rank of ", rank.get().getName() ));
+            town.informResidents( Text.of( targetRes.getName(), " has been given the rank of ", rank.get().getName() ) );
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the rank of a resident in the town." ) )
                 .permission( TownActions.SET_RANK.getPermission() )
                 .arguments(
-                        GenericArguments.player(Text.of("player")),
-                        GenericArguments.string(Text.of("newRank"))
+                        GenericArguments.player( Text.of( "player" ) ),
+                        GenericArguments.string( Text.of( "newRank" ) )
                 )
                 .executor( new TownSetRankCommand() )
                 .build();

@@ -11,16 +11,16 @@ import java.util.Optional;
  * The tree for AreaObjects in the Towns plugin is as follows:<br>
  * <br>
  * null<br>
- *  | is a parent of<br>
+ * | is a parent of<br>
  * Nation<br>
- *  | is a parent of<br>
+ * | is a parent of<br>
  * Town<br>
- *  | is a parent of<br>
+ * | is a parent of<br>
  * Plot<br>
  */
 public interface AreaObject extends TownsObject {
 
-    Optional<? extends AreaObject> getParent();
+    Optional<? extends AreaObject> getParent ();
 
     boolean contains ( World w, double x, double y );
 

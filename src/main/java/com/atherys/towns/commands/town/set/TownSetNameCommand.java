@@ -21,32 +21,32 @@ public class TownSetNameCommand extends TownsSimpleCommand {
 
     private static TownSetNameCommand instance = new TownSetNameCommand();
 
-    public static TownSetNameCommand getInstance() {
+    public static TownSetNameCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        String name = (String) args.getOne("newName").orElse( town.getName() );
+        String name = (String) args.getOne( "newName" ).orElse( town.getName() );
         if ( name.length() > AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH ) {
-            TownMessage.warn(player, "Town name must not exceed " + AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH + " symbols.");
+            TownMessage.warn( player, "Town name must not exceed " + AtherysTowns.getConfig().TOWN.MAX_NAME_LENGTH + " symbols." );
             return CommandResult.empty();
         }
-        town.setName(name);
+        town.setName( name );
         town.informResidents( Text.of( "Town name changed to ", name ) );
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the name of the town." ) )
                 .permission( TownActions.SET_NAME.getPermission() )
                 .arguments(
-                        GenericArguments.remainingJoinedStrings(Text.of("newName"))
+                        GenericArguments.remainingJoinedStrings( Text.of( "newName" ) )
                 )
                 .executor( this )
                 .build();

@@ -11,29 +11,29 @@ public class ResidentBuilder {
 
     private Resident res;
 
-    ResidentBuilder(UUID uuid ) {
+    ResidentBuilder ( UUID uuid ) {
         res = new Resident( uuid );
     }
 
-    public ResidentBuilder town (Town town, TownRank rank ) {
+    public ResidentBuilder town ( Town town, TownRank rank ) {
         if ( town != null ) {
-            res.setTown(town, rank);
+            res.setTown( town, rank );
         }
         return this;
     }
 
-    public ResidentBuilder townRank (TownRank rank ) {
-        res.setTownRank(rank);
+    public ResidentBuilder townRank ( TownRank rank ) {
+        res.setTownRank( rank );
         return this;
     }
 
-    public ResidentBuilder nationRank (NationRank rank ) {
-        res.setNationRank(rank);
+    public ResidentBuilder nationRank ( NationRank rank ) {
+        res.setNationRank( rank );
         return this;
     }
 
-    public ResidentBuilder registerTimestamp (long time ) {
-        res.setRegisteredTimestamp(time);
+    public ResidentBuilder registerTimestamp ( long time ) {
+        res.setRegisteredTimestamp( time );
         return this;
     }
 
@@ -42,8 +42,8 @@ public class ResidentBuilder {
         return this;
     }
 
-    public Resident build() {
-        ResidentManager.getInstance().save(res);
+    public Resident build () {
+        ResidentManager.getInstance().save( res );
         res.updatePermissions();
         return res;
     }

@@ -18,43 +18,43 @@ public class TownMasterCommand extends TownsMasterCommand {
 
     private static TownMasterCommand instance = new TownMasterCommand();
 
-    private TownMasterCommand() {
-        addChild( TownHelpCommand.getInstance().getSpec(),      "help"              );
-        addChild( TownHereCommand.getInstance().getSpec(),      "here"              );
-        addChild( TownInfoCommand.getInstance().getSpec(),      "info"              );
-        addChild( TownCreateCommand.getInstance().getSpec(),    "create"            );
-        addChild( TownJoinCommand.getInstance().getSpec(),      "join"              );
-        addChild( TownLeaveCommand.getInstance().getSpec(),     "leave"             );
-        addChild( TownKickCommand.getInstance().getSpec(),      "kick"              );
-        addChild( TownSpawnCommand.getInstance().getSpec(),     "spawn", "home"     );
-        addChild( TownDepositCommand.getInstance().getSpec(),   "deposit"           );
-        addChild( TownWithdrawCommand.getInstance().getSpec(),  "withdraw"          );
-        addChild( TownBorderCommand.getInstance().getSpec(),    "border"            );
-        addChild( TownClaimCommand.getInstance().getSpec(),     "claim"             );
-        addChild( TownUnclaimCommand.getInstance().getSpec(),   "unclaim"           );
-        addChild( TownInviteCommand.getInstance().getSpec(),    "invite"            );
-        addChild( TownRuinCommand.getInstance().getSpec(),      "ruin", "destroy"   );
-        addChild( TownSetMasterCommand.getInstance().getSpec(), "set"               );
+    private TownMasterCommand () {
+        addChild( TownHelpCommand.getInstance().getSpec(), "help" );
+        addChild( TownHereCommand.getInstance().getSpec(), "here" );
+        addChild( TownInfoCommand.getInstance().getSpec(), "info" );
+        addChild( TownCreateCommand.getInstance().getSpec(), "create" );
+        addChild( TownJoinCommand.getInstance().getSpec(), "join" );
+        addChild( TownLeaveCommand.getInstance().getSpec(), "leave" );
+        addChild( TownKickCommand.getInstance().getSpec(), "kick" );
+        addChild( TownSpawnCommand.getInstance().getSpec(), "spawn", "home" );
+        addChild( TownDepositCommand.getInstance().getSpec(), "deposit" );
+        addChild( TownWithdrawCommand.getInstance().getSpec(), "withdraw" );
+        addChild( TownBorderCommand.getInstance().getSpec(), "border" );
+        addChild( TownClaimCommand.getInstance().getSpec(), "claim" );
+        addChild( TownUnclaimCommand.getInstance().getSpec(), "unclaim" );
+        addChild( TownInviteCommand.getInstance().getSpec(), "invite" );
+        addChild( TownRuinCommand.getInstance().getSpec(), "ruin", "destroy" );
+        addChild( TownSetMasterCommand.getInstance().getSpec(), "set" );
     }
 
-    public static TownMasterCommand getInstance() {
+    public static TownMasterCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( resident.getTown().isPresent() ) {
-            resident.getTown().get().createView().ifPresent( view -> view.show(player) );
+            resident.getTown().get().createView().ifPresent( view -> view.show( player ) );
         } else {
-            TownMessage.warn(player, "You are not part of a town.");
+            TownMessage.warn( player, "You are not part of a town." );
         }
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .description( Text.of("The master town command.") )
+                .description( Text.of( "The master town command." ) )
                 .executor( this )
                 .children( getChildren() )
                 .build();

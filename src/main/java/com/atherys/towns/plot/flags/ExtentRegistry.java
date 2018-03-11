@@ -12,19 +12,19 @@ public final class ExtentRegistry implements CatalogRegistryModule<Extent> {
 
     private static final ExtentRegistry instance = new ExtentRegistry();
 
-    protected Map<String,Extent> extents = new HashMap<>();
+    protected Map<String, Extent> extents = new HashMap<>();
 
     @Override
     public Optional<Extent> getById ( @Nonnull String id ) {
-        return Optional.ofNullable( extents.get(id) );
+        return Optional.ofNullable( extents.get( id ) );
     }
 
     @Override
-    public Collection<Extent> getAll() {
+    public Collection<Extent> getAll () {
         return extents.values();
     }
 
-    public static ExtentRegistry getInstance() {
+    public static ExtentRegistry getInstance () {
         return instance;
     }
 }

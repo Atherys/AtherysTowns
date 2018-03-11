@@ -19,28 +19,28 @@ public class TownSetColorCommand extends TownsSimpleCommand {
 
     private static TownSetColorCommand instance = new TownSetColorCommand();
 
-    public static TownSetColorCommand getInstance() {
+    public static TownSetColorCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        TextColor color = (TextColor) args.getOne("newColor").orElse( town.getColor() );
-        town.setColor(color);
-        town.informResidents( Text.of( "Town Color changed to ", town.getColor(), town.getColor().getName().replace('_',' ') ) );
+        TextColor color = (TextColor) args.getOne( "newColor" ).orElse( town.getColor() );
+        town.setColor( color );
+        town.informResidents( Text.of( "Town Color changed to ", town.getColor(), town.getColor().getName().replace( '_', ' ' ) ) );
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the color of the town." ) )
                 .permission( TownActions.SET_COLOR.getPermission() )
                 .arguments(
-                        GenericArguments.catalogedElement( Text.of("newColor"), TextColor.class )
+                        GenericArguments.catalogedElement( Text.of( "newColor" ), TextColor.class )
                 )
                 .executor( this )
                 .build();

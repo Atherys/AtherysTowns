@@ -18,23 +18,23 @@ public class PlotDeselectCommand extends TownsSimpleCommand {
 
     private static PlotDeselectCommand instance = new PlotDeselectCommand();
 
-    public static PlotDeselectCommand getInstance() {
+    public static PlotDeselectCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        TownsValues.remove(player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_1ST);
-        TownsValues.remove(player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_2ND);
-        TownMessage.inform(player,               Text.of("Deselected.")                );
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        TownsValues.remove( player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_1ST );
+        TownsValues.remove( player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_2ND );
+        TownMessage.inform( player, Text.of( "Deselected." ) );
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to deselect your current plot definition selection ( if any )." ) )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 

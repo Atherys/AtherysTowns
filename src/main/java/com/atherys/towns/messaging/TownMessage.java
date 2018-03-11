@@ -14,65 +14,65 @@ public class TownMessage {
 
     public static void informAll ( Text text ) {
         for ( Player p : AtherysTowns.getInstance().getGame().getServer().getOnlinePlayers() ) {
-            inform(p, text);
+            inform( p, text );
         }
     }
 
     public static void warnAll ( Text text ) {
         for ( Player p : AtherysTowns.getInstance().getGame().getServer().getOnlinePlayers() ) {
-            warn(p, text);
+            warn( p, text );
         }
     }
 
     public static void inform ( Player player, Text text ) {
-        player.sendMessage(ChatTypes.CHAT, Text.builder().append(MSG_PREFIX).append(Text.of( AtherysTowns.getConfig().COLORS.TEXT, text )).build());
+        player.sendMessage( ChatTypes.CHAT, Text.builder().append( MSG_PREFIX ).append( Text.of( AtherysTowns.getConfig().COLORS.TEXT, text ) ).build() );
     }
 
     public static void inform ( Player player, Object... text ) {
-        inform(player, Text.of(text));
+        inform( player, Text.of( text ) );
     }
 
     public static void warn ( Player player, Text text ) {
-        player.sendMessage(ChatTypes.CHAT, Text.builder().append(MSG_PREFIX).append(Text.of( AtherysTowns.getConfig().COLORS.WARNING, text )).build());
+        player.sendMessage( ChatTypes.CHAT, Text.builder().append( MSG_PREFIX ).append( Text.of( AtherysTowns.getConfig().COLORS.WARNING, text ) ).build() );
     }
 
     public static void warn ( Player player, Object... text ) {
-        warn(player, Text.of(text));
+        warn( player, Text.of( text ) );
     }
 
     public static void titleAnnounce ( Player player, Text text ) {
         player.sendTitle(
-            Title.builder()
-            .fadeIn( AtherysTowns.getConfig().TITLES.FADE_IN )
-            .stay(AtherysTowns.getConfig().TITLES.STAY)
-            .fadeOut(AtherysTowns.getConfig().TITLES.FADE_OUT)
-            .title(text)
-            .build()
+                Title.builder()
+                        .fadeIn( AtherysTowns.getConfig().TITLES.FADE_IN )
+                        .stay( AtherysTowns.getConfig().TITLES.STAY )
+                        .fadeOut( AtherysTowns.getConfig().TITLES.FADE_OUT )
+                        .title( text )
+                        .build()
         );
     }
 
     public static void subtitleAnnounce ( Player player, Text text ) {
         player.sendTitle(
-            Title.builder()
-            .fadeIn(AtherysTowns.getConfig().TITLES.SUB_FADE_IN)
-            .stay(AtherysTowns.getConfig().TITLES.SUB_STAY)
-            .fadeOut(AtherysTowns.getConfig().TITLES.SUB_FADE_OUT)
-            .subtitle(text)
-            .build()
+                Title.builder()
+                        .fadeIn( AtherysTowns.getConfig().TITLES.SUB_FADE_IN )
+                        .stay( AtherysTowns.getConfig().TITLES.SUB_STAY )
+                        .fadeOut( AtherysTowns.getConfig().TITLES.SUB_FADE_OUT )
+                        .subtitle( text )
+                        .build()
         );
     }
 
     public static void announce ( Player player, Text title, Text subtitle ) {
-        titleAnnounce(player, title);
-        subtitleAnnounce(player, subtitle);
+        titleAnnounce( player, title );
+        subtitleAnnounce( player, subtitle );
     }
 
     public static void enterTown ( Player player, Town town ) {
-        subtitleAnnounce( player, Text.of ( AtherysTowns.getConfig().COLORS.TERTIARY, "You have entered ", TextStyles.BOLD, town.getColor(), town.getName() ) );
+        subtitleAnnounce( player, Text.of( AtherysTowns.getConfig().COLORS.TERTIARY, "You have entered ", TextStyles.BOLD, town.getColor(), town.getName() ) );
     }
 
     public static void leaveTown ( Player player, Town town ) {
-        subtitleAnnounce( player, Text.of ( AtherysTowns.getConfig().COLORS.TERTIARY, "You have left ", TextStyles.BOLD, town.getColor(), town.getName() ) );
+        subtitleAnnounce( player, Text.of( AtherysTowns.getConfig().COLORS.TERTIARY, "You have left ", TextStyles.BOLD, town.getColor(), town.getName() ) );
     }
 
 }

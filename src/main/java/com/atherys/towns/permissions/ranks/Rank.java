@@ -31,8 +31,8 @@ public abstract class Rank {
                 subject.getSubjectData().setPermission( new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE );
             }
 
-            subject.getSubjectData().addParent( new LinkedHashSet<>(), service.getGroupSubjects().newSubjectReference("atherystowns") );
-        });
+            subject.getSubjectData().addParent( new LinkedHashSet<>(), service.getGroupSubjects().newSubjectReference( "atherystowns" ) );
+        } );
         this.child = child;
     }
 
@@ -44,26 +44,26 @@ public abstract class Rank {
         AtherysTowns.getPermissionService().getUserSubjects().loadSubject( uuid.toString() ).thenAccept( subject -> {
             subject.getSubjectData().removeParent( new LinkedHashSet<>(), this.permissions );
             subject.getSubjectData().addParent( new LinkedHashSet<>(), newRank.permissions );
-        });
+        } );
     }
 
     public void removePermissions ( User player ) {
         player.getSubjectData().removeParent( new LinkedHashSet<>(), permissions );
     }
 
-    public String getId() {
+    public String getId () {
         return id;
     }
 
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public Rank getChild() {
+    public Rank getChild () {
         return child;
     }
 
     public boolean isRankGreaterThan ( Rank rank ) {
-        return this.getChild() != null && ( this.getChild() == rank || this.getChild().isRankGreaterThan(rank) );
+        return this.getChild() != null && ( this.getChild() == rank || this.getChild().isRankGreaterThan( rank ) );
     }
 }

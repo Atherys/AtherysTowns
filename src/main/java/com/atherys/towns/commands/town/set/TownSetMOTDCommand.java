@@ -18,15 +18,15 @@ public class TownSetMOTDCommand extends TownsSimpleCommand {
 
     private static TownSetMOTDCommand instance = new TownSetMOTDCommand();
 
-    public static TownSetMOTDCommand getInstance() {
+    public static TownSetMOTDCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        String motd = (String) args.getOne("newMOTD").orElse( town.getMOTD() );
+        String motd = (String) args.getOne( "newMOTD" ).orElse( town.getMOTD() );
         town.setMOTD( motd );
         town.informResidents( Text.of( "Town MOTD changed to ", town.getMOTD() ) );
 
@@ -34,12 +34,12 @@ public class TownSetMOTDCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the MOTD of the town." ) )
                 .permission( TownActions.SET_MOTD.getPermission() )
                 .arguments(
-                        GenericArguments.remainingJoinedStrings(Text.of("newMOTD"))
+                        GenericArguments.remainingJoinedStrings( Text.of( "newMOTD" ) )
                 )
                 .executor( this )
                 .build();

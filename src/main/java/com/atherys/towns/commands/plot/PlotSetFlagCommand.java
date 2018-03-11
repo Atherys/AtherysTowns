@@ -25,32 +25,32 @@ import java.util.Optional;
 public class PlotSetFlagCommand extends TownsSimpleCommand {
     private static PlotSetFlagCommand instance = new PlotSetFlagCommand();
 
-    public static PlotSetFlagCommand getInstance() {
+    public static PlotSetFlagCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
 
-        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation(player.getLocation());
+        Optional<Plot> plotOpt = PlotManager.getInstance().getByLocation( player.getLocation() );
         if ( !plotOpt.isPresent() ) {
             TownMessage.warn( player, "You must be standing within the borders of a town plot in order to do this command." );
             return CommandResult.empty();
         }
 
         Plot plot = plotOpt.get();
-        if ( !plot.getTown().equals(town) ) {
+        if ( !plot.getTown().equals( town ) ) {
             TownMessage.warn( player, "You must be standing within the borders of a plot which belongs to your own town in order to do this command." );
             return CommandResult.empty();
         }
 
-        Optional<Flag> flag = args.getOne("flag");
+        Optional<Flag> flag = args.getOne( "flag" );
         if ( !flag.isPresent() ) {
             TownMessage.warn( player, "You must provide a valid flag. Possible flags: ", AtherysTowns.getConfig().COLORS.PRIMARY, FlagRegistry.getInstance().getAll() );
             return CommandResult.empty();
         }
 
-        Optional<Extent> extent = args.getOne("extent");
+        Optional<Extent> extent = args.getOne( "extent" );
         if ( !extent.isPresent() ) {
             TownMessage.warn( player, "You must provide a valid extent. Possible extents: ", AtherysTowns.getConfig().COLORS.PRIMARY, FlagRegistry.getInstance().getAll() );
             return CommandResult.empty();
@@ -61,30 +61,30 @@ public class PlotSetFlagCommand extends TownsSimpleCommand {
             Extent ext = extent.get();
 
             if ( !flag.get().checkExtent( ext ) ) {
-                TownMessage.warn( player, "You cannot use the ", ext.getName(), " extent with the ", flag.get().getName(), " flag");
+                TownMessage.warn( player, "You cannot use the ", ext.getName(), " extent with the ", flag.get().getName(), " flag" );
                 return CommandResult.empty();
             }
 
             plot.setFlag( flag.get(), ext );
-            town.informResidents( Text.of("Flag ", flag.get().getName(), " for plot ", plot.getName() ," changed to ", ext ) );
+            town.informResidents( Text.of( "Flag ", flag.get().getName(), " for plot ", plot.getName(), " changed to ", ext ) );
 
             return CommandResult.success();
         } else {
-            TownMessage.warn( player, "Your town rank does not permit you to change the ", flag.get(),  " flag.");
+            TownMessage.warn( player, "Your town rank does not permit you to change the ", flag.get(), " flag." );
             return CommandResult.empty();
         }
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .description( Text.of("Used to change the extent of a flag in a single plot.") )
+                .description( Text.of( "Used to change the extent of a flag in a single plot." ) )
                 .executor( this )
                 .arguments(
-                        GenericArguments.catalogedElement( Text.of("flag"), Flag.class ),
-                        GenericArguments.catalogedElement( Text.of("extent"), Extent.class )
+                        GenericArguments.catalogedElement( Text.of( "flag" ), Flag.class ),
+                        GenericArguments.catalogedElement( Text.of( "extent" ), Extent.class )
                 )
-                .permission(TownActions.MODIFY_PLOT_FLAG.getPermission())
+                .permission( TownActions.MODIFY_PLOT_FLAG.getPermission() )
                 .build();
     }
 }

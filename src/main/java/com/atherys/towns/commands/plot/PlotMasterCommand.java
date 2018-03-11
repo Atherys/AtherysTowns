@@ -16,7 +16,7 @@ public class PlotMasterCommand extends TownsMasterCommand {
 
     private static PlotMasterCommand instance = new PlotMasterCommand();
 
-    private PlotMasterCommand() {
+    private PlotMasterCommand () {
         addChild( PlotToolCommand.getInstance().getSpec(), "tool" );
         addChild( PlotHereCommand.getInstance().getSpec(), "here" );
         addChild( PlotSetFlagCommand.getInstance().getSpec(), "setflag", "flag" );
@@ -24,18 +24,18 @@ public class PlotMasterCommand extends TownsMasterCommand {
         addChild( PlotDeselectCommand.getInstance().getSpec(), "deselect", "desel" );
     }
 
-    public static PlotMasterCommand getInstance() {
+    public static PlotMasterCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        showHelp("p", player);
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        showHelp( "p", player );
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Master Plot command." ) )
                 .executor( this )

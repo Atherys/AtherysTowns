@@ -22,22 +22,23 @@ public class TownWithdrawCommand extends TownsSimpleCommand {
 
     private static TownWithdrawCommand instance = new TownWithdrawCommand();
 
-    public static TownWithdrawCommand getInstance() {
+    public static TownWithdrawCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() ) {
-            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
+            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne( "amount" ).orElse( 0.0d ) );
+            Currency currency = args.<Currency>getOne( "currency" ).orElse( AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency() );
 
             if ( town.getBank().isPresent() ) {
                 boolean result = town.withdraw( resident, amount, currency );
-                if ( result ) town.informResidents(Text.of( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getDisplayName(), " from the town bank."));
-                else TownMessage.warn(player, "Withdraw Failed.");
+                if ( result )
+                    town.informResidents( Text.of( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getDisplayName(), " from the town bank." ) );
+                else TownMessage.warn( player, "Withdraw Failed." );
                 return CommandResult.success();
             }
         }
@@ -46,13 +47,13 @@ public class TownWithdrawCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to withdraw money from the town bank." ) )
                 .permission( TownActions.TOWN_WITHDRAW.getPermission() )
                 .arguments(
-                        GenericArguments.doubleNum(Text.of("amount") ),
-                        GenericArguments.optional( GenericArguments.catalogedElement(Text.of("currency"), Currency.class) )
+                        GenericArguments.doubleNum( Text.of( "amount" ) ),
+                        GenericArguments.optional( GenericArguments.catalogedElement( Text.of( "currency" ), Currency.class ) )
                 )
                 .executor( new TownWithdrawCommand() )
                 .build();

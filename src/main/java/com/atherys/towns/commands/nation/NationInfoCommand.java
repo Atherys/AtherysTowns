@@ -20,38 +20,38 @@ public class NationInfoCommand extends TownsSimpleCommand {
 
     private static NationInfoCommand instance = new NationInfoCommand();
 
-    public static NationInfoCommand getInstance() {
+    public static NationInfoCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
 
-        String nationName = args.<String>getOne("nation").orElseGet( () -> {
+        String nationName = args.<String>getOne( "nation" ).orElseGet( () -> {
             Optional<Nation> residentNation = resident.getNation();
             if ( residentNation.isPresent() ) return residentNation.get().getName();
             return "None";
-        });
+        } );
 
-        if ( nationName.equals("None") ) return CommandResult.success();
+        if ( nationName.equals( "None" ) ) return CommandResult.success();
 
-        Optional<Nation> nationOptional = NationManager.getInstance().getFirstByName(nationName);
+        Optional<Nation> nationOptional = NationManager.getInstance().getFirstByName( nationName );
 
         if ( nationOptional.isPresent() ) {
             nationOptional.get().createView().ifPresent( view -> view.show( player ) );
         } else {
-            TownMessage.warn(player, "No nation found.");
+            TownMessage.warn( player, "No nation found." );
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .description(Text.of("Used to get info on a nation."))
-                .arguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("nation"))))
-                .executor(this)
+                .description( Text.of( "Used to get info on a nation." ) )
+                .arguments( GenericArguments.optional( GenericArguments.remainingJoinedStrings( Text.of( "nation" ) ) ) )
+                .executor( this )
                 .build();
     }
 }

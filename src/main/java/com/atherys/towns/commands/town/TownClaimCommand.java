@@ -23,29 +23,29 @@ public class TownClaimCommand extends TownsSimpleCommand {
 
     private static TownClaimCommand instance = new TownClaimCommand();
 
-    public static TownClaimCommand getInstance() {
+    public static TownClaimCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         PlotDefinition define;
 
         if ( town != null ) {
 
-            if ( !args.hasAny("claimChunk?") ) {
+            if ( !args.hasAny( "claimChunk?" ) ) {
                 Optional<PlotDefinition> definitionOptional;
 
                 try {
-                    definitionOptional = PlotDefinition.fromPlayer(player, town);
-                } catch (PlotDefinition.DefinitionNotValidException | PlotDefinition.DefinitionNotPresentException e) {
+                    definitionOptional = PlotDefinition.fromPlayer( player, town );
+                } catch ( PlotDefinition.DefinitionNotValidException | PlotDefinition.DefinitionNotPresentException e ) {
                     return CommandResult.empty();
                 }
 
                 if ( definitionOptional.isPresent() ) {
                     define = definitionOptional.get();
                 } else {
-                    TownMessage.warn( player, Text.of("Definition invalid. Claim cancelled."));
+                    TownMessage.warn( player, Text.of( "Definition invalid. Claim cancelled." ) );
                     return CommandResult.empty();
                 }
 
@@ -58,10 +58,10 @@ public class TownClaimCommand extends TownsSimpleCommand {
                         if ( defineOpt.isPresent() ) {
                             define = defineOpt.get();
                         } else {
-                            TownMessage.warn(player, Text.of("Could not create plot from chunk."));
+                            TownMessage.warn( player, Text.of( "Could not create plot from chunk." ) );
                             return CommandResult.empty();
                         }
-                    } catch (PlotDefinition.DefinitionNotValidException | PlotDefinition.DefinitionNotPresentException e) {
+                    } catch ( PlotDefinition.DefinitionNotValidException | PlotDefinition.DefinitionNotPresentException e ) {
                         return CommandResult.empty();
                     }
                 } else {
@@ -75,21 +75,21 @@ public class TownClaimCommand extends TownsSimpleCommand {
                 return CommandResult.empty();
             }
 
-            Plot p = Plot.create(define, town, "None");
-            town.claimPlot(p);
-            TownMessage.inform(player, "Plot Claimed.");
+            Plot p = Plot.create( define, town, "None" );
+            town.claimPlot( p );
+            TownMessage.inform( player, "Plot Claimed." );
             return CommandResult.success();
         }
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to claim new plots for your town using the plot tool." ) )
                 .permission( TownActions.CLAIM_PLOT.getPermission() )
                 .arguments(
-                        GenericArguments.optional(GenericArguments.string(Text.of("claimChunk?")))
+                        GenericArguments.optional( GenericArguments.string( Text.of( "claimChunk?" ) ) )
                 )
                 .executor( this )
                 .build();

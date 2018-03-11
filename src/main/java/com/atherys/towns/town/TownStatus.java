@@ -1,15 +1,17 @@
 package com.atherys.towns.town;
 
 public enum TownStatus {
-    NONE(0),
-    TOWN(1),
-    CAPITAL(2);
+    NONE( 0 ),
+    TOWN( 1 ),
+    CAPITAL( 2 );
 
     int id;
 
-    TownStatus ( int id ) { this.id = id; }
+    TownStatus ( int id ) {
+        this.id = id;
+    }
 
-    public int id() {
+    public int id () {
         return id;
     }
 

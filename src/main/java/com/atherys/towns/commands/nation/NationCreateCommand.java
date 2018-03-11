@@ -19,30 +19,30 @@ public class NationCreateCommand extends TownsSimpleCommand {
 
     private static NationCreateCommand instance = new NationCreateCommand();
 
-    public static NationCreateCommand getInstance() {
+    public static NationCreateCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null || nation != null ) {
-            TownMessage.warn(player, "You must leave your current nation and be the mayor of an independent town in order to create a new nation.");
+            TownMessage.warn( player, "You must leave your current nation and be the mayor of an independent town in order to create a new nation." );
             return CommandResult.empty();
         }
 
-        Nation newNation = Nation.create( args.<String>getOne("nationName").orElse( town + "'s Nation" ), town );
+        Nation newNation = Nation.create( args.<String>getOne( "nationName" ).orElse( town + "'s Nation" ), town );
         newNation.createView().ifPresent( view -> view.show( player ) );
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .permission(TownActions.CREATE_NATION.getPermission())
-                .description(Text.of("Used to create a new nation."))
-                .arguments(GenericArguments.remainingJoinedStrings(Text.of("nationName")))
-                .executor(this)
+                .permission( TownActions.CREATE_NATION.getPermission() )
+                .description( Text.of( "Used to create a new nation." ) )
+                .arguments( GenericArguments.remainingJoinedStrings( Text.of( "nationName" ) ) )
+                .executor( this )
                 .build();
     }
 }

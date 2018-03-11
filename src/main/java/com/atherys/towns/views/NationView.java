@@ -25,11 +25,11 @@ public class NationView implements View<Nation> {
     }
 
     @Override
-    public void show(Player player) {
+    public void show ( Player player ) {
         player.sendMessage( toText() );
     }
 
-    public Text toText() {
+    public Text toText () {
 
         String leaderName = AtherysTowns.getConfig().TOWN.NPC_NAME;
 
@@ -46,32 +46,32 @@ public class NationView implements View<Nation> {
         TextColor textColor = AtherysTowns.getConfig().COLORS.TEXT;
 
         return Text.builder()
-                .append(Text.of( decoration, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(nation.getColor(), TextStyles.BOLD, nation.getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET) )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET, textColor, nation.getDescription(), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( nation ), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, nation.getLeaderTitle(), ": ", TextStyles.RESET, textColor, leaderName + "\n" ) )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Towns[", textColor, towns.size(), primary ,"]: ", TextStyles.RESET, TextColors.RESET, getFormattedTowns(towns) ) )
+                .append( Text.of( decoration, ".o0o.______.[ ", TextColors.RESET ) )
+                .append( Text.of( nation.getColor(), TextStyles.BOLD, nation.getName(), TextStyles.RESET ) )
+                .append( Text.of( TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET, textColor, nation.getDescription(), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( nation ), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, nation.getLeaderTitle(), ": ", TextStyles.RESET, textColor, leaderName + "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Towns[", textColor, towns.size(), primary, "]: ", TextStyles.RESET, TextColors.RESET, getFormattedTowns( towns ) ) )
                 .build();
     }
 
-    public Text getFormattedTowns( List<Town> towns ) {
+    public Text getFormattedTowns ( List<Town> towns ) {
         Text.Builder townsBuilder = Text.builder();
-        Text separator = Text.of(", ");
+        Text separator = Text.of( ", " );
         for ( Town t : towns ) {
             Text resText = Text.builder()
-                    .append(Text.of(t.getName()))
-                    .onHover(TextActions.showText(Text.of( AtherysTowns.getConfig().COLORS.SECONDARY, "Click for more info!")) )
-                    .onClick(TextActions.runCommand("/town info " + t.getName() ) )
+                    .append( Text.of( t.getName() ) )
+                    .onHover( TextActions.showText( Text.of( AtherysTowns.getConfig().COLORS.SECONDARY, "Click for more info!" ) ) )
+                    .onClick( TextActions.runCommand( "/town info " + t.getName() ) )
                     .build();
 
-            townsBuilder.append(resText, separator);
+            townsBuilder.append( resText, separator );
         }
         return townsBuilder.build();
     }
 
-    public Text getFormattedName() {
-        return Text.of( nation.getColor(), nation.getName() ).toBuilder().onHover(TextActions.showText(this.toText())).build();
+    public Text getFormattedName () {
+        return Text.of( nation.getColor(), nation.getName() ).toBuilder().onHover( TextActions.showText( this.toText() ) ).build();
     }
 }

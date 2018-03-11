@@ -14,16 +14,16 @@ public class PlotView implements View<Plot> {
 
     private final Plot plot;
 
-    public PlotView( Plot plot ) {
+    public PlotView ( Plot plot ) {
         this.plot = plot;
     }
 
     @Override
-    public void show(Player player) {
+    public void show ( Player player ) {
         player.sendMessage( toText() );
     }
 
-    public Text toText() {
+    public Text toText () {
 
         Town parent = plot.getParent().get();
 
@@ -36,11 +36,11 @@ public class PlotView implements View<Plot> {
         TextColor textColor = AtherysTowns.getConfig().COLORS.TEXT;
 
         return Text.builder()
-                .append(Text.of( decoration, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of( tertiary, TextStyles.BOLD, plot.getName(), TextStyles.RESET) )
-                .append(Text.of( TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET))
-                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), primary, " ( ", textColor, nationName, textColor, " )\n" ))
-                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET, new PlotFlagsView( plot.getFlags() ).formattedSingleLine(), "\n") )
+                .append( Text.of( decoration, ".o0o.______.[ ", TextColors.RESET ) )
+                .append( Text.of( tertiary, TextStyles.BOLD, plot.getName(), TextStyles.RESET ) )
+                .append( Text.of( TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Town: ", TextStyles.RESET, parent.getColor(), parent.getName(), primary, " ( ", textColor, nationName, textColor, " )\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET, new PlotFlagsView( plot.getFlags() ).formattedSingleLine(), "\n" ) )
                 .build();
     }
 }

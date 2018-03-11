@@ -10,7 +10,7 @@ public class TownAction implements CatalogType, TownsAction {
     private String name;
     private String permission;
 
-    public TownAction(String id, String name, String permission) {
+    public TownAction ( String id, String name, String permission ) {
         this.id = id;
         this.name = name;
         this.permission = permission;
@@ -18,16 +18,16 @@ public class TownAction implements CatalogType, TownsAction {
     }
 
     @Override
-    public String getId() {
+    public String getId () {
         return id;
     }
 
     @Override
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public String getPermission() {
+    public String getPermission () {
         return permission;
     }
 }

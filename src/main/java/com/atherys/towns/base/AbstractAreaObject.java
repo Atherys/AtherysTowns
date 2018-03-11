@@ -18,14 +18,18 @@ public abstract class AbstractAreaObject<T extends AreaObject> implements AreaOb
     private T parent;
     private UniqueAccount bank;
 
-    protected AbstractAreaObject(UUID uuid ) {
+    protected AbstractAreaObject ( UUID uuid ) {
         this.uuid = uuid;
-        createBank().ifPresent(uniqueAccount -> bank = uniqueAccount);
+        createBank().ifPresent( uniqueAccount -> bank = uniqueAccount );
     }
 
-    public UUID getUUID() { return uuid; }
+    public UUID getUUID () {
+        return uuid;
+    }
 
-    public Optional<UniqueAccount> getBank() { return Optional.ofNullable(bank); }
+    public Optional<UniqueAccount> getBank () {
+        return Optional.ofNullable( bank );
+    }
 
     public boolean deposit ( Resident res, BigDecimal amount, Currency currency ) {
         if ( bank != null ) {
@@ -55,12 +59,16 @@ public abstract class AbstractAreaObject<T extends AreaObject> implements AreaOb
         return false;
     }
 
-    public void setParent ( T parent ) { this.parent = parent; }
+    public void setParent ( T parent ) {
+        this.parent = parent;
+    }
 
-    public Optional<T> getParent() { return Optional.ofNullable(parent); }
+    public Optional<T> getParent () {
+        return Optional.ofNullable( parent );
+    }
 
     private Optional<UniqueAccount> createBank () {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
+        return economy.flatMap( economyService -> economyService.getOrCreateAccount( uuid ) );
     }
 }

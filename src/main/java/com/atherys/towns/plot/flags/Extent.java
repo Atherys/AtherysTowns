@@ -10,7 +10,7 @@ public class Extent implements CatalogType {
 
     @FunctionalInterface
     protected interface Checker {
-        boolean apply(Resident resident, Flag flag, Plot plot);
+        boolean apply ( Resident resident, Flag flag, Plot plot );
     }
 
     private String id;
@@ -26,19 +26,21 @@ public class Extent implements CatalogType {
     }
 
     @Override
-    public String getId() {
+    public String getId () {
         return id;
     }
 
     @Override
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public boolean check ( Resident res, Flag flag, Plot plot ) { return checker.apply(res, flag, plot); }
+    public boolean check ( Resident res, Flag flag, Plot plot ) {
+        return checker.apply( res, flag, plot );
+    }
 
     @Override
-    public String toString() {
+    public String toString () {
         return getId();
     }
 }

@@ -11,11 +11,12 @@ public final class NationActionRegistry implements CatalogRegistryModule<NationA
 
     private static NationActionRegistry instance = new NationActionRegistry();
 
-    private Map<String,NationAction> actions = new HashMap<>();
+    private Map<String, NationAction> actions = new HashMap<>();
 
-    private NationActionRegistry() {}
+    private NationActionRegistry () {
+    }
 
-    public static NationActionRegistry getInstance() {
+    public static NationActionRegistry getInstance () {
         return instance;
     }
 
@@ -24,12 +25,12 @@ public final class NationActionRegistry implements CatalogRegistryModule<NationA
     }
 
     @Override
-    public Optional<NationAction> getById(String id) {
-        return Optional.ofNullable( actions.get(id) );
+    public Optional<NationAction> getById ( String id ) {
+        return Optional.ofNullable( actions.get( id ) );
     }
 
     @Override
-    public Collection<NationAction> getAll() {
+    public Collection<NationAction> getAll () {
         return actions.values();
     }
 }

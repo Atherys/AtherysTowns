@@ -17,19 +17,19 @@ public class ResidentView implements View<Resident> {
 
     private final Resident resident;
 
-    public ResidentView(Resident resident) {
+    public ResidentView ( Resident resident ) {
         this.resident = resident;
     }
 
     @Override
-    public void show(Player player) {
+    public void show ( Player player ) {
         player.sendMessage( toText() );
     }
 
-    public Text toText() {
+    public Text toText () {
 
-        Text townText = Text.of("None");
-        Text nationText = Text.of("None");
+        Text townText = Text.of( "None" );
+        Text nationText = Text.of( "None" );
 
         if ( resident.getTown().isPresent() ) {
             Town town = resident.getTown().get();
@@ -45,22 +45,22 @@ public class ResidentView implements View<Resident> {
         TextColor textColor = AtherysTowns.getConfig().COLORS.TEXT;
 
         return Text.builder()
-                .append(Text.of(decoration, ".o0o.______.[ ", TextColors.RESET))
-                .append(Text.of(textColor, TextStyles.BOLD, resident.getName(), TextStyles.RESET ) )
-                .append(Text.of(TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET))
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Registered: ", TextStyles.RESET, textColor, getFormattedRegisterDate(), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, resident.isOnline() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( resident ), "\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Town: ", TextStyles.RESET, townText, decoration, " ( ", textColor, nationText, decoration, " )\n") )
-                .append(Text.of(TextColors.RESET, primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET, textColor, resident.getTownRank() == null ? "None" : resident.getTownRank().getName() ) )
+                .append( Text.of( decoration, ".o0o.______.[ ", TextColors.RESET ) )
+                .append( Text.of( textColor, TextStyles.BOLD, resident.getName(), TextStyles.RESET ) )
+                .append( Text.of( TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Registered: ", TextStyles.RESET, textColor, getFormattedRegisterDate(), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Last Online: ", TextStyles.RESET, textColor, resident.isOnline() ? Text.of( TextColors.GREEN, TextStyles.BOLD, "Now" ) : Text.of( TextColors.RED, getFormattedLastOnlineDate() ), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( resident ), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Town: ", TextStyles.RESET, townText, decoration, " ( ", textColor, nationText, decoration, " )\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Rank: ", TextStyles.RESET, textColor, resident.getTownRank() == null ? "None" : resident.getTownRank().getName() ) )
                 .build();
     }
 
-    public String getFormattedRegisterDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(resident.getRegisterDate());
+    public String getFormattedRegisterDate () {
+        return new SimpleDateFormat( "dd-MM-yyyy @ HH:mm" ).format( resident.getRegisterDate() );
     }
 
-    public String getFormattedLastOnlineDate() {
-        return new SimpleDateFormat("dd-MM-yyyy @ HH:mm").format(resident.getLastOnlineDate());
+    public String getFormattedLastOnlineDate () {
+        return new SimpleDateFormat( "dd-MM-yyyy @ HH:mm" ).format( resident.getLastOnlineDate() );
     }
 }

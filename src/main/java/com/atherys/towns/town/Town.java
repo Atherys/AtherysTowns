@@ -47,31 +47,31 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     private String motd = "Message of the day.";
     private String description = "Town description.";
 
-    protected Town( UUID uuid ) {
-        super(uuid);
+    protected Town ( UUID uuid ) {
+        super( uuid );
         this.townFlags = PlotFlags.regular();
         this.motd = "";
         this.description = "";
     }
 
     private Town ( PlotDefinition define, Resident mayor ) {
-        super(UUID.randomUUID());
+        super( UUID.randomUUID() );
         this.spawn = mayor.getPlayer().get().getLocation();
-        Plot homePlot = Plot.create(define, this, "Home");
+        Plot homePlot = Plot.create( define, this, "Home" );
         this.townFlags = homePlot.getFlags().copy();
-        claimPlot ( homePlot );
+        claimPlot( homePlot );
         this.setParent( null );
         this.status = TownStatus.NONE;
         mayor.setTown( this, AtherysTowns.getConfig().TOWN.TOWN_LEADER );
-        TownManager.getInstance().add(this);
-        TownManager.getInstance().save(this);
+        TownManager.getInstance().add( this );
+        TownManager.getInstance().save( this );
     }
 
-    public static Town create( PlotDefinition definition, Resident mayor, String name, int maxAllowedPlots ) {
-        Town t = new Town(definition, mayor);
-        t.setName(name);
-        t.setMaxSize(maxAllowedPlots);
-        TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
+    public static Town create ( PlotDefinition definition, Resident mayor, String name, int maxAllowedPlots ) {
+        Town t = new Town( definition, mayor );
+        t.setName( name );
+        t.setMaxSize( maxAllowedPlots );
+        TownMessage.informAll( Text.of( "A new town ( " + name + " ) has been created!" ) );
         return t;
     }
 
@@ -79,18 +79,18 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         return new TownBuilder( uuid );
     }
 
-    public static TownBuilder builder() {
+    public static TownBuilder builder () {
         return new TownBuilder();
     }
 
-    public void setFlags(PlotFlags flags) {
+    public void setFlags ( PlotFlags flags ) {
         this.townFlags = flags;
     }
 
     public void informResidents ( Text message ) {
         for ( Resident res : getResidents() ) {
             if ( res.getPlayer().isPresent() ) {
-                TownMessage.inform(res.getPlayer().get(), message);
+                TownMessage.inform( res.getPlayer().get(), message );
             }
         }
     }
@@ -98,150 +98,152 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     public void warnResidents ( Text message ) {
         for ( Resident res : getResidents() ) {
             if ( res.getPlayer().isPresent() ) {
-                TownMessage.warn(res.getPlayer().get(), message);
+                TownMessage.warn( res.getPlayer().get(), message );
             }
         }
     }
 
-    public int getMaxSize() {
+    public int getMaxSize () {
         return maxSize;
     }
 
-    public Location<World> getSpawn() {
+    public Location<World> getSpawn () {
         return spawn;
     }
 
     @Override
-    public void setName(String name) {
+    public void setName ( String name ) {
         this.name = name;
     }
 
     @Override
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public void setMaxSize(int maxSize) {
+    public void setMaxSize ( int maxSize ) {
         this.maxSize = maxSize;
     }
 
-    public PlotFlags getTownFlags() {
+    public PlotFlags getTownFlags () {
         return townFlags;
     }
 
     public void setFlag ( Flag flag, Extent extents ) {
-        this.townFlags.set(flag, extents);
+        this.townFlags.set( flag, extents );
         for ( Plot p : getPlots() ) {
-            p.getFlags().set(flag, extents);
+            p.getFlags().set( flag, extents );
         }
     }
 
     @Override
-    public boolean contains(World w, double x, double y) {
+    public boolean contains ( World w, double x, double y ) {
         for ( Plot p : getPlots() ) {
-            if ( p.contains(w, x, y) ) return true;
+            if ( p.contains( w, x, y ) ) return true;
         }
         return false;
     }
 
     @Override
-    public boolean contains(World w, Point2D point) {
-        return contains(w, point.x(), point.y());
+    public boolean contains ( World w, Point2D point ) {
+        return contains( w, point.x(), point.y() );
     }
 
     @Override
-    public boolean contains(Location<World> loc) {
-        return contains(loc.getExtent(), loc.getX(), loc.getY());
+    public boolean contains ( Location<World> loc ) {
+        return contains( loc.getExtent(), loc.getX(), loc.getY() );
     }
 
     public void setNation ( Nation nation ) {
         if ( nation != null ) {
-            TownMessage.informAll( Text.of("The town of " + name + " has joined the nation of " + nation.getName()));
+            TownMessage.informAll( Text.of( "The town of " + name + " has joined the nation of " + nation.getName() ) );
         } else {
-            TownMessage.informAll( Text.of("The town of " + name + " is now nationless!") );
+            TownMessage.informAll( Text.of( "The town of " + name + " is now nationless!" ) );
         }
         this.setParent( nation );
     }
 
-    public TownStatus getStatus() { return status; }
+    public TownStatus getStatus () {
+        return status;
+    }
 
     public void setStatus ( TownStatus status ) {
         this.status = status;
     }
 
-    private List<Resident> sortResidentsByDate(List<Resident> list) {
+    private List<Resident> sortResidentsByDate ( List<Resident> list ) {
         Resident res;
         for ( int i = 0; i < list.size(); i++ ) {
-            for ( int j = 0; j<list.size(); j++ ) {
-                if ( list.get(i).getLastOnlineSeconds() > list.get(j).getLastOnlineSeconds() ) {
-                    res = list.get(j);
-                    list.set(j, list.get(i));
-                    list.set(i, res);
+            for ( int j = 0; j < list.size(); j++ ) {
+                if ( list.get( i ).getLastOnlineSeconds() > list.get( j ).getLastOnlineSeconds() ) {
+                    res = list.get( j );
+                    list.set( j, list.get( i ) );
+                    list.set( i, res );
                 }
             }
         }
         return list;
     }
 
-    public void claimPlot(Plot p) {
-        p.setParent(this);
-        p.setFlags(townFlags);
+    public void claimPlot ( Plot p ) {
+        p.setParent( this );
+        p.setFlags( townFlags );
     }
 
-    public void unclaimPlot(Plot p) {
-        p.setParent(null);
+    public void unclaimPlot ( Plot p ) {
+        p.setParent( null );
         p.remove();
     }
 
-    public void setMayor(Resident newMayor) {
-        if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this) ) {
-            getMayor().ifPresent( resident -> resident.setTownRank(TownRanks.CO_MAYOR) );
-            newMayor.setTownRank(TownRanks.MAYOR);
+    public void setMayor ( Resident newMayor ) {
+        if ( newMayor.getTown().isPresent() && newMayor.getTown().get().equals( this ) ) {
+            getMayor().ifPresent( resident -> resident.setTownRank( TownRanks.CO_MAYOR ) );
+            newMayor.setTownRank( TownRanks.MAYOR );
         }
     }
 
-    public Optional<Resident> getMayor() {
+    public Optional<Resident> getMayor () {
         for ( Resident r : getResidents() ) {
-            if ( r.getTownRank().equals(TownRanks.MAYOR) ) return Optional.of(r);
+            if ( r.getTownRank().equals( TownRanks.MAYOR ) ) return Optional.of( r );
         }
         return Optional.empty();
     }
 
     public Optional<Resident> getResident ( UUID uuid ) {
         for ( Resident resident : getResidents() ) {
-            if ( resident.getUUID().equals(uuid) ) {
+            if ( resident.getUUID().equals( uuid ) ) {
                 return Optional.of( resident );
             }
         }
         return Optional.empty();
     }
 
-    public String getMOTD() {
+    public String getMOTD () {
         return motd;
     }
 
-    public void setMOTD(String MOTD) {
+    public void setMOTD ( String MOTD ) {
         this.motd = MOTD;
     }
 
-    public void setDescription(String description) {
+    public void setDescription ( String description ) {
         this.description = description;
     }
 
-    public String getDescription() {
+    public String getDescription () {
         return description;
     }
 
-    public TextColor getColor() {
+    public TextColor getColor () {
         return color;
     }
 
-    public Town setColor(TextColor color) {
+    public Town setColor ( TextColor color ) {
         this.color = color;
         return this;
     }
 
-    public double getArea() {
+    public double getArea () {
         double area = 0;
         for ( Plot p : getPlots() ) {
             area += p.getDefinition().area();
@@ -249,67 +251,67 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         return area;
     }
 
-    public void ruin() {
+    public void ruin () {
 
-        getPlots().forEach(Plot::remove); // remove all plots.
+        getPlots().forEach( Plot::remove ); // remove all plots.
         getResidents().forEach( resident ->
-            resident.setTown(null, TownRanks.NONE)
+                resident.setTown( null, TownRanks.NONE )
         );
-        TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
-        TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
+        TownManager.getInstance().remove( this ); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
+        TownMessage.warnAll( Text.of( "The town of " + this.name + " is no more." ) );
     }
 
-    public List<Resident> getResidents() {
-        return ResidentManager.getInstance().getByTown(this);
+    public List<Resident> getResidents () {
+        return ResidentManager.getInstance().getByTown( this );
     }
 
-    public List<Plot> getPlots() {
-        return PlotManager.getInstance().getByParent(this);
+    public List<Plot> getPlots () {
+        return PlotManager.getInstance().getByParent( this );
     }
 
-    public void showBorders(Player p) {
+    public void showBorders ( Player p ) {
         List<LineSegment2D> borderedEdges = new LinkedList<>();
         for ( Plot plot : this.getPlots() ) {
             for ( LineSegment2D edge : plot.getDefinition().edges() ) {
-                if ( !doesEdgeAlmostEqualAnyOther(edge, borderedEdges) ) {
-                    for (int i = 0; i <= edge.length(); i += 1) {
-                        Point2D twoD = interpolationByDistance(edge, i);
-                        Vector3d loc = new Vector3d(twoD.x(), p.getLocation().getExtent().getHighestYAt( (int) twoD.x(), (int) twoD.y()), twoD.y());
-                        p.spawnParticles(ParticleEffect.builder()
-                                .velocity(Vector3d.from(0, 0.08, 0))
-                                .type(ParticleTypes.BARRIER)
-                                .quantity(1)
-                                .build(), loc);
+                if ( !doesEdgeAlmostEqualAnyOther( edge, borderedEdges ) ) {
+                    for ( int i = 0; i <= edge.length(); i += 1 ) {
+                        Point2D twoD = interpolationByDistance( edge, i );
+                        Vector3d loc = new Vector3d( twoD.x(), p.getLocation().getExtent().getHighestYAt( (int) twoD.x(), (int) twoD.y() ), twoD.y() );
+                        p.spawnParticles( ParticleEffect.builder()
+                                .velocity( Vector3d.from( 0, 0.08, 0 ) )
+                                .type( ParticleTypes.BARRIER )
+                                .quantity( 1 )
+                                .build(), loc );
                     }
-                    borderedEdges.add(edge);
+                    borderedEdges.add( edge );
                 }
             }
         }
     }
 
-    private static Point2D interpolationByDistance(LineSegment2D l, double d) {
+    private static Point2D interpolationByDistance ( LineSegment2D l, double d ) {
         if ( d == 0 ) return l.firstPoint();
         if ( d == l.length() ) return l.lastPoint();
         double len = l.length();
-        double ratio = d/len;
-        double x = ratio*l.lastPoint().x() + (1.0 - ratio)*l.firstPoint().x();
-        double y = ratio*l.lastPoint().y() + (1.0 - ratio)*l.firstPoint().y();
+        double ratio = d / len;
+        double x = ratio * l.lastPoint().x() + ( 1.0 - ratio ) * l.firstPoint().x();
+        double y = ratio * l.lastPoint().y() + ( 1.0 - ratio ) * l.firstPoint().y();
         return new Point2D( x, y );
     }
 
     private static boolean doesEdgeAlmostEqualAnyOther ( LineSegment2D edge, List<LineSegment2D> list ) {
         for ( LineSegment2D e : list ) {
-            if ( edge.almostEquals(e, 1.0d) ) return true;
+            if ( edge.almostEquals( e, 1.0d ) ) return true;
         }
         return false;
     }
 
-    public void setSpawn(Location<World> spawn) {
+    public void setSpawn ( Location<World> spawn ) {
         this.spawn = spawn;
     }
 
     @Override
-    public Optional<TownView> createView() {
+    public Optional<TownView> createView () {
         return Optional.of( new TownView( this ) );
     }
 }

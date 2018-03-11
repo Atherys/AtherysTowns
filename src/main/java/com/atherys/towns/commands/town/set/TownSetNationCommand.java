@@ -22,33 +22,33 @@ public class TownSetNationCommand extends TownsSimpleCommand {
 
     private static TownSetNationCommand instance = new TownSetNationCommand();
 
-    public static TownSetNationCommand getInstance() {
+    public static TownSetNationCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        Optional<Nation> n = NationManager.getInstance().getFirstByName( args.<String>getOne("nation").orElse(UUID.randomUUID().toString()) );
+        Optional<Nation> n = NationManager.getInstance().getFirstByName( args.<String>getOne( "nation" ).orElse( UUID.randomUUID().toString() ) );
 
         if ( n.isPresent() ) {
-            town.setParent(n.get());
-            TownMessage.informAll(Text.of(town.getName() + " has joined the nation of " + n.get().getName() ));
+            town.setParent( n.get() );
+            TownMessage.informAll( Text.of( town.getName() + " has joined the nation of " + n.get().getName() ) );
         } else {
-            TownMessage.warn(player, "You must provide a valid nation to join.");
+            TownMessage.warn( player, "You must provide a valid nation to join." );
         }
 
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the nation of the town." ) )
                 .permission( TownActions.SET_NATION.getPermission() )
                 .arguments(
-                        GenericArguments.remainingJoinedStrings(Text.of("nation"))
+                        GenericArguments.remainingJoinedStrings( Text.of( "nation" ) )
                 )
                 .executor( this )
                 .build();

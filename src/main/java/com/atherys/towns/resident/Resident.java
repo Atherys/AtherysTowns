@@ -28,108 +28,115 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
 
     private UUID uuid;
 
-    @Nullable private Town town;
-    @Nullable private TownRank townRank;
-    @Nullable private NationRank nationRank;
+    @Nullable
+    private Town town;
+    @Nullable
+    private TownRank townRank;
+    @Nullable
+    private NationRank nationRank;
 
     private long unixRegisterDateSeconds = 0;
     private long unixLastOnlineSeconds = 0;
 
-    protected Resident( UUID uuid) {
+    protected Resident ( UUID uuid ) {
         this.uuid = uuid;
         unixRegisterDateSeconds = System.currentTimeMillis() / 1000L;
         unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
-    public static ResidentBuilder fromUUID (UUID uuid ) {
-        return new ResidentBuilder(uuid);
+    public static ResidentBuilder fromUUID ( UUID uuid ) {
+        return new ResidentBuilder( uuid );
     }
 
-    public String getName() {
+    public String getName () {
         if ( !getUser().isPresent() ) return AtherysTowns.getConfig().TOWN.NPC_NAME;
         return getUser().get().getName();
     }
 
     // return user object regardless if player is online or not
-    private Optional<? extends User> getUser() {
-        return UserUtils.getUser(uuid);
+    private Optional<? extends User> getUser () {
+        return UserUtils.getUser( uuid );
     }
 
     // returns player object IF player is online
-    public Optional<Player> getPlayer() {
+    public Optional<Player> getPlayer () {
         for ( Player player : Sponge.getServer().getOnlinePlayers() ) {
-            if ( player.getUniqueId().equals(uuid) ) return Optional.of(player);
+            if ( player.getUniqueId().equals( uuid ) ) return Optional.of( player );
         }
         return Optional.empty();
     }
 
-    public boolean isOnline() {
+    public boolean isOnline () {
         return getPlayer().isPresent();
     }
 
-    public Optional<Town> getTown() {
-        if ( town != null ) return Optional.of(town);
+    public Optional<Town> getTown () {
+        if ( town != null ) return Optional.of( town );
         else return Optional.empty();
     }
 
-    public Optional<Nation> getNation() {
-        return NationManager.getInstance().getByResident(this);
+    public Optional<Nation> getNation () {
+        return NationManager.getInstance().getByResident( this );
     }
 
-    public void setTown( Town town, TownRank rank ) {
+    public void setTown ( Town town, TownRank rank ) {
         this.town = town;
         setTownRank( rank );
         setNationRank( rank.getDefaultNationRank() );
     }
 
-    public void updatePermissions() {
+    public void updatePermissions () {
         setTownRank( getTownRank() );
         setNationRank( getNationRank() );
     }
 
-    public TownRank getTownRank() {
+    public TownRank getTownRank () {
         return townRank == null ? TownRanks.NONE : townRank;
     }
 
-    public NationRank getNationRank() {
+    public NationRank getNationRank () {
         return nationRank == null ? NationRanks.NONE : nationRank;
     }
 
     public Resident setTownRank ( TownRank townRank ) {
-        getTownRank().updatePermissions ( this.uuid, townRank );
+        getTownRank().updatePermissions( this.uuid, townRank );
         this.townRank = townRank;
         return this;
     }
 
-    public long getRegisteredSeconds() { return unixRegisterDateSeconds; }
-
-    public long getLastOnlineSeconds() { return unixLastOnlineSeconds; }
-
-    public Date getRegisterDate() {
-        return Date.from( Instant.ofEpochSecond(unixRegisterDateSeconds) );
+    public long getRegisteredSeconds () {
+        return unixRegisterDateSeconds;
     }
 
-    public Date getLastOnlineDate() {
-        return Date.from( Instant.ofEpochSecond(unixLastOnlineSeconds) );
+    public long getLastOnlineSeconds () {
+        return unixLastOnlineSeconds;
     }
 
-    public void updateLastOnline() {
+    public Date getRegisterDate () {
+        return Date.from( Instant.ofEpochSecond( unixRegisterDateSeconds ) );
+    }
+
+    public Date getLastOnlineDate () {
+        return Date.from( Instant.ofEpochSecond( unixLastOnlineSeconds ) );
+    }
+
+    public void updateLastOnline () {
         this.unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
     }
 
     @Override
-    public UUID getUUID() {
+    public UUID getUUID () {
         return uuid;
     }
 
     @Override
-    public void setName(String name) {
+    public void setName ( String name ) {
 
     }
 
-    public Optional<UniqueAccount> getBank() {
+    public Optional<UniqueAccount> getBank () {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
+        return economy.flatMap( economyService -> economyService.getOrCreateAccount( uuid ) );
     }
 
     public void setNationRank ( NationRank nationRank ) {
@@ -137,12 +144,12 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         this.nationRank = nationRank;
     }
 
-    public void setRegisteredTimestamp(long registeredTimestamp) {
+    public void setRegisteredTimestamp ( long registeredTimestamp ) {
         this.unixRegisterDateSeconds = registeredTimestamp;
     }
 
     @Override
-    public Optional<ResidentView> createView() {
-        return Optional.of( new ResidentView(this) );
+    public Optional<ResidentView> createView () {
+        return Optional.of( new ResidentView( this ) );
     }
 }

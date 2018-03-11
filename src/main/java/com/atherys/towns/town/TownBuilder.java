@@ -18,7 +18,7 @@ public class TownBuilder {
     }
 
     TownBuilder ( UUID uuid ) {
-        town = new Town(uuid);
+        town = new Town( uuid );
     }
 
     TownBuilder () {
@@ -27,7 +27,7 @@ public class TownBuilder {
 
     public TownBuilder nation ( Nation nation ) {
         if ( nation == null ) return this;
-        town.setParent(nation);
+        town.setParent( nation );
         return this;
     }
 
@@ -37,22 +37,22 @@ public class TownBuilder {
     }
 
     public TownBuilder flags ( PlotFlags flags ) {
-        town.setFlags ( flags );
+        town.setFlags( flags );
         return this;
     }
 
     public TownBuilder maxSize ( int max ) {
-        town.setMaxSize(max);
+        town.setMaxSize( max );
         return this;
     }
 
     public TownBuilder spawn ( Location<World> spawn ) {
-        town.setSpawn(spawn);
+        town.setSpawn( spawn );
         return this;
     }
 
     public TownBuilder name ( String name ) {
-        town.setName(name);
+        town.setName( name );
         return this;
     }
 
@@ -62,17 +62,17 @@ public class TownBuilder {
     }
 
     public TownBuilder description ( String desc ) {
-        town.setDescription(desc);
+        town.setDescription( desc );
         return this;
     }
 
     public TownBuilder color ( TextColor color ) {
-        town.setColor(color);
+        town.setColor( color );
         return this;
     }
 
-    public Town build() {
-        TownManager.getInstance().add(town);
+    public Town build () {
+        TownManager.getInstance().add( town );
         return town;
     }
 

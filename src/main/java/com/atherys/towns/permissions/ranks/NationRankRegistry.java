@@ -11,11 +11,12 @@ public final class NationRankRegistry implements CatalogRegistryModule<NationRan
 
     private static NationRankRegistry instance = new NationRankRegistry();
 
-    private Map<String,NationRank> ranks = new HashMap<>();
+    private Map<String, NationRank> ranks = new HashMap<>();
 
-    private NationRankRegistry() {}
+    private NationRankRegistry () {
+    }
 
-    public static NationRankRegistry getInstance() {
+    public static NationRankRegistry getInstance () {
         return instance;
     }
 
@@ -24,12 +25,12 @@ public final class NationRankRegistry implements CatalogRegistryModule<NationRan
     }
 
     @Override
-    public Optional<NationRank> getById(String id) {
-        return Optional.ofNullable( ranks.get(id) );
+    public Optional<NationRank> getById ( String id ) {
+        return Optional.ofNullable( ranks.get( id ) );
     }
 
     @Override
-    public Collection<NationRank> getAll() {
+    public Collection<NationRank> getAll () {
         return ranks.values();
     }
 }

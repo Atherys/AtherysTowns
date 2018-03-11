@@ -19,16 +19,16 @@ public class NationAction implements CatalogType, TownsAction {
     }
 
     @Override
-    public String getId() {
+    public String getId () {
         return id;
     }
 
     @Override
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public String getPermission() {
+    public String getPermission () {
         return permission;
     }
 }

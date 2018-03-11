@@ -21,13 +21,13 @@ public class TownKickCommand extends TownsSimpleCommand {
 
     private static TownKickCommand instance = new TownKickCommand();
 
-    public static TownKickCommand getInstance() {
+    public static TownKickCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
-        Optional<User> user = args.getOne("resident");
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        Optional<User> user = args.getOne( "resident" );
         if ( !user.isPresent() ) return CommandResult.empty();
 
         if ( town == null ) return CommandResult.empty();
@@ -35,7 +35,7 @@ public class TownKickCommand extends TownsSimpleCommand {
 
         // if the resident is present and the rank of the resident trying to kick them is higher
         if ( res.isPresent() && resident.getTownRank().isRankGreaterThan( res.get().getTownRank() ) || player.hasPermission( "atherystowns.admin.kick_any" ) ) {
-            res.get().setTown(null, TownRanks.NONE);
+            res.get().setTown( null, TownRanks.NONE );
             town.warnResidents( Text.of( user.get().getName(), " has been kicked from the town by ", resident.getName() ) );
         }
 
@@ -43,12 +43,12 @@ public class TownKickCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to kick somebody from the town." ) )
                 .permission( TownActions.KICK_PLAYER.getPermission() )
                 .arguments(
-                        GenericArguments.onlyOne( GenericArguments.user( Text.of("resident") ) )
+                        GenericArguments.onlyOne( GenericArguments.user( Text.of( "resident" ) ) )
                 )
                 .executor( this )
                 .build();

@@ -24,21 +24,21 @@ public class TownJoinCommand extends TownsSimpleCommand {
 
     private static TownJoinCommand instance = new TownJoinCommand();
 
-    public static TownJoinCommand getInstance() {
+    public static TownJoinCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        Optional<Town> tOpt = TownManager.getInstance().getFirstByName(args.<String>getOne("townName").orElse(UUID.randomUUID().toString()));
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        Optional<Town> tOpt = TownManager.getInstance().getFirstByName( args.<String>getOne( "townName" ).orElse( UUID.randomUUID().toString() ) );
 
         if ( !tOpt.isPresent() ) {
-            TownMessage.warn(player, "That town doesn't exist!");
+            TownMessage.warn( player, "That town doesn't exist!" );
             return CommandResult.empty();
         } else {
 
             if ( town != null ) {
-                TownMessage.warn(player, "You are already part of a town!");
+                TownMessage.warn( player, "You are already part of a town!" );
                 return CommandResult.empty();
             }
 
@@ -47,7 +47,7 @@ public class TownJoinCommand extends TownsSimpleCommand {
             if ( t.getTownFlags().get( Flags.JOIN ) == Extents.ANY ) {
                 TownInviteCommand.getInstance().inviteResident( resident, t );
             } else {
-                TownMessage.warn(player, "The town you are trying to join requires an invitation.");
+                TownMessage.warn( player, "The town you are trying to join requires an invitation." );
                 return CommandResult.empty();
             }
         }
@@ -56,12 +56,12 @@ public class TownJoinCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to join a town. If you are already part of a town, you must leave your current town first." ) )
                 .permission( TownActions.JOIN_TOWN.getPermission() )
                 .arguments(
-                        GenericArguments.remainingJoinedStrings(Text.of("townName"))
+                        GenericArguments.remainingJoinedStrings( Text.of( "townName" ) )
                 )
                 .executor( this )
                 .build();

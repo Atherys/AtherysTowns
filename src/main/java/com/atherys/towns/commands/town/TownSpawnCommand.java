@@ -23,23 +23,23 @@ public class TownSpawnCommand extends TownsSimpleCommand {
 
     private static TownSpawnCommand instance = new TownSpawnCommand();
 
-    public static TownSpawnCommand getInstance() {
+    public static TownSpawnCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        TownMessage.inform( player, "You will be teleported home in ", AtherysTowns.getConfig().TOWN.SPAWN_DELAY, " seconds.");
+        TownMessage.inform( player, "You will be teleported home in ", AtherysTowns.getConfig().TOWN.SPAWN_DELAY, " seconds." );
 
         Location<World> spawn = town.getSpawn();
         Task.builder()
-                .delay( AtherysTowns.getConfig().TOWN.SPAWN_DELAY, TimeUnit.SECONDS)
+                .delay( AtherysTowns.getConfig().TOWN.SPAWN_DELAY, TimeUnit.SECONDS )
                 .execute( () -> {
                     player.setLocationSafely( spawn );
-                    TownMessage.inform(player, "You have returned to your town's spawn!");
-                })
+                    TownMessage.inform( player, "You have returned to your town's spawn!" );
+                } )
                 .name( "atherystowns-spawn-task-" + player.getName() )
                 .submit( AtherysTowns.getInstance() );
 
@@ -47,7 +47,7 @@ public class TownSpawnCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to teleport to the spawn location of your town. Must be part of a town." ) )
                 .permission( TownActions.TOWN_SPAWN.getPermission() )

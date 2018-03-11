@@ -22,28 +22,28 @@ public class TownSetMayorCommand extends TownsSimpleCommand {
 
     private static TownSetMayorCommand instance = new TownSetMayorCommand();
 
-    public static TownSetMayorCommand getInstance() {
+    public static TownSetMayorCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
 
-        Optional<User> newMayor = args.getOne("newMayor");
+        Optional<User> newMayor = args.getOne( "newMayor" );
 
         if ( newMayor.isPresent() ) {
             Optional<Resident> newMayorRes = ResidentManager.getInstance().get( newMayor.get().getUniqueId() );
-            if (newMayorRes.isPresent()) {
-                if ( !newMayorRes.get().getTown().isPresent() || ( newMayorRes.get().getTown().isPresent() && !newMayorRes.get().getTown().get().equals(town) ) ) {
-                    TownMessage.warn( player, "The player specified must be part of your town in order to replace the current mayor.");
+            if ( newMayorRes.isPresent() ) {
+                if ( !newMayorRes.get().getTown().isPresent() || ( newMayorRes.get().getTown().isPresent() && !newMayorRes.get().getTown().get().equals( town ) ) ) {
+                    TownMessage.warn( player, "The player specified must be part of your town in order to replace the current mayor." );
                     return CommandResult.empty();
                 }
-                town.setMayor(newMayorRes.get());
-                town.informResidents(Text.of( newMayorRes.get().getName(), " has been set as the new town Mayor!"));
+                town.setMayor( newMayorRes.get() );
+                town.informResidents( Text.of( newMayorRes.get().getName(), " has been set as the new town Mayor!" ) );
                 return CommandResult.success();
             } else {
-                TownMessage.warn( player, Text.of("You must provide a valid resident."));
+                TownMessage.warn( player, Text.of( "You must provide a valid resident." ) );
                 return CommandResult.empty();
             }
         }
@@ -52,12 +52,12 @@ public class TownSetMayorCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to change the mayor of the town." ) )
                 .permission( TownActions.SET_MAYOR.getPermission() )
                 .arguments(
-                        GenericArguments.user(Text.of("newMayor"))
+                        GenericArguments.user( Text.of( "newMayor" ) )
                 )
                 .executor( this )
                 .build();

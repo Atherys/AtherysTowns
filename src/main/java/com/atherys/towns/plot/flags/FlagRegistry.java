@@ -12,19 +12,19 @@ public final class FlagRegistry implements CatalogRegistryModule<Flag> {
 
     private static final FlagRegistry instance = new FlagRegistry();
 
-    protected Map<String,Flag> flags = new HashMap<>();
+    protected Map<String, Flag> flags = new HashMap<>();
 
     @Override
     public Optional<Flag> getById ( @Nonnull String id ) {
-        return Optional.ofNullable( flags.get(id) );
+        return Optional.ofNullable( flags.get( id ) );
     }
 
     @Override
-    public Collection<Flag> getAll() {
+    public Collection<Flag> getAll () {
         return flags.values();
     }
 
-    public static FlagRegistry getInstance() {
+    public static FlagRegistry getInstance () {
         return instance;
     }
 }

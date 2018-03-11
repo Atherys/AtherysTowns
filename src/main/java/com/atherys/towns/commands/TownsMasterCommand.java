@@ -17,12 +17,12 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
 
     protected Map<List<String>, CommandCallable> children = new LinkedHashMap<>();
 
-    public Map<List<String>, CommandCallable> getChildren() {
+    public Map<List<String>, CommandCallable> getChildren () {
         return children;
     }
 
-    protected void addChild(CommandCallable callable, String... aliases) {
-        children.put(Arrays.asList(aliases), callable);
+    protected void addChild ( CommandCallable callable, String... aliases ) {
+        children.put( Arrays.asList( aliases ), callable );
     }
 
     public void showHelp ( String cmd, Player player ) {
@@ -30,21 +30,21 @@ public abstract class TownsMasterCommand extends TownsSimpleCommand {
         TextColor decoration = AtherysTowns.getConfig().COLORS.DECORATION;
         TextColor primary = AtherysTowns.getConfig().COLORS.PRIMARY;
 
-        player.sendMessage(Text.of(decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd," Help", TextStyles.RESET, decoration, " } =---------=.o0o." ));
-        for (Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
-            Text cmdHelp = Text.of( TextStyles.BOLD, primary, "/", cmd, " ", entry.getKey().get(0), " ", entry.getValue().getUsage(player) );
+        player.sendMessage( Text.of( decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd, " Help", TextStyles.RESET, decoration, " } =---------=.o0o." ) );
+        for ( Map.Entry<List<String>, CommandCallable> entry : getChildren().entrySet() ) {
+            Text cmdHelp = Text.of( TextStyles.BOLD, primary, "/", cmd, " ", entry.getKey().get( 0 ), " ", entry.getValue().getUsage( player ) );
             Text helpMsg = Text.builder()
                     .append( cmdHelp )
-                    .onHover(TextActions.showText(
-                            entry.getValue().getHelp(player).orElse(Text.of("Help Unavailable"))
-                    ))
+                    .onHover( TextActions.showText(
+                            entry.getValue().getHelp( player ).orElse( Text.of( "Help Unavailable" ) )
+                    ) )
                     .onClick(
                             TextActions.suggestCommand( cmdHelp.toPlain() )
                     )
                     .build();
-            player.sendMessage(helpMsg);
+            player.sendMessage( helpMsg );
         }
-        player.sendMessage(Text.of(decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd," Help", TextStyles.RESET, decoration, " } =---------=.o0o." ));
+        player.sendMessage( Text.of( decoration, ".o0o.=---------= { ", TextStyles.BOLD, primary, "/", cmd, " Help", TextStyles.RESET, decoration, " } =---------=.o0o." ) );
     }
 
 }

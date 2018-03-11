@@ -22,19 +22,20 @@ public class TownRuinCommand extends TownsSimpleCommand {
 
     private static TownRuinCommand instance = new TownRuinCommand();
 
-    public static TownRuinCommand getInstance() {
+    public static TownRuinCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
-        if ( resident.getTownRank().equals(AtherysTowns.getConfig().TOWN.TOWN_LEADER) || player.hasPermission( "atherystowns.admin.ruin_any" ) ) ruinTown( player, town );
+        if ( resident.getTownRank().equals( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) || player.hasPermission( "atherystowns.admin.ruin_any" ) )
+            ruinTown( player, town );
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
                 .description( Text.of( "Used to ruin a town. This will remove the town from the game, unclaim all it's plots and leave all residents homeless." ) )
                 .permission( TownActions.RUIN_TOWN.getPermission() )
@@ -42,14 +43,15 @@ public class TownRuinCommand extends TownsSimpleCommand {
                 .build();
     }
 
-    private void ruinTown( Player player, Town town ) {
-        Question ruin = Question.of( Text.of("Are you sure you want to destroy your town? Doing so will eject all residents and unclaim all plots.") )
-                .addAnswer( Question.Answer.of( Text.of( TextColors.GREEN, "Yes" ),player1 -> {
+    private void ruinTown ( Player player, Town town ) {
+        Question ruin = Question.of( Text.of( "Are you sure you want to destroy your town? Doing so will eject all residents and unclaim all plots." ) )
+                .addAnswer( Question.Answer.of( Text.of( TextColors.GREEN, "Yes" ), player1 -> {
                     if ( town.getStatus().equals( TownStatus.CAPITAL ) ) {
-                        TownMessage.warn( player, "You cannot destroy the capital of a nation!");
+                        TownMessage.warn( player, "You cannot destroy the capital of a nation!" );
                     } else town.ruin();
-                }))
-                .addAnswer( Question.Answer.of( Text.of( TextColors.RED, "No" ), player1 -> {} ) )
+                } ) )
+                .addAnswer( Question.Answer.of( Text.of( TextColors.RED, "No" ), player1 -> {
+                } ) )
                 .build();
         ruin.pollBook( player );
     }

@@ -23,10 +23,10 @@ import java.util.concurrent.TimeUnit;
 
 public final class TownsConfig extends PluginConfig {
 
-    @Setting ( "defaultConfig" )
+    @Setting( "defaultConfig" )
     public boolean DEFAULT = true;
 
-    @Setting ( "colors" )
+    @Setting( "colors" )
     public ColorConfig COLORS = new ColorConfig();
 
     @ConfigSerializable
@@ -51,87 +51,88 @@ public final class TownsConfig extends PluginConfig {
         public TextColor WARNING = TextColors.RED;
     }
 
-    @Setting ( "towns" )
+    @Setting( "towns" )
     public TownConfig TOWN = new TownConfig();
 
     @ConfigSerializable
     public static class TownConfig {
 
-        @Setting ( "border_update_rate" )
+        @Setting( "border_update_rate" )
         public int BORDER_UPDATE_RATE = 4;
 
-        @Setting ( "npc_name" )
+        @Setting( "npc_name" )
         public String NPC_NAME = "NPC";
 
-        @Setting ( "max_name_length" )
+        @Setting( "max_name_length" )
         public int MAX_NAME_LENGTH = 20;
 
-        @Setting ( "max_plot_area" )
+        @Setting( "max_plot_area" )
         public int MAX_PLOT_AREA = 512;
 
-        @Setting ( "min_plot_size" )
+        @Setting( "min_plot_size" )
         public int MIN_PLOT_SIZE = 16;
 
-        @Setting ( "initial_area" )
+        @Setting( "initial_area" )
         public int INITIAL_AREA = 5120;
 
-        @Setting ( "spawn_delay" )
+        @Setting( "spawn_delay" )
         public int SPAWN_DELAY = 10;
 
-        @Setting ( "town_leader" )
+        @Setting( "town_leader" )
         public TownRank TOWN_LEADER = TownRanks.MAYOR;
 
-        @Setting ( "nation_leader" )
+        @Setting( "nation_leader" )
         public NationRank NATION_LEADER = NationRanks.LEADER;
 
     }
 
-    @Setting ( "titles" )
+    @Setting( "titles" )
     public TitleConfig TITLES = new TitleConfig();
 
     @ConfigSerializable
     public static class TitleConfig {
 
-        @Setting ( "fade_in_ticks" )
+        @Setting( "fade_in_ticks" )
         public int FADE_IN = 5;
 
-        @Setting ( "stay_ticks" )
+        @Setting( "stay_ticks" )
         public int STAY = 10;
 
-        @Setting ( "fade_out_ticks" )
+        @Setting( "fade_out_ticks" )
         public int FADE_OUT = 5;
 
-        @Setting ( "subtitle_fade_in_ticks" )
+        @Setting( "subtitle_fade_in_ticks" )
         public int SUB_FADE_IN = 5;
 
-        @Setting ( "subtitle_stay_ticks" )
+        @Setting( "subtitle_stay_ticks" )
         public int SUB_STAY = 10;
 
-        @Setting ( "subtitle_fade_out_ticks" )
+        @Setting( "subtitle_fade_out_ticks" )
         public int SUB_FADE_OUT = 5;
 
     }
 
-    @Setting ( "database" )
+    @Setting( "database" )
     public MongoDatabaseConfig DATABASE = new MongoDatabaseConfig();
 
-    @Setting ( "wilderness_regen" )
+    @Setting( "wilderness_regen" )
     public WildernessConfig WILDERNESS_REGEN = new WildernessConfig();
 
     @ConfigSerializable
     public static class WildernessConfig {
 
-        @Setting ( "enabled" )
+        @Setting( "enabled" )
         public boolean ENABLED = true;
 
-        @Setting ( "rate" )
+        @Setting( "rate" )
         public int RATE = 60;
 
-        @Setting ( "time_units" )
+        @Setting( "time_units" )
         public TimeUnit UNIT = TimeUnit.SECONDS;
 
-        @Setting ( "filter" )
+        @Setting( "filter" )
         public WildernessFilter FILTER = new WildernessFilter();
+
         {
             WildernessFilter.FilterNode ironOreFilter = WildernessFilter.FilterNode.empty();
             ironOreFilter.add( BlockTypes.STONE, 0.5 );
@@ -139,35 +140,36 @@ public final class TownsConfig extends PluginConfig {
             FILTER.set( BlockTypes.IRON_ORE, ironOreFilter );
         }
 
-        @Setting ( "last_regen" )
+        @Setting( "last_regen" )
         public long LAST = 0;
 
     }
 
-    @Setting ( "switch_flag_blocks" )
+    @Setting( "switch_flag_blocks" )
     public List<BlockType> SWITCH_FLAG_BLOCKS = new ArrayList<>();
+
     {
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.ENDER_CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPPED_CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.ACACIA_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.BIRCH_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.DARK_OAK_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.IRON_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.JUNGLE_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.SPRUCE_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPDOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.LEVER);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.STONE_BUTTON);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_BUTTON);
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.CHEST );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.ENDER_CHEST );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.TRAPPED_CHEST );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.ACACIA_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.BIRCH_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.DARK_OAK_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.IRON_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.JUNGLE_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.SPRUCE_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.WOODEN_DOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.TRAPDOOR );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.LEVER );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.STONE_BUTTON );
+        SWITCH_FLAG_BLOCKS.add( BlockTypes.WOODEN_BUTTON );
     }
 
-    TownsConfig( ) throws IOException {
+    TownsConfig () throws IOException {
         super( AtherysTowns.getInstance().getWorkingDirectory(), "config.conf" );
 
-        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of(WildernessFilter.FilterNode.class), WildernessFilter.FilterNode.empty() );
-        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of(WildernessFilter.class), new WildernessFilter() );
+        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of( WildernessFilter.FilterNode.class ), WildernessFilter.FilterNode.empty() );
+        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of( WildernessFilter.class ), new WildernessFilter() );
     }
 }
 

@@ -21,9 +21,9 @@ public abstract class TownsSimpleCommand implements CommandExecutor {
 
     @Nonnull
     @Override
-    public CommandResult execute( @Nonnull CommandSource src, @Nonnull CommandContext args ) throws CommandException {
-        if ( !(src instanceof Player) ) {
-            src.sendMessage(Text.of("Must be a player to execute this command."));
+    public CommandResult execute ( @Nonnull CommandSource src, @Nonnull CommandContext args ) throws CommandException {
+        if ( !( src instanceof Player ) ) {
+            src.sendMessage( Text.of( "Must be a player to execute this command." ) );
             return CommandResult.empty();
         }
 
@@ -32,7 +32,7 @@ public abstract class TownsSimpleCommand implements CommandExecutor {
         @Nullable Town t = null;
         @Nullable Nation n = null;
 
-        Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
+        Optional<Resident> resOpt = ResidentManager.getInstance().get( player.getUniqueId() );
         if ( !resOpt.isPresent() ) {
             return CommandResult.empty();
         } else res = resOpt.get();
@@ -44,7 +44,7 @@ public abstract class TownsSimpleCommand implements CommandExecutor {
         return execute( player, args, res, t, n );
     }
 
-    protected abstract CommandResult execute (Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation);
+    protected abstract CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation );
 
-    public abstract CommandSpec getSpec();
+    public abstract CommandSpec getSpec ();
 }

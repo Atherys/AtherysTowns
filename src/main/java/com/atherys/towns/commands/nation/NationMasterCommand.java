@@ -24,21 +24,21 @@ public class NationMasterCommand extends TownsMasterCommand {
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        showHelp("n", player);
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        showHelp( "n", player );
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .description(Text.of("Master Nation command."))
-                .children(getChildren())
-                .executor(this)
+                .description( Text.of( "Master Nation command." ) )
+                .children( getChildren() )
+                .executor( this )
                 .build();
     }
 
-    public static NationMasterCommand getInstance() {
+    public static NationMasterCommand getInstance () {
         return instance;
     }
 }

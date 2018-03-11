@@ -22,41 +22,41 @@ public class NationWithdrawCommand extends TownsSimpleCommand {
 
     private static NationWithdrawCommand instance = new NationWithdrawCommand();
 
-    public static NationWithdrawCommand getInstance() {
+    public static NationWithdrawCommand getInstance () {
         return instance;
     }
 
     @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation) {
-        if ( !args.getOne("amount").isPresent() ) {
-            TownMessage.warn(player, "You must provide an amount to withdraw.");
+    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
+        if ( !args.getOne( "amount" ).isPresent() ) {
+            TownMessage.warn( player, "You must provide an amount to withdraw." );
             return CommandResult.empty();
         }
 
         if ( AtherysTowns.getInstance().getEconomyService().isPresent() && nation != null ) {
-            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne("amount").orElse(0.0d) );
-            Currency currency = args.<Currency>getOne("currency").orElse(AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency());
+            BigDecimal amount = BigDecimal.valueOf( args.<Double>getOne( "amount" ).orElse( 0.0d ) );
+            Currency currency = args.<Currency>getOne( "currency" ).orElse( AtherysTowns.getInstance().getEconomyService().get().getDefaultCurrency() );
 
-            if ( nation.withdraw(resident, amount, currency) )
-                nation.informResidents ( Text.of ( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
-            else TownMessage.warn(player, "Withdraw Failed.");
+            if ( nation.withdraw( resident, amount, currency ) )
+                nation.informResidents( Text.of( player.getName(), " has withdrawn ", amount.toString(), " ", currency.getPluralDisplayName(), " into the nation bank." ) );
+            else TownMessage.warn( player, "Withdraw Failed." );
             return CommandResult.success();
         }
 
-        TownMessage.warn(player, "Nation withdraw failed.");
+        TownMessage.warn( player, "Nation withdraw failed." );
         return CommandResult.empty();
     }
 
     @Override
-    public CommandSpec getSpec() {
+    public CommandSpec getSpec () {
         return CommandSpec.builder()
-                .permission(NationActions.NATION_WITHDRAW.getPermission())
-                .description( Text.of("Used to withdraw money from the town's bank") )
+                .permission( NationActions.NATION_WITHDRAW.getPermission() )
+                .description( Text.of( "Used to withdraw money from the town's bank" ) )
                 .arguments(
-                        GenericArguments.doubleNum(Text.of("amount")),
-                        GenericArguments.optional( GenericArguments.catalogedElement(Text.of("currency"), Currency.class) )
+                        GenericArguments.doubleNum( Text.of( "amount" ) ),
+                        GenericArguments.optional( GenericArguments.catalogedElement( Text.of( "currency" ), Currency.class ) )
                 )
-                .executor(this)
+                .executor( this )
                 .build();
     }
 }
