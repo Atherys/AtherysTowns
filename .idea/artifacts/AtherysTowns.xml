@@ -3,7 +3,12 @@
     <output-path>$PROJECT_DIR$/../../Builds</output-path>
     <root id="archive" name="AtherysTowns.jar">
       <element id="module-output" name="AtherysTowns_main" />
-      <element id="library" level="project" name="Gradle: math.geom2d:javaGeom:0.11.1" />
+      <element id="directory" name="assets">
+        <element id="directory" name="atherystowns">
+          <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/assets/config.conf" />
+          <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/assets/wilderness_filter.json" />
+        </element>
+      </element>
     </root>
   </artifact>
 </component>
