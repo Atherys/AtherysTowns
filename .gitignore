@@ -88,17 +88,4 @@ gradle-app.setting
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-/.idea/
-/.idea/libraries/
-/.idea/modules.xml
-/.idea/uiDesigner.xml
-/.idea/.name
-/.idea/compiler.xml
-/.idea/gradle.xml
-/.idea/misc.xml
-/.idea/codeStyleSettings.xml
-/.idea/vcs.xml
-/.idea/artifacts/
-/.idea/workspace.xml
-/.idea/modules/
-/.idea/checkstyle-idea.xml
+.idea/
