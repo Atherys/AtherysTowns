@@ -23,7 +23,6 @@ import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.plot.flags.FlagRegistry;
 import com.atherys.towns.resident.Resident;
 import com.google.inject.Inject;
-import com.mongodb.client.MongoDatabase;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -181,10 +180,6 @@ public class AtherysTowns {
 
     public static AtherysTowns getInstance () {
         return instance;
-    }
-
-    public static MongoDatabase getDb () {
-        return TownsDatabase.getInstance().getDatabase();
     }
 
     public Game getGame () {
