@@ -12,6 +12,7 @@ import java.util.Map;
 @ConfigSerializable
 public class WildernessFilter {
 
+    @ConfigSerializable
     public static class FilterNode {
 
         @Setting
