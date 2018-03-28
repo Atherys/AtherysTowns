@@ -72,6 +72,6 @@ public class NationView implements View<Nation> {
     }
 
     public Text getFormattedName () {
-        return Text.of( nation.getColor(), nation.getName() ).toBuilder().onHover( TextActions.showText( this.toText() ) ).build();
+        return Text.builder().append( Text.of( nation.getColor(), nation.getName() ) ).onHover( TextActions.showText( this.toText() ) ).build();
     }
 }
