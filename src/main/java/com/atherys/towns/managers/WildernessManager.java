@@ -62,6 +62,7 @@ public final class WildernessManager {
     }
 
     public void saveOne ( Transaction<BlockSnapshot> transaction ) {
+        if ( !AtherysTowns.getConfig().WILDERNESS_REGEN.ENABLED ) return;
         // if original is air, a block was placed
         // if original is not air, a block was destroyed
 

@@ -1,28 +1,21 @@
 package com.atherys.towns.utils;
 
-import com.google.common.reflect.TypeToken;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
-import org.spongepowered.api.Sponge;
+import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-public class WildernessFilter implements TypeSerializer<WildernessFilter> {
+@ConfigSerializable
+public class WildernessFilter {
 
-    public static class FilterNode implements TypeSerializer<FilterNode> {
+    public static class FilterNode {
 
+        @Setting
         private Map<BlockType, Double> blocks = new HashMap<>();
-
-        static {
-            TypeSerializers.getDefaultSerializers().registerType( TypeToken.of( FilterNode.class ), FilterNode.empty() );
-        }
 
         public FilterNode ( BlockType altBlock, double percentage ) {
             this.blocks.put( altBlock, percentage );
@@ -31,12 +24,16 @@ public class WildernessFilter implements TypeSerializer<WildernessFilter> {
         private FilterNode () {
         }
 
+        public static FilterNode of( BlockType altBlock, double percentage ) {
+            return new FilterNode( altBlock, percentage );
+        }
+
         public static FilterNode empty () {
             return new FilterNode();
         }
 
         public double getChance ( BlockType type ) {
-            return blocks.getOrDefault( type.getName(), 0.0 );
+            return blocks.getOrDefault( type, 0.0 );
         }
 
         public void add ( BlockType block, double percent ) {
@@ -57,27 +54,9 @@ public class WildernessFilter implements TypeSerializer<WildernessFilter> {
             }
             return finalSnap;
         }
-
-        @Override
-        public FilterNode deserialize ( TypeToken<?> type, ConfigurationNode value ) throws ObjectMappingException {
-            FilterNode node = FilterNode.empty();
-            for ( ConfigurationNode child : value.getChildrenList() ) {
-                Optional<BlockType> block = Sponge.getRegistry().getType( BlockType.class, child.getKey().toString() );
-                if ( block.isPresent() ) {
-                    node.add( block.get(), child.getDouble() );
-                } else {
-                    throw new ObjectMappingException( child.getKey() + " is not a valid BlockType." );
-                }
-            }
-            return node;
-        }
-
-        @Override
-        public void serialize ( TypeToken<?> type, FilterNode obj, ConfigurationNode value ) throws ObjectMappingException {
-            obj.blocks.forEach( ( k, v ) -> value.getNode( k.getName() ).setValue( v ) );
-        }
     }
 
+    @Setting
     private Map<BlockType, FilterNode> filter = new HashMap<>();
 
     public WildernessFilter () {
@@ -93,27 +72,5 @@ public class WildernessFilter implements TypeSerializer<WildernessFilter> {
 
     public FilterNode getAlternatives ( String blockId ) {
         return filter.getOrDefault( blockId, FilterNode.empty() );
-    }
-
-    @Override
-    public WildernessFilter deserialize ( TypeToken<?> type, ConfigurationNode value ) throws ObjectMappingException {
-        WildernessFilter filter = new WildernessFilter();
-        for ( ConfigurationNode child : value.getChildrenList() ) {
-            Optional<BlockType> block = Sponge.getRegistry().getType( BlockType.class, child.getKey().toString() );
-            if ( block.isPresent() ) {
-                filter.filter.put( block.get(), child.getValue( TypeToken.of( FilterNode.class ) ) );
-            } else {
-                throw new ObjectMappingException( child.getKey() + " is not a valid BlockType." );
-            }
-        }
-
-        return filter;
-    }
-
-    @Override
-    public void serialize ( TypeToken<?> type, WildernessFilter obj, ConfigurationNode value ) throws ObjectMappingException {
-        for ( Map.Entry<BlockType, FilterNode> nodes : obj.filter.entrySet() ) {
-            value.getNode( nodes.getKey().getName() ).setValue( TypeToken.of( FilterNode.class ), nodes.getValue() );
-        }
     }
 }

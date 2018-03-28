@@ -7,10 +7,8 @@ import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.utils.WildernessFilter;
-import com.google.common.reflect.TypeToken;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.text.format.TextColor;
@@ -132,7 +130,6 @@ public final class TownsConfig extends PluginConfig {
 
         @Setting( "filter" )
         public WildernessFilter FILTER = new WildernessFilter();
-
         {
             WildernessFilter.FilterNode ironOreFilter = WildernessFilter.FilterNode.empty();
             ironOreFilter.add( BlockTypes.STONE, 0.5 );
@@ -167,9 +164,6 @@ public final class TownsConfig extends PluginConfig {
 
     TownsConfig () throws IOException {
         super( AtherysTowns.getInstance().getWorkingDirectory(), "config.conf" );
-
-        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of( WildernessFilter.FilterNode.class ), WildernessFilter.FilterNode.empty() );
-        TypeSerializers.getDefaultSerializers().registerType( TypeToken.of( WildernessFilter.class ), new WildernessFilter() );
     }
 }
 
