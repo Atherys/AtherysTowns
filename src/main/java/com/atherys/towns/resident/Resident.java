@@ -149,7 +149,7 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     }
 
     @Override
-    public Optional<ResidentView> createView () {
-        return Optional.of( new ResidentView( this ) );
+    public ResidentView createView () {
+        return new ResidentView( this );
     }
 }

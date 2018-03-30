@@ -107,7 +107,7 @@ public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView>
     }
 
     @Override
-    public Optional<PlotView> createView () {
-        return Optional.of( new PlotView( this ) );
+    public PlotView createView () {
+        return new PlotView( this );
     }
 }

@@ -311,7 +311,7 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     }
 
     @Override
-    public Optional<TownView> createView () {
-        return Optional.of( new TownView( this ) );
+    public TownView createView () {
+        return new TownView( this );
     }
 }

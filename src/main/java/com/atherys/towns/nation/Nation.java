@@ -171,7 +171,7 @@ public class Nation extends AbstractAreaObject<Nation> implements Viewable<Natio
     }
 
     @Override
-    public Optional<NationView> createView () {
-        return Optional.of( new NationView( this ) );
+    public NationView createView () {
+        return new NationView( this );
     }
 }
