@@ -77,7 +77,7 @@ public class PlayerListeners {
                 TownMessage.subtitleAnnounce( player, Text.of( AtherysTowns.getConfig().COLORS.SECONDARY, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~" ) );
             }
             if ( !plotFrom.get().getFlags().equals( plotTo.get().getFlags() ) ) {
-                plotTo.get().getFlags().createView().ifPresent( view -> view.showDifferences( player, plotFrom.get().getFlags() ) );
+                plotTo.get().getFlags().createView().showDifferences( player, plotFrom.get().getFlags() );
             }
         }
     }

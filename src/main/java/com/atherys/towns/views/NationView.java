@@ -72,6 +72,28 @@ public class NationView implements View<Nation> {
     }
 
     public Text getFormattedName () {
-        return Text.builder().append( Text.of( nation.getColor(), nation.getName() ) ).onHover( TextActions.showText( this.toText() ) ).build();
+
+        String leaderName = AtherysTowns.getConfig().TOWN.NPC_NAME;
+
+        Optional<Town> capital = nation.getCapital();
+        if ( capital.isPresent() ) {
+            Optional<Resident> leader = capital.get().getMayor();
+            if ( leader.isPresent() ) leaderName = leader.get().getName();
+        }
+
+        TextColor decoration = AtherysTowns.getConfig().COLORS.DECORATION;
+        TextColor primary = AtherysTowns.getConfig().COLORS.PRIMARY;
+        TextColor textColor = AtherysTowns.getConfig().COLORS.TEXT;
+
+        Text hoverText = Text.builder()
+                .append( Text.of( decoration, ".o0o.______.[ ", TextColors.RESET ) )
+                .append( Text.of( nation.getColor(), TextStyles.BOLD, nation.getName(), TextStyles.RESET ) )
+                .append( Text.of( TextColors.RESET, decoration, " ].______.o0o.\n", TextColors.RESET ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET, textColor, nation.getDescription(), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( nation ), "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, nation.getLeaderTitle(), ": ", TextStyles.RESET, textColor, leaderName + "\n" ) )
+                .build();
+
+        return Text.builder().append( Text.of( nation.getColor(), nation.getName() ) ).onHover( TextActions.showText( hoverText ) ).build();
     }
 }
