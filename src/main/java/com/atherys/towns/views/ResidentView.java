@@ -57,10 +57,10 @@ public class ResidentView implements View<Resident> {
     }
 
     public String getFormattedRegisterDate () {
-        return new SimpleDateFormat( "dd-MM-yyyy @ HH:mm" ).format( resident.getRegisterDate() );
+        return new SimpleDateFormat( AtherysTowns.getConfig().TOWN.DATE_FORMAT ).format( resident.getRegisteredDate() );
     }
 
     public String getFormattedLastOnlineDate () {
-        return new SimpleDateFormat( "dd-MM-yyyy @ HH:mm" ).format( resident.getLastOnlineDate() );
+        return new SimpleDateFormat( AtherysTowns.getConfig().TOWN.DATE_FORMAT ).format( resident.getLastOnlineDate() );
     }
 }
