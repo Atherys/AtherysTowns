@@ -2,6 +2,10 @@ package com.atherys.towns;
 
 import com.atherys.core.database.mongo.MongoDatabaseConfig;
 import com.atherys.core.utils.PluginConfig;
+import com.atherys.towns.permissions.actions.NationAction;
+import com.atherys.towns.permissions.actions.NationActions;
+import com.atherys.towns.permissions.actions.TownAction;
+import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.NationRanks;
 import com.atherys.towns.permissions.ranks.TownRank;
@@ -16,6 +20,8 @@ import org.spongepowered.api.text.format.TextColors;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -81,6 +87,136 @@ public final class TownsConfig extends PluginConfig {
 
         @Setting( "nation_leader" )
         public NationRank NATION_LEADER = NationRanks.LEADER;
+
+        @Setting( "town_ranks" )
+        public TownRanksConfig TOWN_RANKS = new TownRanksConfig();
+
+        @ConfigSerializable
+        public static class TownRanksConfig {
+
+            @Setting( "none" )
+            public List<TownAction> NONE = Arrays.asList(
+                    TownActions.CREATE_TOWN,
+                    TownActions.JOIN_TOWN
+            );
+
+            @Setting( "resident" )
+            public List<TownAction> RESIDENT = Arrays.asList(
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.TOWN_DEPOSIT
+            );
+
+            @Setting( "citizen" )
+            public List<TownAction> CITIZEN = Arrays.asList(
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.TOWN_DEPOSIT
+            );
+
+            @Setting( "assistant" )
+            public List<TownAction> ASSISTANT = Arrays.asList(
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT
+            );
+
+            @Setting( "CO_MAYOR" )
+            public List<TownAction> CO_MAYOR = Arrays.asList(
+                    TownActions.CHAT,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.SET_NAME,
+                    TownActions.SET_RANK,
+                    TownActions.CLAIM_PLOT,
+                    TownActions.UNCLAIM_PLOT,
+                    TownActions.SET_FLAGS,
+                    TownActions.SET_FLAG_PVP,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT,
+                    TownActions.TOWN_WITHDRAW,
+                    TownActions.MODIFY_PLOT_FLAG,
+                    TownActions.MODIFY_PLOT_NAME
+            );
+
+            @Setting( "MAYOR" )
+            public List<TownAction> MAYOR = Arrays.asList(
+                    TownActions.CHAT,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.CLAIM_PLOT,
+                    TownActions.UNCLAIM_PLOT,
+                    TownActions.SET_NAME,
+                    TownActions.SET_RANK,
+                    TownActions.SET_MAYOR,
+                    TownActions.SET_FLAGS,
+                    TownActions.SET_FLAG_PVP,
+                    TownActions.SET_FLAG_BUILD,
+                    TownActions.SET_FLAG_DESTROY,
+                    TownActions.SET_FLAG_JOIN,
+                    TownActions.SET_FLAG_SWITCH,
+                    TownActions.SET_FLAG_DAMAGE_ENTITY,
+                    TownActions.RUIN_TOWN,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT,
+                    TownActions.TOWN_WITHDRAW,
+                    TownActions.MODIFY_PLOT_FLAG,
+                    TownActions.MODIFY_PLOT_NAME
+            );
+
+        }
+
+        @Setting( "nation_ranks" )
+        public NationRanksConfig NATION_RANKS = new NationRanksConfig();
+
+        @ConfigSerializable
+        public static class NationRanksConfig {
+
+            @Setting( "none" )
+            public List<NationAction> NONE = Collections.emptyList();
+
+            @Setting( "resident" )
+            public List<NationAction> RESIDENT = Arrays.asList(
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT
+            );
+
+            @Setting( "co_leader" )
+            public List<NationAction> CO_LEADER = Arrays.asList(
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT,
+                    NationActions.NATION_WITHDRAW
+            );
+
+            @Setting( "leader" )
+            public List<NationAction> LEADER = Arrays.asList(
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT,
+                    NationActions.NATION_WITHDRAW,
+                    NationActions.SET_COLOR,
+                    NationActions.SET_DESCRIPTION,
+                    NationActions.SET_NAME,
+                    NationActions.SET_RANK,
+                    NationActions.SET_LEADER_TITLE
+            );
+
+        }
 
     }
 

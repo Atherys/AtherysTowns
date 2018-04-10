@@ -11,7 +11,7 @@ public class TownRank extends Rank implements CatalogType {
 
     private NationRank defaultNationRank;
 
-    protected TownRank ( String id, String name, List<TownsAction> permittedActions, NationRank defaultNationRank, TownRank child ) {
+    protected TownRank ( String id, String name, List<? extends TownsAction> permittedActions, NationRank defaultNationRank, TownRank child ) {
         super( id, name, permittedActions, child );
         this.defaultNationRank = defaultNationRank;
         TownRankRegistry.getInstance().add( this );
