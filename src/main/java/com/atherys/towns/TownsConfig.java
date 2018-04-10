@@ -61,6 +61,9 @@ public final class TownsConfig extends PluginConfig {
     @ConfigSerializable
     public static class TownConfig {
 
+        @Setting( "date_format" )
+        public String DATE_FORMAT = "dd-MM-yyyy @ HH:mm";
+
         @Setting( "border_update_rate" )
         public int BORDER_UPDATE_RATE = 4;
 

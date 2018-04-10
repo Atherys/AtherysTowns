@@ -5,6 +5,7 @@ import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.town.Town;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class ResidentBuilder {
@@ -32,8 +33,8 @@ public class ResidentBuilder {
         return this;
     }
 
-    public ResidentBuilder registerTimestamp ( long time ) {
-        res.setRegisteredTimestamp( time );
+    public ResidentBuilder registerTimestamp ( Date time ) {
+        res.setRegisteredDate( time );
         return this;
     }
 

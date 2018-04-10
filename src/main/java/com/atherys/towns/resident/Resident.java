@@ -19,7 +19,6 @@ import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,13 +34,13 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     @Nullable
     private NationRank nationRank;
 
-    private long unixRegisterDateSeconds = 0;
-    private long unixLastOnlineSeconds = 0;
+    private Date registered;
+    private Date lastOnline;
 
     protected Resident ( UUID uuid ) {
         this.uuid = uuid;
-        unixRegisterDateSeconds = System.currentTimeMillis() / 1000L;
-        unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
+        registered = new Date();
+        lastOnline = new Date();
     }
 
     public static ResidentBuilder fromUUID ( UUID uuid ) {
@@ -104,24 +103,16 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         return this;
     }
 
-    public long getRegisteredSeconds () {
-        return unixRegisterDateSeconds;
-    }
-
-    public long getLastOnlineSeconds () {
-        return unixLastOnlineSeconds;
-    }
-
-    public Date getRegisterDate () {
-        return Date.from( Instant.ofEpochSecond( unixRegisterDateSeconds ) );
+    public Date getRegisteredDate () {
+        return registered;
     }
 
     public Date getLastOnlineDate () {
-        return Date.from( Instant.ofEpochSecond( unixLastOnlineSeconds ) );
+        return lastOnline;
     }
 
     public void updateLastOnline () {
-        this.unixLastOnlineSeconds = System.currentTimeMillis() / 1000L;
+        this.lastOnline = new Date();
     }
 
     @Override
@@ -144,12 +135,12 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         this.nationRank = nationRank;
     }
 
-    public void setRegisteredTimestamp ( long registeredTimestamp ) {
-        this.unixRegisterDateSeconds = registeredTimestamp;
+    protected void setRegisteredDate ( Date registered ) {
+        this.registered = registered;
     }
 
     @Override
-    public Optional<ResidentView> createView () {
-        return Optional.of( new ResidentView( this ) );
+    public ResidentView createView () {
+        return new ResidentView( this );
     }
 }

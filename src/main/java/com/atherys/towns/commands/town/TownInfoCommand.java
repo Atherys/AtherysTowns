@@ -32,7 +32,7 @@ public class TownInfoCommand extends TownsSimpleCommand {
 
             if ( resident.getTown().isPresent() ) {
                 Town t = resident.getTown().get();
-                t.createView().ifPresent( view -> view.show( player ) );
+                t.createView().show( player );
                 return CommandResult.success();
             } else {
                 TownMessage.warn( player, Text.of( "You are not part of a town!" ) );
@@ -53,7 +53,7 @@ public class TownInfoCommand extends TownsSimpleCommand {
             }
 
             if ( tOpt.isPresent() ) {
-                tOpt.get().createView().ifPresent( view -> view.show( player ) );
+                tOpt.get().createView().show( player );
             } else {
                 TownMessage.warn( player, error );
                 return CommandResult.empty();

@@ -171,20 +171,6 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         this.status = status;
     }
 
-    private List<Resident> sortResidentsByDate ( List<Resident> list ) {
-        Resident res;
-        for ( int i = 0; i < list.size(); i++ ) {
-            for ( int j = 0; j < list.size(); j++ ) {
-                if ( list.get( i ).getLastOnlineSeconds() > list.get( j ).getLastOnlineSeconds() ) {
-                    res = list.get( j );
-                    list.set( j, list.get( i ) );
-                    list.set( i, res );
-                }
-            }
-        }
-        return list;
-    }
-
     public void claimPlot ( Plot p ) {
         p.setParent( this );
         p.setFlags( townFlags );
@@ -311,7 +297,7 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     }
 
     @Override
-    public Optional<TownView> createView () {
-        return Optional.of( new TownView( this ) );
+    public TownView createView () {
+        return new TownView( this );
     }
 }

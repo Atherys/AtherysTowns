@@ -44,7 +44,7 @@ public class TownMasterCommand extends TownsMasterCommand {
     @Override
     protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( resident.getTown().isPresent() ) {
-            resident.getTown().get().createView().ifPresent( view -> view.show( player ) );
+            resident.getTown().get().createView().show( player );
         } else {
             TownMessage.warn( player, "You are not part of a town." );
         }

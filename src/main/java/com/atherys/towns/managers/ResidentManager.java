@@ -60,8 +60,8 @@ public final class ResidentManager extends AbstractMongoDatabaseManager<Resident
             doc.append( "town", null );
         }
 
-        doc.append( "registered", object.getRegisteredSeconds() );
-        doc.append( "last_online", object.getLastOnlineSeconds() );
+        doc.append( "registered", object.getRegisteredDate() );
+        doc.append( "last_online", object.getLastOnlineDate() );
         doc.append( "town_rank", object.getTownRank().getId() );
         doc.append( "nation_rank", object.getNationRank().getId() );
 
@@ -83,7 +83,7 @@ public final class ResidentManager extends AbstractMongoDatabaseManager<Resident
                 builder.nationRank( NationRankRegistry.getInstance().getById( doc.getString( "nation_rank" ) ).orElse( NationRanks.RESIDENT ) );
             } );
         }
-        builder.registerTimestamp( doc.getLong( "registered" ) );
+        builder.registerTimestamp( doc.getDate( "registered" ) );
         builder.updateLastOnline();
         return Optional.of( builder.build() );
     }

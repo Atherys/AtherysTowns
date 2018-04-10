@@ -66,7 +66,7 @@ public class TownCreateCommand extends TownsSimpleCommand {
             if ( n.isPresent() ) t.setParent( n.get() );
             else TownMessage.warn( player, "The nation you specified was invalid. Town was not added to a nation." );
 
-            t.createView().ifPresent( view -> view.show( player ) );
+            t.createView().show( player );
         }
 
         return CommandResult.success();

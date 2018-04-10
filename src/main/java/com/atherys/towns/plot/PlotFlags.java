@@ -84,7 +84,7 @@ public class PlotFlags implements Viewable<PlotFlagsView> {
     }
 
     @Override
-    public Optional<PlotFlagsView> createView () {
-        return Optional.of( new PlotFlagsView( this ) );
+    public PlotFlagsView createView () {
+        return new PlotFlagsView( this );
     }
 }

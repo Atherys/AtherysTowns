@@ -38,7 +38,7 @@ public class NationInfoCommand extends TownsSimpleCommand {
         Optional<Nation> nationOptional = NationManager.getInstance().getFirstByName( nationName );
 
         if ( nationOptional.isPresent() ) {
-            nationOptional.get().createView().ifPresent( view -> view.show( player ) );
+            nationOptional.get().createView().show( player );
         } else {
             TownMessage.warn( player, "No nation found." );
         }

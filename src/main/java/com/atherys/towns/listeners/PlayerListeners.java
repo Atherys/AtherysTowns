@@ -32,6 +32,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Date;
 import java.util.Optional;
 
 public class PlayerListeners {
@@ -42,7 +43,7 @@ public class PlayerListeners {
 
         if ( !resident.isPresent() ) {
             Resident.fromUUID( event.getTargetEntity().getUniqueId() )
-                    .registerTimestamp( System.currentTimeMillis() )
+                    .registerTimestamp( new Date() )
                     .updateLastOnline()
                     .build();
         }
@@ -77,7 +78,7 @@ public class PlayerListeners {
                 TownMessage.subtitleAnnounce( player, Text.of( AtherysTowns.getConfig().COLORS.SECONDARY, TextStyles.ITALIC, "~ ", plotTo.get().getName(), " ~" ) );
             }
             if ( !plotFrom.get().getFlags().equals( plotTo.get().getFlags() ) ) {
-                plotTo.get().getFlags().createView().ifPresent( view -> view.showDifferences( player, plotFrom.get().getFlags() ) );
+                plotTo.get().getFlags().createView().showDifferences( player, plotFrom.get().getFlags() );
             }
         }
     }

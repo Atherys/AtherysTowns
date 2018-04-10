@@ -74,9 +74,9 @@ public class TownView implements View<Town> {
                 .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Description: ", TextStyles.RESET, textColor, town.getDescription(), "\n" ) )
                 .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Bank: ", TextStyles.RESET, textColor, FormatUtils.getFormattedBank( town ), "\n" ) )
                 .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Flags: ", TextStyles.RESET, Text.of( TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )", TextStyles.RESET ).toBuilder().onHover( TextActions.showText( new PlotFlagsView( town.getTownFlags() ).formatted() ) ).build(), "\n" ) )
-                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET, textColor, nationName + "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Nation: ", TextStyles.RESET, textColor, nationName, "\n" ) )
                 .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Size: ", TextStyles.RESET, textColor, formatter.format( plotSize ), "/", formatter.format( town.getMaxSize() ), TextStyles.ITALIC, TextColors.DARK_GRAY, " ( ", formatter.format( town.getMaxSize() - plotSize ), " remaining )", "\n" ) )
-                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET, textColor, mayorName + "\n" ) )
+                .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Mayor: ", TextStyles.RESET, textColor, mayorName, "\n" ) )
                 .append( Text.of( TextColors.RESET, primary, TextStyles.BOLD, "Residents[", textColor, town.getResidents().size(), primary, "]: ", TextStyles.RESET, TextColors.RESET, formatResidents() ) )
                 .build();
     }
@@ -110,6 +110,6 @@ public class TownView implements View<Town> {
     }
 
     public Text getFormattedName () {
-        return Text.of( town.getColor(), town.getName() ).toBuilder().onHover( TextActions.showText( this.toText() ) ).build();
+        return Text.builder().append( Text.of ( town.getColor(), town.getName() ) ).onHover( TextActions.showText( this.toText() ) ).build();
     }
 }
