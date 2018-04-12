@@ -85,12 +85,6 @@ public final class TownsConfig extends PluginConfig {
         @Setting( "spawn_delay" )
         public int SPAWN_DELAY = 10;
 
-        @Setting( "town_leader" )
-        public TownRank TOWN_LEADER = TownRanks.MAYOR;
-
-        @Setting( "nation_leader" )
-        public NationRank NATION_LEADER = NationRanks.LEADER;
-
         @Setting( "town_ranks" )
         public TownRanksConfig TOWN_RANKS = new TownRanksConfig();
 
@@ -220,6 +214,12 @@ public final class TownsConfig extends PluginConfig {
             );
 
         }
+
+        @Setting( "town_leader" )
+        public TownRank TOWN_LEADER = TownRanks.MAYOR;
+
+        @Setting( "nation_leader" )
+        public NationRank NATION_LEADER = NationRanks.LEADER;
 
     }
 
