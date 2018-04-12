@@ -14,6 +14,7 @@ public final class TownRankRegistry implements CatalogRegistryModule<TownRank> {
     private Map<String, TownRank> ranks = new HashMap<>();
 
     private TownRankRegistry () {
+        TownRanks.NONE.getId();
     }
 
     public static TownRankRegistry getInstance () {

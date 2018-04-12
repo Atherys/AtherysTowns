@@ -14,6 +14,7 @@ public final class NationRankRegistry implements CatalogRegistryModule<NationRan
     private Map<String, NationRank> ranks = new HashMap<>();
 
     private NationRankRegistry () {
+        NationRanks.NONE.getId();
     }
 
     public static NationRankRegistry getInstance () {

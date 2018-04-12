@@ -14,6 +14,10 @@ public final class FlagRegistry implements CatalogRegistryModule<Flag> {
 
     protected Map<String, Flag> flags = new HashMap<>();
 
+    private FlagRegistry() {
+        Flags.BUILD.getId();
+    }
+
     @Override
     public Optional<Flag> getById ( @Nonnull String id ) {
         return Optional.ofNullable( flags.get( id ) );

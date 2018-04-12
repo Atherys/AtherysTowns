@@ -14,6 +14,10 @@ public final class ExtentRegistry implements CatalogRegistryModule<Extent> {
 
     protected Map<String, Extent> extents = new HashMap<>();
 
+    private ExtentRegistry() {
+        Extents.ANY.getId();
+    }
+
     @Override
     public Optional<Extent> getById ( @Nonnull String id ) {
         return Optional.ofNullable( extents.get( id ) );
