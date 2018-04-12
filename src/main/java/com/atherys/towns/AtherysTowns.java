@@ -78,13 +78,6 @@ public class AtherysTowns {
     private void init () {
         instance = this;
 
-        game.getRegistry().registerModule( Extent.class, ExtentRegistry.getInstance() );
-        game.getRegistry().registerModule( Flag.class, FlagRegistry.getInstance() );
-        game.getRegistry().registerModule( TownAction.class, TownActionRegistry.getInstance() );
-        game.getRegistry().registerModule( NationAction.class, NationActionRegistry.getInstance() );
-        game.getRegistry().registerModule( NationRank.class, NationRankRegistry.getInstance() );
-        game.getRegistry().registerModule( TownRank.class, TownRankRegistry.getInstance() );
-
         Optional<PermissionService> permissionService = Sponge.getServiceManager().provide( PermissionService.class );
         if ( !permissionService.isPresent() ) {
             getLogger().warn( "No permission service found. This plugin requires a permissions plugin implementing the Sponge Permissions API to function properly. Aborting start." );
@@ -112,6 +105,13 @@ public class AtherysTowns {
             init = false;
             return;
         }
+
+        game.getRegistry().registerModule( Extent.class, ExtentRegistry.getInstance() );
+        game.getRegistry().registerModule( Flag.class, FlagRegistry.getInstance() );
+        game.getRegistry().registerModule( TownAction.class, TownActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationAction.class, NationActionRegistry.getInstance() );
+        game.getRegistry().registerModule( NationRank.class, NationRankRegistry.getInstance() );
+        game.getRegistry().registerModule( TownRank.class, TownRankRegistry.getInstance() );
 
         database = TownsDatabase.getInstance();
 
