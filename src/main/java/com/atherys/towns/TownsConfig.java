@@ -55,6 +55,12 @@ public final class TownsConfig extends PluginConfig {
         public TextColor WARNING = TextColors.RED;
     }
 
+    @Setting( "town_leader" )
+    public TownRank TOWN_LEADER = TownRanks.MAYOR;
+
+    @Setting( "nation_leader" )
+    public NationRank NATION_LEADER = NationRanks.LEADER;
+
     @Setting( "towns" )
     public TownConfig TOWN = new TownConfig();
 
@@ -214,12 +220,6 @@ public final class TownsConfig extends PluginConfig {
             );
 
         }
-
-        @Setting( "town_leader" )
-        public TownRank TOWN_LEADER = TownRanks.MAYOR;
-
-        @Setting( "nation_leader" )
-        public NationRank NATION_LEADER = NationRanks.LEADER;
 
     }
 
