@@ -14,7 +14,6 @@ public final class TownActionRegistry implements CatalogRegistryModule<TownActio
     private Map<String, TownAction> actions = new HashMap<>();
 
     private TownActionRegistry () {
-        TownActions.CREATE_TOWN.getId();
     }
 
     public static TownActionRegistry getInstance () {

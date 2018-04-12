@@ -15,7 +15,6 @@ public final class ExtentRegistry implements CatalogRegistryModule<Extent> {
     protected Map<String, Extent> extents = new HashMap<>();
 
     private ExtentRegistry() {
-        Extents.ANY.getId();
     }
 
     @Override

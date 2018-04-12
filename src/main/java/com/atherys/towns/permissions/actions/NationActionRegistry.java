@@ -14,7 +14,6 @@ public final class NationActionRegistry implements CatalogRegistryModule<NationA
     private Map<String, NationAction> actions = new HashMap<>();
 
     private NationActionRegistry () {
-        NationActions.SET_RANK.getId();
     }
 
     public static NationActionRegistry getInstance () {

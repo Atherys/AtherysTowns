@@ -15,7 +15,6 @@ public final class FlagRegistry implements CatalogRegistryModule<Flag> {
     protected Map<String, Flag> flags = new HashMap<>();
 
     private FlagRegistry() {
-        Flags.BUILD.getId();
     }
 
     @Override
