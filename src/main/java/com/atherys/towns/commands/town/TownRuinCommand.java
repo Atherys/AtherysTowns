@@ -1,11 +1,11 @@
 package com.atherys.towns.commands.town;
 
 import com.atherys.core.utils.Question;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsSimpleCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownActions;
+import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
@@ -29,7 +29,7 @@ public class TownRuinCommand extends TownsSimpleCommand {
     @Override
     protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
         if ( town == null ) return CommandResult.empty();
-        if ( resident.getTownRank().equals( AtherysTowns.getConfig().TOWN.TOWN_LEADER ) || player.hasPermission( "atherystowns.admin.ruin_any" ) )
+        if ( resident.getTownRank().equals( TownRanks.MAYOR ) || player.hasPermission( "atherystowns.admin.ruin_any" ) )
             ruinTown( player, town );
         return CommandResult.success();
     }

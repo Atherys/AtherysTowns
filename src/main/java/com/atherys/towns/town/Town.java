@@ -62,7 +62,7 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         claimPlot( homePlot );
         this.setParent( null );
         this.status = TownStatus.NONE;
-        mayor.setTown( this, AtherysTowns.getConfig().TOWN.TOWN_LEADER );
+        mayor.setTown( this, TownRanks.MAYOR );
         TownManager.getInstance().add( this );
         TownManager.getInstance().save( this );
     }

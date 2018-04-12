@@ -6,10 +6,6 @@ import com.atherys.towns.permissions.actions.NationAction;
 import com.atherys.towns.permissions.actions.NationActions;
 import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.permissions.actions.TownActions;
-import com.atherys.towns.permissions.ranks.NationRank;
-import com.atherys.towns.permissions.ranks.NationRanks;
-import com.atherys.towns.permissions.ranks.TownRank;
-import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.utils.WildernessFilter;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
@@ -54,12 +50,6 @@ public final class TownsConfig extends PluginConfig {
         @Setting( "warning" )
         public TextColor WARNING = TextColors.RED;
     }
-
-    @Setting( "town_leader" )
-    public TownRank TOWN_LEADER = TownRanks.MAYOR;
-
-    @Setting( "nation_leader" )
-    public NationRank NATION_LEADER = NationRanks.LEADER;
 
     @Setting( "towns" )
     public TownConfig TOWN = new TownConfig();
