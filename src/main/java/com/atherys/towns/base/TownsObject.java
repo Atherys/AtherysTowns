@@ -8,18 +8,18 @@ import com.atherys.core.database.api.DBObject;
  */
 public interface TownsObject extends DBObject {
 
-  /**
-   * Retrieve the name of this object
-   *
-   * @return The name
-   */
-  String getName();
+    /**
+     * Retrieve the name of this object
+     *
+     * @return The name
+     */
+    String getName();
 
-  /**
-   * Set the name of this object
-   *
-   * @param name The new name
-   */
-  void setName(String name);
+    /**
+     * Set the name of this object
+     *
+     * @param name The new name
+     */
+    void setName(String name);
 
 }

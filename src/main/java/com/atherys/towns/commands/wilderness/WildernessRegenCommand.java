@@ -15,10 +15,10 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 @Permission("atherystowns.admin.wilderness.regen")
 public class WildernessRegenCommand implements CommandExecutor {
 
-  @Override
-  public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-    long timestamp = System.currentTimeMillis();
-    WildernessManager.getInstance().regenerate(timestamp);
-    return CommandResult.success();
-  }
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+        long timestamp = System.currentTimeMillis();
+        WildernessManager.getInstance().regenerate(timestamp);
+        return CommandResult.success();
+    }
 }

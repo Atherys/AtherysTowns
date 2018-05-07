@@ -9,52 +9,53 @@ import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
+
 @Aliases("leave")
 @Description("Used to leave a town. If you are not part of a town, this command will not function.")
 @Permission("atherystowns.town.leave")
 public class TownLeaveCommand extends TownsCommand {
 
-  private static TownLeaveCommand instance = new TownLeaveCommand();
+    private static TownLeaveCommand instance = new TownLeaveCommand();
 
-  public static TownLeaveCommand getInstance() {
-    return instance;
-  }
-
-  public static void leaveTown(Resident resident) {
-    Optional<Player> player = resident.getPlayer();
-    if (!player.isPresent()) {
-      return;
+    public static TownLeaveCommand getInstance() {
+        return instance;
     }
 
-    Question leave = Question.of(Text.of("Would you like to leave your current town?"))
-        .addAnswer(Question.Answer.of(Text.of(TextColors.GREEN, "Yes"), player1 -> {
-          if (resident.getTown().isPresent()) {
-            resident.setTown(null, TownRanks.NONE);
-            resident.getTown().get()
-                .warnResidents(Text.of(player.get().getName() + " has left the town."));
-          }
-        }))
-        .addAnswer(Question.Answer.of(Text.of(TextColors.RED, "No"), player1 -> {
-        }))
-        .build();
+    public static void leaveTown(Resident resident) {
+        Optional<Player> player = resident.getPlayer();
+        if (!player.isPresent()) {
+            return;
+        }
 
-    leave.pollChat(player.get());
-  }
+        Question leave = Question.of(Text.of("Would you like to leave your current town?"))
+                .addAnswer(Question.Answer.of(Text.of(TextColors.GREEN, "Yes"), player1 -> {
+                    if (resident.getTown().isPresent()) {
+                        resident.setTown(null, TownRanks.NONE);
+                        resident.getTown().get()
+                                .warnResidents(Text.of(player.get().getName() + " has left the town."));
+                    }
+                }))
+                .addAnswer(Question.Answer.of(Text.of(TextColors.RED, "No"), player1 -> {
+                }))
+                .build();
 
-  @Override
-  protected CommandResult execute(Player player, CommandContext args, Resident resident,
-      @Nullable Town town, @Nullable Nation nation) {
+        leave.pollChat(player.get());
+    }
 
-    leaveTown(resident);
+    @Override
+    protected CommandResult execute(Player player, CommandContext args, Resident resident,
+                                    @Nullable Town town, @Nullable Nation nation) {
 
-    return CommandResult.success();
-  }
+        leaveTown(resident);
+
+        return CommandResult.success();
+    }
 }
