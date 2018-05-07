@@ -12,11 +12,10 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-public abstract class TownsSimpleCommand implements CommandExecutor {
+public abstract class TownsCommand implements CommandExecutor {
 
     @Nonnull
     @Override
@@ -52,6 +51,4 @@ public abstract class TownsSimpleCommand implements CommandExecutor {
 
     protected abstract CommandResult execute(Player player, CommandContext args, Resident resident,
         @Nullable Town town, @Nullable Nation nation);
-
-    public abstract CommandSpec getSpec();
 }

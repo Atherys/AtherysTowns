@@ -71,7 +71,7 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         Town t = new Town(definition, mayor);
         t.setName(name);
         t.setMaxSize(maxAllowedPlots);
-        TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
+        TownMessage.informAll(Text.of("A new town ( ", name, " ) has been created!"));
         return t;
     }
 

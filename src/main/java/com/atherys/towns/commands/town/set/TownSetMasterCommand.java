@@ -1,6 +1,5 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.commands.TownsMasterCommand;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
