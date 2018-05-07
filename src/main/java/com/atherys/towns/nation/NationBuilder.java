@@ -1,8 +1,9 @@
 package com.atherys.towns.nation;
 
 import com.atherys.towns.managers.NationManager;
-import java.util.UUID;
 import org.spongepowered.api.text.format.TextColor;
+
+import java.util.UUID;
 
 public class NationBuilder {
 

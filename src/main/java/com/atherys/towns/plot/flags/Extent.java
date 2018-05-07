@@ -8,12 +8,6 @@ import org.spongepowered.api.util.annotation.CatalogedBy;
 @CatalogedBy(Extents.class)
 public class Extent implements CatalogType {
 
-    @FunctionalInterface
-    protected interface Checker {
-
-        boolean apply(Resident resident, Flag flag, Plot plot);
-    }
-
     private String id;
     private String name;
     private Checker checker;
@@ -43,5 +37,11 @@ public class Extent implements CatalogType {
     @Override
     public String toString() {
         return getId();
+    }
+
+    @FunctionalInterface
+    protected interface Checker {
+
+        boolean apply(Resident resident, Flag flag, Plot plot);
     }
 }

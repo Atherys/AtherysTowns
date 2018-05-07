@@ -3,10 +3,11 @@ package com.atherys.towns.town;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
-import java.util.UUID;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.util.UUID;
 
 public class TownBuilder {
 

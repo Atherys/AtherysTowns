@@ -5,12 +5,13 @@ import com.atherys.towns.nation.NationBuilder;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import java.util.Optional;
-import java.util.UUID;
 import org.bson.Document;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * An implementation of {@link AreaObjectManager} for {@link Nation}s
@@ -21,6 +22,10 @@ public final class NationManager extends AreaObjectManager<Nation> {
 
     private NationManager() {
         super("nations");
+    }
+
+    public static NationManager getInstance() {
+        return instance;
     }
 
     /**
@@ -89,14 +94,10 @@ public final class NationManager extends AreaObjectManager<Nation> {
         builder.tax(doc.getDouble("tax"));
         builder.leaderTitle(doc.getString("leader_title"));
         builder.color(
-            Sponge.getGame().getRegistry().getType(TextColor.class, doc.getString("color"))
-                .orElse(TextColors.WHITE));
+                Sponge.getGame().getRegistry().getType(TextColor.class, doc.getString("color"))
+                        .orElse(TextColors.WHITE));
         builder.description(doc.getString("description"));
 
         return Optional.of(builder.build());
-    }
-
-    public static NationManager getInstance() {
-        return instance;
     }
 }

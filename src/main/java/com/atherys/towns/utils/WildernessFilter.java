@@ -1,15 +1,34 @@
 package com.atherys.towns.utils;
 
-import java.util.HashMap;
-import java.util.Map;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ConfigSerializable
 public class WildernessFilter {
+
+    @Setting
+    private Map<BlockType, FilterNode> filter = new HashMap<>();
+
+    public WildernessFilter() {
+    }
+
+    public void set(BlockType blockType, FilterNode node) {
+        this.filter.put(blockType, node);
+    }
+
+    public boolean has(BlockType blockType) {
+        return filter.containsKey(blockType);
+    }
+
+    public FilterNode getAlternatives(String blockId) {
+        return filter.getOrDefault(blockId, FilterNode.empty());
+    }
 
     @ConfigSerializable
     public static class FilterNode {
@@ -52,28 +71,10 @@ public class WildernessFilter {
                         continue;
                     }
                     finalSnap = BlockSnapshot.builder().from(original)
-                        .blockState(BlockState.builder().blockType(entry.getKey()).build()).build();
+                            .blockState(BlockState.builder().blockType(entry.getKey()).build()).build();
                 }
             }
             return finalSnap;
         }
-    }
-
-    @Setting
-    private Map<BlockType, FilterNode> filter = new HashMap<>();
-
-    public WildernessFilter() {
-    }
-
-    public void set(BlockType blockType, FilterNode node) {
-        this.filter.put(blockType, node);
-    }
-
-    public boolean has(BlockType blockType) {
-        return filter.containsKey(blockType);
-    }
-
-    public FilterNode getAlternatives(String blockId) {
-        return filter.getOrDefault(blockId, FilterNode.empty());
     }
 }

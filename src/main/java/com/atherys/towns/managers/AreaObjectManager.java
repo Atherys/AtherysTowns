@@ -4,13 +4,10 @@ import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.base.AreaObject;
 import com.atherys.towns.db.TownsDatabase;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.util.*;
 
 /**
  * An abstract implementation of {@link AbstractMongoDatabaseManager} with {@link AreaObject}s in
@@ -19,7 +16,7 @@ import org.spongepowered.api.world.World;
  * @param <T> The AreaObject this manager will be managing
  */
 public abstract class AreaObjectManager<T extends AreaObject> extends
-    AbstractMongoDatabaseManager<T> {
+        AbstractMongoDatabaseManager<T> {
 
     protected AreaObjectManager(String collectionName) {
         super(AtherysTowns.getInstance().getLogger(), TownsDatabase.getInstance(), collectionName);
@@ -116,7 +113,7 @@ public abstract class AreaObjectManager<T extends AreaObject> extends
      * Retrieve a list of all {@link AreaObject}s which have the provided object as their parent.
      *
      * @param test The parent to be searched for.
-     * @param <P> The type of the parent ( See: {@link AreaObject} documentation for reference )
+     * @param <P>  The type of the parent ( See: {@link AreaObject} documentation for reference )
      * @return The list of children the provided object is a parent of.
      */
     public <P extends AreaObject> List<T> getByParent(P test) {

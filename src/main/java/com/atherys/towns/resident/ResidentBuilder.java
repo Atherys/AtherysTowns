@@ -4,6 +4,7 @@ import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.permissions.ranks.NationRank;
 import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.town.Town;
+
 import java.util.Date;
 import java.util.UUID;
 

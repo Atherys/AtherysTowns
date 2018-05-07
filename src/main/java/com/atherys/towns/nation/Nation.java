@@ -10,15 +10,16 @@ import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownStatus;
 import com.atherys.towns.views.NationView;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import math.geom2d.Point2D;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Nation extends AbstractAreaObject<Nation> implements Viewable<NationView> {
 
@@ -91,13 +92,13 @@ public class Nation extends AbstractAreaObject<Nation> implements Viewable<Natio
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -163,12 +164,12 @@ public class Nation extends AbstractAreaObject<Nation> implements Viewable<Natio
         this.color = color;
     }
 
-    public void setLeaderTitle(String leaderTitle) {
-        this.leaderTitle = leaderTitle;
-    }
-
     public String getLeaderTitle() {
         return leaderTitle;
+    }
+
+    public void setLeaderTitle(String leaderTitle) {
+        this.leaderTitle = leaderTitle;
     }
 
     public void informResidents(Text s) {

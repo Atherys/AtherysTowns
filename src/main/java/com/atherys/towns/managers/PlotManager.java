@@ -5,17 +5,14 @@ import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotBuilder;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
-import com.atherys.towns.plot.flags.Extent;
-import com.atherys.towns.plot.flags.ExtentRegistry;
-import com.atherys.towns.plot.flags.Extents;
-import com.atherys.towns.plot.flags.Flag;
-import com.atherys.towns.plot.flags.FlagRegistry;
+import com.atherys.towns.plot.flags.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.DbUtils;
+import org.bson.Document;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.bson.Document;
 
 public final class PlotManager extends AreaObjectManager<Plot> {
 
@@ -23,6 +20,10 @@ public final class PlotManager extends AreaObjectManager<Plot> {
 
     private PlotManager() {
         super("plots");
+    }
+
+    public static PlotManager getInstance() {
+        return instance;
     }
 
     public boolean checkIntersection(PlotDefinition definition) {
@@ -63,7 +64,7 @@ public final class PlotManager extends AreaObjectManager<Plot> {
             builder.town(parent.get());
         } else {
             AtherysTowns.getInstance().getLogger().error(
-                "[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
+                    "[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
             return Optional.empty();
         }
 
@@ -71,10 +72,10 @@ public final class PlotManager extends AreaObjectManager<Plot> {
 
         // load definition
         Optional<PlotDefinition> definition = DbUtils.Deserialize
-            .definition(doc.get("definition", Document.class));
+                .definition(doc.get("definition", Document.class));
         if (!definition.isPresent()) {
             AtherysTowns.getInstance().getLogger()
-                .error("[MongoDB] Plot load failure. Plot definition could not be deserialized.");
+                    .error("[MongoDB] Plot load failure. Plot definition could not be deserialized.");
             return Optional.empty();
         }
 
@@ -89,15 +90,11 @@ public final class PlotManager extends AreaObjectManager<Plot> {
                 continue;
             }
             Extent extent = ExtentRegistry.getInstance().getById((String) flagData.getValue())
-                .orElse(Extents.NONE);
+                    .orElse(Extents.NONE);
             plotFlags.set(flag.get(), extent);
         }
         builder.flags(plotFlags);
 
         return Optional.of(builder.build());
-    }
-
-    public static PlotManager getInstance() {
-        return instance;
     }
 }

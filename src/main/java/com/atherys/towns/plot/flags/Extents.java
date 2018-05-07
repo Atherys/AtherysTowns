@@ -3,6 +3,7 @@ package com.atherys.towns.plot.flags;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.town.Town;
+
 import java.util.Optional;
 
 public final class Extents {

@@ -7,6 +7,7 @@ import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.views.PlotFlagsView;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +31,11 @@ public class PlotFlags implements Viewable<PlotFlagsView> {
 
     public static PlotFlags regular() {
         return create(Flags.BUILD, Extents.TOWN)
-            .set(Flags.DESTROY, Extents.TOWN)
-            .set(Flags.PVP, Extents.ANY)
-            .set(Flags.SWITCH, Extents.TOWN)
-            .set(Flags.DAMAGE_ENTITY, Extents.TOWN)
-            .set(Flags.JOIN, Extents.NONE);
+                .set(Flags.DESTROY, Extents.TOWN)
+                .set(Flags.PVP, Extents.ANY)
+                .set(Flags.SWITCH, Extents.TOWN)
+                .set(Flags.DAMAGE_ENTITY, Extents.TOWN)
+                .set(Flags.JOIN, Extents.NONE);
     }
 
     public PlotFlags set(Flag flag, Extent value) {

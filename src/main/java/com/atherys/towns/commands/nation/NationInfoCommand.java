@@ -1,31 +1,31 @@
 package com.atherys.towns.commands.nation;
 
-import com.atherys.towns.commands.TownsSimpleCommand;
+import com.atherys.core.command.ParameterizedCommand;
+import com.atherys.core.command.annotation.Aliases;
+import com.atherys.core.command.annotation.Description;
+import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-public class NationInfoCommand extends TownsSimpleCommand {
+import javax.annotation.Nullable;
+import java.util.Optional;
 
-    private static NationInfoCommand instance = new NationInfoCommand();
-
-    public static NationInfoCommand getInstance() {
-        return instance;
-    }
+@Aliases("info")
+@Description("Used to get info on a nation")
+public class NationInfoCommand extends TownsCommand implements ParameterizedCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident,
-        @Nullable Town town, @Nullable Nation nation) {
+                                    @Nullable Town town, @Nullable Nation nation) {
 
         String nationName = args.<String>getOne("nation").orElseGet(() -> {
             Optional<Nation> residentNation = resident.getNation();
@@ -51,12 +51,10 @@ public class NationInfoCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
-        return CommandSpec.builder()
-            .description(Text.of("Used to get info on a nation."))
-            .arguments(GenericArguments
-                .optional(GenericArguments.remainingJoinedStrings(Text.of("nation"))))
-            .executor(this)
-            .build();
+    public CommandElement[] getArguments() {
+        return new CommandElement[]{
+                GenericArguments
+                        .optional(GenericArguments.remainingJoinedStrings(Text.of("nation")))
+        };
     }
 }

@@ -2,6 +2,7 @@ package com.atherys.towns.plot;
 
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.town.Town;
+
 import java.util.UUID;
 
 public final class PlotBuilder {

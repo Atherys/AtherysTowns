@@ -2,24 +2,24 @@ package com.atherys.towns.permissions.ranks;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.permissions.actions.TownsAction;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.UUID;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.util.Tristate;
 
-public abstract class Rank {
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.UUID;
 
-    private String id;
-    private String name;
+public abstract class Rank {
 
     protected Rank child;
     protected SubjectReference permissions;
+    private String id;
+    private String name;
 
     protected Rank(String id, String name, List<? extends TownsAction> permittedActions,
-        Rank child) {
+                   Rank child) {
         this.id = id;
         this.name = name;
 
@@ -29,11 +29,11 @@ public abstract class Rank {
         permissions.resolve().thenAccept(subject -> {
             for (TownsAction action : permittedActions) {
                 subject.getSubjectData()
-                    .setPermission(new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE);
+                        .setPermission(new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE);
             }
 
             subject.getSubjectData().addParent(new LinkedHashSet<>(),
-                service.getGroupSubjects().newSubjectReference("atherystowns"));
+                    service.getGroupSubjects().newSubjectReference("atherystowns"));
         });
         this.child = child;
     }
@@ -44,10 +44,10 @@ public abstract class Rank {
 
     public void updatePermissions(UUID uuid, Rank newRank) {
         AtherysTowns.getPermissionService().getUserSubjects().loadSubject(uuid.toString())
-            .thenAccept(subject -> {
-                subject.getSubjectData().removeParent(new LinkedHashSet<>(), this.permissions);
-                subject.getSubjectData().addParent(new LinkedHashSet<>(), newRank.permissions);
-            });
+                .thenAccept(subject -> {
+                    subject.getSubjectData().removeParent(new LinkedHashSet<>(), this.permissions);
+                    subject.getSubjectData().addParent(new LinkedHashSet<>(), newRank.permissions);
+                });
     }
 
     public void removePermissions(User player) {
@@ -68,6 +68,6 @@ public abstract class Rank {
 
     public boolean isRankGreaterThan(Rank rank) {
         return this.getChild() != null && (this.getChild() == rank || this.getChild()
-            .isRankGreaterThan(rank));
+                .isRankGreaterThan(rank));
     }
 }

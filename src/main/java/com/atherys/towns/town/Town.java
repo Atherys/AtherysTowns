@@ -17,10 +17,6 @@ import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.views.TownView;
 import com.flowpowered.math.vector.Vector3d;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import math.geom2d.Point2D;
 import math.geom2d.line.LineSegment2D;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -30,6 +26,11 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 //import com.atherys.towns.utils.old.Question;
 
@@ -67,11 +68,11 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     }
 
     public static Town create(PlotDefinition definition, Resident mayor, String name,
-        int maxAllowedPlots) {
+                              int maxAllowedPlots) {
         Town t = new Town(definition, mayor);
         t.setName(name);
         t.setMaxSize(maxAllowedPlots);
-        TownMessage.informAll(Text.of("A new town ( " + name + " ) has been created!"));
+        TownMessage.informAll(Text.of("A new town ( ", name, " ) has been created!"));
         return t;
     }
 
@@ -81,6 +82,30 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
 
     public static TownBuilder builder() {
         return new TownBuilder();
+    }
+
+    private static Point2D interpolationByDistance(LineSegment2D l, double d) {
+        if (d == 0) {
+            return l.firstPoint();
+        }
+        if (d == l.length()) {
+            return l.lastPoint();
+        }
+        double len = l.length();
+        double ratio = d / len;
+        double x = ratio * l.lastPoint().x() + (1.0 - ratio) * l.firstPoint().x();
+        double y = ratio * l.lastPoint().y() + (1.0 - ratio) * l.firstPoint().y();
+        return new Point2D(x, y);
+    }
+
+    private static boolean doesEdgeAlmostEqualAnyOther(LineSegment2D edge,
+                                                       List<LineSegment2D> list) {
+        for (LineSegment2D e : list) {
+            if (edge.almostEquals(e, 1.0d)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setFlags(PlotFlags flags) {
@@ -107,13 +132,16 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         return maxSize;
     }
 
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
+
     public Location<World> getSpawn() {
         return spawn;
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
+    public void setSpawn(Location<World> spawn) {
+        this.spawn = spawn;
     }
 
     @Override
@@ -121,8 +149,9 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         return name;
     }
 
-    public void setMaxSize(int maxSize) {
-        this.maxSize = maxSize;
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     public PlotFlags getTownFlags() {
@@ -159,7 +188,7 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
     public void setNation(Nation nation) {
         if (nation != null) {
             TownMessage.informAll(
-                Text.of("The town of " + name + " has joined the nation of " + nation.getName()));
+                    Text.of("The town of " + name + " has joined the nation of " + nation.getName()));
         } else {
             TownMessage.informAll(Text.of("The town of " + name + " is now nationless!"));
         }
@@ -184,13 +213,6 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         p.remove();
     }
 
-    public void setMayor(Resident newMayor) {
-        if (newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this)) {
-            getMayor().ifPresent(resident -> resident.setTownRank(TownRanks.CO_MAYOR));
-            newMayor.setTownRank(TownRanks.MAYOR);
-        }
-    }
-
     public Optional<Resident> getMayor() {
         for (Resident r : getResidents()) {
             if (r.getTownRank().equals(TownRanks.MAYOR)) {
@@ -198,6 +220,13 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
             }
         }
         return Optional.empty();
+    }
+
+    public void setMayor(Resident newMayor) {
+        if (newMayor.getTown().isPresent() && newMayor.getTown().get().equals(this)) {
+            getMayor().ifPresent(resident -> resident.setTownRank(TownRanks.CO_MAYOR));
+            newMayor.setTownRank(TownRanks.MAYOR);
+        }
     }
 
     public Optional<Resident> getResident(UUID uuid) {
@@ -217,12 +246,12 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
         this.motd = MOTD;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public TextColor getColor() {
@@ -246,9 +275,10 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
 
         getPlots().forEach(Plot::remove); // remove all plots.
         getResidents().forEach(resident ->
-            resident.setTown(null, TownRanks.NONE)
+                resident.setTown(null, TownRanks.NONE)
         );
-        TownManager.getInstance().remove(this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
+        TownManager.getInstance().remove(
+                this); // remove town from town manager. Doing this remove any reference from the object, leaving it to to the whims of the GC
         TownMessage.warnAll(Text.of("The town of " + this.name + " is no more."));
     }
 
@@ -268,45 +298,17 @@ public class Town extends AbstractAreaObject<Nation> implements Viewable<TownVie
                     for (int i = 0; i <= edge.length(); i += 1) {
                         Point2D twoD = interpolationByDistance(edge, i);
                         Vector3d loc = new Vector3d(twoD.x(), p.getLocation().getExtent()
-                            .getHighestYAt((int) twoD.x(), (int) twoD.y()), twoD.y());
+                                .getHighestYAt((int) twoD.x(), (int) twoD.y()), twoD.y());
                         p.spawnParticles(ParticleEffect.builder()
-                            .velocity(Vector3d.from(0, 0.08, 0))
-                            .type(ParticleTypes.BARRIER)
-                            .quantity(1)
-                            .build(), loc);
+                                .velocity(Vector3d.from(0, 0.08, 0))
+                                .type(ParticleTypes.BARRIER)
+                                .quantity(1)
+                                .build(), loc);
                     }
                     borderedEdges.add(edge);
                 }
             }
         }
-    }
-
-    private static Point2D interpolationByDistance(LineSegment2D l, double d) {
-        if (d == 0) {
-            return l.firstPoint();
-        }
-        if (d == l.length()) {
-            return l.lastPoint();
-        }
-        double len = l.length();
-        double ratio = d / len;
-        double x = ratio * l.lastPoint().x() + (1.0 - ratio) * l.firstPoint().x();
-        double y = ratio * l.lastPoint().y() + (1.0 - ratio) * l.firstPoint().y();
-        return new Point2D(x, y);
-    }
-
-    private static boolean doesEdgeAlmostEqualAnyOther(LineSegment2D edge,
-        List<LineSegment2D> list) {
-        for (LineSegment2D e : list) {
-            if (edge.almostEquals(e, 1.0d)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void setSpawn(Location<World> spawn) {
-        this.spawn = spawn;
     }
 
     @Override

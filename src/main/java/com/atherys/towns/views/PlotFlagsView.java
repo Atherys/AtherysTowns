@@ -31,20 +31,20 @@ public class PlotFlagsView implements View<PlotFlags> {
     public Text formatted() {
         Text.Builder textBuilder = Text.builder();
         plotFlags.getAll().forEach((k, v) -> textBuilder.append(
-            Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(),
-                AtherysTowns.getConfig().COLORS.DECORATION, " ( ",
-                AtherysTowns.getConfig().COLORS.TEXT, v.getName(),
-                AtherysTowns.getConfig().COLORS.DECORATION, " ) \n")));
+                Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(),
+                        AtherysTowns.getConfig().COLORS.DECORATION, " ( ",
+                        AtherysTowns.getConfig().COLORS.TEXT, v.getName(),
+                        AtherysTowns.getConfig().COLORS.DECORATION, " ) \n")));
         return textBuilder.build();
     }
 
     public Text formattedSingleLine() {
         Text.Builder textBuilder = Text.builder();
         plotFlags.getAll().forEach((k, v) -> textBuilder.append(
-            Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(),
-                AtherysTowns.getConfig().COLORS.DECORATION, " ( ",
-                AtherysTowns.getConfig().COLORS.TEXT, v.getName(),
-                AtherysTowns.getConfig().COLORS.DECORATION, " ); ")));
+                Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(),
+                        AtherysTowns.getConfig().COLORS.DECORATION, " ( ",
+                        AtherysTowns.getConfig().COLORS.TEXT, v.getName(),
+                        AtherysTowns.getConfig().COLORS.DECORATION, " ); ")));
         return textBuilder.build();
     }
 
@@ -54,9 +54,9 @@ public class PlotFlagsView implements View<PlotFlags> {
         flags.getAll().forEach((k, v) -> {
             if (!flags.get(k).equals(this.plotFlags.get(k))) {
                 diffBuilder.append(
-                    Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(), " ( ",
-                        AtherysTowns.getConfig().COLORS.WARNING, v.getName(),
-                        AtherysTowns.getConfig().COLORS.PRIMARY, " ); ", TextColors.RESET));
+                        Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, k.getName(), " ( ",
+                                AtherysTowns.getConfig().COLORS.WARNING, v.getName(),
+                                AtherysTowns.getConfig().COLORS.PRIMARY, " ); ", TextColors.RESET));
             }
         });
         diffBuilder.append(Text.of(AtherysTowns.getConfig().COLORS.DECORATION, " }-.o0o."));

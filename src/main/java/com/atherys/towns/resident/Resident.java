@@ -12,15 +12,16 @@ import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.views.ResidentView;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
+
+import javax.annotation.Nullable;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Resident implements TownsObject, Viewable<ResidentView> {
 
@@ -51,6 +52,11 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
             return AtherysTowns.getConfig().TOWN.NPC_NAME;
         }
         return getUser().get().getName();
+    }
+
+    @Override
+    public void setName(String name) {
+
     }
 
     // return user object regardless if player is online or not
@@ -99,18 +105,27 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         return townRank == null ? TownRanks.NONE : townRank;
     }
 
-    public NationRank getNationRank() {
-        return nationRank == null ? NationRanks.NONE : nationRank;
-    }
-
     public Resident setTownRank(TownRank townRank) {
         getTownRank().updatePermissions(this.uuid, townRank);
         this.townRank = townRank;
         return this;
     }
 
+    public NationRank getNationRank() {
+        return nationRank == null ? NationRanks.NONE : nationRank;
+    }
+
+    public void setNationRank(NationRank nationRank) {
+        getNationRank().updatePermissions(this.uuid, nationRank);
+        this.nationRank = nationRank;
+    }
+
     public Date getRegisteredDate() {
         return registered;
+    }
+
+    protected void setRegisteredDate(Date registered) {
+        this.registered = registered;
     }
 
     public Date getLastOnlineDate() {
@@ -126,23 +141,9 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         return uuid;
     }
 
-    @Override
-    public void setName(String name) {
-
-    }
-
     public Optional<UniqueAccount> getBank() {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
         return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
-    }
-
-    public void setNationRank(NationRank nationRank) {
-        getNationRank().updatePermissions(this.uuid, nationRank);
-        this.nationRank = nationRank;
-    }
-
-    protected void setRegisteredDate(Date registered) {
-        this.registered = registered;
     }
 
     @Override

@@ -1,30 +1,31 @@
 package com.atherys.towns.commands.town.set;
 
-import com.atherys.towns.commands.TownsSimpleCommand;
+import com.atherys.core.command.ParameterizedCommand;
+import com.atherys.core.command.annotation.Aliases;
+import com.atherys.core.command.annotation.Description;
+import com.atherys.core.command.annotation.Permission;
+import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 
-public class TownSetColorCommand extends TownsSimpleCommand {
+import javax.annotation.Nullable;
 
-    private static TownSetColorCommand instance = new TownSetColorCommand();
-
-    public static TownSetColorCommand getInstance() {
-        return instance;
-    }
+@Aliases("color")
+@Description("Used to change the color of the town")
+@Permission("atherystowns.town.set.color")
+public class TownSetColorCommand extends TownsCommand implements ParameterizedCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident,
-        @Nullable Town town, @Nullable Nation nation) {
+                                    @Nullable Town town, @Nullable Nation nation) {
         if (town == null) {
             return CommandResult.empty();
         }
@@ -32,20 +33,15 @@ public class TownSetColorCommand extends TownsSimpleCommand {
         TextColor color = (TextColor) args.getOne("newColor").orElse(town.getColor());
         town.setColor(color);
         town.informResidents(Text.of("Town Color changed to ", town.getColor(),
-            town.getColor().getName().replace('_', ' ')));
+                town.getColor().getName().replace('_', ' ')));
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec() {
-        return CommandSpec.builder()
-            .description(Text.of("Used to change the color of the town."))
-            .permission(TownActions.SET_COLOR.getPermission())
-            .arguments(
+    public CommandElement[] getArguments() {
+        return new CommandElement[]{
                 GenericArguments.catalogedElement(Text.of("newColor"), TextColor.class)
-            )
-            .executor(this)
-            .build();
+        };
     }
 }

@@ -1,10 +1,11 @@
 package com.atherys.towns.permissions.actions;
 
+import org.spongepowered.api.registry.CatalogRegistryModule;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class TownActionRegistry implements CatalogRegistryModule<TownAction> {
 

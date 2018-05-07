@@ -11,8 +11,6 @@ import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
-import java.util.Date;
-import java.util.Optional;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.type.HandTypes;
@@ -34,42 +32,45 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Date;
+import java.util.Optional;
+
 public class PlayerListeners {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
         Optional<Resident> resident = ResidentManager.getInstance()
-            .get(event.getTargetEntity().getUniqueId());
+                .get(event.getTargetEntity().getUniqueId());
 
         if (!resident.isPresent()) {
             Resident.fromUUID(event.getTargetEntity().getUniqueId())
-                .registerTimestamp(new Date())
-                .updateLastOnline()
-                .build();
+                    .registerTimestamp(new Date())
+                    .updateLastOnline()
+                    .build();
         }
     }
 
     @Listener
     public void onPlayerLeave(ClientConnectionEvent.Disconnect event) {
         ResidentManager.getInstance().get(event.getTargetEntity().getUniqueId())
-            .ifPresent(resident -> {
-                resident.updateLastOnline();
-                ResidentManager.getInstance().save(resident);
-            });
+                .ifPresent(resident -> {
+                    resident.updateLastOnline();
+                    ResidentManager.getInstance().save(resident);
+                });
     }
 
     @Listener
     @IsCancelled(Tristate.FALSE)
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
         if (event.getToTransform().getLocation().getBlockPosition()
-            .equals(event.getFromTransform().getLocation().getBlockPosition())) {
+                .equals(event.getFromTransform().getLocation().getBlockPosition())) {
             return;
         }
 
         Optional<Plot> plotFrom = PlotManager.getInstance()
-            .getByLocation(event.getFromTransform().getLocation());
+                .getByLocation(event.getFromTransform().getLocation());
         Optional<Plot> plotTo = PlotManager.getInstance()
-            .getByLocation(event.getToTransform().getLocation());
+                .getByLocation(event.getToTransform().getLocation());
 
         if (!plotFrom.isPresent() && plotTo.isPresent()) {
             // If player is going into a town
@@ -80,14 +81,14 @@ public class PlayerListeners {
         } else if (plotFrom.isPresent() && plotTo.isPresent()) {
             // player is moving between 2 plots
             if (!plotFrom.get().getName().equals(plotTo.get().getName()) && !plotTo.get().getName()
-                .equals("None")) {
+                    .equals("None")) {
                 TownMessage.subtitleAnnounce(player,
-                    Text.of(AtherysTowns.getConfig().COLORS.SECONDARY, TextStyles.ITALIC, "~ ",
-                        plotTo.get().getName(), " ~"));
+                        Text.of(AtherysTowns.getConfig().COLORS.SECONDARY, TextStyles.ITALIC, "~ ",
+                                plotTo.get().getName(), " ~"));
             }
             if (!plotFrom.get().getFlags().equals(plotTo.get().getFlags())) {
                 plotTo.get().getFlags().createView()
-                    .showDifferences(player, plotFrom.get().getFlags());
+                        .showDifferences(player, plotFrom.get().getFlags());
             }
         }
     }
@@ -124,8 +125,8 @@ public class PlayerListeners {
                     if (plot.isPresent()) {
                         if (!plot.get().getFlags().isAllowed(resident, flag, plot.get())) {
                             TownMessage
-                                .warn(player, "You are not permitted to ", flag.getName(), " in ",
-                                    plot.get().getTown().getName());
+                                    .warn(player, "You are not permitted to ", flag.getName(), " in ",
+                                            plot.get().getTown().getName());
                             event.setCancelled(true);
                             return;
                         }
@@ -144,15 +145,15 @@ public class PlayerListeners {
     public void onPlayerPrimaryBlockInteract(InteractBlockEvent event, @Root Player player) {
 
         Optional<Plot> plotFrom = PlotManager.getInstance()
-            .getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
+                .getByLocation(event.getTargetBlock().getLocation().orElse(player.getLocation()));
         if (plotFrom.isPresent()) {
             Optional<Resident> resOpt = ResidentManager.getInstance().get(player.getUniqueId());
             if (resOpt.isPresent() && !plotFrom.get()
-                .isResidentAllowedTo(resOpt.get(), Flags.SWITCH) && AtherysTowns
-                .getConfig().SWITCH_FLAG_BLOCKS
-                .contains(event.getTargetBlock().getExtendedState().getType())) {
+                    .isResidentAllowedTo(resOpt.get(), Flags.SWITCH) && AtherysTowns
+                    .getConfig().SWITCH_FLAG_BLOCKS
+                    .contains(event.getTargetBlock().getExtendedState().getType())) {
                 TownMessage.warn(player, "You are not allowed to ", Flags.SWITCH.getName(),
-                    " in this town.");
+                        " in this town.");
                 event.setCancelled(true);
                 return;
             }
@@ -177,11 +178,11 @@ public class PlayerListeners {
                 Optional<Location<World>> locOpt = event.getTargetBlock().getLocation();
                 if (locOpt.isPresent()) {
                     Location loc = locOpt.get().setPosition(
-                        event.getTargetBlock().getPosition().toDouble().add(0.5, 0.5, 0.5));
+                            event.getTargetBlock().getPosition().toDouble().add(0.5, 0.5, 0.5));
                     TownsValues.set(player.getUniqueId(), key, loc);
                     player.sendMessage(ChatTypes.CHAT, Text.of(TownMessage.MSG_PREFIX,
-                        "Set " + locStr + " Position for plot definition. " + loc.getBlockPosition()
-                            .toString()));
+                            "Set " + locStr + " Position for plot definition. " + loc.getBlockPosition()
+                                    .toString()));
                     event.setCancelled(true);
                 }
             }
@@ -204,15 +205,15 @@ public class PlayerListeners {
                 }
 
                 PlotManager.getInstance().getByLocation(player.getLocation()).ifPresent(
-                    plot -> ResidentManager.getInstance().get(player.getUniqueId())
-                        .ifPresent(resident -> {
-                            if (!plot.getFlags().isAllowed(resident, flag, plot)) {
-                                TownMessage.warn(player,
-                                    Text.of("You are not permitted to ", flag.getName(), " in ",
-                                        plot.getParent().get().getName()));
-                                event.setCancelled(true);
-                            }
-                        }));
+                        plot -> ResidentManager.getInstance().get(player.getUniqueId())
+                                .ifPresent(resident -> {
+                                    if (!plot.getFlags().isAllowed(resident, flag, plot)) {
+                                        TownMessage.warn(player,
+                                                Text.of("You are not permitted to ", flag.getName(), " in ",
+                                                        plot.getParent().get().getName()));
+                                        event.setCancelled(true);
+                                    }
+                                }));
             }
         }
     }

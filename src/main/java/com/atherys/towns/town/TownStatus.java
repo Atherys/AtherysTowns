@@ -11,10 +11,6 @@ public enum TownStatus {
         this.id = id;
     }
 
-    public int id() {
-        return id;
-    }
-
     public static TownStatus fromId(int id) {
         for (TownStatus ts : TownStatus.values()) {
             if (ts.id == id) {
@@ -22,5 +18,9 @@ public enum TownStatus {
             }
         }
         return NONE;
+    }
+
+    public int id() {
+        return id;
     }
 }

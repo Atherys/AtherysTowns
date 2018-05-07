@@ -7,12 +7,6 @@ import java.util.UUID;
 
 public class TownsValues {
 
-    public enum TownsKey {
-        PLOT_SELECTOR_1ST,
-        TOWN_BORDERS,
-        PLOT_SELECTOR_2ND
-    }
-
     private static final Map<UUID, Map<TownsKey, Object>> values = new HashMap<>();
 
     public static void set(UUID uuid, TownsKey key, Object value) {
@@ -41,6 +35,12 @@ public class TownsValues {
             Map<TownsKey, Object> playerMap = values.get(uuid);
             playerMap.remove(key);
         }
+    }
+
+    public enum TownsKey {
+        PLOT_SELECTOR_1ST,
+        TOWN_BORDERS,
+        PLOT_SELECTOR_2ND
     }
 
 }

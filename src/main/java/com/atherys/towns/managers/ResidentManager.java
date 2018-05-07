@@ -4,24 +4,25 @@ import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.db.TownsDatabase;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.ranks.NationRankRegistry;
-import com.atherys.towns.permissions.ranks.NationRanks;
-import com.atherys.towns.permissions.ranks.TownRank;
-import com.atherys.towns.permissions.ranks.TownRankRegistry;
-import com.atherys.towns.permissions.ranks.TownRanks;
+import com.atherys.towns.permissions.ranks.*;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.resident.ResidentBuilder;
 import com.atherys.towns.town.Town;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.bson.Document;
+
+import java.util.*;
 
 public final class ResidentManager extends AbstractMongoDatabaseManager<Resident> {
 
     private static ResidentManager instance = new ResidentManager();
+
+    private ResidentManager() {
+        super(AtherysTowns.getInstance().getLogger(), TownsDatabase.getInstance(), "residents");
+    }
+
+    public static ResidentManager getInstance() {
+        return instance;
+    }
 
     public List<Resident> getByTown(Town town) {
         List<Resident> residents = new ArrayList<>();
@@ -39,16 +40,12 @@ public final class ResidentManager extends AbstractMongoDatabaseManager<Resident
             Optional<Town> town = res.getTown();
             if (town.isPresent()) {
                 if (town.get().getParent().isPresent() && town.get().getParent().get()
-                    .equals(nation)) {
+                        .equals(nation)) {
                     residents.add(res);
                 }
             }
         }
         return residents;
-    }
-
-    private ResidentManager() {
-        super(AtherysTowns.getInstance().getLogger(), TownsDatabase.getInstance(), "residents");
     }
 
     public boolean has(UUID uuid) {
@@ -87,20 +84,16 @@ public final class ResidentManager extends AbstractMongoDatabaseManager<Resident
         if (town_uuid != null) {
             Optional<Town> t = TownManager.getInstance().getByUUID(town_uuid);
             Optional<TownRank> rank = TownRankRegistry.getInstance()
-                .getById(doc.getString("town_rank"));
+                    .getById(doc.getString("town_rank"));
             t.ifPresent(town -> {
                 builder.town(town, rank.orElse(TownRanks.RESIDENT));
                 builder.nationRank(
-                    NationRankRegistry.getInstance().getById(doc.getString("nation_rank"))
-                        .orElse(NationRanks.RESIDENT));
+                        NationRankRegistry.getInstance().getById(doc.getString("nation_rank"))
+                                .orElse(NationRanks.RESIDENT));
             });
         }
         builder.registerTimestamp(doc.getDate("registered"));
         builder.updateLastOnline();
         return Optional.of(builder.build());
-    }
-
-    public static ResidentManager getInstance() {
-        return instance;
     }
 }

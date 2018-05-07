@@ -10,8 +10,6 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.result.DeleteResult;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import org.bson.Document;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
@@ -22,6 +20,9 @@ import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
 public final class WildernessManager {
 
     private static WildernessManager instance = new WildernessManager();
@@ -31,6 +32,10 @@ public final class WildernessManager {
     private Task wildernessRegenTask;
 
     private WildernessManager() {
+    }
+
+    public static WildernessManager getInstance() {
+        return instance;
     }
 
     public void init() {
@@ -44,21 +49,21 @@ public final class WildernessManager {
 
             if (AtherysTowns.getConfig().WILDERNESS_REGEN.LAST != 0) {
                 long elapsed =
-                    System.currentTimeMillis() - AtherysTowns.getConfig().WILDERNESS_REGEN.LAST;
+                        System.currentTimeMillis() - AtherysTowns.getConfig().WILDERNESS_REGEN.LAST;
                 delay = AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT
-                    .toMillis(AtherysTowns.getConfig().WILDERNESS_REGEN.RATE) - elapsed;
+                        .toMillis(AtherysTowns.getConfig().WILDERNESS_REGEN.RATE) - elapsed;
             }
 
             wildernessRegenTask = Task.builder()
-                .delay(AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT
-                        .convert(delay < 0 ? 0 : delay, TimeUnit.MILLISECONDS),
-                    AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT)
-                .interval(AtherysTowns.getConfig().WILDERNESS_REGEN.RATE,
-                    AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT)
-                .execute(
-                    () -> WildernessManager.getInstance().regenerate(System.currentTimeMillis()))
-                .name("atherystowns-wilderness-regen-task")
-                .submit(AtherysTowns.getInstance());
+                    .delay(AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT
+                                    .convert(delay < 0 ? 0 : delay, TimeUnit.MILLISECONDS),
+                            AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT)
+                    .interval(AtherysTowns.getConfig().WILDERNESS_REGEN.RATE,
+                            AtherysTowns.getConfig().WILDERNESS_REGEN.UNIT)
+                    .execute(
+                            () -> WildernessManager.getInstance().regenerate(System.currentTimeMillis()))
+                    .name("atherystowns-wilderness-regen-task")
+                    .submit(AtherysTowns.getInstance());
         }
     }
 
@@ -70,6 +75,7 @@ public final class WildernessManager {
         if (!AtherysTowns.getConfig().WILDERNESS_REGEN.ENABLED) {
             return;
         }
+
         // if original is air, a block was placed
         // if original is not air, a block was destroyed
 
@@ -77,7 +83,7 @@ public final class WildernessManager {
         BlockType originalBlock = original.getExtendedState().getType();
 
         if (!filter.has(originalBlock) && !filter
-            .has(transaction.getFinal().getState().getType())) {
+                .has(transaction.getFinal().getState().getType())) {
             return;
         }
 
@@ -92,7 +98,7 @@ public final class WildernessManager {
 
     public void regenerate(long timestamp) {
         MongoCursor<Document> cursor = collection().find(Filters.lte("timestamp", timestamp))
-            .iterator();
+                .iterator();
 
         int restored = 0;
         while (cursor.hasNext()) {
@@ -100,7 +106,7 @@ public final class WildernessManager {
             BlockSnapshot snapshot = DbUtils.Deserialize.snapshot(doc.getString("snapshot"));
 
             Optional<Plot> plot = PlotManager.getInstance()
-                .getByLocation(snapshot.getLocation().get());
+                    .getByLocation(snapshot.getLocation().get());
             if (plot.isPresent()) {
                 return;
             }
@@ -111,8 +117,8 @@ public final class WildernessManager {
 
         DeleteResult deleteResult = collection().deleteMany(Filters.lte("timestamp", timestamp));
         AtherysTowns.getInstance().getLogger().info(
-            "[Regeneration] " + restored + " snapshot(s) restored, and " + deleteResult
-                .getDeletedCount() + " snapshot(s) deleted.");
+                "[Regeneration] " + restored + " snapshot(s) restored, and " + deleteResult
+                        .getDeletedCount() + " snapshot(s) deleted.");
 
         AtherysTowns.getConfig().WILDERNESS_REGEN.LAST = timestamp;
         AtherysTowns.getConfig().save();
@@ -140,10 +146,6 @@ public final class WildernessManager {
         doc.append("timestamp", System.currentTimeMillis());
 
         collection().insertOne(doc);
-    }
-
-    public static WildernessManager getInstance() {
-        return instance;
     }
 
 }

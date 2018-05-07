@@ -1,34 +1,35 @@
 package com.atherys.towns.commands.town;
 
-import com.atherys.towns.commands.TownsSimpleCommand;
+import com.atherys.core.command.ParameterizedCommand;
+import com.atherys.core.command.annotation.Aliases;
+import com.atherys.core.command.annotation.Description;
+import com.atherys.core.command.annotation.Permission;
+import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotDefinition;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Chunk;
 
-public class TownClaimCommand extends TownsSimpleCommand {
+import javax.annotation.Nullable;
+import java.util.Optional;
 
-    private static TownClaimCommand instance = new TownClaimCommand();
-
-    public static TownClaimCommand getInstance() {
-        return instance;
-    }
+@Aliases("claim")
+@Description("Used to claim new plots for your town using the plot tool.")
+@Permission("atherystowns.town.claim")
+public class TownClaimCommand extends TownsCommand implements ParameterizedCommand {
 
     @Override
     protected CommandResult execute(Player player, CommandContext args, Resident resident,
-        @Nullable Town town, @Nullable Nation nation) {
+                                    @Nullable Town town, @Nullable Nation nation) {
         PlotDefinition define;
 
         if (town != null) {
@@ -52,11 +53,11 @@ public class TownClaimCommand extends TownsSimpleCommand {
             } else {
                 // claim chunk
                 Optional<Chunk> chunk = player.getLocation().getExtent()
-                    .getChunkAtBlock(player.getLocation().getBlockPosition());
+                        .getChunkAtBlock(player.getLocation().getBlockPosition());
                 if (chunk.isPresent()) {
                     try {
                         Optional<PlotDefinition> defineOpt = PlotDefinition
-                            .fromChunk(player, town, chunk.get());
+                                .fromChunk(player, town, chunk.get());
                         if (defineOpt.isPresent()) {
                             define = defineOpt.get();
                         } else {
@@ -68,15 +69,15 @@ public class TownClaimCommand extends TownsSimpleCommand {
                     }
                 } else {
                     TownMessage.warn(player,
-                        "Plugin could not find chunk. You must therefore create a plot definition.");
+                            "Plugin could not find chunk. You must therefore create a plot definition.");
                     return CommandResult.empty();
                 }
             }
 
             if (define.area() + town.getArea() > town.getMaxSize()) {
                 TownMessage
-                    .warn(player, "Your town cannot grow any larger than ", town.getMaxSize(),
-                        " blocks in area!");
+                        .warn(player, "Your town cannot grow any larger than ", town.getMaxSize(),
+                                " blocks in area!");
                 return CommandResult.empty();
             }
 
@@ -89,14 +90,9 @@ public class TownClaimCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec() {
-        return CommandSpec.builder()
-            .description(Text.of("Used to claim new plots for your town using the plot tool."))
-            .permission(TownActions.CLAIM_PLOT.getPermission())
-            .arguments(
+    public CommandElement[] getArguments() {
+        return new CommandElement[]{
                 GenericArguments.optional(GenericArguments.string(Text.of("claimChunk?")))
-            )
-            .executor(this)
-            .build();
+        };
     }
 }

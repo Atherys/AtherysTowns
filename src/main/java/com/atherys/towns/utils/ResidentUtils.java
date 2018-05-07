@@ -1,6 +1,7 @@
 package com.atherys.towns.utils;
 
 import com.atherys.towns.resident.Resident;
+
 import java.util.List;
 
 public final class ResidentUtils {

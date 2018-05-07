@@ -8,10 +8,11 @@ import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.views.PlotView;
-import java.util.UUID;
 import math.geom2d.Point2D;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.util.UUID;
 
 public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView> {
 
@@ -38,12 +39,12 @@ public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView>
         return new Plot(define, town, name);
     }
 
-    public PlotBuilder builder() {
-        return new PlotBuilder();
-    }
-
     public static PlotBuilder fromUUID(UUID uuid) {
         return new PlotBuilder(uuid);
+    }
+
+    public PlotBuilder builder() {
+        return new PlotBuilder();
     }
 
     public boolean isResidentAllowedTo(Resident res, Flag flag) {
@@ -75,13 +76,13 @@ public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView>
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

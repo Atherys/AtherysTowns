@@ -7,18 +7,19 @@ import com.atherys.towns.permissions.actions.NationActions;
 import com.atherys.towns.permissions.actions.TownAction;
 import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.utils.WildernessFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class TownsConfig extends PluginConfig {
 
@@ -27,6 +28,37 @@ public final class TownsConfig extends PluginConfig {
 
     @Setting("colors")
     public ColorConfig COLORS = new ColorConfig();
+    @Setting("towns")
+    public TownConfig TOWN = new TownConfig();
+    @Setting("titles")
+    public TitleConfig TITLES = new TitleConfig();
+    @Setting("database")
+    public MongoDatabaseConfig DATABASE = new MongoDatabaseConfig();
+    @Setting("wilderness_regen")
+    public WildernessConfig WILDERNESS_REGEN = new WildernessConfig();
+    @Setting("switch_flag_blocks")
+    public List<BlockType> SWITCH_FLAG_BLOCKS = new ArrayList<>();
+
+    {
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.ENDER_CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPPED_CHEST);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.ACACIA_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.BIRCH_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.DARK_OAK_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.IRON_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.JUNGLE_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.SPRUCE_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_DOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPDOOR);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.LEVER);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.STONE_BUTTON);
+        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_BUTTON);
+    }
+
+    TownsConfig() throws IOException {
+        super(AtherysTowns.getInstance().getWorkingDirectory(), "config.conf");
+    }
 
     @ConfigSerializable
     public static class ColorConfig {
@@ -49,9 +81,6 @@ public final class TownsConfig extends PluginConfig {
         @Setting("warning")
         public TextColor WARNING = TextColors.RED;
     }
-
-    @Setting("towns")
-    public TownConfig TOWN = new TownConfig();
 
     @ConfigSerializable
     public static class TownConfig {
@@ -82,100 +111,99 @@ public final class TownsConfig extends PluginConfig {
 
         @Setting("town_ranks")
         public TownRanksConfig TOWN_RANKS = new TownRanksConfig();
+        @Setting("nation_ranks")
+        public NationRanksConfig NATION_RANKS = new NationRanksConfig();
 
         @ConfigSerializable
         public static class TownRanksConfig {
 
             @Setting("none")
             public List<TownAction> NONE = Arrays.asList(
-                TownActions.CREATE_TOWN,
-                TownActions.JOIN_TOWN
+                    TownActions.CREATE_TOWN,
+                    TownActions.JOIN_TOWN
             );
 
             @Setting("resident")
             public List<TownAction> RESIDENT = Arrays.asList(
-                TownActions.CHAT,
-                TownActions.JOIN_TOWN,
-                TownActions.LEAVE_TOWN,
-                TownActions.TOWN_DEPOSIT
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.TOWN_DEPOSIT
             );
 
             @Setting("citizen")
             public List<TownAction> CITIZEN = Arrays.asList(
-                TownActions.CHAT,
-                TownActions.JOIN_TOWN,
-                TownActions.LEAVE_TOWN,
-                TownActions.TOWN_DEPOSIT
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.TOWN_DEPOSIT
             );
 
             @Setting("assistant")
             public List<TownAction> ASSISTANT = Arrays.asList(
-                TownActions.CHAT,
-                TownActions.JOIN_TOWN,
-                TownActions.LEAVE_TOWN,
-                TownActions.INVITE_PLAYER,
-                TownActions.KICK_PLAYER,
-                TownActions.SET_MOTD,
-                TownActions.SET_DESCRIPTION,
-                TownActions.SET_COLOR,
-                TownActions.SHOW_TOWN_BORDER,
-                TownActions.TOWN_DEPOSIT
+                    TownActions.CHAT,
+                    TownActions.JOIN_TOWN,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT
             );
 
             @Setting("CO_MAYOR")
             public List<TownAction> CO_MAYOR = Arrays.asList(
-                TownActions.CHAT,
-                TownActions.INVITE_PLAYER,
-                TownActions.KICK_PLAYER,
-                TownActions.LEAVE_TOWN,
-                TownActions.SET_MOTD,
-                TownActions.SET_DESCRIPTION,
-                TownActions.SET_COLOR,
-                TownActions.SET_NAME,
-                TownActions.SET_RANK,
-                TownActions.CLAIM_PLOT,
-                TownActions.UNCLAIM_PLOT,
-                TownActions.SET_FLAGS,
-                TownActions.SET_FLAG_PVP,
-                TownActions.SHOW_TOWN_BORDER,
-                TownActions.TOWN_DEPOSIT,
-                TownActions.TOWN_WITHDRAW,
-                TownActions.MODIFY_PLOT_FLAG,
-                TownActions.MODIFY_PLOT_NAME
+                    TownActions.CHAT,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.LEAVE_TOWN,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.SET_NAME,
+                    TownActions.SET_RANK,
+                    TownActions.CLAIM_PLOT,
+                    TownActions.UNCLAIM_PLOT,
+                    TownActions.SET_FLAGS,
+                    TownActions.SET_FLAG_PVP,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT,
+                    TownActions.TOWN_WITHDRAW,
+                    TownActions.MODIFY_PLOT_FLAG,
+                    TownActions.MODIFY_PLOT_NAME
             );
 
             @Setting("MAYOR")
             public List<TownAction> MAYOR = Arrays.asList(
-                TownActions.CHAT,
-                TownActions.INVITE_PLAYER,
-                TownActions.KICK_PLAYER,
-                TownActions.SET_MOTD,
-                TownActions.SET_DESCRIPTION,
-                TownActions.SET_COLOR,
-                TownActions.CLAIM_PLOT,
-                TownActions.UNCLAIM_PLOT,
-                TownActions.SET_NAME,
-                TownActions.SET_RANK,
-                TownActions.SET_MAYOR,
-                TownActions.SET_FLAGS,
-                TownActions.SET_FLAG_PVP,
-                TownActions.SET_FLAG_BUILD,
-                TownActions.SET_FLAG_DESTROY,
-                TownActions.SET_FLAG_JOIN,
-                TownActions.SET_FLAG_SWITCH,
-                TownActions.SET_FLAG_DAMAGE_ENTITY,
-                TownActions.RUIN_TOWN,
-                TownActions.SHOW_TOWN_BORDER,
-                TownActions.TOWN_DEPOSIT,
-                TownActions.TOWN_WITHDRAW,
-                TownActions.MODIFY_PLOT_FLAG,
-                TownActions.MODIFY_PLOT_NAME
+                    TownActions.CHAT,
+                    TownActions.INVITE_PLAYER,
+                    TownActions.KICK_PLAYER,
+                    TownActions.SET_MOTD,
+                    TownActions.SET_DESCRIPTION,
+                    TownActions.SET_COLOR,
+                    TownActions.CLAIM_PLOT,
+                    TownActions.UNCLAIM_PLOT,
+                    TownActions.SET_NAME,
+                    TownActions.SET_RANK,
+                    TownActions.SET_MAYOR,
+                    TownActions.SET_FLAGS,
+                    TownActions.SET_FLAG_PVP,
+                    TownActions.SET_FLAG_BUILD,
+                    TownActions.SET_FLAG_DESTROY,
+                    TownActions.SET_FLAG_JOIN,
+                    TownActions.SET_FLAG_SWITCH,
+                    TownActions.SET_FLAG_DAMAGE_ENTITY,
+                    TownActions.RUIN_TOWN,
+                    TownActions.SHOW_TOWN_BORDER,
+                    TownActions.TOWN_DEPOSIT,
+                    TownActions.TOWN_WITHDRAW,
+                    TownActions.MODIFY_PLOT_FLAG,
+                    TownActions.MODIFY_PLOT_NAME
             );
 
         }
-
-        @Setting("nation_ranks")
-        public NationRanksConfig NATION_RANKS = new NationRanksConfig();
 
         @ConfigSerializable
         public static class NationRanksConfig {
@@ -185,35 +213,32 @@ public final class TownsConfig extends PluginConfig {
 
             @Setting("resident")
             public List<NationAction> RESIDENT = Arrays.asList(
-                NationActions.CHAT,
-                NationActions.NATION_DEPOSIT
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT
             );
 
             @Setting("co_leader")
             public List<NationAction> CO_LEADER = Arrays.asList(
-                NationActions.CHAT,
-                NationActions.NATION_DEPOSIT,
-                NationActions.NATION_WITHDRAW
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT,
+                    NationActions.NATION_WITHDRAW
             );
 
             @Setting("leader")
             public List<NationAction> LEADER = Arrays.asList(
-                NationActions.CHAT,
-                NationActions.NATION_DEPOSIT,
-                NationActions.NATION_WITHDRAW,
-                NationActions.SET_COLOR,
-                NationActions.SET_DESCRIPTION,
-                NationActions.SET_NAME,
-                NationActions.SET_RANK,
-                NationActions.SET_LEADER_TITLE
+                    NationActions.CHAT,
+                    NationActions.NATION_DEPOSIT,
+                    NationActions.NATION_WITHDRAW,
+                    NationActions.SET_COLOR,
+                    NationActions.SET_DESCRIPTION,
+                    NationActions.SET_NAME,
+                    NationActions.SET_RANK,
+                    NationActions.SET_LEADER_TITLE
             );
 
         }
 
     }
-
-    @Setting("titles")
-    public TitleConfig TITLES = new TitleConfig();
 
     @ConfigSerializable
     public static class TitleConfig {
@@ -238,12 +263,6 @@ public final class TownsConfig extends PluginConfig {
 
     }
 
-    @Setting("database")
-    public MongoDatabaseConfig DATABASE = new MongoDatabaseConfig();
-
-    @Setting("wilderness_regen")
-    public WildernessConfig WILDERNESS_REGEN = new WildernessConfig();
-
     @ConfigSerializable
     public static class WildernessConfig {
 
@@ -258,6 +277,8 @@ public final class TownsConfig extends PluginConfig {
 
         @Setting("filter")
         public WildernessFilter FILTER = new WildernessFilter();
+        @Setting("last_regen")
+        public long LAST = 0;
 
         {
             WildernessFilter.FilterNode ironOreFilter = WildernessFilter.FilterNode.empty();
@@ -266,33 +287,6 @@ public final class TownsConfig extends PluginConfig {
             FILTER.set(BlockTypes.IRON_ORE, ironOreFilter);
         }
 
-        @Setting("last_regen")
-        public long LAST = 0;
-
-    }
-
-    @Setting("switch_flag_blocks")
-    public List<BlockType> SWITCH_FLAG_BLOCKS = new ArrayList<>();
-
-    {
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.ENDER_CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPPED_CHEST);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.ACACIA_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.BIRCH_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.DARK_OAK_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.IRON_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.JUNGLE_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.SPRUCE_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_DOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.TRAPDOOR);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.LEVER);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.STONE_BUTTON);
-        SWITCH_FLAG_BLOCKS.add(BlockTypes.WOODEN_BUTTON);
-    }
-
-    TownsConfig() throws IOException {
-        super(AtherysTowns.getInstance().getWorkingDirectory(), "config.conf");
     }
 }
 

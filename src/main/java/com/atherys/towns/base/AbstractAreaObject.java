@@ -2,14 +2,15 @@ package com.atherys.towns.base;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.resident.Resident;
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 
 public abstract class AbstractAreaObject<T extends AreaObject> implements AreaObject {
 
@@ -58,12 +59,12 @@ public abstract class AbstractAreaObject<T extends AreaObject> implements AreaOb
         return false;
     }
 
-    public void setParent(T parent) {
-        this.parent = parent;
-    }
-
     public Optional<T> getParent() {
         return Optional.ofNullable(parent);
+    }
+
+    public void setParent(T parent) {
+        this.parent = parent;
     }
 
     private Optional<UniqueAccount> createBank() {
