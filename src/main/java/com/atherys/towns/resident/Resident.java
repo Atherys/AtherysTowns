@@ -12,16 +12,15 @@ import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.views.ResidentView;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
+import javax.annotation.Nullable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
-
-import javax.annotation.Nullable;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
 
 public class Resident implements TownsObject, Viewable<ResidentView> {
 
@@ -37,110 +36,117 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
     private Date registered;
     private Date lastOnline;
 
-    protected Resident ( UUID uuid ) {
+    protected Resident(UUID uuid) {
         this.uuid = uuid;
         registered = new Date();
         lastOnline = new Date();
     }
 
-    public static ResidentBuilder fromUUID ( UUID uuid ) {
-        return new ResidentBuilder( uuid );
+    public static ResidentBuilder fromUUID(UUID uuid) {
+        return new ResidentBuilder(uuid);
     }
 
-    public String getName () {
-        if ( !getUser().isPresent() ) return AtherysTowns.getConfig().TOWN.NPC_NAME;
+    public String getName() {
+        if (!getUser().isPresent()) {
+            return AtherysTowns.getConfig().TOWN.NPC_NAME;
+        }
         return getUser().get().getName();
     }
 
     // return user object regardless if player is online or not
-    private Optional<? extends User> getUser () {
-        return UserUtils.getUser( uuid );
+    private Optional<? extends User> getUser() {
+        return UserUtils.getUser(uuid);
     }
 
     // returns player object IF player is online
-    public Optional<Player> getPlayer () {
-        for ( Player player : Sponge.getServer().getOnlinePlayers() ) {
-            if ( player.getUniqueId().equals( uuid ) ) return Optional.of( player );
+    public Optional<Player> getPlayer() {
+        for (Player player : Sponge.getServer().getOnlinePlayers()) {
+            if (player.getUniqueId().equals(uuid)) {
+                return Optional.of(player);
+            }
         }
         return Optional.empty();
     }
 
-    public boolean isOnline () {
+    public boolean isOnline() {
         return getPlayer().isPresent();
     }
 
-    public Optional<Town> getTown () {
-        if ( town != null ) return Optional.of( town );
-        else return Optional.empty();
+    public Optional<Town> getTown() {
+        if (town != null) {
+            return Optional.of(town);
+        } else {
+            return Optional.empty();
+        }
     }
 
-    public Optional<Nation> getNation () {
-        return NationManager.getInstance().getByResident( this );
+    public Optional<Nation> getNation() {
+        return NationManager.getInstance().getByResident(this);
     }
 
-    public void setTown ( Town town, TownRank rank ) {
+    public void setTown(Town town, TownRank rank) {
         this.town = town;
-        setTownRank( rank );
-        setNationRank( rank.getDefaultNationRank() );
+        setTownRank(rank);
+        setNationRank(rank.getDefaultNationRank());
     }
 
-    public void updatePermissions () {
-        setTownRank( getTownRank() );
-        setNationRank( getNationRank() );
+    public void updatePermissions() {
+        setTownRank(getTownRank());
+        setNationRank(getNationRank());
     }
 
-    public TownRank getTownRank () {
+    public TownRank getTownRank() {
         return townRank == null ? TownRanks.NONE : townRank;
     }
 
-    public NationRank getNationRank () {
+    public NationRank getNationRank() {
         return nationRank == null ? NationRanks.NONE : nationRank;
     }
 
-    public Resident setTownRank ( TownRank townRank ) {
-        getTownRank().updatePermissions( this.uuid, townRank );
+    public Resident setTownRank(TownRank townRank) {
+        getTownRank().updatePermissions(this.uuid, townRank);
         this.townRank = townRank;
         return this;
     }
 
-    public Date getRegisteredDate () {
+    public Date getRegisteredDate() {
         return registered;
     }
 
-    public Date getLastOnlineDate () {
+    public Date getLastOnlineDate() {
         return lastOnline;
     }
 
-    public void updateLastOnline () {
+    public void updateLastOnline() {
         this.lastOnline = new Date();
     }
 
     @Override
-    public UUID getUUID () {
+    public UUID getUUID() {
         return uuid;
     }
 
     @Override
-    public void setName ( String name ) {
+    public void setName(String name) {
 
     }
 
-    public Optional<UniqueAccount> getBank () {
+    public Optional<UniqueAccount> getBank() {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-        return economy.flatMap( economyService -> economyService.getOrCreateAccount( uuid ) );
+        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
     }
 
-    public void setNationRank ( NationRank nationRank ) {
-        getNationRank().updatePermissions( this.uuid, nationRank );
+    public void setNationRank(NationRank nationRank) {
+        getNationRank().updatePermissions(this.uuid, nationRank);
         this.nationRank = nationRank;
     }
 
-    protected void setRegisteredDate ( Date registered ) {
+    protected void setRegisteredDate(Date registered) {
         this.registered = registered;
     }
 
     @Override
-    public ResidentView createView () {
-        return new ResidentView( this );
+    public ResidentView createView() {
+        return new ResidentView(this);
     }
 }

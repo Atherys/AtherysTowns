@@ -1,12 +1,11 @@
 package com.atherys.towns.plot.flags;
 
-import org.spongepowered.api.registry.CatalogRegistryModule;
-
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nonnull;
+import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class FlagRegistry implements CatalogRegistryModule<Flag> {
 
@@ -18,16 +17,16 @@ public final class FlagRegistry implements CatalogRegistryModule<Flag> {
     }
 
     @Override
-    public Optional<Flag> getById ( @Nonnull String id ) {
-        return Optional.ofNullable( flags.get( id ) );
+    public Optional<Flag> getById(@Nonnull String id) {
+        return Optional.ofNullable(flags.get(id));
     }
 
     @Override
-    public Collection<Flag> getAll () {
+    public Collection<Flag> getAll() {
         return flags.values();
     }
 
-    public static FlagRegistry getInstance () {
+    public static FlagRegistry getInstance() {
         return instance;
     }
 }

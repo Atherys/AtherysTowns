@@ -1,11 +1,10 @@
 package com.atherys.towns.permissions.actions;
 
-import org.spongepowered.api.registry.CatalogRegistryModule;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class NationActionRegistry implements CatalogRegistryModule<NationAction> {
 
@@ -13,24 +12,24 @@ public final class NationActionRegistry implements CatalogRegistryModule<NationA
 
     private Map<String, NationAction> actions = new HashMap<>();
 
-    private NationActionRegistry () {
+    private NationActionRegistry() {
     }
 
-    public static NationActionRegistry getInstance () {
+    public static NationActionRegistry getInstance() {
         return instance;
     }
 
-    void add ( NationAction rank ) {
-        actions.put( rank.getId(), rank );
+    void add(NationAction rank) {
+        actions.put(rank.getId(), rank);
     }
 
     @Override
-    public Optional<NationAction> getById ( String id ) {
-        return Optional.ofNullable( actions.get( id ) );
+    public Optional<NationAction> getById(String id) {
+        return Optional.ofNullable(actions.get(id));
     }
 
     @Override
-    public Collection<NationAction> getAll () {
+    public Collection<NationAction> getAll() {
         return actions.values();
     }
 }

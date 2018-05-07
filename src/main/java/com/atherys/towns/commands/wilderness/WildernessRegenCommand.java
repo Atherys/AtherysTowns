@@ -12,23 +12,23 @@ public class WildernessRegenCommand {
 
     private static WildernessRegenCommand instance = new WildernessRegenCommand();
 
-    private static CommandExecutor EXECUTOR = ( src, args ) -> {
+    private static CommandExecutor EXECUTOR = (src, args) -> {
         long timestamp = System.currentTimeMillis();
-        WildernessManager.getInstance().regenerate( timestamp );
+        WildernessManager.getInstance().regenerate(timestamp);
         return CommandResult.empty();
     };
 
-    public void register () {
+    public void register() {
         CommandSpec spec = CommandSpec.builder()
-                .permission( "atherystowns.wilderness.regen" )
-                .description( Text.of( "Wilderness Regen Command." ) )
-                .executor( EXECUTOR )
-                .build();
+            .permission("atherystowns.wilderness.regen")
+            .description(Text.of("Wilderness Regen Command."))
+            .executor(EXECUTOR)
+            .build();
 
-        Sponge.getCommandManager().register( AtherysTowns.getInstance(), spec, "wildregen" );
+        Sponge.getCommandManager().register(AtherysTowns.getInstance(), spec, "wildregen");
     }
 
-    public static WildernessRegenCommand getInstance () {
+    public static WildernessRegenCommand getInstance() {
         return instance;
     }
 

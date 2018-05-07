@@ -6,6 +6,8 @@ import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -13,29 +15,27 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import javax.annotation.Nullable;
-import java.util.Optional;
-
 public class TownInfoCommand extends TownsSimpleCommand {
 
     private static TownInfoCommand instance = new TownInfoCommand();
 
-    public static TownInfoCommand getInstance () {
+    public static TownInfoCommand getInstance() {
         return instance;
     }
 
     @Override
-    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
-        Optional<String> townName = args.getOne( "townName" );
+    protected CommandResult execute(Player player, CommandContext args, Resident resident,
+        @Nullable Town town, @Nullable Nation nation) {
+        Optional<String> townName = args.getOne("townName");
 
-        if ( !townName.isPresent() ) {
+        if (!townName.isPresent()) {
 
-            if ( resident.getTown().isPresent() ) {
+            if (resident.getTown().isPresent()) {
                 Town t = resident.getTown().get();
-                t.createView().show( player );
+                t.createView().show(player);
                 return CommandResult.success();
             } else {
-                TownMessage.warn( player, Text.of( "You are not part of a town!" ) );
+                TownMessage.warn(player, Text.of("You are not part of a town!"));
                 return CommandResult.empty();
             }
 
@@ -44,18 +44,18 @@ public class TownInfoCommand extends TownsSimpleCommand {
             Optional<Town> tOpt;
             Text error;
 
-            if ( townName.get().equalsIgnoreCase( "here" ) ) {
-                error = Text.of( "You are in the wilderness." );
-                tOpt = TownManager.getInstance().getByLocation( player.getLocation() );
+            if (townName.get().equalsIgnoreCase("here")) {
+                error = Text.of("You are in the wilderness.");
+                tOpt = TownManager.getInstance().getByLocation(player.getLocation());
             } else {
-                error = Text.of( "No such town exists." );
-                tOpt = TownManager.getInstance().getFirstByName( townName.get() );
+                error = Text.of("No such town exists.");
+                tOpt = TownManager.getInstance().getFirstByName(townName.get());
             }
 
-            if ( tOpt.isPresent() ) {
-                tOpt.get().createView().show( player );
+            if (tOpt.isPresent()) {
+                tOpt.get().createView().show(player);
             } else {
-                TownMessage.warn( player, error );
+                TownMessage.warn(player, error);
                 return CommandResult.empty();
             }
         }
@@ -64,13 +64,14 @@ public class TownInfoCommand extends TownsSimpleCommand {
     }
 
     @Override
-    public CommandSpec getSpec () {
+    public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .description( Text.of( "Used to get information on a town based on it's name." ) )
-                .arguments(
-                        GenericArguments.optional( GenericArguments.remainingJoinedStrings( Text.of( "townName" ) ) )
-                )
-                .executor( this )
-                .build();
+            .description(Text.of("Used to get information on a town based on it's name."))
+            .arguments(
+                GenericArguments
+                    .optional(GenericArguments.remainingJoinedStrings(Text.of("townName")))
+            )
+            .executor(this)
+            .build();
     }
 }

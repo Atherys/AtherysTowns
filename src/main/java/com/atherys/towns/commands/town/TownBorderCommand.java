@@ -7,41 +7,41 @@ import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.actions.TownActions;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
+import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import javax.annotation.Nullable;
-
 public class TownBorderCommand extends TownsSimpleCommand {
 
     private static TownBorderCommand instance = new TownBorderCommand();
 
     @Override
-    protected CommandResult execute ( Player player, CommandContext args, Resident resident, @Nullable Town town, @Nullable Nation nation ) {
-        if ( !TownsValues.get( player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS ).isPresent() ) {
-            TownsValues.set( player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS, true );
-            TownMessage.inform( player, "Now showing town borders." );
+    protected CommandResult execute(Player player, CommandContext args, Resident resident,
+        @Nullable Town town, @Nullable Nation nation) {
+        if (!TownsValues.get(player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS).isPresent()) {
+            TownsValues.set(player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS, true);
+            TownMessage.inform(player, "Now showing town borders.");
         } else {
-            TownsValues.remove( player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS );
-            TownMessage.warn( player, "No longer showing town borders." );
+            TownsValues.remove(player.getUniqueId(), TownsValues.TownsKey.TOWN_BORDERS);
+            TownMessage.warn(player, "No longer showing town borders.");
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec getSpec () {
+    public CommandSpec getSpec() {
         return CommandSpec.builder()
-                .description( Text.of( "Used to toggle the town border" ) )
-                .permission( TownActions.SHOW_TOWN_BORDER.getPermission() )
-                .executor( this )
-                .build();
+            .description(Text.of("Used to toggle the town border"))
+            .permission(TownActions.SHOW_TOWN_BORDER.getPermission())
+            .executor(this)
+            .build();
     }
 
-    public static TownBorderCommand getInstance () {
+    public static TownBorderCommand getInstance() {
         return instance;
     }
 }
