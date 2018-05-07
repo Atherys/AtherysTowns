@@ -17,31 +17,31 @@ import org.spongepowered.api.text.format.TextStyles;
 
 public final class FormatUtils {
 
-    public static Text getFormattedBank(AbstractAreaObject<?> ao) {
-        Optional<UniqueAccount> bank = ao.getBank();
-        return bank.map(FormatUtils::getFormattedBank).orElseGet(() -> Text.of("None"));
-    }
+  public static Text getFormattedBank(AbstractAreaObject<?> ao) {
+    Optional<UniqueAccount> bank = ao.getBank();
+    return bank.map(FormatUtils::getFormattedBank).orElseGet(() -> Text.of("None"));
+  }
 
-    public static Text getFormattedBank(Resident resident) {
-        Optional<UniqueAccount> bank = resident.getBank();
-        return bank.map(FormatUtils::getFormattedBank).orElseGet(() -> Text.of("None"));
-    }
+  public static Text getFormattedBank(Resident resident) {
+    Optional<UniqueAccount> bank = resident.getBank();
+    return bank.map(FormatUtils::getFormattedBank).orElseGet(() -> Text.of("None"));
+  }
 
-    public static Text getFormattedBank(@Nonnull UniqueAccount bank) {
-        Text.Builder builder = Text.builder();
-        builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )",
-            TextStyles.RESET));
-        Text.Builder hoverText = Text.builder();
-        Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Currency, BigDecimal> entry = iter.next();
-            hoverText.append(Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, entry.getValue(),
-                AtherysTowns.getConfig().COLORS.DECORATION, " ", entry.getKey().getDisplayName()));
-            if (iter.hasNext()) {
-                hoverText.append(Text.of("\n"));
-            }
-        }
-        return builder.onHover(TextActions.showText(hoverText.build())).build();
+  public static Text getFormattedBank(@Nonnull UniqueAccount bank) {
+    Text.Builder builder = Text.builder();
+    builder.append(Text.of(TextStyles.ITALIC, TextColors.DARK_GRAY, "( Hover to view )",
+        TextStyles.RESET));
+    Text.Builder hoverText = Text.builder();
+    Iterator<Map.Entry<Currency, BigDecimal>> iter = bank.getBalances().entrySet().iterator();
+    while (iter.hasNext()) {
+      Map.Entry<Currency, BigDecimal> entry = iter.next();
+      hoverText.append(Text.of(AtherysTowns.getConfig().COLORS.PRIMARY, entry.getValue(),
+          AtherysTowns.getConfig().COLORS.DECORATION, " ", entry.getKey().getDisplayName()));
+      if (iter.hasNext()) {
+        hoverText.append(Text.of("\n"));
+      }
     }
+    return builder.onHover(TextActions.showText(hoverText.build())).build();
+  }
 
 }

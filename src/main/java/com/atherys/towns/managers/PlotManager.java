@@ -19,85 +19,85 @@ import org.bson.Document;
 
 public final class PlotManager extends AreaObjectManager<Plot> {
 
-    private static PlotManager instance = new PlotManager();
+  private static PlotManager instance = new PlotManager();
 
-    private PlotManager() {
-        super("plots");
+  private PlotManager() {
+    super("plots");
+  }
+
+  public static PlotManager getInstance() {
+    return instance;
+  }
+
+  public boolean checkIntersection(PlotDefinition definition) {
+    for (Plot p : getAll()) {
+      if (p.getDefinition().intersects(definition)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Optional<Document> toDocument(Plot object) {
+
+    Document doc = new Document("uuid", object.getUUID());
+    doc.append("town", object.getTown().getUUID());
+    doc.append("name", object.getName());
+
+    doc.append("definition", DbUtils.Serialize.definition(object.getDefinition()));
+
+    Document flags = new Document();
+    object.getFlags().getAll().forEach((k, v) -> flags.append(k.getId(), v.getId()));
+
+    doc.append("flags", flags);
+
+    return Optional.of(doc);
+  }
+
+  @Override
+  public Optional<Plot> fromDocument(Document doc) {
+
+    UUID uuid = doc.get("uuid", UUID.class); // UUID.fromString( doc.getString("uuid") );
+    PlotBuilder builder = Plot.fromUUID(uuid);
+
+    // load parent
+    Optional<Town> parent = TownManager.getInstance().getByUUID(doc.get("town", UUID.class));
+    if (parent.isPresent()) {
+      builder.town(parent.get());
+    } else {
+      AtherysTowns.getInstance().getLogger().error(
+          "[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
+      return Optional.empty();
     }
 
-    public boolean checkIntersection(PlotDefinition definition) {
-        for (Plot p : getAll()) {
-            if (p.getDefinition().intersects(definition)) {
-                return true;
-            }
-        }
-        return false;
+    builder.name(doc.getString("name"));
+
+    // load definition
+    Optional<PlotDefinition> definition = DbUtils.Deserialize
+        .definition(doc.get("definition", Document.class));
+    if (!definition.isPresent()) {
+      AtherysTowns.getInstance().getLogger()
+          .error("[MongoDB] Plot load failure. Plot definition could not be deserialized.");
+      return Optional.empty();
     }
 
-    @Override
-    public Optional<Document> toDocument(Plot object) {
+    builder.definition(definition.get());
 
-        Document doc = new Document("uuid", object.getUUID());
-        doc.append("town", object.getTown().getUUID());
-        doc.append("name", object.getName());
-
-        doc.append("definition", DbUtils.Serialize.definition(object.getDefinition()));
-
-        Document flags = new Document();
-        object.getFlags().getAll().forEach((k, v) -> flags.append(k.getId(), v.getId()));
-
-        doc.append("flags", flags);
-
-        return Optional.of(doc);
+    // load flags
+    Document flags = doc.get("flags", Document.class);
+    PlotFlags plotFlags = PlotFlags.empty();
+    for (Map.Entry<String, Object> flagData : flags.entrySet()) {
+      Optional<Flag> flag = FlagRegistry.getInstance().getById(flagData.getKey());
+      if (!flag.isPresent()) {
+        continue;
+      }
+      Extent extent = ExtentRegistry.getInstance().getById((String) flagData.getValue())
+          .orElse(Extents.NONE);
+      plotFlags.set(flag.get(), extent);
     }
+    builder.flags(plotFlags);
 
-    @Override
-    public Optional<Plot> fromDocument(Document doc) {
-
-        UUID uuid = doc.get("uuid", UUID.class); // UUID.fromString( doc.getString("uuid") );
-        PlotBuilder builder = Plot.fromUUID(uuid);
-
-        // load parent
-        Optional<Town> parent = TownManager.getInstance().getByUUID(doc.get("town", UUID.class));
-        if (parent.isPresent()) {
-            builder.town(parent.get());
-        } else {
-            AtherysTowns.getInstance().getLogger().error(
-                "[MongoDB] Plot load failure. Had invalid parent UUID, or parent had not been loaded yet.");
-            return Optional.empty();
-        }
-
-        builder.name(doc.getString("name"));
-
-        // load definition
-        Optional<PlotDefinition> definition = DbUtils.Deserialize
-            .definition(doc.get("definition", Document.class));
-        if (!definition.isPresent()) {
-            AtherysTowns.getInstance().getLogger()
-                .error("[MongoDB] Plot load failure. Plot definition could not be deserialized.");
-            return Optional.empty();
-        }
-
-        builder.definition(definition.get());
-
-        // load flags
-        Document flags = doc.get("flags", Document.class);
-        PlotFlags plotFlags = PlotFlags.empty();
-        for (Map.Entry<String, Object> flagData : flags.entrySet()) {
-            Optional<Flag> flag = FlagRegistry.getInstance().getById(flagData.getKey());
-            if (!flag.isPresent()) {
-                continue;
-            }
-            Extent extent = ExtentRegistry.getInstance().getById((String) flagData.getValue())
-                .orElse(Extents.NONE);
-            plotFlags.set(flag.get(), extent);
-        }
-        builder.flags(plotFlags);
-
-        return Optional.of(builder.build());
-    }
-
-    public static PlotManager getInstance() {
-        return instance;
-    }
+    return Optional.of(builder.build());
+  }
 }

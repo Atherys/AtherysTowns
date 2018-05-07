@@ -11,69 +11,69 @@ import org.spongepowered.api.block.BlockType;
 @ConfigSerializable
 public class WildernessFilter {
 
-    @ConfigSerializable
-    public static class FilterNode {
+  @Setting
+  private Map<BlockType, FilterNode> filter = new HashMap<>();
 
-        @Setting
-        private Map<BlockType, Double> blocks = new HashMap<>();
+  public WildernessFilter() {
+  }
 
-        public FilterNode(BlockType altBlock, double percentage) {
-            this.blocks.put(altBlock, percentage);
-        }
+  public void set(BlockType blockType, FilterNode node) {
+    this.filter.put(blockType, node);
+  }
 
-        private FilterNode() {
-        }
+  public boolean has(BlockType blockType) {
+    return filter.containsKey(blockType);
+  }
 
-        public static FilterNode of(BlockType altBlock, double percentage) {
-            return new FilterNode(altBlock, percentage);
-        }
+  public FilterNode getAlternatives(String blockId) {
+    return filter.getOrDefault(blockId, FilterNode.empty());
+  }
 
-        public static FilterNode empty() {
-            return new FilterNode();
-        }
-
-        public double getChance(BlockType type) {
-            return blocks.getOrDefault(type, 0.0);
-        }
-
-        public void add(BlockType block, double percent) {
-            this.blocks.put(block, percent);
-        }
-
-        // Changes the BlockType of the given snapshot to an appropriate one from the FilterNode
-        public BlockSnapshot getFinal(BlockSnapshot original) {
-            BlockSnapshot finalSnap = original;
-            double r = Math.random();
-
-            for (Map.Entry<BlockType, Double> entry : blocks.entrySet()) {
-
-                if (r <= entry.getValue()) {
-                    if (entry.getKey().equals(original.getState().getType())) {
-                        continue;
-                    }
-                    finalSnap = BlockSnapshot.builder().from(original)
-                        .blockState(BlockState.builder().blockType(entry.getKey()).build()).build();
-                }
-            }
-            return finalSnap;
-        }
-    }
+  @ConfigSerializable
+  public static class FilterNode {
 
     @Setting
-    private Map<BlockType, FilterNode> filter = new HashMap<>();
+    private Map<BlockType, Double> blocks = new HashMap<>();
 
-    public WildernessFilter() {
+    public FilterNode(BlockType altBlock, double percentage) {
+      this.blocks.put(altBlock, percentage);
     }
 
-    public void set(BlockType blockType, FilterNode node) {
-        this.filter.put(blockType, node);
+    private FilterNode() {
     }
 
-    public boolean has(BlockType blockType) {
-        return filter.containsKey(blockType);
+    public static FilterNode of(BlockType altBlock, double percentage) {
+      return new FilterNode(altBlock, percentage);
     }
 
-    public FilterNode getAlternatives(String blockId) {
-        return filter.getOrDefault(blockId, FilterNode.empty());
+    public static FilterNode empty() {
+      return new FilterNode();
     }
+
+    public double getChance(BlockType type) {
+      return blocks.getOrDefault(type, 0.0);
+    }
+
+    public void add(BlockType block, double percent) {
+      this.blocks.put(block, percent);
+    }
+
+    // Changes the BlockType of the given snapshot to an appropriate one from the FilterNode
+    public BlockSnapshot getFinal(BlockSnapshot original) {
+      BlockSnapshot finalSnap = original;
+      double r = Math.random();
+
+      for (Map.Entry<BlockType, Double> entry : blocks.entrySet()) {
+
+        if (r <= entry.getValue()) {
+          if (entry.getKey().equals(original.getState().getType())) {
+            continue;
+          }
+          finalSnap = BlockSnapshot.builder().from(original)
+              .blockState(BlockState.builder().blockType(entry.getKey()).build()).build();
+        }
+      }
+      return finalSnap;
+    }
+  }
 }

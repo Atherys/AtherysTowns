@@ -9,25 +9,25 @@ import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class FlagRegistry implements CatalogRegistryModule<Flag> {
 
-    private static final FlagRegistry instance = new FlagRegistry();
+  private static final FlagRegistry instance = new FlagRegistry();
 
-    protected Map<String, Flag> flags = new HashMap<>();
+  protected Map<String, Flag> flags = new HashMap<>();
 
-    private FlagRegistry() {
-    }
+  private FlagRegistry() {
+  }
 
-    @Override
-    public Optional<Flag> getById(@Nonnull String id) {
-        return Optional.ofNullable(flags.get(id));
-    }
+  public static FlagRegistry getInstance() {
+    return instance;
+  }
 
-    @Override
-    public Collection<Flag> getAll() {
-        return flags.values();
-    }
+  @Override
+  public Optional<Flag> getById(@Nonnull String id) {
+    return Optional.ofNullable(flags.get(id));
+  }
 
-    public static FlagRegistry getInstance() {
-        return instance;
-    }
+  @Override
+  public Collection<Flag> getAll() {
+    return flags.values();
+  }
 }
 

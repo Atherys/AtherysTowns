@@ -3,7 +3,6 @@ package com.atherys.towns.commands.town;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Children;
 import com.atherys.core.command.annotation.Description;
-import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.commands.town.set.TownSetMasterCommand;
 import com.atherys.towns.messaging.TownMessage;
@@ -37,14 +36,14 @@ import org.spongepowered.api.entity.living.player.Player;
 })
 public class TownMasterCommand extends TownsCommand {
 
-    @Override
-    protected CommandResult execute(Player player, CommandContext args, Resident resident,
-        @Nullable Town town, @Nullable Nation nation) {
-        if (resident.getTown().isPresent()) {
-            resident.getTown().get().createView().show(player);
-        } else {
-            TownMessage.warn(player, "You are not part of a town.");
-        }
-        return CommandResult.empty();
+  @Override
+  protected CommandResult execute(Player player, CommandContext args, Resident resident,
+      @Nullable Town town, @Nullable Nation nation) {
+    if (resident.getTown().isPresent()) {
+      resident.getTown().get().createView().show(player);
+    } else {
+      TownMessage.warn(player, "You are not part of a town.");
     }
+    return CommandResult.empty();
+  }
 }

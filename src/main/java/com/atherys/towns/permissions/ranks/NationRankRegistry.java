@@ -8,28 +8,28 @@ import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class NationRankRegistry implements CatalogRegistryModule<NationRank> {
 
-    private static NationRankRegistry instance = new NationRankRegistry();
+  private static NationRankRegistry instance = new NationRankRegistry();
 
-    private Map<String, NationRank> ranks = new HashMap<>();
+  private Map<String, NationRank> ranks = new HashMap<>();
 
-    private NationRankRegistry() {
-    }
+  private NationRankRegistry() {
+  }
 
-    public static NationRankRegistry getInstance() {
-        return instance;
-    }
+  public static NationRankRegistry getInstance() {
+    return instance;
+  }
 
-    void add(NationRank rank) {
-        ranks.put(rank.getId(), rank);
-    }
+  void add(NationRank rank) {
+    ranks.put(rank.getId(), rank);
+  }
 
-    @Override
-    public Optional<NationRank> getById(String id) {
-        return Optional.ofNullable(ranks.get(id));
-    }
+  @Override
+  public Optional<NationRank> getById(String id) {
+    return Optional.ofNullable(ranks.get(id));
+  }
 
-    @Override
-    public Collection<NationRank> getAll() {
-        return ranks.values();
-    }
+  @Override
+  public Collection<NationRank> getAll() {
+    return ranks.values();
+  }
 }

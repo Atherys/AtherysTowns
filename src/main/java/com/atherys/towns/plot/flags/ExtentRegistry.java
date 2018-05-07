@@ -9,24 +9,24 @@ import org.spongepowered.api.registry.CatalogRegistryModule;
 
 public final class ExtentRegistry implements CatalogRegistryModule<Extent> {
 
-    private static final ExtentRegistry instance = new ExtentRegistry();
+  private static final ExtentRegistry instance = new ExtentRegistry();
 
-    protected Map<String, Extent> extents = new HashMap<>();
+  protected Map<String, Extent> extents = new HashMap<>();
 
-    private ExtentRegistry() {
-    }
+  private ExtentRegistry() {
+  }
 
-    @Override
-    public Optional<Extent> getById(@Nonnull String id) {
-        return Optional.ofNullable(extents.get(id));
-    }
+  public static ExtentRegistry getInstance() {
+    return instance;
+  }
 
-    @Override
-    public Collection<Extent> getAll() {
-        return extents.values();
-    }
+  @Override
+  public Optional<Extent> getById(@Nonnull String id) {
+    return Optional.ofNullable(extents.get(id));
+  }
 
-    public static ExtentRegistry getInstance() {
-        return instance;
-    }
+  @Override
+  public Collection<Extent> getAll() {
+    return extents.values();
+  }
 }

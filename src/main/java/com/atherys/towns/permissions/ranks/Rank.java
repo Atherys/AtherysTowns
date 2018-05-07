@@ -12,62 +12,61 @@ import org.spongepowered.api.util.Tristate;
 
 public abstract class Rank {
 
-    private String id;
-    private String name;
+  protected Rank child;
+  protected SubjectReference permissions;
+  private String id;
+  private String name;
 
-    protected Rank child;
-    protected SubjectReference permissions;
+  protected Rank(String id, String name, List<? extends TownsAction> permittedActions,
+      Rank child) {
+    this.id = id;
+    this.name = name;
 
-    protected Rank(String id, String name, List<? extends TownsAction> permittedActions,
-        Rank child) {
-        this.id = id;
-        this.name = name;
+    PermissionService service = AtherysTowns.getPermissionService();
 
-        PermissionService service = AtherysTowns.getPermissionService();
+    permissions = service.getGroupSubjects().newSubjectReference(id);
+    permissions.resolve().thenAccept(subject -> {
+      for (TownsAction action : permittedActions) {
+        subject.getSubjectData()
+            .setPermission(new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE);
+      }
 
-        permissions = service.getGroupSubjects().newSubjectReference(id);
-        permissions.resolve().thenAccept(subject -> {
-            for (TownsAction action : permittedActions) {
-                subject.getSubjectData()
-                    .setPermission(new LinkedHashSet<>(), action.getPermission(), Tristate.TRUE);
-            }
+      subject.getSubjectData().addParent(new LinkedHashSet<>(),
+          service.getGroupSubjects().newSubjectReference("atherystowns"));
+    });
+    this.child = child;
+  }
 
-            subject.getSubjectData().addParent(new LinkedHashSet<>(),
-                service.getGroupSubjects().newSubjectReference("atherystowns"));
+  public void addPermissions(User player) {
+    player.getSubjectData().addParent(new LinkedHashSet<>(), permissions);
+  }
+
+  public void updatePermissions(UUID uuid, Rank newRank) {
+    AtherysTowns.getPermissionService().getUserSubjects().loadSubject(uuid.toString())
+        .thenAccept(subject -> {
+          subject.getSubjectData().removeParent(new LinkedHashSet<>(), this.permissions);
+          subject.getSubjectData().addParent(new LinkedHashSet<>(), newRank.permissions);
         });
-        this.child = child;
-    }
+  }
 
-    public void addPermissions(User player) {
-        player.getSubjectData().addParent(new LinkedHashSet<>(), permissions);
-    }
+  public void removePermissions(User player) {
+    player.getSubjectData().removeParent(new LinkedHashSet<>(), permissions);
+  }
 
-    public void updatePermissions(UUID uuid, Rank newRank) {
-        AtherysTowns.getPermissionService().getUserSubjects().loadSubject(uuid.toString())
-            .thenAccept(subject -> {
-                subject.getSubjectData().removeParent(new LinkedHashSet<>(), this.permissions);
-                subject.getSubjectData().addParent(new LinkedHashSet<>(), newRank.permissions);
-            });
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void removePermissions(User player) {
-        player.getSubjectData().removeParent(new LinkedHashSet<>(), permissions);
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public Rank getChild() {
+    return child;
+  }
 
-    public String getName() {
-        return name;
-    }
-
-    public Rank getChild() {
-        return child;
-    }
-
-    public boolean isRankGreaterThan(Rank rank) {
-        return this.getChild() != null && (this.getChild() == rank || this.getChild()
-            .isRankGreaterThan(rank));
-    }
+  public boolean isRankGreaterThan(Rank rank) {
+    return this.getChild() != null && (this.getChild() == rank || this.getChild()
+        .isRankGreaterThan(rank));
+  }
 }

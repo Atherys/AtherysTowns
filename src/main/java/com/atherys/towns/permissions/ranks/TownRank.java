@@ -8,16 +8,16 @@ import org.spongepowered.api.util.annotation.CatalogedBy;
 @CatalogedBy(TownRanks.class)
 public class TownRank extends Rank implements CatalogType {
 
-    private NationRank defaultNationRank;
+  private NationRank defaultNationRank;
 
-    protected TownRank(String id, String name, List<? extends TownsAction> permittedActions,
-        NationRank defaultNationRank, TownRank child) {
-        super(id, name, permittedActions, child);
-        this.defaultNationRank = defaultNationRank;
-        TownRankRegistry.getInstance().add(this);
-    }
+  protected TownRank(String id, String name, List<? extends TownsAction> permittedActions,
+      NationRank defaultNationRank, TownRank child) {
+    super(id, name, permittedActions, child);
+    this.defaultNationRank = defaultNationRank;
+    TownRankRegistry.getInstance().add(this);
+  }
 
-    public NationRank getDefaultNationRank() {
-        return defaultNationRank;
-    }
+  public NationRank getDefaultNationRank() {
+    return defaultNationRank;
+  }
 }

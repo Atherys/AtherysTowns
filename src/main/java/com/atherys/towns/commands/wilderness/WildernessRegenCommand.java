@@ -1,35 +1,24 @@
 package com.atherys.towns.commands.wilderness;
 
-import com.atherys.towns.AtherysTowns;
+import com.atherys.core.command.annotation.Aliases;
+import com.atherys.core.command.annotation.Description;
+import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.managers.WildernessManager;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.text.Text;
 
-public class WildernessRegenCommand {
+@Aliases("wregen")
+@Description("Wilderness forced regeneration command.")
+@Permission("atherystowns.admin.wilderness.regen")
+public class WildernessRegenCommand implements CommandExecutor {
 
-    private static WildernessRegenCommand instance = new WildernessRegenCommand();
-
-    private static CommandExecutor EXECUTOR = (src, args) -> {
-        long timestamp = System.currentTimeMillis();
-        WildernessManager.getInstance().regenerate(timestamp);
-        return CommandResult.empty();
-    };
-
-    public void register() {
-        CommandSpec spec = CommandSpec.builder()
-            .permission("atherystowns.wilderness.regen")
-            .description(Text.of("Wilderness Regen Command."))
-            .executor(EXECUTOR)
-            .build();
-
-        Sponge.getCommandManager().register(AtherysTowns.getInstance(), spec, "wildregen");
-    }
-
-    public static WildernessRegenCommand getInstance() {
-        return instance;
-    }
-
+  @Override
+  public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    long timestamp = System.currentTimeMillis();
+    WildernessManager.getInstance().regenerate(timestamp);
+    return CommandResult.success();
+  }
 }

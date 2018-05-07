@@ -8,40 +8,39 @@ import org.spongepowered.api.util.annotation.CatalogedBy;
 @CatalogedBy(Extents.class)
 public class Extent implements CatalogType {
 
-    @FunctionalInterface
-    protected interface Checker {
+  private String id;
+  private String name;
+  private Checker checker;
+  protected Extent(String id, String name, Checker checker) {
+    this.id = id;
+    this.name = name;
+    this.checker = checker;
 
-        boolean apply(Resident resident, Flag flag, Plot plot);
-    }
+    ExtentRegistry.getInstance().extents.put(id, this);
+  }
 
-    private String id;
-    private String name;
-    private Checker checker;
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    protected Extent(String id, String name, Checker checker) {
-        this.id = id;
-        this.name = name;
-        this.checker = checker;
+  @Override
+  public String getName() {
+    return name;
+  }
 
-        ExtentRegistry.getInstance().extents.put(id, this);
-    }
+  public boolean check(Resident res, Flag flag, Plot plot) {
+    return checker.apply(res, flag, plot);
+  }
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Override
+  public String toString() {
+    return getId();
+  }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+  @FunctionalInterface
+  protected interface Checker {
 
-    public boolean check(Resident res, Flag flag, Plot plot) {
-        return checker.apply(res, flag, plot);
-    }
-
-    @Override
-    public String toString() {
-        return getId();
-    }
+    boolean apply(Resident resident, Flag flag, Plot plot);
+  }
 }

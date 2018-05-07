@@ -13,61 +13,61 @@ import org.spongepowered.api.service.economy.account.UniqueAccount;
 
 public abstract class AbstractAreaObject<T extends AreaObject> implements AreaObject {
 
-    protected UUID uuid;
-    private T parent;
-    private UniqueAccount bank;
+  protected UUID uuid;
+  private T parent;
+  private UniqueAccount bank;
 
-    protected AbstractAreaObject(UUID uuid) {
-        this.uuid = uuid;
-        createBank().ifPresent(uniqueAccount -> bank = uniqueAccount);
+  protected AbstractAreaObject(UUID uuid) {
+    this.uuid = uuid;
+    createBank().ifPresent(uniqueAccount -> bank = uniqueAccount);
+  }
+
+  public UUID getUUID() {
+    return uuid;
+  }
+
+  public Optional<UniqueAccount> getBank() {
+    return Optional.ofNullable(bank);
+  }
+
+  public boolean deposit(Resident res, BigDecimal amount, Currency currency) {
+    if (bank != null) {
+      Optional<UniqueAccount> acc = res.getBank();
+      if (acc.isPresent()) {
+        UniqueAccount resAcc = acc.get();
+        Cause cause = Cause.builder().append(res).build(EventContext.empty());
+
+        resAcc.transfer(bank, currency, amount, cause);
+        return true;
+      }
     }
+    return false;
+  }
 
-    public UUID getUUID() {
-        return uuid;
+  public boolean withdraw(Resident res, BigDecimal amount, Currency currency) {
+    if (bank != null) {
+      Optional<UniqueAccount> acc = res.getBank();
+      if (acc.isPresent()) {
+        UniqueAccount resAcc = acc.get();
+        Cause cause = Cause.builder().append(res).build(EventContext.empty());
+
+        bank.transfer(resAcc, currency, amount, cause);
+        return true;
+      }
     }
+    return false;
+  }
 
-    public Optional<UniqueAccount> getBank() {
-        return Optional.ofNullable(bank);
-    }
+  public Optional<T> getParent() {
+    return Optional.ofNullable(parent);
+  }
 
-    public boolean deposit(Resident res, BigDecimal amount, Currency currency) {
-        if (bank != null) {
-            Optional<UniqueAccount> acc = res.getBank();
-            if (acc.isPresent()) {
-                UniqueAccount resAcc = acc.get();
-                Cause cause = Cause.builder().append(res).build(EventContext.empty());
+  public void setParent(T parent) {
+    this.parent = parent;
+  }
 
-                resAcc.transfer(bank, currency, amount, cause);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean withdraw(Resident res, BigDecimal amount, Currency currency) {
-        if (bank != null) {
-            Optional<UniqueAccount> acc = res.getBank();
-            if (acc.isPresent()) {
-                UniqueAccount resAcc = acc.get();
-                Cause cause = Cause.builder().append(res).build(EventContext.empty());
-
-                bank.transfer(resAcc, currency, amount, cause);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void setParent(T parent) {
-        this.parent = parent;
-    }
-
-    public Optional<T> getParent() {
-        return Optional.ofNullable(parent);
-    }
-
-    private Optional<UniqueAccount> createBank() {
-        Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
-        return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
-    }
+  private Optional<UniqueAccount> createBank() {
+    Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
+    return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
+  }
 }
