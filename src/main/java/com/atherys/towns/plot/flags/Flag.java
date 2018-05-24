@@ -1,6 +1,5 @@
 package com.atherys.towns.plot.flags;
 
-import com.atherys.towns.permissions.actions.TownAction;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.util.annotation.CatalogedBy;
 
@@ -10,13 +9,13 @@ public class Flag implements CatalogType {
     private String id;
     private String name;
 
-    private TownAction setAction;
+    private String permissionTemplate;
     private Extent[] extents;
 
-    protected Flag(String id, String name, TownAction setAction, Extent... extents) {
+    protected Flag(String id, String name, String permissionTemplate, Extent... extents) {
         this.id = id;
         this.name = name;
-        this.setAction = setAction;
+        this.permissionTemplate = permissionTemplate;
         this.extents = extents;
 
         FlagRegistry.getInstance().flags.put(id, this);
@@ -41,8 +40,8 @@ public class Flag implements CatalogType {
         return false;
     }
 
-    public TownAction getAction() {
-        return setAction;
+    public String getAction() {
+        return permissionTemplate;
     }
 
     @Override

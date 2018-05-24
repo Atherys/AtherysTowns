@@ -1,4 +1,4 @@
-package com.atherys.towns.base;
+package com.atherys.towns.api;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.resident.Resident;

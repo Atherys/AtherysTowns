@@ -1,7 +1,7 @@
 package com.atherys.towns.utils;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.plot.PlotDefinition;
+import com.atherys.towns.api.plot.PlotDefinition;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.gson.Gson;
 import org.bson.Document;

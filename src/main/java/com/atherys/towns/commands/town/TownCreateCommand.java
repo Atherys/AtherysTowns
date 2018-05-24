@@ -9,7 +9,7 @@ import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.plot.PlotDefinition;
+import com.atherys.towns.api.plot.PlotDefinition;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;

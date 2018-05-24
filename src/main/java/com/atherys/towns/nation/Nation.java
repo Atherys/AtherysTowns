@@ -1,7 +1,7 @@
 package com.atherys.towns.nation;
 
 import com.atherys.core.views.Viewable;
-import com.atherys.towns.base.AbstractAreaObject;
+import com.atherys.towns.api.AbstractAreaObject;
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;

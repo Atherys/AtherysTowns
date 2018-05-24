@@ -1,5 +1,6 @@
 package com.atherys.towns.plot;
 
+import com.atherys.towns.api.plot.PlotDefinition;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.town.Town;
 

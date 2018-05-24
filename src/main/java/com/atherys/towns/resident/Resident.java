@@ -1,38 +1,27 @@
 package com.atherys.towns.resident;
 
 import com.atherys.core.utils.UserUtils;
-import com.atherys.core.views.Viewable;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.base.TownsObject;
-import com.atherys.towns.managers.NationManager;
-import com.atherys.towns.nation.Nation;
-import com.atherys.towns.permissions.ranks.NationRank;
-import com.atherys.towns.permissions.ranks.NationRanks;
-import com.atherys.towns.permissions.ranks.TownRank;
-import com.atherys.towns.permissions.ranks.TownRanks;
-import com.atherys.towns.town.Town;
+import com.atherys.towns.api.resident.IResident;
+import com.atherys.towns.api.resident.permission.Action;
+import com.atherys.towns.api.resident.permission.Rank;
+import com.atherys.towns.api.town.ITown;
 import com.atherys.towns.views.ResidentView;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-public class Resident implements TownsObject, Viewable<ResidentView> {
+public class Resident implements IResident {
 
     private UUID uuid;
 
-    @Nullable
-    private Town town;
-    @Nullable
-    private TownRank townRank;
-    @Nullable
-    private NationRank nationRank;
+    private ITown town;
+    private Rank townRank;
+    private Rank nationRank;
 
     private Date registered;
     private Date lastOnline;
@@ -47,93 +36,54 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         return new ResidentBuilder(uuid);
     }
 
-    public String getName() {
-        if (!getUser().isPresent()) {
-            return AtherysTowns.getConfig().TOWN.NPC_NAME;
-        }
-        return getUser().get().getName();
+    @Override
+    public Optional<ITown> getTown() {
+        return Optional.ofNullable(town);
     }
 
     @Override
-    public void setName(String name) {
-
-    }
-
-    // return user object regardless if player is online or not
-    private Optional<? extends User> getUser() {
-        return UserUtils.getUser(uuid);
-    }
-
-    // returns player object IF player is online
-    public Optional<Player> getPlayer() {
-        for (Player player : Sponge.getServer().getOnlinePlayers()) {
-            if (player.getUniqueId().equals(uuid)) {
-                return Optional.of(player);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public boolean isOnline() {
-        return getPlayer().isPresent();
-    }
-
-    public Optional<Town> getTown() {
-        if (town != null) {
-            return Optional.of(town);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public Optional<Nation> getNation() {
-        return NationManager.getInstance().getByResident(this);
-    }
-
-    public void setTown(Town town, TownRank rank) {
+    public void setTown(ITown town) {
         this.town = town;
-        setTownRank(rank);
-        setNationRank(rank.getDefaultNationRank());
     }
 
-    public void updatePermissions() {
-        setTownRank(getTownRank());
-        setNationRank(getNationRank());
+    @Override
+    public Optional<? extends User> asUser() {
+        return UserUtils.getUser(this.getUUID());
     }
 
-    public TownRank getTownRank() {
-        return townRank == null ? TownRanks.NONE : townRank;
+    @Override
+    public Optional<? extends Rank> getTownRank() {
+        return Optional.ofNullable(this.townRank);
     }
 
-    public Resident setTownRank(TownRank townRank) {
-        getTownRank().updatePermissions(this.uuid, townRank);
-        this.townRank = townRank;
-        return this;
+    @Override
+    public <T extends Rank> void setTownRank(T rank) {
+        this.townRank = rank;
     }
 
-    public NationRank getNationRank() {
-        return nationRank == null ? NationRanks.NONE : nationRank;
+    @Override
+    public Optional<? extends Rank> getNationRank() {
+        return Optional.ofNullable(this.nationRank);
     }
 
-    public void setNationRank(NationRank nationRank) {
-        getNationRank().updatePermissions(this.uuid, nationRank);
-        this.nationRank = nationRank;
+    @Override
+    public <T extends Rank> void setNationRank(T rank) {
+        this.nationRank = rank;
     }
 
-    public Date getRegisteredDate() {
+    @Override
+    public Date getRegistrationDate() {
         return registered;
     }
 
-    protected void setRegisteredDate(Date registered) {
-        this.registered = registered;
-    }
-
+    @Override
     public Date getLastOnlineDate() {
         return lastOnline;
     }
 
-    public void updateLastOnline() {
-        this.lastOnline = new Date();
+    @Override
+    public boolean isOnline() {
+        return asUser().map(User::isOnline).orElse(false);
     }
 
     @Override
@@ -141,9 +91,15 @@ public class Resident implements TownsObject, Viewable<ResidentView> {
         return uuid;
     }
 
-    public Optional<UniqueAccount> getBank() {
+    @Override
+    public Optional<UniqueAccount> getBankAccount() {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
         return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
+    }
+
+    @Override
+    public <T extends Action> boolean isPermitted(T action) {
+        return asUser().map(user -> user.hasPermission(action.getPermission())).orElse(false);
     }
 
     @Override

@@ -1,10 +1,9 @@
-package com.atherys.towns.base;
+package com.atherys.towns.api;
 
+import com.atherys.core.database.api.DBObject;
 import math.geom2d.Point2D;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-
-import java.util.Optional;
 
 /**
  * An AreaObject is defined as any arbitrarily shaped 2-dimensional area which can contain points.
@@ -12,9 +11,7 @@ import java.util.Optional;
  * Towns plugin is as follows:<br> <br> null<br> | is a parent of<br> Nation<br> | is a parent
  * of<br> Town<br> | is a parent of<br> Plot<br>
  */
-public interface AreaObject extends TownsObject {
-
-    Optional<? extends AreaObject> getParent();
+public interface AreaObject extends DBObject {
 
     boolean contains(World w, double x, double y);
 

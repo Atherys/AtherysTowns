@@ -1,9 +1,10 @@
-package com.atherys.towns.plot;
+package com.atherys.towns.api.plot;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.commands.TownsValues;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.messaging.TownMessage;
+import com.atherys.towns.plot.Plot;
 import com.atherys.towns.town.Town;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
@@ -133,8 +134,7 @@ public class PlotDefinition extends Rectangle2D {
         return test;
     }
 
-    private static Rectangle2D checkPlayer(Player player, Town town)
-            throws DefinitionNotValidException, DefinitionNotPresentException {
+    private static Rectangle2D checkPlayer(Player player, Town town) throws DefinitionNotValidException, DefinitionNotPresentException {
         Optional<Object> loc1Opt = TownsValues
                 .get(player.getUniqueId(), TownsValues.TownsKey.PLOT_SELECTOR_1ST);
         Optional<Object> loc2Opt = TownsValues
@@ -165,7 +165,7 @@ public class PlotDefinition extends Rectangle2D {
         return isBordering( new PlotDefinition( definition.world, definition) );
     }*/
 
-    boolean contains(Location<World> loc) {
+    public boolean contains(Location<World> loc) {
         return loc.getExtent().equals(world) && super
                 .contains(loc.getPosition().getX(), loc.getPosition().getZ());
     }

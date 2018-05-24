@@ -2,7 +2,7 @@ package com.atherys.towns.managers;
 
 import com.atherys.core.database.mongo.AbstractMongoDatabaseManager;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.base.AreaObject;
+import com.atherys.towns.api.AreaObject;
 import com.atherys.towns.db.TownsDatabase;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

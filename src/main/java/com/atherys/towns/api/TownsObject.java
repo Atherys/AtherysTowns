@@ -1,4 +1,4 @@
-package com.atherys.towns.base;
+package com.atherys.towns.api;
 
 import com.atherys.core.database.api.DBObject;
 

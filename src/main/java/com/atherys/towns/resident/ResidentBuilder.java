@@ -18,7 +18,8 @@ public class ResidentBuilder {
 
     public ResidentBuilder town(Town town, TownRank rank) {
         if (town != null) {
-            res.setTown(town, rank);
+            res.setTown(town);
+            res.setTownRank(rank);
         }
         return this;
     }

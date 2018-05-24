@@ -2,7 +2,8 @@ package com.atherys.towns.town;
 
 import com.atherys.core.views.Viewable;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.base.AbstractAreaObject;
+import com.atherys.towns.api.AbstractAreaObject;
+import com.atherys.towns.api.town.ITown;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.TownManager;
@@ -10,7 +11,7 @@ import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.plot.Plot;
-import com.atherys.towns.plot.PlotDefinition;
+import com.atherys.towns.api.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.plot.flags.Extent;
 import com.atherys.towns.plot.flags.Flag;
@@ -34,7 +35,7 @@ import java.util.UUID;
 
 //import com.atherys.towns.utils.old.Question;
 
-public class Town extends AbstractAreaObject<Nation> implements Viewable<TownView> {
+public class Town implements ITown {
 
     private TownStatus status = TownStatus.NONE;
 

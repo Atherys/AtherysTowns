@@ -1,7 +1,10 @@
 package com.atherys.towns.plot;
 
 import com.atherys.core.views.Viewable;
-import com.atherys.towns.base.AbstractAreaObject;
+import com.atherys.towns.api.AbstractAreaObject;
+import com.atherys.towns.api.Meta;
+import com.atherys.towns.api.plot.IPlot;
+import com.atherys.towns.api.plot.PlotDefinition;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.plot.flags.Extent;
 import com.atherys.towns.plot.flags.Flag;
@@ -14,7 +17,7 @@ import org.spongepowered.api.world.World;
 
 import java.util.UUID;
 
-public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView> {
+public class Plot implements IPlot {
 
     private PlotDefinition definition;
     private PlotFlags flags;
@@ -108,5 +111,40 @@ public class Plot extends AbstractAreaObject<Town> implements Viewable<PlotView>
     @Override
     public PlotView createView() {
         return new PlotView(this);
+    }
+
+    @Override
+    public UUID getUUID() {
+        return null;
+    }
+
+    @Override
+    public <T extends Meta> T getMeta() {
+        return null;
+    }
+
+    @Override
+    public void setExtent(com.atherys.towns.api.plot.flag.Flag flag, com.atherys.towns.api.plot.flag.Extent extent) {
+
+    }
+
+    @Override
+    public void getExtent(com.atherys.towns.api.plot.flag.Flag flag) {
+
+    }
+
+    @Override
+    public boolean isPermitted(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
+        return false;
+    }
+
+    @Override
+    public void permit(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
+
+    }
+
+    @Override
+    public void restrict(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
+
     }
 }
