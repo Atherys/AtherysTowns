@@ -1,10 +1,10 @@
 package com.atherys.towns.plot;
 
 import com.atherys.core.views.Viewable;
-import com.atherys.towns.plot.flags.Extent;
-import com.atherys.towns.plot.flags.Extents;
-import com.atherys.towns.plot.flags.Flag;
-import com.atherys.towns.plot.flags.Flags;
+import com.atherys.towns.api.plot.flags.Extent;
+import com.atherys.towns.api.plot.flags.Extents;
+import com.atherys.towns.api.plot.flags.Flag;
+import com.atherys.towns.api.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.views.PlotFlagsView;
 

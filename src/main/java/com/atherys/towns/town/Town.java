@@ -1,8 +1,7 @@
 package com.atherys.towns.town;
 
-import com.atherys.core.views.Viewable;
-import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.api.AbstractAreaObject;
+import com.atherys.towns.api.plot.PlotDefinition;
+import com.atherys.towns.api.plot.flag.IExtent;
 import com.atherys.towns.api.town.ITown;
 import com.atherys.towns.managers.PlotManager;
 import com.atherys.towns.managers.ResidentManager;
@@ -11,11 +10,9 @@ import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.permissions.ranks.TownRanks;
 import com.atherys.towns.plot.Plot;
-import com.atherys.towns.api.plot.PlotDefinition;
 import com.atherys.towns.plot.PlotFlags;
-import com.atherys.towns.plot.flags.Extent;
-import com.atherys.towns.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
+import com.atherys.towns.utils.FlagUtils;
 import com.atherys.towns.views.TownView;
 import com.flowpowered.math.vector.Vector3d;
 import math.geom2d.Point2D;
@@ -28,10 +25,7 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 //import com.atherys.towns.utils.old.Question;
 
@@ -39,20 +33,15 @@ public class Town implements ITown {
 
     private TownStatus status = TownStatus.NONE;
 
-    private PlotFlags townFlags;
+    private HashMap<com.atherys.towns.api.plot.flag.Flag, IExtent> defaultFlags;
     private int maxSize;
     private Location<World> spawn;
 
-    private String name;
-    private TextColor color = AtherysTowns.getConfig().COLORS.SECONDARY;
-    private String motd = "Message of the day.";
-    private String description = "Town description.";
+    private TownMeta meta;
 
     protected Town(UUID uuid) {
         super(uuid);
-        this.townFlags = PlotFlags.regular();
-        this.motd = "";
-        this.description = "";
+        this.defaultFlags = FlagUtils.regular();
     }
 
     private Town(PlotDefinition define, Resident mayor) {

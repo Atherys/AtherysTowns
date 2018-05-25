@@ -9,13 +9,13 @@ import java.util.Optional;
 
 public interface FlagHolder {
 
-    Map<Flag,Extent> getFlags();
+    Map<Flag,IExtent> getFlags();
 
-    default void setExtent(Flag flag, Extent extent) {
+    default void setExtent(Flag flag, IExtent extent) {
         getFlags().put(flag, extent);
     }
 
-    default Optional<Extent> getExtent(Flag flag) {
+    default Optional<IExtent> getExtent(Flag flag) {
         return Optional.ofNullable(getFlags().get(flag));
     }
 

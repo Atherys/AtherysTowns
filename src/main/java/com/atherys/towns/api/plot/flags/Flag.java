@@ -1,4 +1,4 @@
-package com.atherys.towns.plot.flags;
+package com.atherys.towns.api.plot.flags;
 
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.util.annotation.CatalogedBy;

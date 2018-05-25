@@ -1,13 +1,12 @@
 package com.atherys.towns.plot;
 
-import com.atherys.core.views.Viewable;
-import com.atherys.towns.api.AbstractAreaObject;
 import com.atherys.towns.api.Meta;
 import com.atherys.towns.api.plot.IPlot;
 import com.atherys.towns.api.plot.PlotDefinition;
+import com.atherys.towns.api.plot.flag.IExtent;
 import com.atherys.towns.managers.PlotManager;
-import com.atherys.towns.plot.flags.Extent;
-import com.atherys.towns.plot.flags.Flag;
+import com.atherys.towns.api.plot.flags.Extent;
+import com.atherys.towns.api.plot.flags.Flag;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.views.PlotView;
@@ -124,7 +123,7 @@ public class Plot implements IPlot {
     }
 
     @Override
-    public void setExtent(com.atherys.towns.api.plot.flag.Flag flag, com.atherys.towns.api.plot.flag.Extent extent) {
+    public void setExtent(com.atherys.towns.api.plot.flag.Flag flag, IExtent extent) {
 
     }
 

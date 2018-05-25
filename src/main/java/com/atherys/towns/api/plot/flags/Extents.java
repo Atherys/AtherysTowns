@@ -1,4 +1,4 @@
-package com.atherys.towns.plot.flags;
+package com.atherys.towns.api.plot.flags;
 
 import com.atherys.towns.managers.NationManager;
 import com.atherys.towns.nation.Nation;

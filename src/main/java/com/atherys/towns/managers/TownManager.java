@@ -3,7 +3,7 @@ package com.atherys.towns.managers;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.nation.Nation;
 import com.atherys.towns.plot.PlotFlags;
-import com.atherys.towns.plot.flags.*;
+import com.atherys.towns.api.plot.flags.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.town.TownBuilder;
 import com.atherys.towns.town.TownStatus;

@@ -11,6 +11,6 @@ public interface Flag extends CatalogType {
      * Gets the extents which are applicable to this Flag
      * @return The array of extents applicable
      */
-    Extent[] getPermittedExtents();
+    IExtent[] getPermittedExtents();
 
 }

@@ -1,12 +1,15 @@
-package com.atherys.towns.plot.flags;
+package com.atherys.towns.api.plot.flags;
 
+import com.atherys.towns.api.plot.IPlot;
+import com.atherys.towns.api.plot.flag.FlagHolder;
+import com.atherys.towns.api.plot.flag.IExtent;
+import com.atherys.towns.api.resident.IResident;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.resident.Resident;
-import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.util.annotation.CatalogedBy;
 
 @CatalogedBy(Extents.class)
-public class Extent implements CatalogType {
+public class Extent implements IExtent {
 
     private String id;
     private String name;
@@ -39,9 +42,14 @@ public class Extent implements CatalogType {
         return getId();
     }
 
+    @Override
+    public <R extends IResident, P extends IPlot> boolean check(R resident, FlagHolder holder) {
+        return false;
+    }
+
     @FunctionalInterface
     protected interface Checker {
 
-        boolean apply(Resident resident, Flag flag, Plot plot);
+        boolean apply(Resident resident, FlagHolder plot);
     }
 }

@@ -7,7 +7,7 @@ import org.spongepowered.api.CatalogType;
 /**
  * An extent represents a vague collection of players which may perform a given action based on a Flag
  */
-public interface Extent extends CatalogType {
+public interface IExtent extends CatalogType {
 
     /**
      * Checks if the given IResident fits within this extent in the context of the FlagHolder
