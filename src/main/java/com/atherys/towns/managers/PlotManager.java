@@ -4,7 +4,6 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.plot.Plot;
 import com.atherys.towns.plot.PlotBuilder;
 import com.atherys.towns.api.plot.PlotDefinition;
-import com.atherys.towns.plot.PlotFlags;
 import com.atherys.towns.api.plot.flags.*;
 import com.atherys.towns.town.Town;
 import com.atherys.towns.utils.DbUtils;

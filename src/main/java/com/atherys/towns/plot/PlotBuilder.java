@@ -24,12 +24,7 @@ public final class PlotBuilder {
     }
 
     public PlotBuilder town(Town town) {
-        plot.setParent(town);
-        return this;
-    }
-
-    public PlotBuilder flags(PlotFlags flags) {
-        plot.setFlags(flags);
+        plot.setTown(town);
         return this;
     }
 

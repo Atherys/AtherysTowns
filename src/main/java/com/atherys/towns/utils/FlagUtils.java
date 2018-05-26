@@ -1,8 +1,5 @@
 package com.atherys.towns.utils;
 
-import com.atherys.towns.api.plot.flag.Flag;
-import com.atherys.towns.api.plot.flag.IExtent;
-
 import java.util.HashMap;
 
 public class FlagUtils {

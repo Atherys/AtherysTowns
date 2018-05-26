@@ -2,7 +2,6 @@ package com.atherys.towns.views;
 
 import com.atherys.core.views.View;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.plot.PlotFlags;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;

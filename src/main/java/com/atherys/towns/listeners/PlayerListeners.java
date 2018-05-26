@@ -8,8 +8,6 @@ import com.atherys.towns.managers.ResidentManager;
 import com.atherys.towns.managers.WildernessManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.plot.Plot;
-import com.atherys.towns.api.plot.flags.Flag;
-import com.atherys.towns.api.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
@@ -92,16 +90,6 @@ public class PlayerListeners {
             }
         }
     }
-
-    //@Listener
-    //@IsCancelled(Tristate.FALSE)
-    //public void onPlayerChangeBlocks (ChangeBlockEvent.Break event, @Root Player player ) {
-    //    for (Transaction<BlockSnapshot> trans : event.getTransactions() ) {
-    //        Map<?, ?> serializedBlock = trans.getOriginal().toContainer().getMap(DataQuery.of()).get();
-    //        String serializedString = gson.toJson(serializedBlock);
-    //        System.out.println( serializedString );
-    //    }
-    //}
 
     @Listener
     @IsCancelled(Tristate.FALSE)
@@ -217,21 +205,5 @@ public class PlayerListeners {
             }
         }
     }
-    /*
-
-    @Listener
-    public void onPlayerChat (MessageEvent event, @Root Player player) {
-        if (TownsValues.get(player.getUniqueId(), TownsValues.TownsKey.TOWN_CHAT).isPresent()) {
-            Optional<Resident> resident = ResidentManager.getInstance().get(player.getUniqueId());
-            if (!resident.isPresent()) return;
-            if ( resident.get().town().isPresent() ) {
-                // TODO: Fix this
-                // Currently displays "<PlayerName> Message"
-                // Should be displaying only "Message"
-                resident.get().town().get().sendMessage( resident.get(), event.getMessage() );
-            }
-            event.setMessageCancelled(true);
-        }
-    }*/
 
 }

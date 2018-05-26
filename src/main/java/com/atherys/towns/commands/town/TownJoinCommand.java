@@ -8,8 +8,6 @@ import com.atherys.towns.commands.TownsCommand;
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.messaging.TownMessage;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.api.plot.flags.Extents;
-import com.atherys.towns.api.plot.flags.Flags;
 import com.atherys.towns.resident.Resident;
 import com.atherys.towns.town.Town;
 import org.spongepowered.api.command.CommandResult;

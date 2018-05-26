@@ -2,7 +2,6 @@ package com.atherys.towns.town;
 
 import com.atherys.towns.managers.TownManager;
 import com.atherys.towns.nation.Nation;
-import com.atherys.towns.plot.PlotFlags;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -26,30 +25,17 @@ public class TownBuilder {
     }
 
     public TownBuilder nation(Nation nation) {
-        if (nation == null) {
-            return this;
-        }
-        town.setParent(nation);
-        return this;
-    }
-
-    public TownBuilder status(TownStatus status) {
-        town.setStatus(status);
-        return this;
-    }
-
-    public TownBuilder flags(PlotFlags flags) {
-        town.setFlags(flags);
+        town.setNation(nation);
         return this;
     }
 
     public TownBuilder maxSize(int max) {
-        town.setMaxSize(max);
+        town.setMaximumSize(max);
         return this;
     }
 
     public TownBuilder spawn(Location<World> spawn) {
-        town.setSpawn(spawn);
+        town.setSpawnLocation(spawn);
         return this;
     }
 
@@ -59,7 +45,7 @@ public class TownBuilder {
     }
 
     public TownBuilder motd(String motd) {
-        town.setMOTD(motd);
+        town.getMeta().setMOTD(motd);
         return this;
     }
 

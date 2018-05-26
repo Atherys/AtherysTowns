@@ -3,25 +3,20 @@ package com.atherys.towns.resident;
 import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.resident.IResident;
-import com.atherys.towns.api.resident.permission.Action;
-import com.atherys.towns.api.resident.permission.Rank;
 import com.atherys.towns.api.town.ITown;
 import com.atherys.towns.views.ResidentView;
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.economy.EconomyService;
-import org.spongepowered.api.service.economy.account.UniqueAccount;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
 
 public class Resident implements IResident {
 
     private UUID uuid;
 
     private ITown town;
-    private Rank townRank;
-    private Rank nationRank;
 
     private Date registered;
     private Date lastOnline;
@@ -52,33 +47,21 @@ public class Resident implements IResident {
     }
 
     @Override
-    public Optional<? extends Rank> getTownRank() {
-        return Optional.ofNullable(this.townRank);
-    }
-
-    @Override
-    public <T extends Rank> void setTownRank(T rank) {
-        this.townRank = rank;
-    }
-
-    @Override
-    public Optional<? extends Rank> getNationRank() {
-        return Optional.ofNullable(this.nationRank);
-    }
-
-    @Override
-    public <T extends Rank> void setNationRank(T rank) {
-        this.nationRank = rank;
-    }
-
-    @Override
     public Date getRegistrationDate() {
         return registered;
+    }
+
+    public void setRegistrationDate(Date date) {
+        this.registered = date;
     }
 
     @Override
     public Date getLastOnlineDate() {
         return lastOnline;
+    }
+
+    public void setLastOnlineDate(Date date) {
+        this.lastOnline = date;
     }
 
     @Override
@@ -95,11 +78,6 @@ public class Resident implements IResident {
     public Optional<UniqueAccount> getBankAccount() {
         Optional<EconomyService> economy = AtherysTowns.getInstance().getEconomyService();
         return economy.flatMap(economyService -> economyService.getOrCreateAccount(uuid));
-    }
-
-    @Override
-    public <T extends Action> boolean isPermitted(T action) {
-        return asUser().map(user -> user.hasPermission(action.getPermission())).orElse(false);
     }
 
     @Override

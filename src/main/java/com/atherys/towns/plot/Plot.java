@@ -1,43 +1,35 @@
 package com.atherys.towns.plot;
 
-import com.atherys.towns.api.Meta;
 import com.atherys.towns.api.plot.IPlot;
 import com.atherys.towns.api.plot.PlotDefinition;
-import com.atherys.towns.api.plot.flag.IExtent;
-import com.atherys.towns.managers.PlotManager;
-import com.atherys.towns.api.plot.flags.Extent;
-import com.atherys.towns.api.plot.flags.Flag;
-import com.atherys.towns.resident.Resident;
-import com.atherys.towns.town.Town;
+import com.atherys.towns.api.town.ITown;
 import com.atherys.towns.views.PlotView;
+import java.util.UUID;
 import math.geom2d.Point2D;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.UUID;
-
 public class Plot implements IPlot {
 
-    private PlotDefinition definition;
-    private PlotFlags flags;
+    private UUID uuid;
 
-    private String name;
+    private PlotMeta meta = new PlotMeta();
+    private PlotDefinition definition;
+
+    private ITown town;
 
     Plot(UUID uuid) {
-        super(uuid);
+        this.uuid = uuid;
     }
 
-    private Plot(PlotDefinition definition, Town town, String name) {
-        super(UUID.randomUUID());
+    private Plot(PlotDefinition definition, ITown town, String name) {
+        this.uuid = UUID.randomUUID();
         this.definition = definition;
-        this.setParent(town);
-        flags = PlotFlags.regular();
-        this.name = name;
-        PlotManager.getInstance().add(this);
-        PlotManager.getInstance().save(this);
+        this.town = town;
+        this.meta.setName(name);
     }
 
-    public static Plot create(PlotDefinition define, Town town, String name) {
+    public static Plot create(PlotDefinition define, ITown town, String name) {
         return new Plot(define, town, name);
     }
 
@@ -49,8 +41,23 @@ public class Plot implements IPlot {
         return new PlotBuilder();
     }
 
-    public boolean isResidentAllowedTo(Resident res, Flag flag) {
-        return this.flags.isAllowed(res, flag, this);
+    @Override
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    @Override
+    public PlotMeta getMeta() {
+        return meta;
+    }
+
+    @Override
+    public ITown getTown() {
+        return town;
+    }
+
+    protected void setTown(ITown town) {
+        this.town = town;
     }
 
     public PlotDefinition getDefinition() {
@@ -59,32 +66,6 @@ public class Plot implements IPlot {
 
     public void setDefinition(PlotDefinition definition) {
         this.definition = definition;
-    }
-
-    public PlotFlags getFlags() {
-        return flags;
-    }
-
-    public void setFlags(PlotFlags flags) {
-        this.flags = flags.copy();
-    }
-
-    public void setFlag(Flag flag, Extent ext) {
-        this.flags.set(flag, ext);
-    }
-
-    public Town getTown() {
-        return super.getParent().get();
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -102,48 +83,8 @@ public class Plot implements IPlot {
         return definition.contains(loc);
     }
 
-    public void remove() {
-        // TODO: When a plot is claimed and unclaimed, the plot is still stored in the database
-        PlotManager.getInstance().remove(this);
-    }
-
     @Override
     public PlotView createView() {
         return new PlotView(this);
-    }
-
-    @Override
-    public UUID getUUID() {
-        return null;
-    }
-
-    @Override
-    public <T extends Meta> T getMeta() {
-        return null;
-    }
-
-    @Override
-    public void setExtent(com.atherys.towns.api.plot.flag.Flag flag, IExtent extent) {
-
-    }
-
-    @Override
-    public void getExtent(com.atherys.towns.api.plot.flag.Flag flag) {
-
-    }
-
-    @Override
-    public boolean isPermitted(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
-        return false;
-    }
-
-    @Override
-    public void permit(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
-
-    }
-
-    @Override
-    public void restrict(Resident resident, com.atherys.towns.api.plot.flag.Flag flag) {
-
     }
 }

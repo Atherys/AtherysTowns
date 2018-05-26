@@ -4,9 +4,9 @@ import java.util.Collection;
 
 public interface ResidentHolder {
 
-    <T extends IResident> Collection<T> getResidents();
+    Collection<IResident> getResidents();
 
-    default <T extends IResident> boolean containsResident(T resident) {
+    default boolean containsResident(IResident resident) {
         return getResidents().contains(resident);
     }
 

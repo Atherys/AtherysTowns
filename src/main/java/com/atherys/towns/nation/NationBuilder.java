@@ -29,7 +29,7 @@ public class NationBuilder {
     }
 
     public NationBuilder leaderTitle(String title) {
-        nation.setLeaderTitle(title);
+        nation.getMeta().setLeaderTitle(title);
         return this;
     }
 

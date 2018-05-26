@@ -1,12 +1,13 @@
 package com.atherys.towns.api;
 
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
 
 public abstract class Meta {
 
-    private String name;
-    private String description;
-    private TextColor color;
+    private String name = "";
+    private String description = "";
+    private TextColor color = TextColors.WHITE;
 
     public String getName() {
         return name;

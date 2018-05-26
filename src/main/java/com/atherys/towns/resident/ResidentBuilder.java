@@ -1,10 +1,7 @@
 package com.atherys.towns.resident;
 
 import com.atherys.towns.managers.ResidentManager;
-import com.atherys.towns.permissions.ranks.NationRank;
-import com.atherys.towns.permissions.ranks.TownRank;
 import com.atherys.towns.town.Town;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -16,37 +13,25 @@ public class ResidentBuilder {
         res = new Resident(uuid);
     }
 
-    public ResidentBuilder town(Town town, TownRank rank) {
+    public ResidentBuilder town(Town town) {
         if (town != null) {
             res.setTown(town);
-            res.setTownRank(rank);
         }
         return this;
     }
 
-    public ResidentBuilder townRank(TownRank rank) {
-        res.setTownRank(rank);
-        return this;
-    }
-
-    public ResidentBuilder nationRank(NationRank rank) {
-        res.setNationRank(rank);
-        return this;
-    }
-
     public ResidentBuilder registerTimestamp(Date time) {
-        res.setRegisteredDate(time);
+        res.setRegistrationDate(time);
         return this;
     }
 
     public ResidentBuilder updateLastOnline() {
-        res.updateLastOnline();
+        res.setLastOnlineDate(new Date());
         return this;
     }
 
     public Resident build() {
         ResidentManager.getInstance().save(res);
-        res.updatePermissions();
         return res;
     }
 }

@@ -1,7 +1,6 @@
 package com.atherys.towns.utils;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.api.AbstractAreaObject;
 import com.atherys.towns.resident.Resident;
 import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.account.UniqueAccount;

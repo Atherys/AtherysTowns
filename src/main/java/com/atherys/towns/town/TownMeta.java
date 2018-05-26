@@ -4,7 +4,7 @@ import com.atherys.towns.api.Meta;
 
 public class TownMeta extends Meta {
 
-    private String motd;
+    private String motd = "";
 
     public void setMOTD(String motd) {
          this.motd = motd;
