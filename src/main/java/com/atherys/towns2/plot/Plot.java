@@ -3,16 +3,16 @@ package com.atherys.towns2.plot;
 import com.atherys.towns2.base.LocationContainer;
 import com.atherys.towns2.town.Town;
 import com.flowpowered.math.vector.Vector3i;
+import java.util.UUID;
+import javax.annotation.Nonnull;
 import me.ryanhamshire.griefprevention.api.claim.Claim;
 import me.ryanhamshire.griefprevention.api.claim.ClaimResult;
 import me.ryanhamshire.griefprevention.api.claim.ClaimType;
+import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-
-import javax.annotation.Nonnull;
-import java.util.UUID;
 
 /**
  * A wrapper class around GriefPrevention's {@link Claim} with a {@link Town} parent object.
@@ -99,5 +99,9 @@ public class Plot implements LocationContainer<World>, Identifiable {
 
     public Claim getClaim() {
         return claim;
+    }
+
+    public Context getClaimContext() {
+        return claim.getContext();
     }
 }
