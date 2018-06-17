@@ -1,4 +1,4 @@
-group 'com.atherys'
+group = 'com.atherys'
 
 buildscript {
     repositories {
@@ -26,18 +26,24 @@ sourceSets {
 repositories {
     mavenCentral()
     maven {
-        name 'sponge'
-        url 'https://repo.spongepowered.org/maven'
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/maven'
     }
     maven {
-        name 'jitpack'
-        url 'https://jitpack.io'
+        name = "Forge"
+        url = "http://files.minecraftforge.net/maven"
+    }
+    maven {
+        name = 'jitpack'
+        url = 'https://jitpack.io'
     }
 }
 
 dependencies {
     shadow 'org.spongepowered:spongeapi:7.0.0-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysCore:master-SNAPSHOT'
+    shadow 'me.ryanhamshire:griefprevention:1.10.2-4.0.1.451:api'
+    shadow 'me.lucko.luckperms:luckperms-api:4.2'
 
     compile   'math.geom2d:javaGeom:0.11.1'
 }

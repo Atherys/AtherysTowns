@@ -1,6 +1,7 @@
 package com.atherys.towns2.rank.action;
 
 import javax.annotation.Nonnull;
+import me.lucko.luckperms.api.Node;
 import org.spongepowered.api.CatalogType;
 
 public abstract class Action implements CatalogType {
@@ -8,9 +9,9 @@ public abstract class Action implements CatalogType {
     private String id;
     private String name;
 
-    private String permission;
+    private Node permission;
 
-    Action(String id, String name, String permission) {
+    Action(String id, String name, Node permission) {
         this.id = id;
         this.name = name;
     }
@@ -27,7 +28,7 @@ public abstract class Action implements CatalogType {
         return name;
     }
 
-    public String getPermission() {
+    public Node getPermission() {
         return permission;
     }
 

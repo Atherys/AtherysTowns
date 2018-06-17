@@ -7,7 +7,6 @@ import com.atherys.towns2.town.Town;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -35,11 +34,6 @@ public class Nation implements LocationContainer<World>, ResidentContainer {
 
     @Override
     public UUID getUniqueId() {
-        return null;
-    }
-
-    @Override
-    public Context getContext() {
         return null;
     }
 

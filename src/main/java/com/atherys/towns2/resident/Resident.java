@@ -3,7 +3,7 @@ package com.atherys.towns2.resident;
 
 import com.atherys.towns2.nation.Nation;
 import com.atherys.towns2.town.Town;
-import com.atherys.towns2.util.Causes;
+import com.atherys.towns2.util.CauseUtils;
 import com.atherys.towns2.util.UserUtils;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,9 +22,14 @@ public class Resident implements Identifiable {
 
     }
 
+    public Resident(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     public void setTown(Town town) {
         this.town = town;
-        town.getPlots().forEach(plot -> plot.getClaim().addUserTrust(this.uuid, TrustType.MANAGER, Causes.of(this, plot)));
+        town.getPlots().forEach(plot -> plot.getClaim().addUserTrust(this.uuid, TrustType.MANAGER, CauseUtils
+            .of(this, plot)));
     }
 
     public Optional<Town> getTown() {

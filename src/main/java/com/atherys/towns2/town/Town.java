@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -22,8 +21,6 @@ import org.spongepowered.api.world.World;
 public class Town implements LocationContainer<World>, ResidentContainer {
 
     private UUID uuid;
-
-    private Context context;
 
     private Nation nation = null;
     private Location<World> spawnLocation;
@@ -34,7 +31,7 @@ public class Town implements LocationContainer<World>, ResidentContainer {
     private Map<PlotFlag,Tristate> defaultFlags = new HashMap<>();
 
     public Town() {
-        this.context = new Context("atherystowns-town", uuid.toString());
+
     }
 
     @Override
@@ -99,11 +96,5 @@ public class Town implements LocationContainer<World>, ResidentContainer {
     @Override
     public Set<Resident> getResidents() {
         return residents;
-    }
-
-    @Override
-    @Nonnull
-    public Context getContext() {
-        return context;
     }
 }

@@ -1,24 +1,29 @@
 package com.atherys.towns2.rank;
 
+import com.atherys.towns2.AtherysTowns;
 import com.atherys.towns2.base.ResidentContainer;
 import com.atherys.towns2.rank.action.Action;
 import com.atherys.towns2.resident.Resident;
-import com.google.common.collect.Sets;
 import java.util.Map;
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.context.ContextSource;
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.Group;
+import me.lucko.luckperms.api.Node;
 import org.spongepowered.api.util.Tristate;
 
-public abstract class Rank<T extends Action> implements ContextSource{
+public abstract class Rank<T extends Action> {
 
     private String id;
     private String name;
 
-    private Map<T, Tristate> actions;
+    private Group group;
 
     public Rank(String id, String name) {
         this.id = id;
         this.name = name;
+        AtherysTowns.getLuckPerms()
+            .getGroupManager()
+            .createAndLoadGroup(id)
+            .thenAcceptAsync(this::setGroup);
     }
 
     public String getId() {
@@ -29,44 +34,29 @@ public abstract class Rank<T extends Action> implements ContextSource{
         return name;
     }
 
-    public Map<T, Tristate> getActions() {
-        return actions;
-    }
-
-    public Tristate get(T action) {
-        return actions.get(action);
-    }
-
-    public Tristate addAction(T action, Tristate value) {
-        return actions.put(action, value);
+    public Tristate addAction(T action) {
+        group.setPermission(action.getPermission());
     }
 
     public Tristate removeAction(T action) {
-        return actions.remove(action);
+        group.unsetPermission(action.getPermission());
     }
 
     public boolean addResidentRank(ResidentContainer source, Resident resident) {
-
-        User user = resident.asUser().orElse(null);
-        if ( user == null ) return false;
-
-        actions.forEach((action,value) -> {
-            user.getSubjectData().setPermission(
-                Sets.newHashSet(source.getContext(), this.getContext()),
-                action.getPermission(),
-                value
-            );
+        resident.asUser().ifPresent(user -> {
+            AtherysTowns.getLuckPerms().getGroupManager().getGroupOpt()
         });
-
-        return true;
     }
 
     public boolean removeResidentRank(ResidentContainer source, Resident resident) {
-        User user = resident.asUser().orElse(null);
-        if ( user == null ) return false;
 
-        user.getSubjectData().clearPermissions(Sets.newHashSet(source.getContext(), this.getContext()));
+    }
 
-        return true;
+    private void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public Group getGroup() {
+        return group;
     }
 }

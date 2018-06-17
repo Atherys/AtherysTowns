@@ -2,9 +2,8 @@ package com.atherys.towns2.base;
 
 import com.atherys.towns2.resident.Resident;
 import java.util.Set;
-import org.spongepowered.api.service.context.ContextSource;
 
-public interface ResidentContainer extends ContextSource {
+public interface ResidentContainer {
 
     Set<Resident> getResidents();
 
