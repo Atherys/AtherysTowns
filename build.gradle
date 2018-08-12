@@ -33,18 +33,22 @@ repositories {
         name 'jitpack'
         url 'https://jitpack.io'
     }
+    maven {
+        name = 'Forge'
+        url = 'http://files.minecraftforge.net/maven'
+    }
 }
 
 dependencies {
-    shadow 'org.spongepowered:spongeapi:7.0.0-SNAPSHOT'
+    shadow 'org.spongepowered:spongeapi:7.1.0-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysCore:master-SNAPSHOT'
-
-    compile   'math.geom2d:javaGeom:0.11.1'
+    shadow('me.ryanhamshire:griefprevention:1.12.2-4.3.0.646:api') {
+        transitive = false
+    }
+    shadow 'me.lucko.luckperms:luckperms-api:4.2'
 }
 
 shadowJar {
     relocate 'org.bson', 'com.atherys.libs.org.bson'
     relocate 'com.mongodb', 'com.atherys.libs.com.mongodb'
-    relocate 'com.seisw', 'com.atherys.libs.com.seisw'
-    relocate 'math', 'com.atherys.libs.math'
 }
