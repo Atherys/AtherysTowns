@@ -1,77 +1,55 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
-import com.flowpowered.math.vector.Vector3i;
-import me.ryanhamshire.griefprevention.GriefPrevention;
-import me.ryanhamshire.griefprevention.api.claim.Claim;
-import me.ryanhamshire.griefprevention.api.claim.ClaimResult;
-import me.ryanhamshire.griefprevention.api.claim.ClaimType;
+import com.flowpowered.math.vector.Vector2d;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 import org.spongepowered.api.world.World;
 
 import java.util.UUID;
 
+@Entity(value = "plots", noClassnameStored = true)
 public class Plot implements DBObject {
+
+    @Id
+    private UUID uuid;
+
+    private World world;
+
+    private Vector2d min;
+    private Vector2d max;
 
     private Town town;
 
-    private Claim claim;
+    private Plot() {}
 
-    /**
-     * Create a new plot, which immediately becomes part of a town
-     *
-     * @param town The town claiming the plot
-     * @param pos1 The first corner
-     * @param pos2 The second corner
-     */
-    public Plot(Town town, Vector3i pos1, Vector3i pos2) {
-        ClaimResult result = Claim.builder()
-                .type(ClaimType.BASIC)
-                .world(town.getWorld())
-                .bounds(pos1, pos2)
-                .parent(town.getHomePlot().getClaim())
-                .inherit(true)
-                .build();
-
-        if (result.successful() && result.getClaim().isPresent()) {
-            this.claim = result.getClaim().get();
-        }
-
+    public Plot(Town town, Vector2d min, Vector2d max) {
+        this.uuid = UUID.randomUUID();
         this.town = town;
+        this.world = town.getWorld();
+        this.min = min;
+        this.max = max;
     }
 
-    public Plot(World world, UUID claimId) {
-        GriefPrevention.getApi().getClaimManager(world).getClaimByUUID(claimId).ifPresent(claim -> this.claim = claim);
+    @Override
+    public UUID getUniqueId() {
+        return uuid;
     }
 
-    /**
-     * Creates a new Plot, which is to be used as the Home Plot for a new Town
-     *
-     * @param world The world
-     * @param pos1 First corner
-     * @param pos2 Second corner
-     */
-    public Plot(World world, Vector3i pos1, Vector3i pos2) {
-        ClaimResult result = Claim.builder()
-                .type(ClaimType.BASIC)
-                .world(world)
-                .bounds(pos1, pos2)
-                .build();
-
-        if (result.successful() && result.getClaim().isPresent()) {
-            this.claim = result.getClaim().get();
-        }
+    public World getWorld() {
+        return world;
     }
 
-    public Claim getClaim() {
-        return claim;
+    public Vector2d getMin() {
+        return min;
+    }
+
+    public Vector2d getMax() {
+        return max;
     }
 
     public Town getTown() {
         return town;
     }
 
-    @Override
-    public UUID getUniqueId() {
-        return claim.getUniqueId();
-    }
 }

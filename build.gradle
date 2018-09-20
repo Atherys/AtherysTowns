@@ -42,9 +42,6 @@ repositories {
 dependencies {
     shadow 'org.spongepowered:spongeapi:7.1.0-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysCore:master-SNAPSHOT'
-    shadow('me.ryanhamshire:griefprevention:1.12.2-4.3.0.646:api') {
-        transitive = false
-    }
     shadow 'me.lucko.luckperms:luckperms-api:4.2'
 }
 

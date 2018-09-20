@@ -1,23 +1,29 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
-import org.spongepowered.api.entity.living.player.User;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@Entity(value = "residents", noClassnameStored = true)
 public class Resident implements DBObject {
 
+    @Id
     private UUID uuid;
+
+    private LocalDateTime registered;
+
+    private LocalDateTime lastOnline;
 
     private Town town;
 
+    private Resident() {}
+
     public Resident(UUID uuid) {
         this.uuid = uuid;
-    }
-
-    public <T extends User> Resident(T user) {
-        this.uuid = user.getUniqueId();
     }
 
     @Override
@@ -25,11 +31,15 @@ public class Resident implements DBObject {
         return uuid;
     }
 
-    public Optional<Town> getTown() {
-        return Optional.ofNullable(town);
+    public LocalDateTime getRegistered() {
+        return registered;
     }
 
-    public void setTown(Town town) {
-        this.town = town;
+    public LocalDateTime getLastOnline() {
+        return lastOnline;
+    }
+
+    public Optional<Town> getTown() {
+        return Optional.ofNullable(town);
     }
 }
