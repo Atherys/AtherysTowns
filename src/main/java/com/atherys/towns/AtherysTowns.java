@@ -5,6 +5,8 @@ import static com.atherys.towns.AtherysTowns.ID;
 import static com.atherys.towns.AtherysTowns.NAME;
 import static com.atherys.towns.AtherysTowns.VERSION;
 
+import com.atherys.towns.listener.PlotterListener;
+import com.atherys.towns.service.PlotterService;
 import com.atherys.towns.persistence.NationManager;
 import com.atherys.towns.persistence.PlotManager;
 import com.atherys.towns.persistence.ResidentManager;
@@ -12,6 +14,7 @@ import com.atherys.towns.persistence.TownManager;
 import com.atherys.towns.persistence.TownsDatabase;
 import javax.inject.Inject;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -49,6 +52,7 @@ public class AtherysTowns {
     private PlotManager plotManager;
     private TownManager townManager;
     private NationManager nationManager;
+    private PlotterService plotterService;
 
     private void init() {
         instance = this;
@@ -57,7 +61,8 @@ public class AtherysTowns {
     }
 
     private void start() {
-
+        plotterService = PlotterService.getInstance();
+        Sponge.getEventManager().registerListeners(this, new PlotterListener());
     }
 
     private void stop() {
@@ -101,6 +106,10 @@ public class AtherysTowns {
 
     public static NationManager getNationManager() {
         return getInstance().nationManager;
+    }
+
+    public static PlotterService getPlotterService() {
+        return getInstance().plotterService;
     }
 
     public static Logger getLogger() {
