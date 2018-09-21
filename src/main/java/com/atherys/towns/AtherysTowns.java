@@ -1,6 +1,16 @@
 package com.atherys.towns;
 
+import static com.atherys.towns.AtherysTowns.DESCRIPTION;
+import static com.atherys.towns.AtherysTowns.ID;
+import static com.atherys.towns.AtherysTowns.NAME;
+import static com.atherys.towns.AtherysTowns.VERSION;
+
+import com.atherys.towns.persistence.NationManager;
+import com.atherys.towns.persistence.PlotManager;
+import com.atherys.towns.persistence.ResidentManager;
+import com.atherys.towns.persistence.TownManager;
 import com.atherys.towns.persistence.TownsDatabase;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -8,10 +18,6 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-
-import javax.inject.Inject;
-
-import static com.atherys.towns.AtherysTowns.*;
 
 @Plugin(
         id = ID,
@@ -38,6 +44,11 @@ public class AtherysTowns {
     private Logger logger;
 
     private TownsDatabase database;
+
+    private ResidentManager residentManager;
+    private PlotManager plotManager;
+    private TownManager townManager;
+    private NationManager nationManager;
 
     private void init() {
         instance = this;
@@ -74,6 +85,22 @@ public class AtherysTowns {
 
     public static TownsDatabase getDatabase() {
         return getInstance().database;
+    }
+
+    public static ResidentManager getResidentManager() {
+        return getInstance().residentManager;
+    }
+
+    public static PlotManager getPlotManager() {
+        return getInstance().plotManager;
+    }
+
+    public static TownManager getTownManager() {
+        return getInstance().townManager;
+    }
+
+    public static NationManager getNationManager() {
+        return getInstance().nationManager;
     }
 
     public static Logger getLogger() {
