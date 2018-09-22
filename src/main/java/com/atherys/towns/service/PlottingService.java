@@ -6,16 +6,16 @@ import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.*;
 
-public class PlotterService {
+public class PlottingService {
     private Map<UUID, List<Vector2d>> players = new HashMap<>();
 
-    private static PlotterService instance = new PlotterService();
+    private static PlottingService instance = new PlottingService();
 
-    public static PlotterService getInstance() {
+    public static PlottingService getInstance() {
         return instance;
     }
 
-    private PlotterService() {
+    private PlottingService() {
     }
 
     public void startPlotting(Player player) {

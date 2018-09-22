@@ -16,7 +16,7 @@ public class CreateTownFromPlotCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) return CommandResult.empty();
-        AtherysTowns.getPlotterService().startPlotting((Player) src);
+        AtherysTowns.getPlottingService().startPlotting((Player) src);
         return CommandResult.success();
     }
 }

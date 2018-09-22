@@ -6,7 +6,7 @@ import static com.atherys.towns.AtherysTowns.NAME;
 import static com.atherys.towns.AtherysTowns.VERSION;
 
 import com.atherys.towns.listener.PlotterListener;
-import com.atherys.towns.service.PlotterService;
+import com.atherys.towns.service.PlottingService;
 import com.atherys.towns.persistence.NationManager;
 import com.atherys.towns.persistence.PlotManager;
 import com.atherys.towns.persistence.ResidentManager;
@@ -52,7 +52,7 @@ public class AtherysTowns {
     private PlotManager plotManager;
     private TownManager townManager;
     private NationManager nationManager;
-    private PlotterService plotterService;
+    private PlottingService plottingService;
 
     private void init() {
         instance = this;
@@ -61,7 +61,7 @@ public class AtherysTowns {
     }
 
     private void start() {
-        plotterService = PlotterService.getInstance();
+        plottingService = PlottingService.getInstance();
         Sponge.getEventManager().registerListeners(this, new PlotterListener());
     }
 
@@ -108,8 +108,8 @@ public class AtherysTowns {
         return getInstance().nationManager;
     }
 
-    public static PlotterService getPlotterService() {
-        return getInstance().plotterService;
+    public static PlottingService getPlottingService() {
+        return getInstance().plottingService;
     }
 
     public static Logger getLogger() {
