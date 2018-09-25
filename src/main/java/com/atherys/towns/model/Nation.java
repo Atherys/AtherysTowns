@@ -22,7 +22,16 @@ public class Nation implements DBObject {
 
     private TextColor color;
 
+    private Town capital;
+
     private Set<Town> towns = new HashSet<>();
+
+    private Nation() {}
+
+    public Nation(Town capital) {
+        this.capital = capital;
+        towns.add(capital);
+    }
 
     @Override
     public UUID getUniqueId() {
@@ -41,8 +50,20 @@ public class Nation implements DBObject {
         return color;
     }
 
+    public Town getCapital() {
+        return capital;
+    }
+
     public Set<Town> getTowns() {
         return towns;
+    }
+
+    public boolean addTown(Town town) {
+        return towns.add(town);
+    }
+
+    public boolean removeTown(Town o) {
+        return towns.remove(o);
     }
 
     @Override
