@@ -5,6 +5,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,5 +42,21 @@ public class Resident implements DBObject {
 
     public Optional<Town> getTown() {
         return Optional.ofNullable(town);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Resident resident = (Resident) o;
+        return Objects.equals(uuid, resident.uuid) &&
+                Objects.equals(registered, resident.registered) &&
+                Objects.equals(lastOnline, resident.lastOnline) &&
+                Objects.equals(town, resident.town);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, registered, lastOnline, town);
     }
 }

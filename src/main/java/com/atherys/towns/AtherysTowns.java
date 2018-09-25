@@ -22,6 +22,8 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 
+import java.io.IOException;
+
 @Plugin(
         id = ID,
         name = NAME,
@@ -43,6 +45,8 @@ public class AtherysTowns {
 
     private static boolean init = false;
 
+    private static TownsConfig config;
+
     @Inject
     private Logger logger;
 
@@ -56,6 +60,13 @@ public class AtherysTowns {
 
     private void init() {
         instance = this;
+
+        try {
+            config = new TownsConfig();
+            config.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         database = TownsDatabase.getInstance();
     }
@@ -114,5 +125,9 @@ public class AtherysTowns {
 
     public static Logger getLogger() {
         return getInstance().logger;
+    }
+
+    public static TownsConfig getConfig() {
+        return config;
     }
 }

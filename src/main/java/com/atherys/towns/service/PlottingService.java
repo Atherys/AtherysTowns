@@ -41,7 +41,8 @@ public class PlottingService {
             AtherysTowns.getTownManager().createTownFromSelection(
                     points.getLeft(),
                     points.getRight(),
-                    AtherysTowns.getResidentManager().getOrCreate(player.getUniqueId())
+                    AtherysTowns.getResidentManager().getOrCreate(player.getUniqueId()),
+                    player.getWorld()
             );
             players.remove(player.getUniqueId());
         }

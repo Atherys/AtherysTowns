@@ -6,6 +6,7 @@ import org.mongodb.morphia.annotations.Id;
 import org.spongepowered.api.text.format.TextColor;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -42,5 +43,22 @@ public class Nation implements DBObject {
 
     public Set<Town> getTowns() {
         return towns;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Nation nation = (Nation) o;
+        return Objects.equals(uuid, nation.uuid) &&
+                Objects.equals(name, nation.name) &&
+                Objects.equals(description, nation.description) &&
+                Objects.equals(color, nation.color) &&
+                Objects.equals(towns, nation.towns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, description, color, towns);
     }
 }

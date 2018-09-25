@@ -6,6 +6,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.spongepowered.api.world.World;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity(value = "plots", noClassnameStored = true)
@@ -52,4 +53,20 @@ public class Plot implements DBObject {
         return town;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plot plot = (Plot) o;
+        return Objects.equals(uuid, plot.uuid) &&
+                Objects.equals(world.getUniqueId(), plot.world.getUniqueId()) &&
+                Objects.equals(min, plot.min) &&
+                Objects.equals(max, plot.max) &&
+                Objects.equals(town, plot.town);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, world, min, max, town);
+    }
 }
