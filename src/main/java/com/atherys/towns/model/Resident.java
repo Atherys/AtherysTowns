@@ -3,6 +3,7 @@ package com.atherys.towns.model;
 import com.atherys.core.database.api.DBObject;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -42,6 +43,18 @@ public class Resident implements DBObject {
 
     public Optional<Town> getTown() {
         return Optional.ofNullable(town);
+    }
+
+    public void setRegistered(LocalDateTime registered) {
+        this.registered = registered;
+    }
+
+    public void setLastOnline(LocalDateTime lastOnline) {
+        this.lastOnline = lastOnline;
+    }
+
+    public void setTown(Town town) {
+        this.town = town;
     }
 
     @Override
