@@ -31,7 +31,8 @@ public class ResidentAction {
         return validFor.contains(type);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "ResidentAction{" +
                 "permission='" + permission + '\'' +
                 '}';
