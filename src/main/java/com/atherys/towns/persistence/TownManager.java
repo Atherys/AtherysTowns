@@ -2,15 +2,19 @@ package com.atherys.towns.persistence;
 
 import com.atherys.core.database.mongo.MorphiaDatabaseManager;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.Plot;
 import com.atherys.towns.model.Resident;
 import com.atherys.towns.model.Town;
+import com.atherys.towns.model.permission.ResidentAction;
+import com.atherys.towns.model.permission.ResidentRank;
+import com.atherys.towns.model.permission.ResidentRights;
 import com.flowpowered.math.vector.Vector2d;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class TownManager extends MorphiaDatabaseManager<Town> {
 
@@ -37,7 +41,19 @@ public class TownManager extends MorphiaDatabaseManager<Town> {
             town.setMaxArea(AtherysTowns.getConfig().DEFAULT_TOWN_SIZE);
             town.setMotd(AtherysTowns.getConfig().DEFAULT_TOWN_MOTD);
 
+            Set<ResidentAction> rights = new HashSet<>();
+            rights.add(ResidentRights.GRANT_PLOT_PERMISSIONS);
+            rights.add(ResidentRights.INVITE_MEMBER);
+            rights.add(ResidentRights.DEMOTE_RESIDENT);
+            rights.add(ResidentRights.PROMOTE_RESIDENT);
+
+            AtherysTowns.getRankManager().createRank(town, ResidentRank.OWNER,"major", rights);
             return Optional.of(town);
         }
+    }
+
+    public void addTownToNation(Town origin, Nation nation) {
+        origin.setNation(nation);
+        update(origin);
     }
 }

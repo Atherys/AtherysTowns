@@ -1,6 +1,8 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
+import com.atherys.towns.model.permission.ResidentRank;
+import com.atherys.towns.model.permission.RankDefinitionStorage;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.spongepowered.api.text.format.TextColor;
@@ -8,10 +10,11 @@ import org.spongepowered.api.text.format.TextColor;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 @Entity(value = "nations", noClassnameStored = true)
-public class Nation implements DBObject {
+public class Nation implements DBObject, RankDefinitionStorage {
 
     @Id
     private UUID uuid;
@@ -25,6 +28,8 @@ public class Nation implements DBObject {
     private Town capital;
 
     private Set<Town> towns = new HashSet<>();
+
+    private Set<ResidentRank> residentRanks = new TreeSet<>();
 
     private Nation() {}
 
@@ -66,6 +71,20 @@ public class Nation implements DBObject {
         return towns.remove(o);
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public Type getPermissionContext() {
+        return Type.NATION;
+    }
+
+    @Override
+    public Set<ResidentRank> getDefinedResidentRanks() {
+        return residentRanks;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,4 +101,5 @@ public class Nation implements DBObject {
     public int hashCode() {
         return Objects.hash(uuid, name, description, color, towns);
     }
+
 }

@@ -1,16 +1,20 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
+import com.atherys.towns.model.permission.ResidentRank;
+import com.atherys.towns.model.permission.RankDefinitionStorage;
 import com.flowpowered.math.vector.Vector2d;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.spongepowered.api.world.World;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 @Entity(value = "plots", noClassnameStored = true)
-public class Plot implements DBObject {
+public class Plot implements DBObject, RankDefinitionStorage {
 
     @Id
     private UUID uuid;
@@ -21,6 +25,8 @@ public class Plot implements DBObject {
     private Vector2d max;
 
     private Town town;
+
+    private Set<ResidentRank> residentRanks = new TreeSet<>();
 
     private Plot() {}
 
@@ -51,6 +57,16 @@ public class Plot implements DBObject {
 
     public Town getTown() {
         return town;
+    }
+
+    @Override
+    public Type getPermissionContext() {
+        return Type.PLOT;
+    }
+
+    @Override
+    public Set<ResidentRank> getDefinedResidentRanks() {
+        return residentRanks;
     }
 
     @Override

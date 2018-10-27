@@ -6,13 +6,13 @@ import static com.atherys.towns.AtherysTowns.NAME;
 import static com.atherys.towns.AtherysTowns.VERSION;
 
 import com.atherys.towns.listener.PlotterListener;
-import com.atherys.towns.service.PlottingService;
 import com.atherys.towns.persistence.NationManager;
 import com.atherys.towns.persistence.PlotManager;
+import com.atherys.towns.persistence.RankManager;
 import com.atherys.towns.persistence.ResidentManager;
 import com.atherys.towns.persistence.TownManager;
 import com.atherys.towns.persistence.TownsDatabase;
-import javax.inject.Inject;
+import com.atherys.towns.service.PlottingService;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
@@ -23,6 +23,8 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.IOException;
+
+import javax.inject.Inject;
 
 @Plugin(
         id = ID,
@@ -57,6 +59,7 @@ public class AtherysTowns {
     private TownManager townManager;
     private NationManager nationManager;
     private PlottingService plottingService;
+    private RankManager rankManager;
 
     private void init() {
         instance = this;
@@ -129,5 +132,9 @@ public class AtherysTowns {
 
     public static TownsConfig getConfig() {
         return config;
+    }
+
+    public static RankManager getRankManager() {
+        return getInstance().rankManager;
     }
 }

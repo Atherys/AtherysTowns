@@ -1,16 +1,23 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
+import com.atherys.towns.model.permission.PermissionContext;
+import com.atherys.towns.model.permission.ResidentRank;
+import com.atherys.towns.model.permission.RankDefinitionStorage;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.World;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 
 @Entity(value = "towns", noClassnameStored = true)
-public class Town implements DBObject {
+public class Town implements DBObject, RankDefinitionStorage {
 
     @Id
     private UUID uuid;
@@ -28,6 +35,8 @@ public class Town implements DBObject {
     private Set<Resident> residents = new HashSet<>();
 
     private Set<Plot> plots = new HashSet<>();
+
+    private Set<ResidentRank> residentRanks = new TreeSet<>();
 
     private int maxArea;
 
@@ -121,6 +130,21 @@ public class Town implements DBObject {
     public boolean removePlot(Plot o) {
         return plots.remove(o);
     }
+
+    public Set<ResidentRank> getResidentRanks() {
+        return residentRanks;
+    }
+
+    @Override
+    public PermissionContext.Type getPermissionContext() {
+        return Type.TOWN;
+    }
+
+    @Override
+    public Set<ResidentRank> getDefinedResidentRanks() {
+        return residentRanks;
+    }
+
 
     @Override
     public boolean equals(Object o) {

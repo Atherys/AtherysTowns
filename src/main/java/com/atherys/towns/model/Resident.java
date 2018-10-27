@@ -1,13 +1,15 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
+import com.atherys.towns.model.permission.ResidentRank;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
-import org.spongepowered.api.service.permission.Subject;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity(value = "residents", noClassnameStored = true)
@@ -21,6 +23,8 @@ public class Resident implements DBObject {
     private LocalDateTime lastOnline;
 
     private Town town;
+
+    private Set<ResidentRank> residentRanks = new HashSet<>();
 
     private Resident() {}
 
@@ -55,6 +59,14 @@ public class Resident implements DBObject {
 
     public void setTown(Town town) {
         this.town = town;
+    }
+
+    public Set<ResidentRank> getResidentRanks() {
+        return residentRanks;
+    }
+
+    public void setResidentRanks(Set<ResidentRank> residentRanks) {
+        this.residentRanks = residentRanks;
     }
 
     @Override
