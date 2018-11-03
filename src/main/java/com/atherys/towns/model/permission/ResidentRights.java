@@ -48,9 +48,14 @@ public class ResidentRights {
     public static final ResidentAction BUILD =
             new ResidentAction("at.area.edit", PermissionContext.Type.values());
 
-    public static final ResidentAction USE =
-            new ResidentAction("at.area.use", PermissionContext.Type.values());
+    public static final ResidentAction DESTROY = new ResidentAction("at.area.destroy", PermissionContext.Type.values());
 
-    public static final ResidentAction STEP_ON =
-            new ResidentAction("at.area.stepon", PermissionContext.Type.values());
+    public static final ResidentAction DAMAGE_ENTITY = new ResidentAction("at.area.pve", PermissionContext.Type.values());;
+
+    public static final ResidentAction DAMAGE_PLAYER = new ResidentAction("at.area.pvp", PermissionContext.Type.values());;
+
+    public static final ResidentAction INTERACT_WITH_DOORS = new ResidentAction("at.area.interact.doors", PermissionContext.Type.values());
+
+    public static final ResidentAction INTERACT_WITH_OTHER_WEIRD_STUFF = new ResidentAction("at.area.interact.redstone", PermissionContext.Type.values());
+
 }
