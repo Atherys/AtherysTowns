@@ -1,9 +1,13 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.database.api.DBObject;
+import com.atherys.towns.PermsCache;
 import com.atherys.towns.model.permission.ResidentRank;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Transient;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -25,6 +29,9 @@ public class Resident implements DBObject {
     private Town town;
 
     private Set<ResidentRank> residentRanks = new HashSet<>();
+
+    @Transient
+    private transient PermsCache permsCache = new PermsCache();
 
     private Resident() {}
 
@@ -67,6 +74,14 @@ public class Resident implements DBObject {
 
     public void setResidentRanks(Set<ResidentRank> residentRanks) {
         this.residentRanks = residentRanks;
+    }
+
+    public PermsCache getPermsCache() {
+        return permsCache;
+    }
+
+    public Optional<Player> getPlayer() {
+        return Sponge.getServer().getPlayer(uuid);
     }
 
     @Override

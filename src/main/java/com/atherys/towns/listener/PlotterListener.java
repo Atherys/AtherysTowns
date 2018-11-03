@@ -2,11 +2,16 @@ package com.atherys.towns.listener;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.events.PlotBorderCrossEvent;
+import com.atherys.towns.model.Plot;
+import com.atherys.towns.model.Resident;
+import com.atherys.towns.persistence.PermissionManager;
+import com.atherys.towns.persistence.ResidentManager;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 
@@ -19,29 +24,14 @@ public class PlotterListener {
         }
     }
 
-    @Listener
-    public void onBorderCross(PlotBorderCrossEvent event, @Root Living living) {
-        //This Event shall be called every time an user crosses a claim/plot.
-        //This event then has to refresh internal cache on resident.
-        //The cache contains basic boolean flags for action such as pvp, pve, block destroy, block interact
-
-
-        /*
-        class PermissionCache {
-            bool mayAttackPlayers;
-            bool mayAttackMobs;
-            bool mayBuild;
-            bool mayDestroy;
-            ...
+    @Listener(order = Order.LATE)
+    public void onBorderCross(PlotBorderCrossEvent event, @Root Player living) {
+        Resident resident = AtherysTowns.getResidentManager().getOrCreate(living.getUniqueId());
+        if (event.isCancelled()) {
+            event.getMoveEvent().setCancelled(true);
+        } else {
+            Plot to = event.getTo();
+            Plot from = event.getFrom();
         }
-
-        Some of these flags will partially reflect permission nodes found in ResidentRights.
-        >Player changes plot (eg steps from a town to a wilderness/notclaimedarea)
-        >In the town player was not permitted to build, in wilderness he can
-        >you set the maybuild flag to true
-        >During the BlockChangeEvent you validate only whenever maybuild flat is set to true
-        No matter how luckpemrs is fast this will be always faster with much smaller overhead.
-         */
-
     }
 }
