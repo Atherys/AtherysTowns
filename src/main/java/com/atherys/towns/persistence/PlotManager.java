@@ -86,7 +86,7 @@ public class PlotManager extends MorphiaDatabaseManager<Plot> {
     }
 
     private long getPlotHash(Location<World> location) {
-        return getPlotHash(location.getBlockX() >> 4, location.getBlockZ() >> 4); // shift by for, 16 = 1, 32 = 2, ... = chunkpos from loc. no need to call getExtent which we would have to typecast then
+        return getPlotHash(location.getBlockX() >> 4, location.getBlockZ() >> 4); // shift by 4, 16 = 1, 32 = 2, ... = chunkpos from loc. no need to call getExtent which we would have to typecast then
     }
 
     private long getPlotHash(Vector3i chunkPos) {
