@@ -5,14 +5,14 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.model.Plot;
 import com.atherys.towns.model.Town;
 import com.flowpowered.math.vector.Vector2d;
+import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class PlotManager extends MorphiaDatabaseManager<Plot> {
 
@@ -27,6 +27,46 @@ public class PlotManager extends MorphiaDatabaseManager<Plot> {
 
     private PlotManager() {
         super(AtherysTowns.getDatabase(), AtherysTowns.getLogger(), Plot.class);
+    }
+
+
+    @Override
+    public void loadAll() {
+        super.loadAll();
+        Map<UUID, Plot> cache = getCache();
+        for (Plot plot : cache.values()) {
+            addPlot(plot);
+        }
+    }
+
+    private void addPlot(Plot plot) {
+        Vector2d max = plot.getMax();
+        Vector2d min = plot.getMin();
+
+        int xmin = Math.min(max.getFloorX(), min.getFloorX());
+        int xmax = Math.max(max.getFloorX(), min.getFloorX());
+
+        int zmin = Math.min(max.getFloorY(), min.getFloorY());
+        int zmax = Math.max(max.getFloorY(), min.getFloorY());
+        Set<Long> hashes = new HashSet<>();
+        for (int x = xmin; x <= xmax; x+=16) {
+            for (int z = zmin; z <= zmax; z+=16) {
+                hashes.add(getPlotHash(x, z));
+            }
+        }
+        addPlot(plot, hashes);
+    }
+
+    private void addPlot(Plot plot, Set<Long> chunks) {
+        for (Long plotHash : chunks) {
+            plotCache.compute((long)plotHash, (aLong, plots) -> {
+                if (plots == null){
+                    plots = new HashSet<>();
+                }
+                plots.add(plot);
+                return plots;
+            });
+        }
     }
 
     public static PlotManager getInstance() {
@@ -91,6 +131,10 @@ public class PlotManager extends MorphiaDatabaseManager<Plot> {
 
     private long getPlotHash(Vector3i chunkPos) {
         return getPlotHash(chunkPos.getX(), chunkPos.getZ());
+    }
+
+    private long getPlotHash(Vector2i chunkPos) {
+        return getPlotHash(chunkPos.getX(), chunkPos.getY());
     }
 
     private long getPlotHash(Chunk chunk) {
