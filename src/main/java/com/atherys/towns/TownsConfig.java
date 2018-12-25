@@ -1,6 +1,5 @@
 package com.atherys.towns;
 
-import com.atherys.core.database.mongo.MongoDatabaseConfig;
 import com.atherys.core.utils.PluginConfig;
 import ninja.leaping.configurate.objectmapping.Setting;
 import org.spongepowered.api.text.format.TextColor;
@@ -9,9 +8,6 @@ import org.spongepowered.api.text.format.TextColors;
 import java.io.IOException;
 
 public class TownsConfig extends PluginConfig {
-
-    @Setting("database")
-    public MongoDatabaseConfig DATABASE = new MongoDatabaseConfig();
 
     @Setting("default_town_name")
     public String DEFAULT_TOWN_NAME = "Town Name";

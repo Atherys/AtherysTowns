@@ -40,12 +40,6 @@ repositories {
 }
 
 dependencies {
-    shadow 'org.spongepowered:spongeapi:7.1.0-SNAPSHOT'
-    shadow 'com.github.Atherys-Horizons:AtherysCore:master-SNAPSHOT'
-    shadow 'me.lucko.luckperms:luckperms-api:4.2'
-}
-
-shadowJar {
-    relocate 'org.bson', 'com.atherys.libs.org.bson'
-    relocate 'com.mongodb', 'com.atherys.libs.com.mongodb'
+    shadow 'org.spongepowered:spongeapi:7.1.0'
+    shadow 'com.github.Atherys-Horizons:AtherysCore:1.10.4'
 }

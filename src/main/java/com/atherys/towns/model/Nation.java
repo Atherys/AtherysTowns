@@ -1,85 +1,85 @@
 package com.atherys.towns.model;
 
-import com.atherys.core.database.api.DBObject;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.spongepowered.api.text.format.TextColor;
+import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.towns.persistence.converter.TextConverter;
+import org.spongepowered.api.text.Text;
 
-import java.util.HashSet;
-import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.persistence.*;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity(value = "nations", noClassnameStored = true)
-public class Nation implements DBObject {
+@Entity
+public class Nation implements SpongeIdentifiable {
 
     @Id
     private UUID uuid;
 
-    private String name;
+    @Convert(converter = TextConverter.class)
+    private Text name;
 
-    private String description;
+    @Convert(converter = TextConverter.class)
+    private Text description;
 
-    private TextColor color;
+    @OneToMany
+    private Set<Town> towns;
 
+    @OneToOne
+    private Resident leader;
+
+    @OneToOne
     private Town capital;
 
-    private Set<Town> towns = new HashSet<>();
-
-    private Nation() {}
-
-    public Nation(Town capital) {
-        this.capital = capital;
-        towns.add(capital);
+    public Nation() {
     }
 
+    public Nation(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    @Nonnull
     @Override
-    public UUID getUniqueId() {
+    public UUID getId() {
         return uuid;
     }
 
-    public String getName() {
+    public Text getName() {
         return name;
     }
 
-    public String getDescription() {
+    public void setName(Text name) {
+        this.name = name;
+    }
+
+    public Text getDescription() {
         return description;
     }
 
-    public TextColor getColor() {
-        return color;
-    }
-
-    public Town getCapital() {
-        return capital;
+    public void setDescription(Text description) {
+        this.description = description;
     }
 
     public Set<Town> getTowns() {
         return towns;
     }
 
-    public boolean addTown(Town town) {
-        return towns.add(town);
+    public void setTowns(Set<Town> towns) {
+        this.towns = towns;
     }
 
-    public boolean removeTown(Town o) {
-        return towns.remove(o);
+    public Resident getLeader() {
+        return leader;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Nation nation = (Nation) o;
-        return Objects.equals(uuid, nation.uuid) &&
-                Objects.equals(name, nation.name) &&
-                Objects.equals(description, nation.description) &&
-                Objects.equals(color, nation.color) &&
-                Objects.equals(towns, nation.towns);
+    public void setLeader(Resident leader) {
+        this.leader = leader;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid, name, description, color, towns);
+    public Town getCapital() {
+        return capital;
+    }
+
+    public void setCapital(Town capital) {
+        this.capital = capital;
     }
 }

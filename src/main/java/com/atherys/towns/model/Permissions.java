@@ -1,4 +1,5 @@
 package com.atherys.towns.model;
 
-public class Plot {
+public class Permissions {
+
 }

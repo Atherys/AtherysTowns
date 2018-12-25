@@ -1,20 +1,10 @@
 package com.atherys.towns;
 
-import static com.atherys.towns.AtherysTowns.DESCRIPTION;
-import static com.atherys.towns.AtherysTowns.ID;
-import static com.atherys.towns.AtherysTowns.NAME;
-import static com.atherys.towns.AtherysTowns.VERSION;
-
-import com.atherys.towns.listener.PlotterListener;
-import com.atherys.towns.service.PlottingService;
-import com.atherys.towns.persistence.NationManager;
-import com.atherys.towns.persistence.PlotManager;
-import com.atherys.towns.persistence.ResidentManager;
-import com.atherys.towns.persistence.TownManager;
-import com.atherys.towns.persistence.TownsDatabase;
 import javax.inject.Inject;
+
+import com.atherys.core.event.AtherysHibernateConfigurationEvent;
+import com.atherys.towns.model.*;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -23,6 +13,8 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.IOException;
+
+import static com.atherys.towns.AtherysTowns.*;
 
 @Plugin(
         id = ID,
@@ -50,14 +42,6 @@ public class AtherysTowns {
     @Inject
     private Logger logger;
 
-    private TownsDatabase database;
-
-    private ResidentManager residentManager;
-    private PlotManager plotManager;
-    private TownManager townManager;
-    private NationManager nationManager;
-    private PlottingService plottingService;
-
     private void init() {
         instance = this;
 
@@ -67,17 +51,21 @@ public class AtherysTowns {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        database = TownsDatabase.getInstance();
     }
 
     private void start() {
-        plottingService = PlottingService.getInstance();
-        Sponge.getEventManager().registerListeners(this, new PlotterListener());
     }
 
     private void stop() {
 
+    }
+
+    private void onHibernateConfiguration (AtherysHibernateConfigurationEvent event) {
+        event.registerEntity(Nation.class);
+        event.registerEntity(Town.class);
+        event.registerEntity(Plot.class);
+        event.registerEntity(Resident.class);
+        event.registerEntity(Permissions.class);
     }
 
     @Listener
@@ -97,30 +85,6 @@ public class AtherysTowns {
 
     public static AtherysTowns getInstance() {
         return instance;
-    }
-
-    public static TownsDatabase getDatabase() {
-        return getInstance().database;
-    }
-
-    public static ResidentManager getResidentManager() {
-        return getInstance().residentManager;
-    }
-
-    public static PlotManager getPlotManager() {
-        return getInstance().plotManager;
-    }
-
-    public static TownManager getTownManager() {
-        return getInstance().townManager;
-    }
-
-    public static NationManager getNationManager() {
-        return getInstance().nationManager;
-    }
-
-    public static PlottingService getPlottingService() {
-        return getInstance().plottingService;
     }
 
     public static Logger getLogger() {
