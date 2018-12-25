@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.towns.model.*;
+import com.atherys.towns.util.Permissions;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
