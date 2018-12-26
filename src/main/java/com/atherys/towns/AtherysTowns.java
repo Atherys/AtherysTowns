@@ -4,7 +4,7 @@ import javax.inject.Inject;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.towns.model.*;
-import com.atherys.towns.util.Permissions;
+import com.atherys.towns.api.permission.Permissions;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -67,6 +67,7 @@ public class AtherysTowns {
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
         event.registerEntity(Permissions.class);
+        event.registerEntity(SimplePermissionContext.class);
     }
 
     @Listener

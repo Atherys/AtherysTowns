@@ -1,5 +1,9 @@
 package com.atherys.towns.model;
 
+import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.towns.api.permission.ContextHolder;
+import com.atherys.towns.api.permission.Contextual;
+import com.atherys.towns.api.permission.PermissionContext;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.WorldConverter;
@@ -7,6 +11,7 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,7 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town {
+public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation>, Contextual {
 
     @Id
     private UUID uuid;
@@ -30,6 +35,8 @@ public class Town {
 
     private Resident leader;
 
+    private Nation nation;
+
     @Convert(converter = WorldConverter.class)
     private World world;
 
@@ -40,4 +47,97 @@ public class Town {
 
     private Set<Plot> plots;
 
+    private PermissionContext context;
+
+    @Nonnull
+    @Override
+    public UUID getId() {
+        return uuid;
+    }
+
+    @Override
+    public Nation getParent() {
+        return nation;
+    }
+
+    public Text getName() {
+        return name;
+    }
+
+    public void setName(Text name) {
+        this.name = name;
+    }
+
+    public Text getDescription() {
+        return description;
+    }
+
+    public void setDescription(Text description) {
+        this.description = description;
+    }
+
+    public Text getMotd() {
+        return motd;
+    }
+
+    public void setMotd(Text motd) {
+        this.motd = motd;
+    }
+
+    public Resident getLeader() {
+        return leader;
+    }
+
+    public void setLeader(Resident leader) {
+        this.leader = leader;
+    }
+
+    public Nation getNation() {
+        return nation;
+    }
+
+    public void setNation(Nation nation) {
+        this.nation = nation;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
+    public Transform<World> getSpawn() {
+        return spawn;
+    }
+
+    public void setSpawn(Transform<World> spawn) {
+        this.spawn = spawn;
+    }
+
+    public Set<Resident> getResidents() {
+        return residents;
+    }
+
+    public void setResidents(Set<Resident> residents) {
+        this.residents = residents;
+    }
+
+    public Set<Plot> getPlots() {
+        return plots;
+    }
+
+    public void setPlots(Set<Plot> plots) {
+        this.plots = plots;
+    }
+
+    public void setContext(PermissionContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public PermissionContext getContext() {
+        return context;
+    }
 }

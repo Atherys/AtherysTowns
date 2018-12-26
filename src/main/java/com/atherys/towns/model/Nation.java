@@ -1,6 +1,9 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.towns.api.permission.ContextHolder;
+import com.atherys.towns.api.permission.Contextual;
+import com.atherys.towns.api.permission.PermissionContext;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.text.Text;
 
@@ -10,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements SpongeIdentifiable {
+public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation>, Contextual {
 
     @Id
     private UUID uuid;
@@ -81,5 +84,15 @@ public class Nation implements SpongeIdentifiable {
 
     public void setCapital(Town capital) {
         this.capital = capital;
+    }
+
+    @Override
+    public PermissionContext getContext() {
+        return null;
+    }
+
+    @Override
+    public Nation getParent() {
+        return this;
     }
 }

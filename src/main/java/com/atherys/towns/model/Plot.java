@@ -1,4 +1,16 @@
 package com.atherys.towns.model;
 
-public class Plot {
+import com.atherys.towns.api.permission.ContextHolder;
+import com.atherys.towns.api.permission.PermissionContext;
+
+public class Plot implements ContextHolder<Plot, Town> {
+    @Override
+    public PermissionContext getContext() {
+        return null;
+    }
+
+    @Override
+    public Town getParent() {
+        return null;
+    }
 }
