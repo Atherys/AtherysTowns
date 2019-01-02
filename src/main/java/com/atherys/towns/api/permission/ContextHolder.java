@@ -1,8 +1,8 @@
 package com.atherys.towns.api.permission;
 
-public interface ContextHolder<T extends ContextHolder, P extends ContextHolder> {
+public interface ContextHolder<T extends ContextHolder, P extends ContextHolder, C extends PermissionContext<T>> {
 
-    PermissionContext getContext();
+    C getContext();
 
     P getParent();
 

@@ -3,25 +3,35 @@ package com.atherys.towns.model;
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.ContextHolder;
 import com.atherys.towns.api.permission.Contextual;
-import com.atherys.towns.api.permission.PermissionContext;
+import com.atherys.towns.model.permission.TownPermissionContext;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.WorldConverter;
+import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation>, Contextual {
+public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, TownPermissionContext>, Contextual {
 
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID uuid;
 
     @Convert(converter = TextConverter.class)
@@ -35,6 +45,8 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation>, Co
 
     private Resident leader;
 
+    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "nation_id")
     private Nation nation;
 
     @Convert(converter = WorldConverter.class)
@@ -43,11 +55,13 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation>, Co
     @Convert(converter = TransformConverter.class)
     private Transform<World> spawn;
 
+    @OneToMany(mappedBy = "town")
     private Set<Resident> residents;
 
+    @OneToMany(mappedBy = "town")
     private Set<Plot> plots;
 
-    private PermissionContext context;
+    private TownPermissionContext context;
 
     @Nonnull
     @Override
@@ -132,12 +146,8 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation>, Co
         this.plots = plots;
     }
 
-    public void setContext(PermissionContext context) {
-        this.context = context;
-    }
-
     @Override
-    public PermissionContext getContext() {
+    public TownPermissionContext getContext() {
         return context;
     }
 }

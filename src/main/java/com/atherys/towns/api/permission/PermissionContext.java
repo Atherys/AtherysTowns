@@ -1,11 +1,13 @@
 package com.atherys.towns.api.permission;
 
-public interface PermissionContext {
+public interface PermissionContext<H extends ContextHolder> {
 
-    <T extends Contextual> boolean isPermitted(T contextual, int permissions);
+    H getHolder();
 
-    <T extends Contextual> void setPermissions(T contextual, int pemissions);
+    <C extends Contextual> boolean isPermitted(C contextual, int permissions);
 
-    <T extends Contextual> void removePermissions(T contextual);
+    <C extends Contextual> void setPermissions(C contextual, int permissions);
+
+    <C extends Contextual> void removePermissions(C contextual);
 
 }
