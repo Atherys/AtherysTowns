@@ -64,7 +64,8 @@ public class AtherysTowns {
 
     }
 
-    private void onHibernateConfiguration (AtherysHibernateConfigurationEvent event) {
+    @Listener
+    public void onHibernateConfiguration (AtherysHibernateConfigurationEvent event) {
         event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
@@ -78,17 +79,17 @@ public class AtherysTowns {
     }
 
     @Listener
-    void onInit(GameInitializationEvent event) {
+    public void onInit(GameInitializationEvent event) {
         init();
     }
 
     @Listener
-    void onStart(GameStartingServerEvent event) {
+    public void onStart(GameStartingServerEvent event) {
         if (init) start();
     }
 
     @Listener
-    void onStop(GameStoppingServerEvent event) {
+    public void onStop(GameStoppingServerEvent event) {
         if (init) stop();
     }
 

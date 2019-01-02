@@ -1,4 +1,8 @@
 package com.atherys.towns.api.permission;
 
-public interface Contextual {
+import com.atherys.core.db.Identifiable;
+
+import java.util.UUID;
+
+public interface Contextual extends Identifiable<UUID> {
 }

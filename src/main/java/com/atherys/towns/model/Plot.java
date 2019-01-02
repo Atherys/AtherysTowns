@@ -15,6 +15,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Converter;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -23,6 +24,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import java.util.UUID;
 
+@Entity
 public class Plot implements ContextHolder<Plot, Town, PlotPermissionContext>, SpongeIdentifiable {
 
     @Id
@@ -31,6 +33,7 @@ public class Plot implements ContextHolder<Plot, Town, PlotPermissionContext>, S
     @Column(name = "id", updatable = false, nullable = false)
     private UUID uuid;
 
+    @OneToOne
     private PlotPermissionContext context;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)

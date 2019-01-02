@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,10 +41,13 @@ public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation,
     @OneToMany(mappedBy = "nation")
     private Set<Town> towns;
 
+    @OneToOne
     private Resident leader;
 
+    @OneToOne
     private Town capital;
 
+    @OneToOne
     private NationPermissionContext context;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})

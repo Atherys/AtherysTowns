@@ -5,7 +5,7 @@ import com.atherys.towns.model.Plot;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-@Entity
+@Entity(name = "plot_permission_context")
 public class PlotPermissionContext extends AbstractPermissionContext<Plot> {
 
     @OneToOne

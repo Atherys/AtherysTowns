@@ -5,7 +5,7 @@ import com.atherys.towns.model.Town;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
-@Entity
+@Entity(name = "town_permission_context")
 public class TownPermissionContext extends AbstractPermissionContext<Town> {
 
     @OneToOne

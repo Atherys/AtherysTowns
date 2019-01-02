@@ -5,11 +5,13 @@ import com.atherys.towns.api.permission.Contextual;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.UUID;
 
+@Entity
 public class Resident implements Contextual, SpongeIdentifiable {
 
     @Id

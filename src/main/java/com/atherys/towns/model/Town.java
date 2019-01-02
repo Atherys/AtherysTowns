@@ -22,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.util.Set;
 import java.util.UUID;
 
@@ -43,6 +44,7 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, Tow
     @Convert(converter = TextConverter.class)
     private Text motd;
 
+    @OneToOne
     private Resident leader;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = true)
@@ -61,6 +63,7 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, Tow
     @OneToMany(mappedBy = "town")
     private Set<Plot> plots;
 
+    @OneToOne
     private TownPermissionContext context;
 
     @Nonnull
