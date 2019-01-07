@@ -1,9 +1,8 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.ContextHolder;
-import com.atherys.towns.api.permission.Contextual;
-import com.atherys.towns.model.permission.NationPermissionContext;
+import com.atherys.towns.api.Context;
+import com.atherys.towns.api.Contextual;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
@@ -24,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation, NationPermissionContext>, Contextual {
+public class Nation implements SpongeIdentifiable, Context, Contextual {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -47,9 +46,6 @@ public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation,
     @OneToOne
     private Town capital;
 
-    @OneToOne
-    private NationPermissionContext context;
-
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "nation_allies",
@@ -60,7 +56,7 @@ public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation,
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
-            name = "nation_allies",
+            name = "nation_enemies",
             joinColumns = @JoinColumn(name = "nation_id"),
             inverseJoinColumns = @JoinColumn(name = "enemy_nation_id")
     )
@@ -119,16 +115,6 @@ public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation,
         this.capital = capital;
     }
 
-    @Override
-    public NationPermissionContext getContext() {
-        return context;
-    }
-
-    @Override
-    public Nation getParent() {
-        return this;
-    }
-
     public Set<Nation> getAllies() {
         return allies;
     }
@@ -143,5 +129,15 @@ public class Nation implements SpongeIdentifiable, ContextHolder<Nation, Nation,
 
     public void setEnemies(Set<Nation> enemies) {
         this.enemies = enemies;
+    }
+
+    @Override
+    public boolean hasParent() {
+        return false;
+    }
+
+    @Override
+    public Context getParent() {
+        return this;
     }
 }

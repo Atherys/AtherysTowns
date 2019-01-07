@@ -1,9 +1,7 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.ContextHolder;
-import com.atherys.towns.api.permission.PermissionContext;
-import com.atherys.towns.model.permission.PlotPermissionContext;
+import com.atherys.towns.api.Context;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2dConverter;
 import com.flowpowered.math.vector.Vector2d;
@@ -14,27 +12,21 @@ import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
-public class Plot implements ContextHolder<Plot, Town, PlotPermissionContext>, SpongeIdentifiable {
+public class Plot implements SpongeIdentifiable, Context<Town> {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
     private UUID uuid;
-
-    @OneToOne
-    private PlotPermissionContext context;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "town_id")
@@ -53,16 +45,6 @@ public class Plot implements ContextHolder<Plot, Town, PlotPermissionContext>, S
     @Override
     public UUID getId() {
         return uuid;
-    }
-
-    @Override
-    public PlotPermissionContext getContext() {
-        return context;
-    }
-
-    @Override
-    public Town getParent() {
-        return town;
     }
 
     public Text getName() {
@@ -87,5 +69,15 @@ public class Plot implements ContextHolder<Plot, Town, PlotPermissionContext>, S
 
     public void setSouthWestCorner(Vector2d seCorner) {
         this.seCorner = seCorner;
+    }
+
+    @Override
+    public boolean hasParent() {
+        return true;
+    }
+
+    @Override
+    public Town getParent() {
+        return town;
     }
 }

@@ -1,9 +1,8 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.ContextHolder;
-import com.atherys.towns.api.permission.Contextual;
-import com.atherys.towns.model.permission.TownPermissionContext;
+import com.atherys.towns.api.Context;
+import com.atherys.towns.api.Contextual;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.WorldConverter;
@@ -27,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, TownPermissionContext>, Contextual {
+public class Town implements SpongeIdentifiable, Context<Nation>, Contextual {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -63,18 +62,10 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, Tow
     @OneToMany(mappedBy = "town")
     private Set<Plot> plots;
 
-    @OneToOne
-    private TownPermissionContext context;
-
     @Nonnull
     @Override
     public UUID getId() {
         return uuid;
-    }
-
-    @Override
-    public Nation getParent() {
-        return nation;
     }
 
     public Text getName() {
@@ -150,7 +141,12 @@ public class Town implements SpongeIdentifiable, ContextHolder<Town, Nation, Tow
     }
 
     @Override
-    public TownPermissionContext getContext() {
-        return context;
+    public boolean hasParent() {
+        return true;
+    }
+
+    @Override
+    public Nation getParent() {
+        return nation;
     }
 }

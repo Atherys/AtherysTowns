@@ -4,11 +4,6 @@ import javax.inject.Inject;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.towns.model.*;
-import com.atherys.towns.api.permission.Permissions;
-import com.atherys.towns.model.permission.AbstractPermissionContext;
-import com.atherys.towns.model.permission.NationPermissionContext;
-import com.atherys.towns.model.permission.PlotPermissionContext;
-import com.atherys.towns.model.permission.TownPermissionContext;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -70,12 +65,7 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-
-        event.registerEntity(Permissions.class);
-        event.registerEntity(AbstractPermissionContext.class);
-        event.registerEntity(NationPermissionContext.class);
-        event.registerEntity(TownPermissionContext.class);
-        event.registerEntity(PlotPermissionContext.class);
+        event.registerEntity(PermissionNode.class);
     }
 
     @Listener
