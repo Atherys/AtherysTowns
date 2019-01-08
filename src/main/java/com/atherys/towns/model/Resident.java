@@ -1,7 +1,7 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Contextual;
+import com.atherys.towns.api.Actor;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 import java.util.UUID;
 
 @Entity
-public class Resident implements SpongeIdentifiable, Contextual {
+public class Resident implements SpongeIdentifiable, Actor {
 
     @Id
     private UUID uuid;

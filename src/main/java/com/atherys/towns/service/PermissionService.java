@@ -1,7 +1,7 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.api.Context;
-import com.atherys.towns.api.Contextual;
+import com.atherys.towns.api.Subject;
+import com.atherys.towns.api.Actor;
 import com.atherys.towns.api.Permission;
 import com.atherys.towns.model.PermissionNode;
 import com.atherys.towns.persistence.PermissionRepository;
@@ -10,18 +10,18 @@ public class PermissionService {
 
     private PermissionRepository repository;
 
-    public void permit(Contextual user, Context context, Permission permission) {
-        permit(user, context, permission, true);
+    public void permit(Actor user, Subject subject, Permission permission) {
+        permit(user, subject, permission, true);
     }
 
-    public void revoke(Contextual user, Context context, Permission permission) {
-        permit(user, context, permission, false);
+    public void revoke(Actor user, Subject subject, Permission permission) {
+        permit(user, subject, permission, false);
     }
 
-    public void permit(Contextual user, Context context, Permission permission, boolean permitted) {
+    public void permit(Actor user, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = new PermissionNode();
         node.setUserId(formatUserId(user));
-        node.setContextId(formatContextId(context));
+        node.setContextId(formatContextId(subject));
         node.setPermission(permission);
         node.setPermitted(permitted);
 
@@ -29,10 +29,10 @@ public class PermissionService {
         // ...
     }
 
-    public boolean isPermitted(Contextual user, Context context, Permission permission) {
+    public boolean isPermitted(Actor user, Subject subject, Permission permission) {
 
         String userId = formatUserId(user);
-        String contextId = formatContextId(context);
+        String contextId = formatContextId(subject);
 
         // check for an explicit permission
         boolean explicit = repository.cacheParallelStream().anyMatch(node ->
@@ -46,19 +46,19 @@ public class PermissionService {
         if ( explicit ) return explicit;
 
         // check for transient permissions
-        boolean transientPermitted = context.hasParent() && isPermitted(user, context.getParent(), permission);
+        boolean transientPermitted = subject.hasParent() && isPermitted(user, subject.getParent(), permission);
 
         // if transiently permitted, return
         if ( transientPermitted ) return transientPermitted;
 
-        // if the user being checked is also a context, check it's parents for explicit and transient permissions
-        if ( user instanceof Context ) {
+        // if the user being checked is also a subject, check it's parents for explicit and transient permissions
+        if ( user instanceof Subject) {
 
-            if ( !((Context) user).hasParent() ) return false;
+            if ( !((Subject) user).hasParent() ) return false;
 
-            Context parent = ((Context) user).getParent();
+            Subject parent = ((Subject) user).getParent();
 
-            return (parent instanceof Contextual) && isPermitted((Contextual) parent, context, permission);
+            return (parent instanceof Actor) && isPermitted((Actor) parent, subject, permission);
 
         }
 
@@ -66,12 +66,12 @@ public class PermissionService {
 
     }
 
-    private String formatUserId(Contextual user) {
+    private String formatUserId(Actor user) {
         return String.format("%s{%s}", user.getClass().getSimpleName(), user.getUniqueId().toString());
     }
 
-    private String formatContextId(Context context) {
-        return String.format("%s{%s}", context.getClass().getSimpleName(), context.getUniqueId().toString());
+    private String formatContextId(Subject subject) {
+        return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getUniqueId().toString());
     }
 
 }

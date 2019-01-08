@@ -1,8 +1,8 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Context;
-import com.atherys.towns.api.Contextual;
+import com.atherys.towns.api.Subject;
+import com.atherys.towns.api.Actor;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements SpongeIdentifiable, Context, Contextual {
+public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -137,7 +137,7 @@ public class Nation implements SpongeIdentifiable, Context, Contextual {
     }
 
     @Override
-    public Context getParent() {
+    public Subject getParent() {
         return this;
     }
 }

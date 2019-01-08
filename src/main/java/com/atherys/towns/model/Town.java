@@ -1,8 +1,8 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Context;
-import com.atherys.towns.api.Contextual;
+import com.atherys.towns.api.Subject;
+import com.atherys.towns.api.Actor;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.WorldConverter;
@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town implements SpongeIdentifiable, Context<Nation>, Contextual {
+public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     @Id
     @GeneratedValue(generator = "UUID")

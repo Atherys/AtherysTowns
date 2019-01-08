@@ -1,7 +1,7 @@
 package com.atherys.towns.model;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Context;
+import com.atherys.towns.api.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2dConverter;
 import com.flowpowered.math.vector.Vector2d;
@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 import java.util.UUID;
 
 @Entity
-public class Plot implements SpongeIdentifiable, Context<Town> {
+public class Plot implements SpongeIdentifiable, Subject<Town> {
 
     @Id
     @GeneratedValue(generator = "UUID")
