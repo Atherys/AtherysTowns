@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -79,5 +80,22 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @Override
     public Town getParent() {
         return town;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plot plot = (Plot) o;
+        return uuid.equals(plot.uuid) &&
+                town.equals(plot.town) &&
+                name.equals(plot.name) &&
+                nwCorner.equals(plot.nwCorner) &&
+                seCorner.equals(plot.seCorner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, town, name, nwCorner, seCorner);
     }
 }

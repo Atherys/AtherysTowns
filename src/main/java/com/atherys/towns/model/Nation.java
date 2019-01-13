@@ -19,6 +19,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,7 +40,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     private Text description;
 
     @OneToMany(mappedBy = "nation")
-    private Set<Town> towns;
+    private Set<Town> towns = new HashSet<>();
 
     @OneToOne
     private Resident leader;
@@ -52,7 +54,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
             joinColumns = @JoinColumn(name = "nation_id"),
             inverseJoinColumns = @JoinColumn(name = "ally_nation_id")
     )
-    private Set<Nation> allies;
+    private Set<Nation> allies = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
@@ -60,7 +62,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
             joinColumns = @JoinColumn(name = "nation_id"),
             inverseJoinColumns = @JoinColumn(name = "enemy_nation_id")
     )
-    private Set<Nation> enemies;
+    private Set<Nation> enemies = new HashSet<>();
 
     public Nation() {
     }
@@ -139,5 +141,25 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     @Override
     public Subject getParent() {
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Nation nation = (Nation) o;
+        return uuid.equals(nation.uuid) &&
+                name.equals(nation.name) &&
+                description.equals(nation.description) &&
+                towns.equals(nation.towns) &&
+                leader.equals(nation.leader) &&
+                capital.equals(nation.capital) &&
+                allies.equals(nation.allies) &&
+                enemies.equals(nation.enemies);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, description, towns, leader, capital, allies, enemies);
     }
 }

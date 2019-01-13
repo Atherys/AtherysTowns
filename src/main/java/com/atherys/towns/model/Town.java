@@ -12,16 +12,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,17 +43,16 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @JoinColumn(name = "nation_id")
     private Nation nation;
 
-    @Convert(converter = WorldConverter.class)
-    private World world;
+    private UUID world;
 
     @Convert(converter = TransformConverter.class)
     private Transform<World> spawn;
 
     @OneToMany(mappedBy = "town")
-    private Set<Resident> residents;
+    private Set<Resident> residents = new HashSet<>();
 
     @OneToMany(mappedBy = "town")
-    private Set<Plot> plots;
+    private Set<Plot> plots = new HashSet<>();
 
     @Nonnull
     @Override
@@ -108,11 +100,11 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         this.nation = nation;
     }
 
-    public World getWorld() {
+    public UUID getWorld() {
         return world;
     }
 
-    public void setWorld(World world) {
+    public void setWorld(UUID world) {
         this.world = world;
     }
 
@@ -148,5 +140,27 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Override
     public Nation getParent() {
         return nation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Town town = (Town) o;
+        return uuid.equals(town.uuid) &&
+                name.equals(town.name) &&
+                description.equals(town.description) &&
+                motd.equals(town.motd) &&
+                leader.equals(town.leader) &&
+                nation.equals(town.nation) &&
+                world.equals(town.world) &&
+                spawn.equals(town.spawn) &&
+                residents.equals(town.residents) &&
+                plots.equals(town.plots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, description, motd, leader, nation, world, spawn, residents, plots);
     }
 }

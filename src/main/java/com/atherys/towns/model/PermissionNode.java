@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class PermissionNode implements Identifiable<Long> {
@@ -60,6 +61,23 @@ public class PermissionNode implements Identifiable<Long> {
 
     public void setPermitted(boolean permitted) {
         this.permitted = permitted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PermissionNode that = (PermissionNode) o;
+        return permitted == that.permitted &&
+                id.equals(that.id) &&
+                userId.equals(that.userId) &&
+                contextId.equals(that.contextId) &&
+                permission.equals(that.permission);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userId, contextId, permission, permitted);
     }
 
     /*
