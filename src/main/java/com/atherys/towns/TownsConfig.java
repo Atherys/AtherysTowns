@@ -1,12 +1,14 @@
 package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
+import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 
 import java.io.IOException;
 
+@Singleton
 public class TownsConfig extends PluginConfig {
 
     @Setting("default_town_name")

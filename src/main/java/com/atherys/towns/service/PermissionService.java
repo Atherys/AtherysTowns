@@ -6,13 +6,26 @@ import com.atherys.towns.api.Permission;
 import com.atherys.towns.model.PermissionNode;
 import com.atherys.towns.model.Resident;
 import com.atherys.towns.persistence.PermissionRepository;
+import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.User;
 
+import javax.inject.Inject;
+
+@Singleton
 public class PermissionService {
 
-    private PermissionRepository repository;
+    private PermissionRepository permissionRepository;
 
     private ResidentService residentService;
+
+    @Inject
+    PermissionService(
+            PermissionRepository permissionRepository,
+            ResidentService residentService
+    ) {
+        this.permissionRepository = permissionRepository;
+        this.residentService = residentService;
+    }
 
     public void permit(Actor user, Subject subject, Permission permission) {
         permit(user, subject, permission, true);
@@ -29,7 +42,7 @@ public class PermissionService {
         node.setPermission(permission);
         node.setPermitted(permitted);
 
-        repository.saveOne(node);
+        permissionRepository.saveOne(node);
     }
 
     public boolean isPermitted(Actor user, Subject subject, Permission permission) {
@@ -38,26 +51,26 @@ public class PermissionService {
         String contextId = formatContextId(subject);
 
         // check for an explicit permission
-        boolean explicit = repository.cacheParallelStream().anyMatch(node ->
-                node.getUserId().equals(userId) &&
-                node.getContextId().equals(contextId) &&
-                node.getPermission().equals(permission) &&
-                node.isPermitted()
-        );
+        PermissionNode criteria = new PermissionNode();
+        criteria.setUserId(userId);
+        criteria.setContextId(contextId);
+        criteria.setPermission(permission);
+        criteria.setPermitted(true);
+        boolean explicit = permissionRepository.cacheParallelStream().anyMatch(node -> node.equals(criteria));
 
         // if explicitly permitted, return
-        if ( explicit ) return explicit;
+        if (explicit) return explicit;
 
         // check for transient permissions
         boolean transientPermitted = subject.hasParent() && isPermitted(user, subject.getParent(), permission);
 
         // if transiently permitted, return
-        if ( transientPermitted ) return transientPermitted;
+        if (transientPermitted) return transientPermitted;
 
         // if the user being checked is also a subject, check it's parents for explicit and transient permissions
-        if ( user instanceof Subject) {
+        if (user instanceof Subject) {
 
-            if ( !((Subject) user).hasParent() ) return false;
+            if (!((Subject) user).hasParent()) return false;
 
             Subject parent = ((Subject) user).getParent();
 
@@ -70,7 +83,7 @@ public class PermissionService {
     }
 
     public void ifPermitted(Actor actor, Subject subject, Permission permission, Runnable action) {
-        if ( isPermitted(actor, subject, permission) ) action.run();
+        if (isPermitted(actor, subject, permission)) action.run();
     }
 
     private String formatUserId(Actor user) {

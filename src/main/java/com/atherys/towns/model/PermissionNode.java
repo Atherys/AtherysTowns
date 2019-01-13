@@ -82,16 +82,4 @@ public class PermissionNode implements Identifiable<Long> {
     public int hashCode() {
         return Objects.hash(id, userId, contextId, permission, permitted);
     }
-
-    /*
-
-     +------------------------------------------------+--------------------------------------------+------------+-----------+
-     | UserId                                         | ContextId                                  | Permission | Permitted |
-     +------------------------------------------------+--------------------------------------------+------------+-----------+
-     | Town{349ed239-ec0f-457b-b6eb-247551219f7b}     | Town{349ed239-ec0f-457b-b6eb-247551219f7b} | Build      | true      |
-     | Town{349ed239-ec0f-457b-b6eb-247551219f7b}     | Town{349ed239-ec0f-457b-b6eb-247551219f7b} | Destroy    | true      |
-     | Resident{641a6ce8-6f89-4513-bbb4-107aa3f51923} | Town{349ed239-ec0f-457b-b6eb-247551219f7b} | Destroy    | false     |
-     +------------------------------------------------+--------------------------------------------+------------+-----------+
-
-     */
 }

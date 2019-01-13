@@ -4,6 +4,12 @@ import javax.inject.Inject;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.towns.model.*;
+import com.atherys.towns.persistence.*;
+import com.atherys.towns.service.NationService;
+import com.atherys.towns.service.PermissionService;
+import com.atherys.towns.service.PlotService;
+import com.atherys.towns.service.TownService;
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
@@ -36,20 +42,51 @@ public class AtherysTowns {
 
     private static boolean init = false;
 
-    private static TownsConfig config;
-
     @Inject
     private Logger logger;
+
+    @Inject
+    private Injector spongeInjector;
+
+    @Inject
+    TownsConfig config;
+
+    @Inject
+    NationRepository nationRepository;
+
+    @Inject
+    TownRepository townRepository;
+
+    @Inject
+    PlotRepository plotRepository;
+
+    @Inject
+    ResidentRepository residentRepository;
+
+    @Inject
+    PermissionRepository permissionRepository;
+
+    @Inject
+    NationService nationService;
+
+    @Inject
+    TownService townService;
+
+    @Inject
+    PlotService plotService;
+
+    @Inject
+    PermissionService permissionService;
+
+    Injector townsInjector;
 
     private void init() {
         instance = this;
 
-        try {
-            config = new TownsConfig();
-            config.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
+        townsInjector.injectMembers(this);
+
+        config.init();
     }
 
     private void start() {
@@ -87,11 +124,43 @@ public class AtherysTowns {
         return instance;
     }
 
-    public static Logger getLogger() {
-        return getInstance().logger;
+    public TownsConfig getConfig() {
+        return config;
     }
 
-    public static TownsConfig getConfig() {
-        return config;
+    public NationRepository getNationRepository() {
+        return nationRepository;
+    }
+
+    public TownRepository getTownRepository() {
+        return townRepository;
+    }
+
+    public PlotRepository getPlotRepository() {
+        return plotRepository;
+    }
+
+    public ResidentRepository getResidentRepository() {
+        return residentRepository;
+    }
+
+    public PermissionRepository getPermissionRepository() {
+        return permissionRepository;
+    }
+
+    public NationService getNationService() {
+        return nationService;
+    }
+
+    public TownService getTownService() {
+        return townService;
+    }
+
+    public PlotService getPlotService() {
+        return plotService;
+    }
+
+    public PermissionService getPermissionService() {
+        return permissionService;
     }
 }

@@ -5,7 +5,6 @@ import com.atherys.towns.api.Subject;
 import com.atherys.towns.api.Actor;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
-import com.atherys.towns.persistence.converter.WorldConverter;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
