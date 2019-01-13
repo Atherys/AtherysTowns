@@ -1,24 +1,18 @@
 package com.atherys.towns;
 
-import javax.inject.Inject;
-
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
+import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.model.*;
 import com.atherys.towns.persistence.*;
-import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.PermissionService;
-import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.TownService;
+import com.atherys.towns.service.*;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-
-import java.io.IOException;
 
 import static com.atherys.towns.AtherysTowns.*;
 
@@ -48,43 +42,49 @@ public class AtherysTowns {
     @Inject
     private Injector spongeInjector;
 
-    @Inject
-    TownsConfig config;
+    private TownsConfig config;
 
-    @Inject
-    NationRepository nationRepository;
+    private NationRepository nationRepository;
 
-    @Inject
-    TownRepository townRepository;
+    private TownRepository townRepository;
 
-    @Inject
-    PlotRepository plotRepository;
+    private PlotRepository plotRepository;
 
-    @Inject
-    ResidentRepository residentRepository;
+    private ResidentRepository residentRepository;
 
-    @Inject
-    PermissionRepository permissionRepository;
+    private PermissionRepository permissionRepository;
 
-    @Inject
-    NationService nationService;
+    private NationService nationService;
 
-    @Inject
-    TownService townService;
+    private TownService townService;
 
-    @Inject
-    PlotService plotService;
+    private PlotService plotService;
 
-    @Inject
-    PermissionService permissionService;
+    private ResidentService residentService;
 
-    Injector townsInjector;
+    private PermissionService permissionService;
+
+    private Injector townsInjector;
 
     private void init() {
         instance = this;
 
+
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
-        townsInjector.injectMembers(this);
+
+        config = getInstance(TownsConfig.class);
+
+        nationRepository = getInstance(NationRepository.class);
+        townRepository = getInstance(TownRepository.class);
+        plotRepository = getInstance(PlotRepository.class);
+        residentRepository = getInstance(ResidentRepository.class);
+        permissionRepository = getInstance(PermissionRepository.class);
+
+        nationService = getInstance(NationService.class);
+        townService = getInstance(TownService.class);
+        plotService = getInstance(PlotService.class);
+        residentService = getInstance(ResidentService.class);
+        permissionService = getInstance(PermissionService.class);
 
         config.init();
     }
@@ -97,17 +97,17 @@ public class AtherysTowns {
     }
 
     @Listener
-    public void onHibernateConfiguration (AtherysHibernateConfigurationEvent event) {
+    public void onHibernateInit(AtherysHibernateInitializedEvent event) {
+        init();
+    }
+
+    @Listener
+    public void onHibernateConfiguration(AtherysHibernateConfigurationEvent event) {
         event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
         event.registerEntity(PermissionNode.class);
-    }
-
-    @Listener
-    public void onInit(GameInitializationEvent event) {
-        init();
     }
 
     @Listener
@@ -160,7 +160,15 @@ public class AtherysTowns {
         return plotService;
     }
 
+    public ResidentService getResidentService() {
+        return residentService;
+    }
+
     public PermissionService getPermissionService() {
         return permissionService;
+    }
+
+    public <T> T getInstance(Class<T> clazz) {
+        return townsInjector.getInstance(clazz);
     }
 }
