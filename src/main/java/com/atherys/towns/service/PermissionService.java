@@ -4,11 +4,15 @@ import com.atherys.towns.api.Subject;
 import com.atherys.towns.api.Actor;
 import com.atherys.towns.api.Permission;
 import com.atherys.towns.model.PermissionNode;
+import com.atherys.towns.model.Resident;
 import com.atherys.towns.persistence.PermissionRepository;
+import org.spongepowered.api.entity.living.player.User;
 
 public class PermissionService {
 
     private PermissionRepository repository;
+
+    private ResidentService residentService;
 
     public void permit(Actor user, Subject subject, Permission permission) {
         permit(user, subject, permission, true);
@@ -26,7 +30,6 @@ public class PermissionService {
         node.setPermitted(permitted);
 
         repository.saveOne(node);
-        // ...
     }
 
     public boolean isPermitted(Actor user, Subject subject, Permission permission) {
@@ -64,6 +67,10 @@ public class PermissionService {
 
         return false;
 
+    }
+
+    public void ifPermitted(Actor actor, Subject subject, Permission permission, Runnable action) {
+        if ( isPermitted(actor, subject, permission) ) action.run();
     }
 
     private String formatUserId(Actor user) {

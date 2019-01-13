@@ -2,8 +2,10 @@ package com.atherys.towns.model;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.Permission;
+import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,6 +23,7 @@ public class PermissionNode implements Identifiable<Long> {
 
     private String contextId;
 
+    @Convert(converter = PermissionConverter.class)
     private Permission permission;
 
     private boolean permitted;

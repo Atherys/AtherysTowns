@@ -5,6 +5,13 @@ import com.atherys.towns.api.Actor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
