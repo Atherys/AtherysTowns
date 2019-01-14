@@ -1,4 +1,4 @@
-package com.atherys.towns.model;
+package com.atherys.towns.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.Permission;

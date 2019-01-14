@@ -1,7 +1,7 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.AtherysRepository;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.entity.Nation;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;

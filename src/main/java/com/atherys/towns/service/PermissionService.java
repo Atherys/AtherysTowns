@@ -3,11 +3,9 @@ package com.atherys.towns.service;
 import com.atherys.towns.api.Subject;
 import com.atherys.towns.api.Actor;
 import com.atherys.towns.api.Permission;
-import com.atherys.towns.model.PermissionNode;
-import com.atherys.towns.model.Resident;
+import com.atherys.towns.entity.PermissionNode;
 import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;
-import org.spongepowered.api.entity.living.player.User;
 
 import javax.inject.Inject;
 

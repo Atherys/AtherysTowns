@@ -2,7 +2,8 @@ package com.atherys.towns;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
-import com.atherys.towns.model.*;
+import com.atherys.towns.entity.*;
+import com.atherys.towns.facade.*;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -42,51 +43,71 @@ public class AtherysTowns {
     @Inject
     private Injector spongeInjector;
 
-    private TownsConfig config;
+    private static class Components {
 
-    private NationRepository nationRepository;
+        @Inject
+        private TownsConfig config;
 
-    private TownRepository townRepository;
+        @Inject
+        private NationRepository nationRepository;
 
-    private PlotRepository plotRepository;
+        @Inject
+        private TownRepository townRepository;
 
-    private ResidentRepository residentRepository;
+        @Inject
+        private PlotRepository plotRepository;
 
-    private PermissionRepository permissionRepository;
+        @Inject
+        private ResidentRepository residentRepository;
 
-    private NationService nationService;
+        @Inject
+        private PermissionRepository permissionRepository;
 
-    private TownService townService;
+        @Inject
+        private NationService nationService;
 
-    private PlotService plotService;
+        @Inject
+        private TownService townService;
 
-    private ResidentService residentService;
+        @Inject
+        private PlotService plotService;
 
-    private PermissionService permissionService;
+        @Inject
+        private ResidentService residentService;
+
+        @Inject
+        private PermissionService permissionService;
+
+        @Inject
+        private NationFacade nationFacade;
+
+        @Inject
+        private TownFacade townFacade;
+
+        @Inject
+        private PlotFacade plotFacade;
+
+        @Inject
+        private ResidentFacade residentFacade;
+
+        @Inject
+        private PermissionFacade permissionFacade;
+
+    }
+
+    private Components components;
 
     private Injector townsInjector;
 
     private void init() {
         instance = this;
 
+        components = new Components();
 
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
+        townsInjector.injectMembers(components);
 
-        config = getInstance(TownsConfig.class);
-
-        nationRepository = getInstance(NationRepository.class);
-        townRepository = getInstance(TownRepository.class);
-        plotRepository = getInstance(PlotRepository.class);
-        residentRepository = getInstance(ResidentRepository.class);
-        permissionRepository = getInstance(PermissionRepository.class);
-
-        nationService = getInstance(NationService.class);
-        townService = getInstance(TownService.class);
-        plotService = getInstance(PlotService.class);
-        residentService = getInstance(ResidentService.class);
-        permissionService = getInstance(PermissionService.class);
-
-        config.init();
+        getConfig().init();
     }
 
     private void start() {
@@ -125,50 +146,66 @@ public class AtherysTowns {
     }
 
     public TownsConfig getConfig() {
-        return config;
+        return components.config;
     }
 
     public NationRepository getNationRepository() {
-        return nationRepository;
+        return components.nationRepository;
     }
 
     public TownRepository getTownRepository() {
-        return townRepository;
+        return components.townRepository;
     }
 
     public PlotRepository getPlotRepository() {
-        return plotRepository;
+        return components.plotRepository;
     }
 
     public ResidentRepository getResidentRepository() {
-        return residentRepository;
+        return components.residentRepository;
     }
 
     public PermissionRepository getPermissionRepository() {
-        return permissionRepository;
+        return components.permissionRepository;
     }
 
     public NationService getNationService() {
-        return nationService;
+        return components.nationService;
     }
 
     public TownService getTownService() {
-        return townService;
+        return components.townService;
     }
 
     public PlotService getPlotService() {
-        return plotService;
+        return components.plotService;
     }
 
     public ResidentService getResidentService() {
-        return residentService;
+        return components.residentService;
     }
 
     public PermissionService getPermissionService() {
-        return permissionService;
+        return components.permissionService;
     }
 
-    public <T> T getInstance(Class<T> clazz) {
-        return townsInjector.getInstance(clazz);
+    public NationFacade getNationFacade() {
+        return components.nationFacade;
+    }
+
+    public TownFacade getTownFacade() {
+        return components.townFacade;
+    }
+
+    public PlotFacade getPlotFacade() {
+        return components.plotFacade;
+    }
+
+    public ResidentFacade getResidentFacade() {
+        return components.residentFacade;
+    }
+
+    public PermissionFacade getPermissionFacade() {
+        return components.permissionFacade;
     }
 }

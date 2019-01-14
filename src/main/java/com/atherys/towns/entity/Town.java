@@ -1,13 +1,16 @@
-package com.atherys.towns.model;
+package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.Subject;
 import com.atherys.towns.api.Actor;
+import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
@@ -35,6 +38,9 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Convert(converter = TextConverter.class)
     private Text motd;
 
+    @Convert(converter = TextColorConverter.class)
+    private TextColor color = TextColors.RESET;
+
     @OneToOne
     private Resident leader;
 
@@ -46,6 +52,10 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     @Convert(converter = TransformConverter.class)
     private Transform<World> spawn;
+
+    private int maxSize;
+
+    private boolean freelyJoinable;
 
     @OneToMany(mappedBy = "town")
     private Set<Resident> residents = new HashSet<>();
@@ -119,16 +129,48 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         return residents;
     }
 
+    public void addResident(Resident resident) {
+        residents.add(resident);
+    }
+
+    public void removeResident(Resident resident) {
+        residents.remove(resident);
+    }
+
     public void setResidents(Set<Resident> residents) {
         this.residents = residents;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
     }
 
     public Set<Plot> getPlots() {
         return plots;
     }
 
+    public void addPlot(Plot plot) {
+        plots.add(plot);
+    }
+
+    public void removePlot(Plot plot) {
+        plots.remove(plot);
+    }
+
     public void setPlots(Set<Plot> plots) {
         this.plots = plots;
+    }
+
+    public boolean isFreelyJoinable() {
+        return freelyJoinable;
+    }
+
+    public void setFreelyJoinable(boolean freelyJoinable) {
+        this.freelyJoinable = freelyJoinable;
     }
 
     @Override
