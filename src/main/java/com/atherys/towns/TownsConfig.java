@@ -64,6 +64,7 @@ public class TownsConfig extends PluginConfig {
             TownPermissions.SET_COLOR,
             TownPermissions.SET_FREELY_JOINABLE,
             TownPermissions.SET_SPAWN,
+            TownPermissions.SET_PVP,
             TownPermissions.TRANSFER_LEADERSHIP,
             TownPermissions.CHAT,
 
@@ -73,7 +74,8 @@ public class TownsConfig extends PluginConfig {
             WorldPermissions.DAMAGE_PLAYERS,
             WorldPermissions.INTERACT_CHESTS,
             WorldPermissions.INTERACT_DOORS,
-            WorldPermissions.INTERACT_REDSTONE
+            WorldPermissions.INTERACT_REDSTONE,
+            WorldPermissions.INTERACT_ENTITIES
     );
 
     @Setting("default_town_resident_permissions")
@@ -86,7 +88,8 @@ public class TownsConfig extends PluginConfig {
             WorldPermissions.DAMAGE_PLAYERS,
             WorldPermissions.INTERACT_CHESTS,
             WorldPermissions.INTERACT_DOORS,
-            WorldPermissions.INTERACT_REDSTONE
+            WorldPermissions.INTERACT_REDSTONE,
+            WorldPermissions.INTERACT_ENTITIES
     );
 
     protected TownsConfig() throws IOException {

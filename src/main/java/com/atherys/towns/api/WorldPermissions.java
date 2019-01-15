@@ -16,4 +16,6 @@ public final class WorldPermissions {
 
     public static final Permission INTERACT_CHESTS = new Permission("world_interact_chests", "Interact with Chests");
 
+    public static final Permission INTERACT_ENTITIES = new Permission("world_interact_entities", "Interact with Entities");
+
 }
