@@ -64,6 +64,8 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     )
     private Set<Nation> enemies = new HashSet<>();
 
+    private boolean freelyJoinable;
+
     public Nation() {
     }
 
@@ -95,6 +97,14 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     public Set<Town> getTowns() {
         return towns;
+    }
+
+    public void addTown(Town town) {
+        towns.add(town);
+    }
+
+    public void removeTown(Town town) {
+        towns.remove(town);
     }
 
     public void setTowns(Set<Town> towns) {
@@ -161,5 +171,13 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     @Override
     public int hashCode() {
         return Objects.hash(uuid, name, description, towns, leader, capital, allies, enemies);
+    }
+
+    public boolean isFreelyJoinable() {
+        return freelyJoinable;
+    }
+
+    public void setFreelyJoinable(boolean freelyJoinable) {
+        this.freelyJoinable = freelyJoinable;
     }
 }

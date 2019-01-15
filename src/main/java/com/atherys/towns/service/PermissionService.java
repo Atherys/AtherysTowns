@@ -8,6 +8,8 @@ import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;
 
 import javax.inject.Inject;
+import java.util.Optional;
+import java.util.Set;
 
 @Singleton
 public class PermissionService {
@@ -25,52 +27,109 @@ public class PermissionService {
         this.residentService = residentService;
     }
 
+    public void permit(Actor actor, Subject subject, Set<Permission> permissions) {
+        permissions.forEach(permission -> permit(actor, subject, permission));
+    }
+
+    public void revoke(Actor actor, Subject subject, Set<Permission> permissions) {
+        permissions.forEach(permission -> remove(actor, subject, permission, true));
+    }
+
     public void permit(Actor user, Subject subject, Permission permission) {
         permit(user, subject, permission, true);
     }
 
-    public void revoke(Actor user, Subject subject, Permission permission) {
-        permit(user, subject, permission, false);
+    public void remove(Actor actor, Subject subject, Permission permission, boolean permitted) {
+        PermissionNode criteria = createPermissionNode(actor, subject, permission, permitted);
+
+        permissionRepository.cacheParallelStream().filter(node -> node.equals(criteria)).findAny().ifPresent(node -> {
+            permissionRepository.deleteOne(node);
+        });
     }
 
+    /**
+     * Create a new PermissionNode object and store it in the database
+     *
+     * @param user
+     * @param subject
+     * @param permission
+     * @param permitted
+     */
     public void permit(Actor user, Subject subject, Permission permission, boolean permitted) {
+        permissionRepository.saveOne(createPermissionNode(user, subject, permission, permitted));
+    }
+
+    public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = new PermissionNode();
-        node.setUserId(formatUserId(user));
+        node.setUserId(formatUserId(actor));
         node.setContextId(formatContextId(subject));
         node.setPermission(permission);
         node.setPermitted(permitted);
 
-        permissionRepository.saveOne(node);
+        return node;
     }
 
-    public boolean isPermitted(Actor user, Subject subject, Permission permission) {
+    /**
+     * Check the database for PermissionNode objects which may grant the actor the provided permission, within the
+     * context of the subject.
+     * <br><br>
+     * Firstly, a check is made for what are known as "explicit" permissions. An explicit permission is one where
+     * there is a PermissionNode which grants this specific Actor to act upon this specific Subject in the specified
+     * way.
+     * <br><br>
+     * If an explicit PermissionNode is found which does the opposite, to explicitly deny the Actor this permission,
+     * then no further checks will be made.
+     * <br><br>
+     * If no such PermissionNode is found, the next check to follow is to see whether the Actor is transiently
+     * permitted to execute this action.
+     * <br><br>
+     * A transient permission is when the Actor is permitted the action upon the provided Subject's
+     * parent object instead.
+     * <br><br>
+     * For example, if a Resident is permitted to destroy within a Town, then that means that they are allowed
+     * to destroy within all Plots belonging to said town. This is transient, because the permission's subject is
+     * not the Plot itself, but rather the Plot's parent object - the Town.
+     * <br><br>
+     * This method is actually recursive, in that it will call itself to check for an explicit permission where the
+     * Actor is the same, but the Subject is now the previous Subject's parent.
+     * <br><br>
+     * If no transient PermissionNode is found either, then the next check will see if the Actor is itself
+     * also a Subject. If so, a check will be made if the Actor's parent Subject ( if any ) is permitted to
+     * execute the action in question upon the provided Subject. All previous checks mentioned will also be done.
+     * <br><br>
+     *
+     * @param actor The actor ( A resident/town/nation )
+     * @param subject The subject ( A plot/town/nation )
+     * @param permission the permission ( also known as an "action" ).
+     * @return Whether the Actor is permitted to execute the specified action upon the Subject.
+     */
+    public boolean isPermitted(Actor actor, Subject subject, Permission permission) {
 
-        String userId = formatUserId(user);
+        String userId = formatUserId(actor);
         String contextId = formatContextId(subject);
 
         // check for an explicit permission
-        PermissionNode criteria = new PermissionNode();
-        criteria.setUserId(userId);
-        criteria.setContextId(contextId);
-        criteria.setPermission(permission);
-        criteria.setPermitted(true);
-        boolean explicit = permissionRepository.cacheParallelStream().anyMatch(node -> node.equals(criteria));
+        Optional<PermissionNode> any = permissionRepository.cacheParallelStream().filter(node ->
+                node.getPermission().equals(permission) &&
+                node.getContextId().equals(userId) &&
+                node.getUserId().equals(contextId)
+        ).findAny();
 
         // if explicitly permitted, return
-        if (explicit) return explicit;
+        if (any.isPresent()) return any.get().isPermitted();
 
         // check for transient permissions
-        boolean transientPermitted = subject.hasParent() && isPermitted(user, subject.getParent(), permission);
+        boolean transientPermitted = subject.hasParent() && isPermitted(actor, subject.getParent(), permission);
 
         // if transiently permitted, return
         if (transientPermitted) return transientPermitted;
 
         // if the user being checked is also a subject, check it's parents for explicit and transient permissions
-        if (user instanceof Subject) {
+        if (actor instanceof Subject) {
 
-            if (!((Subject) user).hasParent()) return false;
+            if (!((Subject) actor).hasParent()) return false;
 
-            Subject parent = ((Subject) user).getParent();
+            Subject parent = ((Subject) actor).getParent();
 
             return (parent instanceof Actor) && isPermitted((Actor) parent, subject, permission);
 

@@ -53,15 +53,17 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Convert(converter = TransformConverter.class)
     private Transform<World> spawn;
 
-    private int maxSize;
-
-    private boolean freelyJoinable;
-
     @OneToMany(mappedBy = "town")
     private Set<Resident> residents = new HashSet<>();
 
     @OneToMany(mappedBy = "town")
     private Set<Plot> plots = new HashSet<>();
+
+    private int maxSize;
+
+    private boolean freelyJoinable;
+
+    private boolean pvpEnabled;
 
     @Nonnull
     @Override
@@ -203,5 +205,13 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Override
     public int hashCode() {
         return Objects.hash(uuid, name, description, motd, leader, nation, world, spawn, residents, plots);
+    }
+
+    public boolean isPvpEnabled() {
+        return pvpEnabled;
+    }
+
+    public void setPvpEnabled(boolean pvpEnabled) {
+        this.pvpEnabled = pvpEnabled;
     }
 }
