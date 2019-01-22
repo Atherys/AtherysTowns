@@ -55,11 +55,8 @@ public class PlotSelectionFacade {
             return -1;
         }
 
-        int area = 0;
-
-        // TODO
-
-        return area;
+        return Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX()) *
+               Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
     }
 
     private int getSmallestPlotSelectionSideSize(PlotSelection plotSelection) {
@@ -67,11 +64,13 @@ public class PlotSelectionFacade {
             return -1;
         }
 
-        int smallestSide = 0;
-
-        // TODO
-
-        return smallestSide;
+        int sideX = Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX());
+        int sideZ = Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
+        if (sideX < sideZ) {
+            return sideX;
+        } else {
+            return sideZ;
+        }
     }
 
     public void selectPointAFromPlayerLocation(Player player) {
