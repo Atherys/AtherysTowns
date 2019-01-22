@@ -16,15 +16,11 @@ public class PermissionService {
 
     private PermissionRepository permissionRepository;
 
-    private ResidentService residentService;
-
     @Inject
     PermissionService(
-            PermissionRepository permissionRepository,
-            ResidentService residentService
+            PermissionRepository permissionRepository
     ) {
         this.permissionRepository = permissionRepository;
-        this.residentService = residentService;
     }
 
     public void permit(Actor actor, Subject subject, Set<Permission> permissions) {
@@ -40,11 +36,7 @@ public class PermissionService {
     }
 
     public void remove(Actor actor, Subject subject, Permission permission, boolean permitted) {
-        PermissionNode criteria = createPermissionNode(actor, subject, permission, permitted);
-
-        permissionRepository.cacheParallelStream().filter(node -> node.equals(criteria)).findAny().ifPresent(node -> {
-            permissionRepository.deleteOne(node);
-        });
+        permissionRepository.deleteOne(createPermissionNode(actor, subject, permission, permitted));
     }
 
     /**
@@ -98,8 +90,8 @@ public class PermissionService {
      * execute the action in question upon the provided Subject. All previous checks mentioned will also be done.
      * <br><br>
      *
-     * @param actor The actor ( A resident/town/nation )
-     * @param subject The subject ( A plot/town/nation )
+     * @param actor      The actor ( A resident/town/nation )
+     * @param subject    The subject ( A plot/town/nation )
      * @param permission the permission ( also known as an "action" ).
      * @return Whether the Actor is permitted to execute the specified action upon the Subject.
      */
@@ -109,11 +101,7 @@ public class PermissionService {
         String contextId = formatContextId(subject);
 
         // check for an explicit permission
-        Optional<PermissionNode> any = permissionRepository.cacheParallelStream().filter(node ->
-                node.getPermission().equals(permission) &&
-                node.getContextId().equals(userId) &&
-                node.getUserId().equals(contextId)
-        ).findAny();
+        Optional<PermissionNode> any = permissionRepository.findAnyBy(userId, contextId, permission);
 
         // if explicitly permitted, return
         if (any.isPresent()) return any.get().isPermitted();

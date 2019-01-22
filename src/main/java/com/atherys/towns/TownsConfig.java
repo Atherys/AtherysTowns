@@ -23,6 +23,9 @@ public class TownsConfig extends PluginConfig {
     @Setting("plot-min-side")
     public int MIN_PLOT_SIDE = 16;
 
+    @Setting("default-town-max-size")
+    public int DEFAULT_TOWN_MAX_SIZE = 4096;
+
     @Setting("default-nation-leader-permissions")
     public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = Sets.newHashSet(
             NationPermissions.INVITE_TOWN,

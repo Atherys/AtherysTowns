@@ -48,6 +48,14 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
         return uuid;
     }
 
+    public Town getTown() {
+        return town;
+    }
+
+    public void setTown(Town town) {
+        this.town = town;
+    }
+
     public Text getName() {
         return name;
     }

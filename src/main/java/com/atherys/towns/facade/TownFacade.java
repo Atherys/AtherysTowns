@@ -1,5 +1,7 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.PlotService;
@@ -39,13 +41,23 @@ public class TownFacade {
         // Validate the plot selection
         plotSelectionFacade.validatePlotSelection(selection);
 
+        Plot homePlot = plotService.createPlotFromSelection(selection);
+
+        if (plotService.plotIntersectsAnyOthers(homePlot)) {
+            throw new TownsCommandException("The plot you've selected intersects with another.");
+        }
+
+        if (!plotService.isLocationWithinPlot(player.getLocation(), homePlot)) {
+            throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
+        }
+
         Town town = townService.createTown(
+                player.getWorld(),
+                player.getTransform(),
                 residentService.getOrCreate(player),
-                plotService.createPlotFromSelection(selection),
+                homePlot,
                 name
         );
-
-        townsMsg.info(player, "Your town has been created successfully!");
 
         sendTownInfo(town, player);
 
