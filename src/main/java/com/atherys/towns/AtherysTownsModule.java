@@ -1,10 +1,6 @@
 package com.atherys.towns;
 
-import com.atherys.towns.facade.NationFacade;
-import com.atherys.towns.facade.PermissionFacade;
-import com.atherys.towns.facade.PlotFacade;
-import com.atherys.towns.facade.ResidentFacade;
-import com.atherys.towns.facade.TownFacade;
+import com.atherys.towns.facade.*;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.service.*;
 import com.google.inject.AbstractModule;
@@ -36,5 +32,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotFacade.class);
         bind(ResidentFacade.class);
         bind(PermissionFacade.class);
+        bind(PlotSelectionFacade.class);
+        bind(TownsMessagingFacade.class);
     }
 }

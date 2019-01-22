@@ -39,7 +39,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     private Text motd;
 
     @Convert(converter = TextColorConverter.class)
-    private TextColor color = TextColors.RESET;
+    private TextColor color;
 
     @OneToOne
     private Resident leader;
@@ -213,5 +213,13 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     public void setPvpEnabled(boolean pvpEnabled) {
         this.pvpEnabled = pvpEnabled;
+    }
+
+    public TextColor getColor() {
+        return color;
+    }
+
+    public void setColor(TextColor color) {
+        this.color = color;
     }
 }
