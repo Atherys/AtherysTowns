@@ -17,7 +17,13 @@ import java.util.Set;
 @Singleton
 public class TownsConfig extends PluginConfig {
 
-    @Setting("default_nation_leader_permissions")
+    @Setting("plot-max-area")
+    public int MAX_PLOT_AREA = 1024;
+
+    @Setting("plot-min-side")
+    public int MIN_PLOT_SIDE = 16;
+
+    @Setting("default-nation-leader-permissions")
     public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = Sets.newHashSet(
             NationPermissions.INVITE_TOWN,
             NationPermissions.KICK_TOWN,
@@ -36,17 +42,17 @@ public class TownsConfig extends PluginConfig {
             NationPermissions.CHAT
     );
 
-    @Setting("default_nation_town_permissions")
+    @Setting("default-nation-town-permissions")
     public Set<Permission> DEFAULT_NATION_TOWN_PERMISSIONS = Sets.newHashSet(
 
     );
 
-    @Setting("default_nation_resident_permissions")
+    @Setting("default-nation-resident-permissions")
     public Set<Permission> DEFAULT_NATION_RESIDENT_PERMISSIONS = Sets.newHashSet(
 
     );
 
-    @Setting("default_town_leader_permissions")
+    @Setting("default-town-leader-permissions")
     public Set<Permission> DEFAULT_TOWN_LEADER_PERMISSIONS = Sets.newHashSet(
             TownPermissions.INVITE_RESIDENT,
             TownPermissions.KICK_RESIDENT,
@@ -78,7 +84,7 @@ public class TownsConfig extends PluginConfig {
             WorldPermissions.INTERACT_ENTITIES
     );
 
-    @Setting("default_town_resident_permissions")
+    @Setting("default-town-resident-permissions")
     public Set<Permission> DEFAULT_TOWN_RESIDENT_PERMISSIONS = Sets.newHashSet(
             TownPermissions.CHAT,
 

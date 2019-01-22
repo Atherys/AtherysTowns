@@ -7,8 +7,8 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 
-@Aliases("info")
-public class PlotInfoCommand implements CommandExecutor {
+@Aliases("B")
+public class PlotSelectPointBCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         return null;

@@ -79,6 +79,9 @@ public class AtherysTowns {
         private PermissionService permissionService;
 
         @Inject
+        private TownsMessagingService townsMessagingService;
+
+        @Inject
         private NationFacade nationFacade;
 
         @Inject
@@ -92,6 +95,9 @@ public class AtherysTowns {
 
         @Inject
         private PermissionFacade permissionFacade;
+
+        @Inject
+        private PlotSelectionFacade plotSelectionFacade;
 
     }
 
@@ -189,6 +195,10 @@ public class AtherysTowns {
         return components.permissionService;
     }
 
+    public TownsMessagingService getTownsMessagingService() {
+        return components.townsMessagingService;
+    }
+
     public NationFacade getNationFacade() {
         return components.nationFacade;
     }
@@ -207,5 +217,9 @@ public class AtherysTowns {
 
     public PermissionFacade getPermissionFacade() {
         return components.permissionFacade;
+    }
+
+    public PlotSelectionFacade getPlotSelectionFacade() {
+        return components.plotSelectionFacade;
     }
 }
