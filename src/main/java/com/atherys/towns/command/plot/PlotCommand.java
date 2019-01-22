@@ -9,7 +9,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 
-@Aliases("plot")
+@Aliases({"plot", "p"})
 @Description("Base plot command.")
 @Children({
         PlotInfoCommand.class,

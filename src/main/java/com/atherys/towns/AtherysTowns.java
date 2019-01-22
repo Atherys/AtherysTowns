@@ -79,7 +79,7 @@ public class AtherysTowns {
         private PermissionService permissionService;
 
         @Inject
-        private TownsMessagingService townsMessagingService;
+        private TownsMessagingFacade townsMessagingFacade;
 
         @Inject
         private NationFacade nationFacade;
@@ -195,8 +195,8 @@ public class AtherysTowns {
         return components.permissionService;
     }
 
-    public TownsMessagingService getTownsMessagingService() {
-        return components.townsMessagingService;
+    public TownsMessagingFacade getTownsMessagingService() {
+        return components.townsMessagingFacade;
     }
 
     public NationFacade getNationFacade() {

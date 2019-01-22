@@ -2,6 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.plot.PlotSelection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
@@ -19,36 +20,6 @@ public class PlotSelectionFacade {
     @Inject
     TownsConfig config;
 
-    public static class PlotSelection {
-
-        private Location<World> pointA;
-
-        private Location<World> pointB;
-
-        PlotSelection() {
-        }
-
-        public void setPointA(Location<World> pointA) {
-            this.pointA = pointA;
-        }
-
-        public void setPointB(Location<World> pointB) {
-            this.pointB = pointB;
-        }
-
-        public Location<World> getPointA() {
-            return pointA;
-        }
-
-        public Location<World> getPointB() {
-            return pointB;
-        }
-
-        public boolean isComplete() {
-            return pointA != null && pointB != null;
-        }
-    }
-
     private Map<UUID, PlotSelection> selections = new HashMap<>();
 
     private PlotSelection getOrCreateSelection(Player player) {
@@ -61,11 +32,11 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAAtLocation(Player player, Location<World> location) throws CommandException {
+    private void selectPointAAtLocation(Player player, Location<World> location) {
         getOrCreateSelection(player).setPointA(location);
     }
 
-    private void selectPointBAtLocation(Player player, Location<World> location) throws CommandException {
+    private void selectPointBAtLocation(Player player, Location<World> location) {
         getOrCreateSelection(player).setPointB(location);
     }
 
@@ -103,11 +74,11 @@ public class PlotSelectionFacade {
         return smallestSide;
     }
 
-    public void selectPointAFromPlayerLocation(Player player) throws CommandException {
+    public void selectPointAFromPlayerLocation(Player player) {
         selectPointAAtLocation(player, player.getLocation());
     }
 
-    public void selectPointBFromPlayerLocation(Player player) throws CommandException {
+    public void selectPointBFromPlayerLocation(Player player) {
         selectPointBAtLocation(player, player.getLocation());
     }
 

@@ -67,6 +67,22 @@ public class Resident implements SpongeIdentifiable, Actor {
         this.town = town;
     }
 
+    public Set<Resident> getFriends() {
+        return friends;
+    }
+
+    public boolean addFriend(Resident friend) {
+        return friends.add(friend);
+    }
+
+    public boolean removeFriend(Resident friend) {
+        return friends.remove(friend);
+    }
+
+    public void setFriends(Set<Resident> friends) {
+        this.friends = friends;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
