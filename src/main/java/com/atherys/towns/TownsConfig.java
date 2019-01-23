@@ -1,15 +1,13 @@
 package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
-import com.atherys.towns.api.NationPermissions;
-import com.atherys.towns.api.Permission;
-import com.atherys.towns.api.TownPermissions;
-import com.atherys.towns.api.WorldPermissions;
+import com.atherys.towns.api.permission.NationPermissions;
+import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.TownPermissions;
+import com.atherys.towns.api.permission.WorldPermissions;
 import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
 
 import java.io.IOException;
 import java.util.Set;

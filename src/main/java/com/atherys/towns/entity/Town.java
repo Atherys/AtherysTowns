@@ -1,8 +1,8 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Subject;
-import com.atherys.towns.api.Actor;
+import com.atherys.towns.api.permission.Subject;
+import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
@@ -10,7 +10,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;

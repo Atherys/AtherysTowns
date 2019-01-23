@@ -1,8 +1,8 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.api.Subject;
-import com.atherys.towns.api.Actor;
-import com.atherys.towns.api.Permission;
+import com.atherys.towns.api.permission.Subject;
+import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.entity.PermissionNode;
 import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;

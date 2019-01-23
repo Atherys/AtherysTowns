@@ -31,30 +31,30 @@ public class PlotService {
         Vector2d pNW;
         Vector2d pSE;
 
-        //    +--+ pA
-        //    |  |
-        // pB +--+
+        //    +---+ pA
+        //    |   |
+        // pB +---+
         if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
             pNW = Vector2d.from(pB.getX(), pA.getY());
             pSE = Vector2d.from(pA.getX(), pB.getY());
 
-            //    +--+ pB
-            //    |  |
-            // pA +--+
+        //    +---+ pB
+        //    |   |
+        // pA +---+
         } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
             pNW = Vector2d.from(pA.getX(), pB.getY());
             pSE = Vector2d.from(pB.getX(), pA.getY());
 
-            // pB +--+
-            //    |  |
-            //    +--+ pA
+        // pB +---+
+        //    |   |
+        //    +---+ pA
         } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
             pNW = pB;
             pSE = pA;
 
-            // pA +--+
-            //    |  |
-            //    +--+ pB
+        // pA +---+
+        //    |   |
+        //    +---+ pB
         } else if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
             pNW = pA;
             pSE = pB;
@@ -100,10 +100,6 @@ public class PlotService {
         // if location Y fits between plot corners' Y, return true
         return !(plot.getNorthWestCorner().getY() < location.getPosition().getX()) &&
                 !(plot.getSouthEastCorner().getY() > location.getPosition().getZ());
-    }
-
-    public boolean plotSelectionIntersectsAnyPlots(PlotSelection selection) {
-        return plotIntersectsAnyOthers(createPlotFromSelection(selection));
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {

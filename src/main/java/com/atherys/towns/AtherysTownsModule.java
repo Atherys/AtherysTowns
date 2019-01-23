@@ -1,10 +1,11 @@
 package com.atherys.towns;
 
+import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.service.*;
+import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
 
 public class AtherysTownsModule extends AbstractModule {
     @Override
@@ -25,6 +26,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotService.class);
         bind(ResidentService.class);
         bind(PermissionService.class);
+        bind(TownsChatService.class).to(SimpleTownsChatService.class);
 
         // Facades
         bind(NationFacade.class);

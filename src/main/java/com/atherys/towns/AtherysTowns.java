@@ -2,10 +2,29 @@ package com.atherys.towns;
 
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
-import com.atherys.towns.entity.*;
-import com.atherys.towns.facade.*;
-import com.atherys.towns.persistence.*;
-import com.atherys.towns.service.*;
+import com.atherys.towns.api.chat.TownsChatService;
+import com.atherys.towns.entity.Nation;
+import com.atherys.towns.entity.PermissionNode;
+import com.atherys.towns.entity.Plot;
+import com.atherys.towns.entity.Resident;
+import com.atherys.towns.entity.Town;
+import com.atherys.towns.facade.NationFacade;
+import com.atherys.towns.facade.PermissionFacade;
+import com.atherys.towns.facade.PlotFacade;
+import com.atherys.towns.facade.PlotSelectionFacade;
+import com.atherys.towns.facade.ResidentFacade;
+import com.atherys.towns.facade.TownFacade;
+import com.atherys.towns.facade.TownsMessagingFacade;
+import com.atherys.towns.persistence.NationRepository;
+import com.atherys.towns.persistence.PermissionRepository;
+import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.service.NationService;
+import com.atherys.towns.service.PermissionService;
+import com.atherys.towns.service.PlotService;
+import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
@@ -79,6 +98,9 @@ public class AtherysTowns {
         private PermissionService permissionService;
 
         @Inject
+        private TownsChatService chatService;
+
+        @Inject
         private TownsMessagingFacade townsMessagingFacade;
 
         @Inject
@@ -120,7 +142,6 @@ public class AtherysTowns {
     }
 
     private void stop() {
-
     }
 
     @Listener
@@ -221,5 +242,9 @@ public class AtherysTowns {
 
     public PlotSelectionFacade getPlotSelectionFacade() {
         return components.plotSelectionFacade;
+    }
+
+    public TownsChatService getChatService() {
+        return components.chatService;
     }
 }

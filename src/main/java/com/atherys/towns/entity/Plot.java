@@ -1,7 +1,7 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Subject;
+import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;

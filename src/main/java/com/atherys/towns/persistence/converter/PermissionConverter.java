@@ -1,6 +1,6 @@
 package com.atherys.towns.persistence.converter;
 
-import com.atherys.towns.api.Permission;
+import com.atherys.towns.api.permission.Permission;
 import org.spongepowered.api.Sponge;
 
 import javax.persistence.AttributeConverter;
