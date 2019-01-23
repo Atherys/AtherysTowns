@@ -1,21 +1,22 @@
 package com.atherys.towns.persistence.converter;
 
 import com.flowpowered.math.vector.Vector2d;
+import com.flowpowered.math.vector.Vector2i;
 
 import javax.persistence.AttributeConverter;
 
-public class Vector2dConverter implements AttributeConverter<Vector2d, String> {
+public class Vector2iConverter implements AttributeConverter<Vector2i, String> {
 
     private static final String SPLIT_CHARACTERS = "; ";
 
     @Override
-    public String convertToDatabaseColumn(Vector2d attribute) {
+    public String convertToDatabaseColumn(Vector2i attribute) {
         return attribute.getX() + SPLIT_CHARACTERS + attribute.getY();
     }
 
     @Override
-    public Vector2d convertToEntityAttribute(String dbData) {
+    public Vector2i convertToEntityAttribute(String dbData) {
         String[] data = dbData.split(SPLIT_CHARACTERS);
-        return new Vector2d(Double.valueOf(data[0]), Double.valueOf(data[1]));
+        return new Vector2i(Integer.valueOf(data[0]), Double.valueOf(data[1]));
     }
 }
