@@ -86,6 +86,9 @@ public class AtherysTowns {
         @Inject
         private PermissionRepository permissionRepository;
 
+        @Inject(optional = true)
+        private EconomyService economyService;
+
         @Inject
         private NationService nationService;
 
@@ -251,7 +254,7 @@ public class AtherysTowns {
         return components.chatService;
     }
 
-    public Optional<EconomyService> getEconomyService() {
-        return Sponge.getServiceManager().provide(EconomyService.class);
+    public EconomyService getEconomyService() {
+        return components.economyService;
     }
 }

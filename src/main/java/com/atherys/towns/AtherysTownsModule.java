@@ -6,6 +6,10 @@ import com.atherys.towns.persistence.*;
 import com.atherys.towns.service.*;
 import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
+import com.google.inject.Scopes;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.service.economy.EconomyService;
 
 public class AtherysTownsModule extends AbstractModule {
     @Override
@@ -19,6 +23,11 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotRepository.class);
         bind(ResidentRepository.class);
         bind(PermissionRepository.class);
+
+        // Economy Service
+        bind(EconomyService.class).toProvider(() -> {
+            return Sponge.getServiceManager().provide(EconomyService.class).orElse(null);
+        }).in(Scopes.SINGLETON);
 
         // Services
         bind(NationService.class);

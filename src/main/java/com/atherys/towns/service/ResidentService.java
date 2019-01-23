@@ -1,6 +1,5 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
@@ -17,10 +16,8 @@ import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 
 import java.math.BigDecimal;
-import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 @Singleton
 public class ResidentService {
@@ -28,10 +25,11 @@ public class ResidentService {
     @Inject
     private ResidentRepository residentRepository;
 
-    private EconomyService economyService = AtherysTowns.getInstance().getEconomyService().orElse(null);
-
     @Inject
-    UserStorageService userStorageService;
+    private UserStorageService userStorageService;
+
+    @Inject(optional = true)
+    private EconomyService economyService;
 
     ResidentService() {
     }
@@ -74,6 +72,11 @@ public class ResidentService {
     }
 
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
+
+        if ( economyService == null ) {
+            return Optional.empty();
+        }
+
         return economyService.getOrCreateAccount(resident.getId());
     }
 
@@ -98,11 +101,32 @@ public class ResidentService {
         });
     }
 
-    public void transferCurrency(Resident resident, Town town, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(resident, town.getId(), currency, amount, cause);
+    public void transferCurrency(UUID source, Resident resident, Currency currency, BigDecimal amount, Cause cause) {
+        getResidentBank(resident).ifPresent(residentAccount -> {
+            economyService.getOrCreateAccount(source).ifPresent(sourceAccount -> {
+                sourceAccount.transfer(
+                        residentAccount,
+                        currency,
+                        amount,
+                        cause
+                );
+            });
+        });
     }
 
-    public void transferCurrency(Resident resident, Nation nation, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(resident, nation.getId(), currency, amount, cause);
+    public void transferCurrency(Resident source, Town destination, Currency currency, BigDecimal amount, Cause cause) {
+        transferCurrency(source, destination.getId(), currency, amount, cause);
+    }
+
+    public void transferCurrency(Resident source, Nation destination, Currency currency, BigDecimal amount, Cause cause) {
+        transferCurrency(source, destination.getId(), currency, amount, cause);
+    }
+
+    public void transferCurrency(Town source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
+        transferCurrency(source.getId(), destination, currency, amount, cause);
+    }
+
+    public void transferCurrency(Nation source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
+        transferCurrency(source.getId(), destination, currency, amount, cause);
     }
 }
