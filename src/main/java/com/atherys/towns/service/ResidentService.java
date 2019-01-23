@@ -7,13 +7,17 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
+import org.spongepowered.api.service.user.UserStorageService;
 
 import java.math.BigDecimal;
+import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -25,6 +29,9 @@ public class ResidentService {
     private ResidentRepository residentRepository;
 
     private EconomyService economyService = AtherysTowns.getInstance().getEconomyService().orElse(null);
+
+    @Inject
+    UserStorageService userStorageService;
 
     ResidentService() {
     }
@@ -48,6 +55,22 @@ public class ResidentService {
 
     public Resident getOrCreate(User src) {
         return getOrCreate(src.getUniqueId(), src.getName());
+    }
+
+    public Optional<User> getUserFromResident(Resident resident) {
+        return userStorageService.get(resident.getUniqueId());
+    }
+
+    public Optional<Player> getPlayerFromResident(Resident resident) {
+
+        for (Player onlinePlayer : Sponge.getServer().getOnlinePlayers()) {
+            if ( onlinePlayer.getUniqueId().equals(resident.getId()) ) {
+                return Optional.of(onlinePlayer);
+            }
+        }
+
+        Optional<User> user = getUserFromResident(resident);
+        return user.flatMap(User::getPlayer);
     }
 
     public Optional<UniqueAccount> getResidentBank(Resident resident) {

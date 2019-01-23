@@ -1,10 +1,10 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Subject;
+import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
-import com.atherys.towns.persistence.converter.Vector2dConverter;
-import com.flowpowered.math.vector.Vector2d;
+import com.atherys.towns.persistence.converter.Vector2iConverter;
+import com.flowpowered.math.vector.Vector2i;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
@@ -36,11 +36,11 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @Convert(converter = TextConverter.class)
     private Text name;
 
-    @Convert(converter = Vector2dConverter.class)
-    private Vector2d nwCorner;
+    @Convert(converter = Vector2iConverter.class)
+    private Vector2i nwCorner;
 
-    @Convert(converter = Vector2dConverter.class)
-    private Vector2d seCorner;
+    @Convert(converter = Vector2iConverter.class)
+    private Vector2i seCorner;
 
     @Nonnull
     @Override
@@ -64,19 +64,19 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
         this.name = name;
     }
 
-    public Vector2d getNorthWestCorner() {
+    public Vector2i getNorthWestCorner() {
         return nwCorner;
     }
 
-    public void setNorthWestCorner(Vector2d nwCorner) {
+    public void setNorthWestCorner(Vector2i nwCorner) {
         this.nwCorner = nwCorner;
     }
 
-    public Vector2d getSouthEastCorner() {
+    public Vector2i getSouthEastCorner() {
         return seCorner;
     }
 
-    public void setSouthWestCorner(Vector2d seCorner) {
+    public void setSouthEastCorner(Vector2i seCorner) {
         this.seCorner = seCorner;
     }
 

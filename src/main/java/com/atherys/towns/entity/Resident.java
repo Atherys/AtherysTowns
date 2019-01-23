@@ -1,7 +1,7 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.Actor;
+import com.atherys.towns.api.permission.Actor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;

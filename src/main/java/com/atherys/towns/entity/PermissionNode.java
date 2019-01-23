@@ -1,7 +1,7 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.api.Permission;
+import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;

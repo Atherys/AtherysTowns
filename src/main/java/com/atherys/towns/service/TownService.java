@@ -39,19 +39,23 @@ public class TownService {
 
     private ResidentRepository residentRepository;
 
+    private PermissionService permissionService;
+
     @Inject
     TownService(
             TownsConfig config,
             PlotService plotService,
             TownRepository townRepository,
             PlotRepository plotRepository,
-            ResidentRepository residentRepository
+            ResidentRepository residentRepository,
+            PermissionService permissionService
     ) {
         this.config = config;
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
+        this.permissionService = permissionService;
     }
 
     public void setTownNation(Town town, Nation nation) {
@@ -94,7 +98,8 @@ public class TownService {
 
         residentRepository.saveOne(leader);
 
-        // TODO: Permissions
+        permissionService.permit(leader, town, config.DEFAULT_TOWN_LEADER_PERMISSIONS);
+        permissionService.permit(town, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
 
         return town;
     }
