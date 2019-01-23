@@ -8,7 +8,7 @@ import org.spongepowered.api.text.channel.AbstractMutableMessageChannel;
 import java.util.Collection;
 import java.util.Optional;
 
-public class ResidentMessageChannel extends AbstractMutableMessageChannel {
+public class ResidentMessageChannel extends UUIDMessageChannel {
 
     public ResidentMessageChannel() {
     }
@@ -17,14 +17,12 @@ public class ResidentMessageChannel extends AbstractMutableMessageChannel {
         residents.forEach(this::addResident);
     }
 
-    public void addResident(Resident resident) {
-        Optional<Player> player = AtherysTowns.getInstance().getResidentService().getPlayerFromResident(resident);
-        player.ifPresent(this::addMember);
+    public boolean addResident(Resident resident) {
+        return addMember(resident.getId());
     }
 
-    public void removeResident(Resident resident) {
-        Optional<Player> player = AtherysTowns.getInstance().getResidentService().getPlayerFromResident(resident);
-        player.ifPresent(this::removeMember);
+    public boolean removeResident(Resident resident) {
+        return removeMember(resident.getId());
     }
 
 }
