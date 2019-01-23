@@ -9,11 +9,15 @@ import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.service.economy.EconomyService;
+
+import java.util.Optional;
 
 import static com.atherys.towns.AtherysTowns.*;
 
@@ -98,7 +102,6 @@ public class AtherysTowns {
 
         @Inject
         private PlotSelectionFacade plotSelectionFacade;
-
     }
 
     private Components components;
@@ -221,5 +224,9 @@ public class AtherysTowns {
 
     public PlotSelectionFacade getPlotSelectionFacade() {
         return components.plotSelectionFacade;
+    }
+
+    public Optional<EconomyService> getEconomyService() {
+        return Sponge.getServiceManager().provide(EconomyService.class);
     }
 }
