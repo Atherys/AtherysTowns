@@ -1,6 +1,7 @@
 package com.atherys.towns.api.command;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.entity.Resident;
@@ -31,11 +32,11 @@ public interface TownsCommand extends CommandExecutor {
             if (permissionService.isPermitted(resident, subject, permission)) {
                 return execute(resident, subject, args);
             } else {
-                throw new CommandException(Text.of("You are not allowed to ", permission.getName()));
+                throw new TownsCommandException(Text.of("You are not allowed to ", permission.getName()));
             }
         }
 
-        throw new CommandException(Text.of("Must be player to execute command."));
+        throw new TownsCommandException(Text.of("Must be player to execute this command."));
     }
 
     CommandResult execute(Resident resident, Subject subject, CommandContext args);

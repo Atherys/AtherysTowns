@@ -4,6 +4,7 @@ import com.atherys.towns.entity.Resident;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.user.UserStorageService;
@@ -50,6 +51,13 @@ public class ResidentService {
     }
 
     public Optional<Player> getPlayerFromResident(Resident resident) {
+
+        for (Player onlinePlayer : Sponge.getServer().getOnlinePlayers()) {
+            if ( onlinePlayer.getUniqueId().equals(resident.getId()) ) {
+                return Optional.of(onlinePlayer);
+            }
+        }
+
         Optional<User> user = getUserFromResident(resident);
         return user.flatMap(User::getPlayer);
     }

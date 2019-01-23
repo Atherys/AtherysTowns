@@ -14,7 +14,7 @@ import java.util.UUID;
  * A Message channel which stores UUIDs and sends messages to online players,
  * whose UUIDs are part of this message channel.
  */
-public class UUIDMessageChannel implements MutableMessageChannel {
+public class MutableUUIDMessageChannel implements MutableMessageChannel {
 
     private Set<UUID> members = new HashSet<>();
 
