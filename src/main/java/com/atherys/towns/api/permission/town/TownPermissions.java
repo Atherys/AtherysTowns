@@ -3,7 +3,7 @@ package com.atherys.towns.api.permission.town;
 import com.atherys.towns.api.permission.Permission;
 
 public final class TownPermissions {
-    public static final Permission CHAT = new Permission("town_chat", "Use Town Chat");
+    public static final Permission CHAT = new TownPermission("chat", "Use Town Chat");
 
     public static final Permission TRANSFER_LEADERSHIP = new TownPermission("transfer_leadership", "Transfer Leadership");
 

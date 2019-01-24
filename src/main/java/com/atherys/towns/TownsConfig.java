@@ -89,6 +89,7 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("default-town-resident-permissions")
     public Set<Permission> DEFAULT_TOWN_RESIDENT_PERMISSIONS = Sets.newHashSet(
+            TownPermissions.DEPOSIT_INTO_BANK,
             TownPermissions.CHAT,
 
             WorldPermissions.BUILD,
