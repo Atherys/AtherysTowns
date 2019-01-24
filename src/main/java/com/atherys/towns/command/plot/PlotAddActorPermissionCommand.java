@@ -11,6 +11,6 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 public class PlotAddActorPermissionCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        return null;
+        return CommandResult.empty();
     }
 }

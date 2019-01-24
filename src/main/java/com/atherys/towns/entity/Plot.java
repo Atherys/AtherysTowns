@@ -37,10 +37,10 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     private Text name;
 
     @Convert(converter = Vector2iConverter.class)
-    private Vector2i nwCorner;
+    private Vector2i swCorner;
 
     @Convert(converter = Vector2iConverter.class)
-    private Vector2i seCorner;
+    private Vector2i neCorner;
 
     @Nonnull
     @Override
@@ -64,20 +64,20 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
         this.name = name;
     }
 
-    public Vector2i getNorthWestCorner() {
-        return nwCorner;
+    public Vector2i getSouthWestCorner() {
+        return swCorner;
     }
 
-    public void setNorthWestCorner(Vector2i nwCorner) {
-        this.nwCorner = nwCorner;
+    public void setSouthWestCorner(Vector2i swCorner) {
+        this.swCorner = swCorner;
     }
 
-    public Vector2i getSouthEastCorner() {
-        return seCorner;
+    public Vector2i getNorthEastCorner() {
+        return neCorner;
     }
 
-    public void setSouthEastCorner(Vector2i seCorner) {
-        this.seCorner = seCorner;
+    public void setNorthEastCorner(Vector2i neCorner) {
+        this.neCorner = neCorner;
     }
 
     @Override
@@ -98,12 +98,12 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
         return uuid.equals(plot.uuid) &&
                 town.equals(plot.town) &&
                 name.equals(plot.name) &&
-                nwCorner.equals(plot.nwCorner) &&
-                seCorner.equals(plot.seCorner);
+                swCorner.equals(plot.swCorner) &&
+                neCorner.equals(plot.neCorner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, town, name, nwCorner, seCorner);
+        return Objects.hash(uuid, town, name, swCorner, neCorner);
     }
 }
