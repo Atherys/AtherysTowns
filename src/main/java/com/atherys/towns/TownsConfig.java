@@ -1,10 +1,10 @@
 package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
-import com.atherys.towns.api.permission.NationPermissions;
+import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.api.permission.TownPermissions;
-import com.atherys.towns.api.permission.WorldPermissions;
+import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -45,12 +45,14 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("default-nation-town-permissions")
     public Set<Permission> DEFAULT_NATION_TOWN_PERMISSIONS = Sets.newHashSet(
-
+            NationPermissions.DEPOSIT_INTO_BANK,
+            NationPermissions.CHAT
     );
 
     @Setting("default-nation-resident-permissions")
     public Set<Permission> DEFAULT_NATION_RESIDENT_PERMISSIONS = Sets.newHashSet(
-
+            NationPermissions.DEPOSIT_INTO_BANK,
+            NationPermissions.CHAT
     );
 
     @Setting("default-town-leader-permissions")

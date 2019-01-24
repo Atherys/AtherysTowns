@@ -10,7 +10,7 @@ public class Permission implements CatalogType {
 
     private String name;
 
-    Permission(String id, String name) {
+    protected Permission(String id, String name) {
         this.id = id;
         this.name = name;
     }
