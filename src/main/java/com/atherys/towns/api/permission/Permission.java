@@ -1,4 +1,4 @@
-package com.atherys.towns.api;
+package com.atherys.towns.api.permission;
 
 import org.spongepowered.api.CatalogType;
 

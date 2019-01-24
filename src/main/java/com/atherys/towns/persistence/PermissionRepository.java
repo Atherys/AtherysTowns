@@ -1,7 +1,7 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.AtherysRepository;
-import com.atherys.towns.api.Permission;
+import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.entity.PermissionNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

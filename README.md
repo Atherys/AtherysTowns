@@ -5,7 +5,7 @@ A land-management plugin for the A'therys Horizons server, inspired by Towny
 
 ### Resident
 * `/resident`, `/res`
-* `/resident info`
+* `/resident info <player>`
 * `/resident friend <player>`
 * `/resident unfriend <player>`
 
