@@ -1,24 +1,27 @@
 package com.atherys.towns.chat;
 
 import com.atherys.towns.entity.Resident;
+import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.channel.MutableMessageChannel;
 
 import java.util.Collection;
 
-public class ResidentMessageChannel extends MutableUUIDMessageChannel {
+public abstract class ResidentMessageChannel implements MutableMessageChannel {
 
     public ResidentMessageChannel() {
     }
 
-    public ResidentMessageChannel(Collection<Resident> residents) {
-        residents.forEach(this::addResident);
+    @Override
+    public boolean addMember(MessageReceiver member) {
+        return false;
     }
 
-    public boolean addResident(Resident resident) {
-        return addMember(resident.getId());
+    @Override
+    public boolean removeMember(MessageReceiver member) {
+        return false;
     }
 
-    public boolean removeResident(Resident resident) {
-        return removeMember(resident.getId());
+    @Override
+    public void clearMembers() {
     }
-
 }

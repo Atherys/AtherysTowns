@@ -3,6 +3,7 @@ package com.atherys.towns.entity;
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
@@ -57,6 +58,9 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     @OneToMany(mappedBy = "town")
     private Set<Plot> plots = new HashSet<>();
+
+    @Transient
+    private TownMessageChannel messageChannel;
 
     private int maxSize;
 
@@ -220,5 +224,14 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     public void setColor(TextColor color) {
         this.color = color;
+    }
+
+
+    public TownMessageChannel getMessageChannel() {
+        return messageChannel;
+    }
+
+    public void setMessageChannel(TownMessageChannel messageChannel) {
+        this.messageChannel = messageChannel;
     }
 }

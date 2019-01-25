@@ -9,41 +9,9 @@ import org.spongepowered.api.text.Text;
 
 public interface TownsChatService {
 
-    default TownMessageChannel getOrCreateChannel(Town town) {
-        TownMessageChannel channel = getChannel(town);
-
-        if ( channel == null ) {
-            return createChannel(town);
-        }
-
-        return channel;
-    }
-
-    default NationMessageChannel getOrCreateChannel(Nation nation) {
-        NationMessageChannel channel = getChannel(nation);
-
-        if ( channel == null ) {
-            return createChannel(nation);
-        }
-
-        return channel;
-    }
-
-    TownMessageChannel createChannel(Town town);
-
-    NationMessageChannel createChannel(Nation nation);
-
     TownMessageChannel getChannel(Town town);
 
     NationMessageChannel getChannel(Nation nation);
-
-    void addToChannel(Town town, Resident resident);
-
-    void addToChannel(Nation nation, Resident resident);
-
-    void removeFromChannel(Town town, Resident resident);
-
-    void removeFromChannel(Nation nation, Resident resident);
 
     void broadcast(Town town, Object... message);
 

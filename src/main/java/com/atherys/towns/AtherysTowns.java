@@ -28,15 +28,12 @@ import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.economy.EconomyService;
-
-import java.util.Optional;
 
 import static com.atherys.towns.AtherysTowns.*;
 

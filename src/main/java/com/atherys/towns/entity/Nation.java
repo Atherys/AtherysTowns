@@ -3,6 +3,7 @@ package com.atherys.towns.entity;
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
@@ -19,6 +20,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -65,6 +67,9 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     private Set<Nation> enemies = new HashSet<>();
 
     private boolean freelyJoinable;
+
+    @Transient
+    private NationMessageChannel messageChannel;
 
     public Nation() {
     }
@@ -179,5 +184,13 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     public void setFreelyJoinable(boolean freelyJoinable) {
         this.freelyJoinable = freelyJoinable;
+    }
+
+    public NationMessageChannel getMessageChannel() {
+        return messageChannel;
+    }
+
+    public void setMessageChannel(NationMessageChannel messageChannel) {
+        this.messageChannel = messageChannel;
     }
 }
