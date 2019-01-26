@@ -1,9 +1,15 @@
 package com.atherys.towns;
 
+import com.atherys.core.AtherysCore;
+import com.atherys.core.command.CommandService;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.command.nation.NationCommand;
+import com.atherys.towns.command.plot.PlotCommand;
+import com.atherys.towns.command.resident.ResidentCommand;
+import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.PermissionNode;
 import com.atherys.towns.entity.Plot;
@@ -30,6 +36,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -151,6 +158,15 @@ public class AtherysTowns {
         getPlotRepository().cacheAll();
         getTownRepository().cacheAll();
         getNationRepository().cacheAll();
+
+        try {
+            AtherysCore.getCommandService().register(new ResidentCommand(), this);
+            AtherysCore.getCommandService().register(new PlotCommand(), this);
+            AtherysCore.getCommandService().register(new TownCommand(), this);
+            AtherysCore.getCommandService().register(new NationCommand(), this);
+        } catch (CommandService.AnnotatedCommandException e) {
+            e.printStackTrace();
+        }
     }
 
     private void stop() {
