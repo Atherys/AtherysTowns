@@ -7,6 +7,9 @@ import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.TransformConverter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
@@ -188,28 +191,6 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         return nation;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Town town = (Town) o;
-        return uuid.equals(town.uuid) &&
-                name.equals(town.name) &&
-                description.equals(town.description) &&
-                motd.equals(town.motd) &&
-                leader.equals(town.leader) &&
-                nation.equals(town.nation) &&
-                world.equals(town.world) &&
-                spawn.equals(town.spawn) &&
-                residents.equals(town.residents) &&
-                plots.equals(town.plots);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid, name, description, motd, leader, nation, world, spawn, residents, plots);
-    }
-
     public boolean isPvpEnabled() {
         return pvpEnabled;
     }
@@ -233,5 +214,32 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     public void setMessageChannel(TownMessageChannel messageChannel) {
         this.messageChannel = messageChannel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Town town = (Town) o;
+        return uuid.equals(town.uuid) &&
+                name.equals(town.name) &&
+                description.equals(town.description) &&
+                motd.equals(town.motd) &&
+                leader.equals(town.leader) &&
+                nation.equals(town.nation) &&
+                world.equals(town.world) &&
+                spawn.equals(town.spawn) &&
+                residents.equals(town.residents) &&
+                plots.equals(town.plots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, description, motd, leader, nation, world, spawn, residents, plots);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 }

@@ -16,6 +16,8 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
+import java.util.Optional;
+
 @Singleton
 public class TownService {
 
@@ -58,19 +60,6 @@ public class TownService {
         this.permissionService = permissionService;
     }
 
-    public void setTownNation(Town town, Nation nation) {
-
-        // if town is already part of another nation, remove it
-        if ( town.getNation() != null ) {
-            town.getNation().removeTown(town);
-        }
-
-        town.setNation(nation);
-        nation.addTown(town);
-
-        townRepository.saveOne(town);
-    }
-
     public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, Text name) {
         Town town = new Town();
 
@@ -102,5 +91,28 @@ public class TownService {
         permissionService.permit(town, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
 
         return town;
+    }
+
+    public Optional<Town> getTownFromName(String townName) {
+        return townRepository.findByName(townName);
+    }
+
+    public void setTownName(Town town, String name) {
+        town.setName(Text.of(name));
+
+        townRepository.saveOne(town);
+    }
+
+    public void setTownNation(Town town, Nation nation) {
+
+        // if town is already part of another nation, remove it
+        if ( town.getNation() != null ) {
+            town.getNation().removeTown(town);
+        }
+
+        town.setNation(nation);
+        nation.addTown(town);
+
+        townRepository.saveOne(town);
     }
 }

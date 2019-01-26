@@ -20,6 +20,9 @@ public class PlotSelectionFacade {
     @Inject
     TownsConfig config;
 
+    @Inject
+    TownsMessagingFacade townMsg;
+
     private Map<UUID, PlotSelection> selections = new HashMap<>();
 
     private PlotSelection getOrCreateSelection(Player player) {
@@ -42,6 +45,7 @@ public class PlotSelectionFacade {
 
     public void clearSelection(Player player) {
         selections.remove(player.getUniqueId());
+        townMsg.info(player, "You have cleared your selection.");
     }
 
     /**
@@ -75,10 +79,12 @@ public class PlotSelectionFacade {
 
     public void selectPointAFromPlayerLocation(Player player) {
         selectPointAAtLocation(player, player.getLocation());
+        townMsg.info(player, "You have selected point A at ", player.getLocation().toString());
     }
 
     public void selectPointBFromPlayerLocation(Player player) {
         selectPointBAtLocation(player, player.getLocation());
+        townMsg.info(player, "You have selected point B at ", player.getLocation().toString());
     }
 
     /**

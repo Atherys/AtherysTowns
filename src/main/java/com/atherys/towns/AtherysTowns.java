@@ -3,6 +3,7 @@ package com.atherys.towns;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
+import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.PermissionNode;
 import com.atherys.towns.entity.Plot;
@@ -28,6 +29,7 @@ import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -138,13 +140,24 @@ public class AtherysTowns {
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
         townsInjector.injectMembers(components);
 
+        // Register Permission Catalogue registry module
+        Sponge.getRegistry().registerModule(Permission.class, getPermissionService());
+
         getConfig().init();
     }
 
     private void start() {
+        getResidentRepository().cacheAll();
+        getPlotRepository().cacheAll();
+        getTownRepository().cacheAll();
+        getNationRepository().cacheAll();
     }
 
     private void stop() {
+        getResidentRepository().flushCache();
+        getPlotRepository().flushCache();
+        getTownRepository().flushCache();
+        getNationRepository().flushCache();
     }
 
     @Listener

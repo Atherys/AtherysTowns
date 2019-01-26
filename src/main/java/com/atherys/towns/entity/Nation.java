@@ -5,6 +5,8 @@ import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.persistence.converter.TextConverter;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
@@ -158,6 +160,22 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
         return this;
     }
 
+    public boolean isFreelyJoinable() {
+        return freelyJoinable;
+    }
+
+    public void setFreelyJoinable(boolean freelyJoinable) {
+        this.freelyJoinable = freelyJoinable;
+    }
+
+    public NationMessageChannel getMessageChannel() {
+        return messageChannel;
+    }
+
+    public void setMessageChannel(NationMessageChannel messageChannel) {
+        this.messageChannel = messageChannel;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -178,19 +196,8 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
         return Objects.hash(uuid, name, description, towns, leader, capital, allies, enemies);
     }
 
-    public boolean isFreelyJoinable() {
-        return freelyJoinable;
-    }
-
-    public void setFreelyJoinable(boolean freelyJoinable) {
-        this.freelyJoinable = freelyJoinable;
-    }
-
-    public NationMessageChannel getMessageChannel() {
-        return messageChannel;
-    }
-
-    public void setMessageChannel(NationMessageChannel messageChannel) {
-        this.messageChannel = messageChannel;
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 }

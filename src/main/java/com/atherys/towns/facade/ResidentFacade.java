@@ -9,6 +9,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
 
+import java.util.Optional;
+
 @Singleton
 public class ResidentFacade {
 
@@ -32,5 +34,13 @@ public class ResidentFacade {
         }
 
         return nation.equals(resident.getTown().getNation());
+    }
+
+    public Optional<Town> getPlayerTown(Player player) {
+        return Optional.ofNullable(residentService.getOrCreate(player).getTown());
+    }
+
+    public Optional<Nation> getPlayerNation(Player player) {
+        return getPlayerTown(player).map(Town::getNation);
     }
 }

@@ -2,6 +2,8 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
@@ -96,5 +98,10 @@ public class Resident implements SpongeIdentifiable, Actor {
     @Override
     public int hashCode() {
         return Objects.hash(uuid, name, town);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 }

@@ -5,6 +5,8 @@ import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
@@ -105,5 +107,10 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @Override
     public int hashCode() {
         return Objects.hash(uuid, town, name, swCorner, neCorner);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 }

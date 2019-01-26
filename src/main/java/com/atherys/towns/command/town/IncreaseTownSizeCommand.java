@@ -14,7 +14,7 @@ import org.spongepowered.api.text.Text;
 
 @Aliases("increase")
 @Description("Increases the size of the town.")
-@Permission("atherystowns.town.increase")
+@Permission("atherystowns.admin.town.increase")
 public class IncreaseTownSizeCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
