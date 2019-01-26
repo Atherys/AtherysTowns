@@ -1,13 +1,12 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.core.db.converter.TransformConverter;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
-import com.atherys.towns.persistence.converter.TransformConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
