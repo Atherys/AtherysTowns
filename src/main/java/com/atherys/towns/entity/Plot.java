@@ -110,7 +110,7 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, town, name, swCorner, neCorner);
+        return Objects.hash(id, name, swCorner, neCorner);
     }
 
     @Override

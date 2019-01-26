@@ -193,7 +193,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, towns, leader, capital, allies, enemies);
+        return Objects.hash(id, name, description);
     }
 
     @Override

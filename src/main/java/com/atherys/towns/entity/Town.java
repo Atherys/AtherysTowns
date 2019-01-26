@@ -238,7 +238,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, motd, leader, nation, world, spawn, residents, plots);
+        return Objects.hash(id, name, description, motd, world, spawn);
     }
 
     @Override
