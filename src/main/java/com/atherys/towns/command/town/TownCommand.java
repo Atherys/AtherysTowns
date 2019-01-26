@@ -31,6 +31,6 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 public class TownCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        return null;
+        return CommandResult.empty();
     }
 }
