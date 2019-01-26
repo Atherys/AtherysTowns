@@ -67,7 +67,7 @@ public class PlotService {
         }
 
         plot.setNorthEastCorner(Vector2i.from((int) Math.ceil(pNE.getX()), (int) Math.ceil(pNE.getY())));
-        plot.setSouthWestCorner(Vector2i.from(pNE.getFloorX(), pSW.getFloorY()));
+        plot.setSouthWestCorner(Vector2i.from(pSW.getFloorX(), pSW.getFloorY()));
 
         plot.setName(DEFAULT_PLOT_NAME);
 
