@@ -15,6 +15,7 @@ import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +30,7 @@ public class ResidentService {
     private UserStorageService userStorageService;
 
     @Inject(optional = true)
+    @Nullable
     private EconomyService economyService;
 
     ResidentService() {

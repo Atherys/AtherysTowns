@@ -44,6 +44,8 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.economy.EconomyService;
 
+import javax.annotation.Nullable;
+
 import static com.atherys.towns.AtherysTowns.*;
 
 @Plugin(
@@ -93,6 +95,7 @@ public class AtherysTowns {
         private PermissionRepository permissionRepository;
 
         @Inject(optional = true)
+        @Nullable
         private EconomyService economyService;
 
         @Inject
@@ -151,6 +154,8 @@ public class AtherysTowns {
         Sponge.getRegistry().registerModule(Permission.class, getPermissionService());
 
         getConfig().init();
+
+        init = true;
     }
 
     private void start() {

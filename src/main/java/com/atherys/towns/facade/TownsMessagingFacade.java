@@ -12,11 +12,11 @@ public class TownsMessagingFacade {
     public static final Text PREFIX = Text.of(TextColors.DARK_AQUA, "[", TextColors.DARK_GREEN, "Towns", TextColors.DARK_AQUA, "] ");
 
     public Text formatInfo(Object... message) {
-        return Text.of(PREFIX, TextColors.AQUA, message);
+        return Text.of(PREFIX, TextColors.AQUA, Text.of(message));
     }
 
     public Text formatError(Object... message) {
-        return Text.of(PREFIX, TextColors.RED, message);
+        return Text.of(PREFIX, TextColors.RED, Text.of(message));
     }
 
     public void info(Player player, Object... message) {

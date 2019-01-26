@@ -7,7 +7,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 public class TownsCommandException extends CommandException {
     public TownsCommandException(Text message) {
-        super(Text.of(TownsMessagingFacade.PREFIX, " ", TextColors.RED, message));
+        super(Text.of(TownsMessagingFacade.PREFIX, TextColors.RED, message));
     }
 
     public TownsCommandException(Object... msg) {
