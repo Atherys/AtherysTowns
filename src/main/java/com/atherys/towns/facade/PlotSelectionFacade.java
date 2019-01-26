@@ -100,7 +100,7 @@ public class PlotSelectionFacade {
             throw new TownsCommandException("Plot selection is null.");
         }
 
-        if (selection.isComplete()) {
+        if (!selection.isComplete()) {
             throw new TownsCommandException("Plot selection is incomplete.");
         }
 
