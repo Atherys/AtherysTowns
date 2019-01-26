@@ -35,7 +35,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID uuid;
+    private UUID id;
 
     @Convert(converter = TextConverter.class)
     private Text name;
@@ -76,14 +76,14 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     public Nation() {
     }
 
-    public Nation(UUID uuid) {
-        this.uuid = uuid;
-    }
-
     @Nonnull
     @Override
     public UUID getId() {
-        return uuid;
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Text getName() {
@@ -181,7 +181,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Nation nation = (Nation) o;
-        return uuid.equals(nation.uuid) &&
+        return id.equals(nation.id) &&
                 name.equals(nation.name) &&
                 description.equals(nation.description) &&
                 towns.equals(nation.towns) &&
@@ -193,7 +193,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, name, description, towns, leader, capital, allies, enemies);
+        return Objects.hash(id, name, description, towns, leader, capital, allies, enemies);
     }
 
     @Override

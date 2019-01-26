@@ -27,7 +27,7 @@ public class Resident implements SpongeIdentifiable, Actor {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID uuid;
+    private UUID id;
 
     private String name;
 
@@ -46,11 +46,11 @@ public class Resident implements SpongeIdentifiable, Actor {
     @Nonnull
     @Override
     public UUID getId() {
-        return uuid;
+        return id;
     }
 
-    public void setId(UUID uuid) {
-        this.uuid = uuid;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -90,14 +90,14 @@ public class Resident implements SpongeIdentifiable, Actor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Resident resident = (Resident) o;
-        return uuid.equals(resident.uuid) &&
+        return id.equals(resident.id) &&
                 name.equals(resident.name) &&
                 town.equals(resident.town);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, name, town);
+        return Objects.hash(id, name, town);
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID uuid;
+    private UUID id;
 
     @Convert(converter = TextConverter.class)
     private Text name;
@@ -73,7 +73,11 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Nonnull
     @Override
     public UUID getId() {
-        return uuid;
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Text getName() {
@@ -220,7 +224,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Town town = (Town) o;
-        return uuid.equals(town.uuid) &&
+        return id.equals(town.id) &&
                 name.equals(town.name) &&
                 description.equals(town.description) &&
                 motd.equals(town.motd) &&
@@ -234,7 +238,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, name, description, motd, leader, nation, world, spawn, residents, plots);
+        return Objects.hash(id, name, description, motd, leader, nation, world, spawn, residents, plots);
     }
 
     @Override

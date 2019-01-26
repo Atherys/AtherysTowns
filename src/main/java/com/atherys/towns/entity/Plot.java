@@ -29,7 +29,7 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID uuid;
+    private UUID id;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "town_id")
@@ -47,7 +47,11 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @Nonnull
     @Override
     public UUID getId() {
-        return uuid;
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Town getTown() {
@@ -97,7 +101,7 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Plot plot = (Plot) o;
-        return uuid.equals(plot.uuid) &&
+        return id.equals(plot.id) &&
                 town.equals(plot.town) &&
                 name.equals(plot.name) &&
                 swCorner.equals(plot.swCorner) &&
@@ -106,7 +110,7 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, town, name, swCorner, neCorner);
+        return Objects.hash(id, town, name, swCorner, neCorner);
     }
 
     @Override
