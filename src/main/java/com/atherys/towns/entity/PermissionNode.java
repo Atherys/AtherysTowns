@@ -88,9 +88,4 @@ public class PermissionNode implements Identifiable<Long> {
     public int hashCode() {
         return Objects.hash(id, userId, contextId, permission, permitted);
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-    }
 }

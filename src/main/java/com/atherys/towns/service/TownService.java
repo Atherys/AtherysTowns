@@ -17,6 +17,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class TownService {
@@ -62,6 +63,8 @@ public class TownService {
 
     public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, Text name) {
         Town town = new Town();
+
+        town.setId(UUID.randomUUID());
 
         town.setLeader(leader);
         town.setName(name);

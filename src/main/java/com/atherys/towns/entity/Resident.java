@@ -99,9 +99,4 @@ public class Resident implements SpongeIdentifiable, Actor {
     public int hashCode() {
         return Objects.hash(id, name);
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-    }
 }

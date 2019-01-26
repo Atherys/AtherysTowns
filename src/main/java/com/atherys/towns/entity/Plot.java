@@ -112,9 +112,4 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     public int hashCode() {
         return Objects.hash(id, name, swCorner, neCorner);
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-    }
 }

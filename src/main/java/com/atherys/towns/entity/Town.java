@@ -240,9 +240,4 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     public int hashCode() {
         return Objects.hash(id, name, description, motd, world, spawn);
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-    }
 }

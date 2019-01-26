@@ -195,9 +195,4 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     public int hashCode() {
         return Objects.hash(id, name, description);
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
-    }
 }
