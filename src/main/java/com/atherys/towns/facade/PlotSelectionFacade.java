@@ -110,7 +110,7 @@ public class PlotSelectionFacade {
         }
 
         int smallestSide = getSmallestPlotSelectionSideSize(selection);
-        if (smallestSide < config.MIN_PLOT_SIDE) {
+        if (smallestSide < config.MIN_PLOT_SIDE - 1) {
             throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.MIN_PLOT_SIDE, " )");
         }
 
