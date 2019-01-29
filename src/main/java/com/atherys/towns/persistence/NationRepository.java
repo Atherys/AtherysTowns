@@ -5,6 +5,7 @@ import com.atherys.towns.entity.Nation;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
+
 import java.util.UUID;
 
 @Singleton

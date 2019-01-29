@@ -3,7 +3,6 @@ package com.atherys.towns.api.chat;
 import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import org.spongepowered.api.text.Text;
 

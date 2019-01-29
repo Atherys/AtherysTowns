@@ -42,23 +42,23 @@ public class PlotService {
             pNE = pA;
             pSW = pB;
 
-        //    +---+ pB
-        //    |   |
-        // pA +---+
+            //    +---+ pB
+            //    |   |
+            // pA +---+
         } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
             pNE = pB;
             pSW = pA;
 
-        // pB +---+
-        //    |   |
-        //    +---+ pA
+            // pB +---+
+            //    |   |
+            //    +---+ pA
         } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
             pNE = Vector2d.from(pA.getX(), pB.getY());
             pSW = Vector2d.from(pB.getX(), pA.getY());
 
-        // pA +---+
-        //    |   |
-        //    +---+ pB
+            // pA +---+
+            //    |   |
+            //    +---+ pB
         } else if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
             pNE = Vector2d.from(pB.getX(), pA.getY());
             pSW = Vector2d.from(pA.getX(), pB.getY());
@@ -92,8 +92,8 @@ public class PlotService {
     }
 
     public Optional<Plot> getPlotByLocation(Location<World> location) {
-        for ( Plot plot : plotRepository.getPlotsAtChunk(location.getChunkPosition()) ) {
-            if ( isLocationWithinPlot(location, plot) ) return Optional.of(plot);
+        for (Plot plot : plotRepository.getPlotsAtChunk(location.getChunkPosition())) {
+            if (isLocationWithinPlot(location, plot)) return Optional.of(plot);
         }
 
         return Optional.empty();

@@ -17,12 +17,13 @@ public class PlotFacade {
     @Inject
     PlotService plotService;
 
-    PlotFacade() {}
+    PlotFacade() {
+    }
 
     public void renamePlotAtPlayerLocation(Player player, Text newName) throws CommandException {
         Optional<Plot> plot = plotService.getPlotByLocation(player.getLocation());
 
-        if ( !plot.isPresent() ) {
+        if (!plot.isPresent()) {
             throw new TownsCommandException("Could not find a plot to rename at present location");
         } else {
             plotService.setPlotName(plot.get(), newName);

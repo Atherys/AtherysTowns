@@ -20,7 +20,7 @@ public class MutableUUIDMessageChannel implements MutableMessageChannel {
 
     @Override
     public boolean addMember(MessageReceiver member) {
-        if ( member instanceof Player) {
+        if (member instanceof Player) {
             return addMember(((Player) member).getUniqueId());
         }
 
@@ -29,7 +29,7 @@ public class MutableUUIDMessageChannel implements MutableMessageChannel {
 
     @Override
     public boolean removeMember(MessageReceiver member) {
-        if ( member instanceof Player ) {
+        if (member instanceof Player) {
             return removeMember(((Player) member).getUniqueId());
         }
 

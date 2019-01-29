@@ -12,20 +12,20 @@ public class PlotSelection {
     public PlotSelection() {
     }
 
-    public void setPointA(Location<World> pointA) {
-        this.pointA = pointA;
-    }
-
-    public void setPointB(Location<World> pointB) {
-        this.pointB = pointB;
-    }
-
     public Location<World> getPointA() {
         return pointA;
     }
 
+    public void setPointA(Location<World> pointA) {
+        this.pointA = pointA;
+    }
+
     public Location<World> getPointB() {
         return pointB;
+    }
+
+    public void setPointB(Location<World> pointB) {
+        this.pointB = pointB;
     }
 
     public boolean isComplete() {

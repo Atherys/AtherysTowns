@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 public class SetTownNameCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.string(Text.of("name"))
         };
     }

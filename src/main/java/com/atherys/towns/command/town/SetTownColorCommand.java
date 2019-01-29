@@ -19,7 +19,7 @@ import org.spongepowered.api.text.format.TextColor;
 public class SetTownColorCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.catalogedElement(Text.of("color"), TextColor.class)
         };
     }

@@ -114,7 +114,7 @@ public class TownService {
     public void setTownNation(Town town, Nation nation) {
 
         // if town is already part of another nation, remove it
-        if ( town.getNation() != null ) {
+        if (town.getNation() != null) {
             town.getNation().removeTown(town);
             nationRepository.saveOne(town.getNation());
         }

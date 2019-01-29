@@ -4,7 +4,6 @@ import com.atherys.core.db.AtherysRepository;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector2i;
-import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -25,35 +24,33 @@ public class PlotRepository extends AtherysRepository<Plot, UUID> {
 
 
     /**
-
-    +-------+-------+-------+
-    |       |       |       |
-    |   X-------X-------X   |
-    |   |   |       |   |   |
-    +---|---+-------+---|---+
-    |   |   |       |   |   |
-    |   X   |   X   |   X   |
-    |   |   |       |   |   |
-    +---|---+-------+---|---+
-    |   |   |       |   |   |
-    |   X-------X-------X---------- - - -  -  -
-    |       |       |   |   |
-    +-------+-------+---|---+
-                        |
-                        |          Other plot this way...
-                                   Both of these plots should be added to the map
-                        |          under the coordinate of the lower-right chunk
-
-                        |
-
-    The inner rectangle is a Plot.
-    The grid behind it represents world chunks.
-
-    The X's represent possible positions for the testPoint, if the north-east and south-west corners of the plot are
-    located exactly at their chunk's midpoint.
-
-    Map<Vector2i,Set<Plot>> performanceCache; // The key is the chunk location, the value is all plots which cover this chunk
-
+     * +-------+-------+-------+
+     * |       |       |       |
+     * |   X-------X-------X   |
+     * |   |   |       |   |   |
+     * +---|---+-------+---|---+
+     * |   |   |       |   |   |
+     * |   X   |   X   |   X   |
+     * |   |   |       |   |   |
+     * +---|---+-------+---|---+
+     * |   |   |       |   |   |
+     * |   X-------X-------X---------- - - -  -  -
+     * |       |       |   |   |
+     * +-------+-------+---|---+
+     * |
+     * |          Other plot this way...
+     * Both of these plots should be added to the map
+     * |          under the coordinate of the lower-right chunk
+     * <p>
+     * |
+     * <p>
+     * The inner rectangle is a Plot.
+     * The grid behind it represents world chunks.
+     * <p>
+     * The X's represent possible positions for the testPoint, if the north-east and south-west corners of the plot are
+     * located exactly at their chunk's midpoint.
+     * <p>
+     * Map<Vector2i,Set<Plot>> performanceCache; // The key is the chunk location, the value is all plots which cover this chunk
      */
     private Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
 
@@ -89,7 +86,7 @@ public class PlotRepository extends AtherysRepository<Plot, UUID> {
 
                 Set<Plot> plotSet;
 
-                if ( performanceCache.containsKey(chunkPos) ) {
+                if (performanceCache.containsKey(chunkPos)) {
                     plotSet = performanceCache.get(chunkPos);
                 } else {
                     plotSet = new HashSet<>();

@@ -5,7 +5,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 
 import javax.persistence.AttributeConverter;
 
-public class TextConverter implements AttributeConverter<Text,String> {
+public class TextConverter implements AttributeConverter<Text, String> {
     @Override
     public String convertToDatabaseColumn(Text attribute) {
         return TextSerializers.FORMATTING_CODE.serialize(attribute);

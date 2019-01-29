@@ -2,8 +2,6 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
@@ -13,8 +11,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -73,16 +72,16 @@ public class Resident implements SpongeIdentifiable, Actor {
         return friends;
     }
 
+    public void setFriends(Set<Resident> friends) {
+        this.friends = friends;
+    }
+
     public boolean addFriend(Resident friend) {
         return friends.add(friend);
     }
 
     public boolean removeFriend(Resident friend) {
         return friends.remove(friend);
-    }
-
-    public void setFriends(Set<Resident> friends) {
-        this.friends = friends;
     }
 
     @Override

@@ -36,7 +36,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -73,74 +72,12 @@ public class AtherysTowns {
 
     @Inject
     private Injector spongeInjector;
-
-    private static class Components {
-
-        @Inject
-        private TownsConfig config;
-
-        @Inject
-        private NationRepository nationRepository;
-
-        @Inject
-        private TownRepository townRepository;
-
-        @Inject
-        private PlotRepository plotRepository;
-
-        @Inject
-        private ResidentRepository residentRepository;
-
-        @Inject
-        private PermissionRepository permissionRepository;
-
-        @Inject(optional = true)
-        @Nullable
-        private EconomyService economyService;
-
-        @Inject
-        private NationService nationService;
-
-        @Inject
-        private TownService townService;
-
-        @Inject
-        private PlotService plotService;
-
-        @Inject
-        private ResidentService residentService;
-
-        @Inject
-        private PermissionService permissionService;
-
-        @Inject
-        private TownsChatService chatService;
-
-        @Inject
-        private TownsMessagingFacade townsMessagingFacade;
-
-        @Inject
-        private NationFacade nationFacade;
-
-        @Inject
-        private TownFacade townFacade;
-
-        @Inject
-        private PlotFacade plotFacade;
-
-        @Inject
-        private ResidentFacade residentFacade;
-
-        @Inject
-        private PermissionFacade permissionFacade;
-
-        @Inject
-        private PlotSelectionFacade plotSelectionFacade;
-    }
-
     private Components components;
-
     private Injector townsInjector;
+
+    public static AtherysTowns getInstance() {
+        return instance;
+    }
 
     private void init() {
         instance = this;
@@ -203,10 +140,6 @@ public class AtherysTowns {
     @Listener
     public void onStop(GameStoppingServerEvent event) {
         if (init) stop();
-    }
-
-    public static AtherysTowns getInstance() {
-        return instance;
     }
 
     public TownsConfig getConfig() {
@@ -287,5 +220,69 @@ public class AtherysTowns {
 
     public EconomyService getEconomyService() {
         return components.economyService;
+    }
+
+    private static class Components {
+
+        @Inject
+        private TownsConfig config;
+
+        @Inject
+        private NationRepository nationRepository;
+
+        @Inject
+        private TownRepository townRepository;
+
+        @Inject
+        private PlotRepository plotRepository;
+
+        @Inject
+        private ResidentRepository residentRepository;
+
+        @Inject
+        private PermissionRepository permissionRepository;
+
+        @Inject(optional = true)
+        @Nullable
+        private EconomyService economyService;
+
+        @Inject
+        private NationService nationService;
+
+        @Inject
+        private TownService townService;
+
+        @Inject
+        private PlotService plotService;
+
+        @Inject
+        private ResidentService residentService;
+
+        @Inject
+        private PermissionService permissionService;
+
+        @Inject
+        private TownsChatService chatService;
+
+        @Inject
+        private TownsMessagingFacade townsMessagingFacade;
+
+        @Inject
+        private NationFacade nationFacade;
+
+        @Inject
+        private TownFacade townFacade;
+
+        @Inject
+        private PlotFacade plotFacade;
+
+        @Inject
+        private ResidentFacade residentFacade;
+
+        @Inject
+        private PermissionFacade permissionFacade;
+
+        @Inject
+        private PlotSelectionFacade plotSelectionFacade;
     }
 }

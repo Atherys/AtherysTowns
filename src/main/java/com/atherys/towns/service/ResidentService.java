@@ -90,7 +90,7 @@ public class ResidentService {
     public Optional<Player> getPlayerFromResident(Resident resident) {
 
         for (Player onlinePlayer : Sponge.getServer().getOnlinePlayers()) {
-            if ( onlinePlayer.getUniqueId().equals(resident.getId()) ) {
+            if (onlinePlayer.getUniqueId().equals(resident.getId())) {
                 return Optional.of(onlinePlayer);
             }
         }
@@ -101,7 +101,7 @@ public class ResidentService {
 
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
 
-        if ( economyService == null ) {
+        if (economyService == null) {
             return Optional.empty();
         }
 

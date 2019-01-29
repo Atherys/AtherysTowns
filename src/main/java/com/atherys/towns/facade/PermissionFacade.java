@@ -29,7 +29,8 @@ public class PermissionFacade {
     @Inject
     PlotService plotService;
 
-    PermissionFacade() {}
+    PermissionFacade() {
+    }
 
     public boolean isPermitted(Player source, Subject subject, Permission permission) throws TownsCommandException {
         if (subject == null) {

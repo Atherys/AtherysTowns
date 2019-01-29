@@ -3,8 +3,6 @@ package com.atherys.towns.entity;
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Convert;

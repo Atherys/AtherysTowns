@@ -18,7 +18,7 @@ import org.spongepowered.api.text.Text;
 public class SetTownDescriptionCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.remainingJoinedStrings(Text.of("description"))
         };
     }

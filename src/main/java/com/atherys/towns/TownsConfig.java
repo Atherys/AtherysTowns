@@ -1,8 +1,8 @@
 package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
-import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.Sets;

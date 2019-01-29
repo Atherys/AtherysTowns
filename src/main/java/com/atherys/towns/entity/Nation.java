@@ -1,12 +1,10 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.persistence.converter.TextConverter;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
@@ -106,16 +104,16 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
         return towns;
     }
 
+    public void setTowns(Set<Town> towns) {
+        this.towns = towns;
+    }
+
     public void addTown(Town town) {
         towns.add(town);
     }
 
     public void removeTown(Town town) {
         towns.remove(town);
-    }
-
-    public void setTowns(Set<Town> towns) {
-        this.towns = towns;
     }
 
     public Resident getLeader() {

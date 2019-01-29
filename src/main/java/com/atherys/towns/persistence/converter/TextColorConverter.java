@@ -6,7 +6,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import javax.persistence.AttributeConverter;
 
-public class TextColorConverter implements AttributeConverter<TextColor,String> {
+public class TextColorConverter implements AttributeConverter<TextColor, String> {
     @Override
     public String convertToDatabaseColumn(TextColor attribute) {
         return attribute.getId();

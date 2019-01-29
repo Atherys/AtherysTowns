@@ -20,7 +20,8 @@ public class ResidentFacade {
     @Inject
     TownService townService;
 
-    ResidentFacade() {}
+    ResidentFacade() {
+    }
 
     public boolean isPlayerInTown(Player player, Town town) {
         return town.equals(residentService.getOrCreate(player).getTown());
@@ -29,7 +30,7 @@ public class ResidentFacade {
     public boolean isPlayerInNation(Player player, Nation nation) {
         Resident resident = residentService.getOrCreate(player);
 
-        if ( resident.getTown() == null ) {
+        if (resident.getTown() == null) {
             return false;
         }
 

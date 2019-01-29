@@ -1,6 +1,5 @@
 package com.atherys.towns.persistence.converter;
 
-import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 
 import javax.persistence.AttributeConverter;

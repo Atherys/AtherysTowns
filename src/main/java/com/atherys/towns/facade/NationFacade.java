@@ -4,5 +4,6 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class NationFacade {
-    NationFacade() {}
+    NationFacade() {
+    }
 }

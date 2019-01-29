@@ -60,7 +60,7 @@ public class PlotSelectionFacade {
         }
 
         return Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX()) *
-               Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
+                Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
     }
 
     private int getSmallestPlotSelectionSideSize(PlotSelection plotSelection) {

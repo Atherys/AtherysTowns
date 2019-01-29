@@ -35,7 +35,7 @@ public class TownMessageChannel extends ResidentMessageChannel {
     public Collection<MessageReceiver> getMembers() {
         Set<MessageReceiver> onlineResidents = new HashSet<>();
 
-        Sponge.getServer().getOnlinePlayers().forEach(player ->  {
+        Sponge.getServer().getOnlinePlayers().forEach(player -> {
             if (AtherysTowns.getInstance().getResidentFacade().isPlayerInTown(player, town)) {
                 onlineResidents.add(player);
             }

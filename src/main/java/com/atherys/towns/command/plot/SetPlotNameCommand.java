@@ -28,7 +28,7 @@ public class SetPlotNameCommand implements ParameterizedCommand, PlayerCommand {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.text(Text.of("name"), TextSerializers.FORMATTING_CODE, true)
         };
     }

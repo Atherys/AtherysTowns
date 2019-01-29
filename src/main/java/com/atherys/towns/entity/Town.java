@@ -2,13 +2,11 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.core.db.converter.TransformConverter;
-import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
@@ -16,7 +14,17 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -140,16 +148,16 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         return residents;
     }
 
+    public void setResidents(Set<Resident> residents) {
+        this.residents = residents;
+    }
+
     public void addResident(Resident resident) {
         residents.add(resident);
     }
 
     public void removeResident(Resident resident) {
         residents.remove(resident);
-    }
-
-    public void setResidents(Set<Resident> residents) {
-        this.residents = residents;
     }
 
     public int getMaxSize() {
@@ -164,16 +172,16 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
         return plots;
     }
 
+    public void setPlots(Set<Plot> plots) {
+        this.plots = plots;
+    }
+
     public void addPlot(Plot plot) {
         plots.add(plot);
     }
 
     public void removePlot(Plot plot) {
         plots.remove(plot);
-    }
-
-    public void setPlots(Set<Plot> plots) {
-        this.plots = plots;
     }
 
     public boolean isFreelyJoinable() {

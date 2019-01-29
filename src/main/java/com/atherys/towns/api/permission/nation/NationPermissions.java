@@ -4,15 +4,15 @@ import com.atherys.towns.api.permission.Permission;
 
 public final class NationPermissions {
     public static final Permission CHAT = new NationPermission("chat", "Nation Chat");
-    
+
     public static final Permission TRANSFER_LEADERSHIP = new NationPermission("transfer_leadership", "Transfer Leadership");
-    
+
     public static final Permission DECLARE_PEACE = new NationPermission("declare_peace", "Declare Peace");
-    
+
     public static final Permission DECLARE_WAR = new NationPermission("declare_war", "Declare War");
-    
+
     public static final Permission REMOVE_ALLY = new NationPermission("remove_ally", "Remove Ally");
-    
+
     public static final Permission ADD_ALLY = new NationPermission("add_ally", "Add Ally");
 
     public static final Permission SET_FREELY_JOINABLE = new NationPermission("set_freely_joinable", "Set Freely Joinable");
