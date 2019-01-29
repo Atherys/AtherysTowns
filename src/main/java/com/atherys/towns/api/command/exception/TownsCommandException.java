@@ -13,4 +13,8 @@ public class TownsCommandException extends CommandException {
     public TownsCommandException(Object... msg) {
         this(Text.of(msg));
     }
+
+    public static TownsCommandException notPartOfTown() {
+        return new TownsCommandException("You are not part of a town.");
+    }
 }

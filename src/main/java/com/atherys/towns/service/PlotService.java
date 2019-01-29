@@ -113,4 +113,14 @@ public class PlotService {
 
         return true;
     }
+
+    public boolean plotIntersectsTown(Town town, Plot plot) {
+        for (Plot townPlot : town.getPlots()) {
+            if (!plotsIntersect(townPlot, plot)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

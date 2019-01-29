@@ -89,13 +89,7 @@ public class TownFacade {
     }
 
     public void sendTownInfo(Player player) throws TownsCommandException {
-        Optional<Town> playerTown = residentFacade.getPlayerTown(player);
-
-        if (!playerTown.isPresent()) {
-            throw new TownsCommandException("You are not part of a town.");
-        } else {
-            sendTownInfo(playerTown.get(), player);
-        }
+        sendTownInfo(getPlayerTown(player), player);
     }
 
     public void sendTownInfo(Player player, String townName) throws TownsCommandException {
@@ -128,7 +122,7 @@ public class TownFacade {
         Town town = residentService.getOrCreate(source).getTown();
 
         if (town == null) {
-            throw new TownsCommandException("Must be in a town to do this.");
+            throw TownsCommandException.notPartOfTown();
         }
 
         return town;
@@ -142,13 +136,14 @@ public class TownFacade {
         }
 
         Resident resident = residentService.getOrCreate(source);
+        Town town = resident.getTown();
 
-        if (resident.getTown() == null) {
-            throw new TownsCommandException("You are not part of a town.");
+        if (town == null) {
+            throw TownsCommandException.notPartOfTown();
         }
 
-        if (permissionFacade.isPermitted(source, resident.getTown(), TownPermissions.UNCLAIM_PLOT)) {
-            townService.removePlotFromTown(resident.getTown(), plot.get());
+        if (permissionFacade.isPermitted(source, town, TownPermissions.UNCLAIM_PLOT)) {
+            townService.removePlotFromTown(town, plot.get());
             townsMsg.info(source, "Plot abandoned.");
         }
     }
@@ -157,19 +152,24 @@ public class TownFacade {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
         Resident resident = residentService.getOrCreate(source);
+        Town town = resident.getTown();
 
-        if (resident.getTown() == null) {
-            throw new TownsCommandException("You are not part of a town.");
+        if (town == null) {
+            throw TownsCommandException.notPartOfTown();
         }
 
-        if (permissionFacade.isPermitted(source, resident.getTown(), TownPermissions.CLAIM_PLOT)) {
+        if (permissionFacade.isPermitted(source, town, TownPermissions.CLAIM_PLOT)) {
             Plot plot = plotService.createPlotFromSelection(selection);
 
-            if (!plotService.plotBordersTown(resident.getTown(), plot)) {
+            if (!plotService.plotBordersTown(town, plot)) {
                 throw new TownsCommandException("New plot does not border the town it's being claimed for.");
             }
 
-            townService.claimPlotForTown(plot, resident.getTown());
+            if (plotService.plotIntersectsAnyOthers(plot)) {
+                throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+            }
+
+            townService.claimPlotForTown(plot, town);
 
             townsMsg.info(source, "Plot claimed.");
         }

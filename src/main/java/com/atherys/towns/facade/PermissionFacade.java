@@ -53,7 +53,7 @@ public class PermissionFacade {
         Town town = residentService.getOrCreate(source).getTown();
 
         if (town == null) {
-            throw new TownsCommandException("You are not part of a town.");
+            throw TownsCommandException.notPartOfTown();
         }
 
         return isPermitted(source, town, permission);
@@ -63,7 +63,7 @@ public class PermissionFacade {
         Town town = residentService.getOrCreate(source).getTown();
 
         if (town == null) {
-            throw new TownsCommandException("You are not part of a town.");
+            throw TownsCommandException.notPartOfTown();
         }
 
         Nation nation = town.getNation();
