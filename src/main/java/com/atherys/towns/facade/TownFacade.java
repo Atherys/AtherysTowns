@@ -1,12 +1,13 @@
 package com.atherys.towns.facade;
 
-import com.atherys.core.template.BookTemplate;
-import com.atherys.core.template.TemplateEngine;
 import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
+import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
@@ -42,6 +43,9 @@ public class TownFacade {
     @Inject
     PermissionFacade permissionFacade;
 
+    @Inject
+    PermissionService permissionService;
+
     TownFacade() {
     }
 
@@ -56,7 +60,7 @@ public class TownFacade {
         // Validate the plot selection
         if (plotSelectionFacade.validatePlotSelection(selection)) {
 
-            // Get the plot selection
+            // Create a plot from the selection
             Plot homePlot = plotService.createPlotFromSelection(selection);
 
             // If it intersects any other plots, stop
@@ -69,6 +73,7 @@ public class TownFacade {
                 throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
             }
 
+            // create the town
             Town town = townService.createTown(
                     player.getWorld(),
                     player.getTransform(),
@@ -127,6 +132,47 @@ public class TownFacade {
         }
 
         return town;
+    }
+
+    public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
+        Optional<Plot> plot = plotService.getPlotByLocation(source.getLocation());
+
+        if (!plot.isPresent()) {
+            throw new TownsCommandException("You are not currently standing on a claim area.");
+        }
+
+        Resident resident = residentService.getOrCreate(source);
+
+        if (resident.getTown() == null) {
+            throw new TownsCommandException("You are not part of a town.");
+        }
+
+        if (permissionFacade.isPermitted(source, resident.getTown(), TownPermissions.UNCLAIM_PLOT)) {
+            townService.removePlotFromTown(resident.getTown(), plot.get());
+            townsMsg.info(source, "Plot abandoned.");
+        }
+    }
+
+    public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
+        PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
+
+        Resident resident = residentService.getOrCreate(source);
+
+        if (resident.getTown() == null) {
+            throw new TownsCommandException("You are not part of a town.");
+        }
+
+        if (permissionFacade.isPermitted(source, resident.getTown(), TownPermissions.CLAIM_PLOT)) {
+            Plot plot = plotService.createPlotFromSelection(selection);
+
+            if (!plotService.plotBordersTown(resident.getTown(), plot)) {
+                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+            }
+
+            townService.claimPlotForTown(plot, resident.getTown());
+
+            townsMsg.info(source, "Plot claimed.");
+        }
     }
 
     private void sendTownInfo(Town town, Player player) {

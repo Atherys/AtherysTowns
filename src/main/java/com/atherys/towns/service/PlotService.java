@@ -1,6 +1,7 @@
 package com.atherys.towns.service;
 
 import com.atherys.towns.entity.Plot;
+import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.util.MathUtils;
@@ -101,5 +102,15 @@ public class PlotService {
     public void setPlotName(Plot plot, Text newName) {
         plot.setName(newName);
         plotRepository.saveOne(plot);
+    }
+
+    public boolean plotBordersTown(Town town, Plot plot) {
+        for (Plot townPlot : town.getPlots()) {
+            if (!plotsBorder(townPlot, plot)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

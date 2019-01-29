@@ -5,6 +5,7 @@ import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
+import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -44,6 +45,8 @@ public class TownService {
 
     private PermissionService permissionService;
 
+    private NationRepository nationRepository;
+
     @Inject
     TownService(
             TownsConfig config,
@@ -51,7 +54,8 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
-            PermissionService permissionService
+            PermissionService permissionService,
+            NationRepository nationRepository
     ) {
         this.config = config;
         this.plotService = plotService;
@@ -59,6 +63,7 @@ public class TownService {
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
         this.permissionService = permissionService;
+        this.nationRepository = nationRepository;
     }
 
     public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, Text name) {
@@ -111,11 +116,28 @@ public class TownService {
         // if town is already part of another nation, remove it
         if ( town.getNation() != null ) {
             town.getNation().removeTown(town);
+            nationRepository.saveOne(town.getNation());
         }
 
         town.setNation(nation);
         nation.addTown(town);
 
+        townRepository.saveOne(town);
+        nationRepository.saveOne(nation);
+    }
+
+    public void removePlotFromTown(Town town, Plot plot) {
+        town.removePlot(plot);
+
+        townRepository.saveOne(town);
+        plotRepository.deleteOne(plot);
+    }
+
+    public void claimPlotForTown(Plot plot, Town town) {
+        town.addPlot(plot);
+        plot.setTown(town);
+
+        plotRepository.saveOne(plot);
         townRepository.saveOne(town);
     }
 }

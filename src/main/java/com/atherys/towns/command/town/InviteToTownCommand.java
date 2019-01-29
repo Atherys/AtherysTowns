@@ -12,6 +12,8 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 
+import java.util.ArrayList;
+
 @Aliases("invite")
 @Description("Invites a player to your town.")
 @Permission("atherystowns.town.invite")

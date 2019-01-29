@@ -19,6 +19,7 @@ public class IncreaseTownSizeCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
+                GenericArguments.string(Text.of("town")),
                 GenericArguments.integer(Text.of("amount"))
         };
     }

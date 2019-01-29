@@ -121,4 +121,12 @@ public class PlotSelectionFacade {
         return getOrCreateSelection(player);
     }
 
+    public PlotSelection getValidPlayerPlotSelection(Player source) throws CommandException {
+        PlotSelection selection = getOrCreateSelection(source);
+        if (validatePlotSelection(selection)) {
+            return selection;
+        } else {
+            throw new TownsCommandException("Invalid Plot Selection.");
+        }
+    }
 }

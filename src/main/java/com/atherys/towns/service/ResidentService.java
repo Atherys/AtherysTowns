@@ -36,6 +36,32 @@ public class ResidentService {
     ResidentService() {
     }
 
+    private void transferCurrency(Resident resident, UUID destination, Currency currency, BigDecimal amount, Cause cause) {
+        getResidentBank(resident).ifPresent(residentAccount -> {
+            economyService.getOrCreateAccount(destination).ifPresent(destinationAccount -> {
+                residentAccount.transfer(
+                        destinationAccount,
+                        currency,
+                        amount,
+                        cause
+                );
+            });
+        });
+    }
+
+    private void transferCurrency(UUID source, Resident resident, Currency currency, BigDecimal amount, Cause cause) {
+        getResidentBank(resident).ifPresent(residentAccount -> {
+            economyService.getOrCreateAccount(source).ifPresent(sourceAccount -> {
+                sourceAccount.transfer(
+                        residentAccount,
+                        currency,
+                        amount,
+                        cause
+                );
+            });
+        });
+    }
+
     protected Resident getOrCreate(UUID playerUuid, String playerName) {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 
@@ -88,32 +114,6 @@ public class ResidentService {
 
     public void removeCurrency(Resident resident, BigDecimal amount, Currency currency, Cause cause) {
         getResidentBank(resident).ifPresent(account -> account.withdraw(currency, amount, cause));
-    }
-
-    public void transferCurrency(Resident resident, UUID destination, Currency currency, BigDecimal amount, Cause cause) {
-        getResidentBank(resident).ifPresent(residentAccount -> {
-            economyService.getOrCreateAccount(destination).ifPresent(destinationAccount -> {
-                residentAccount.transfer(
-                        destinationAccount,
-                        currency,
-                        amount,
-                        cause
-                );
-            });
-        });
-    }
-
-    public void transferCurrency(UUID source, Resident resident, Currency currency, BigDecimal amount, Cause cause) {
-        getResidentBank(resident).ifPresent(residentAccount -> {
-            economyService.getOrCreateAccount(source).ifPresent(sourceAccount -> {
-                sourceAccount.transfer(
-                        residentAccount,
-                        currency,
-                        amount,
-                        cause
-                );
-            });
-        });
     }
 
     public void transferCurrency(Resident source, Town destination, Currency currency, BigDecimal amount, Cause cause) {
