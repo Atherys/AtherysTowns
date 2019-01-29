@@ -85,6 +85,8 @@ public class TownService {
 
         town.addPlot(homePlot);
 
+        plotRepository.saveOne(homePlot);
+
         townRepository.saveOne(town);
 
         homePlot.setTown(town);
