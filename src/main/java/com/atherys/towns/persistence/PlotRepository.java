@@ -1,13 +1,11 @@
 package com.atherys.towns.persistence;
 
-import com.atherys.core.db.AtherysRepository;
+import com.atherys.core.db.HibernateRepository;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -18,9 +16,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Singleton
-public class PlotRepository extends AtherysRepository<Plot, UUID> {
+public class PlotRepository extends HibernateRepository<Plot, UUID> {
 
 
     /**
@@ -54,12 +53,10 @@ public class PlotRepository extends AtherysRepository<Plot, UUID> {
      */
     private Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
 
-    @Inject
-    protected PlotRepository(Logger logger) {
-        super(Plot.class, logger);
+    protected PlotRepository() {
+        super(Plot.class);
     }
 
-    @Override
     public void cacheAll() {
         CriteriaBuilder builder = getCriteriaBuilder();
         CriteriaQuery<Plot> query = builder.createQuery(Plot.class);
@@ -67,11 +64,10 @@ public class PlotRepository extends AtherysRepository<Plot, UUID> {
 
         query.select(variableRoot);
 
-        asyncQueryMultiple(createQuery(query)).thenAccept(entities -> entities.forEach(this::cachePlot));
+        queryMultiple(query, entities -> entities.forEach(this::cachePlot));
     }
 
     private void cachePlot(Plot entity) {
-        entityManager.detach(entity);
         cache.put(entity.getId(), entity);
 
         Vector3i testPoint = Vector3i.from(entity.getSouthWestCorner().getX(), 0, entity.getSouthWestCorner().getY());
@@ -106,5 +102,9 @@ public class PlotRepository extends AtherysRepository<Plot, UUID> {
 
     public Set<Plot> getPlotsAtChunk(Vector3i chunkPosition) {
         return performanceCache.get(Vector2i.from(chunkPosition.getX(), chunkPosition.getY()));
+    }
+
+    public Stream<Plot> parallelStream() {
+        return getCache().values().parallelStream();
     }
 }

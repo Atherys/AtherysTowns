@@ -88,7 +88,7 @@ public class PlotService {
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {
-        return plotRepository.cacheParallelStream().anyMatch(other -> plotsIntersect(plot, other));
+        return plotRepository.parallelStream().anyMatch(other -> plotsIntersect(plot, other));
     }
 
     public Optional<Plot> getPlotByLocation(Location<World> location) {
