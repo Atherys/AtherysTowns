@@ -52,14 +52,14 @@ public class PlotService {
             // pB +---+
             //    |   |
             //    +---+ pA
-        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
+        } else if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
             pNE = Vector2d.from(pA.getX(), pB.getY());
             pSW = Vector2d.from(pB.getX(), pA.getY());
 
             // pA +---+
             //    |   |
             //    +---+ pB
-        } else if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
+        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
             pNE = Vector2d.from(pB.getX(), pA.getY());
             pSW = Vector2d.from(pA.getX(), pB.getY());
 

@@ -28,7 +28,7 @@ public class TownsMessagingFacade {
     }
 
     public void broadcastInfo(Object... message) {
-        Sponge.getServer().getBroadcastChannel().send(formatError(message));
+        Sponge.getServer().getBroadcastChannel().send(formatInfo(message));
     }
 
     public void broadcastError(Object... message) {
