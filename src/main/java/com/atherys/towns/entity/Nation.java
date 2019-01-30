@@ -71,6 +71,8 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     @Transient
     private NationMessageChannel messageChannel;
 
+    private double tax;
+
     public Nation() {
     }
 
@@ -174,6 +176,14 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
         this.messageChannel = messageChannel;
     }
 
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -193,4 +203,5 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     public int hashCode() {
         return Objects.hash(id, name, description);
     }
+
 }

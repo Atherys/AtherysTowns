@@ -19,7 +19,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         NationInfoCommand.class,
         NationRemoveActorPermissionCommand.class,
         SetNationDescriptionCommand.class,
-        SetNationNameCommand.class
+        SetNationNameCommand.class,
+        SetNationTaxCommand.class
 })
 public class NationCommand implements CommandExecutor {
     @Override
