@@ -55,6 +55,7 @@ A land-management plugin for the A'therys Horizons server, inspired by Towny
 * `/nation withdraw <amount> <currency>`
 * `/nation permit <player/town/nation> <permission>`
 * `/nation revoke <player/town/nation> <permission>`
+* `/nation tax <tax>`
 
 # Installation
 ## Requirements
