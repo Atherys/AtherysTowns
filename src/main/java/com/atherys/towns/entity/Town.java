@@ -54,7 +54,7 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @OneToOne
     private Resident leader;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "nation_id")
     private Nation nation;
 

@@ -29,7 +29,7 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "town_id")
     private Town town;
 

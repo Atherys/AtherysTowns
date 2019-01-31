@@ -30,7 +30,7 @@ public class Resident implements SpongeIdentifiable, Actor {
 
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = true)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "town_id")
     private Town town;
 
