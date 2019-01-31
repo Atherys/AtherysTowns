@@ -83,13 +83,10 @@ public class TownService {
         town.setWorld(world.getUniqueId());
         town.setSpawn(spawn);
 
-        town.addPlot(homePlot);
-
-        plotRepository.saveOne(homePlot);
-
         townRepository.saveOne(town);
 
         homePlot.setTown(town);
+        town.addPlot(homePlot);
 
         plotRepository.saveOne(homePlot);
 

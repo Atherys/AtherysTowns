@@ -28,6 +28,9 @@ public class PermissionNode implements Identifiable<Long> {
 
     private boolean permitted;
 
+    public PermissionNode() {
+    }
+
     @Nonnull
     @Override
     public Long getId() {
