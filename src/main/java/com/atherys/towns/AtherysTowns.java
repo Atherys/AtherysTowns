@@ -6,6 +6,7 @@ import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.PermissionRegistryModule;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
@@ -82,15 +83,12 @@ public class AtherysTowns {
     private void init() {
         instance = this;
 
-        components = new Components();
+        // Register Permission Catalogue registry module
+        Sponge.getRegistry().registerModule(Permission.class, new PermissionRegistryModule());
 
+        components = new Components();
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
         townsInjector.injectMembers(components);
-
-        // Register Permission Catalogue registry module
-        Sponge.getRegistry().registerModule(Permission.class, getPermissionService());
-
-        getConfig().init();
 
         init = true;
     }

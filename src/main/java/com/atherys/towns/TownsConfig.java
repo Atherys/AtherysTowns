@@ -5,6 +5,7 @@ import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermissions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -25,7 +26,7 @@ public class TownsConfig extends PluginConfig {
     public int DEFAULT_TOWN_MAX_SIZE = 4096;
 
     @Setting("default-nation-leader-permissions")
-    public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = Sets.newHashSet(
+    public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = ImmutableSet.of(
             NationPermissions.INVITE_TOWN,
             NationPermissions.KICK_TOWN,
             NationPermissions.ADD_PERMISSION,
@@ -44,19 +45,19 @@ public class TownsConfig extends PluginConfig {
     );
 
     @Setting("default-nation-town-permissions")
-    public Set<Permission> DEFAULT_NATION_TOWN_PERMISSIONS = Sets.newHashSet(
+    public Set<Permission> DEFAULT_NATION_TOWN_PERMISSIONS = ImmutableSet.of(
             NationPermissions.DEPOSIT_INTO_BANK,
             NationPermissions.CHAT
     );
 
     @Setting("default-nation-resident-permissions")
-    public Set<Permission> DEFAULT_NATION_RESIDENT_PERMISSIONS = Sets.newHashSet(
+    public Set<Permission> DEFAULT_NATION_RESIDENT_PERMISSIONS = ImmutableSet.of(
             NationPermissions.DEPOSIT_INTO_BANK,
             NationPermissions.CHAT
     );
 
     @Setting("default-town-leader-permissions")
-    public Set<Permission> DEFAULT_TOWN_LEADER_PERMISSIONS = Sets.newHashSet(
+    public Set<Permission> DEFAULT_TOWN_LEADER_PERMISSIONS = ImmutableSet.of(
             TownPermissions.INVITE_RESIDENT,
             TownPermissions.KICK_RESIDENT,
             TownPermissions.CLAIM_PLOT,
@@ -88,7 +89,7 @@ public class TownsConfig extends PluginConfig {
     );
 
     @Setting("default-town-resident-permissions")
-    public Set<Permission> DEFAULT_TOWN_RESIDENT_PERMISSIONS = Sets.newHashSet(
+    public Set<Permission> DEFAULT_TOWN_RESIDENT_PERMISSIONS = ImmutableSet.of(
             TownPermissions.DEPOSIT_INTO_BANK,
             TownPermissions.CHAT,
 
@@ -104,5 +105,6 @@ public class TownsConfig extends PluginConfig {
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");
+        init();
     }
 }
