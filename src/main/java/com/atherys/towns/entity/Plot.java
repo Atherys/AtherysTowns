@@ -1,26 +1,23 @@
 package com.atherys.towns.entity;
 
-import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;
-import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
-public class Plot implements SpongeIdentifiable, Subject<Town> {
+public class Plot implements Identifiable<Long>, Subject<Town,Long> {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "town_id")
@@ -40,11 +37,11 @@ public class Plot implements SpongeIdentifiable, Subject<Town> {
 
     @Nonnull
     @Override
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

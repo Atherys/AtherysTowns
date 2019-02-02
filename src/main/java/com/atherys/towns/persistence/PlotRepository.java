@@ -11,15 +11,11 @@ import org.spongepowered.api.Sponge;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Singleton
-public class PlotRepository extends HibernateRepository<Plot, UUID> {
+public class PlotRepository extends HibernateRepository<Plot, Long> {
 
 
     /**
@@ -70,38 +66,39 @@ public class PlotRepository extends HibernateRepository<Plot, UUID> {
     private void cachePlot(Plot entity) {
         cache.put(entity.getId(), entity);
 
-        Vector3i testPoint = Vector3i.from(entity.getSouthWestCorner().getX(), 0, entity.getSouthWestCorner().getY());
-
-        // while the test point coordinates are still within X range of the plot
-        while (MathUtils.fitsInRange(testPoint.getX(), entity.getSouthWestCorner().getX(), entity.getNorthEastCorner().getX())) {
-            // while the test point coordinates are still within the Y range of the plot
-            while (MathUtils.fitsInRange(testPoint.getY(), entity.getSouthWestCorner().getY(), entity.getNorthEastCorner().getY())) {
-                // get the chunk coordinates of the current test point and add it to the cache
-                Vector3i chunkCoords = Sponge.getServer().getChunkLayout().forceToChunk(testPoint);
-                Vector2i chunkPos = Vector2i.from(chunkCoords.getX(), chunkCoords.getY());
-
-                Set<Plot> plotSet;
-
-                if (performanceCache.containsKey(chunkPos)) {
-                    plotSet = performanceCache.get(chunkPos);
-                } else {
-                    plotSet = new HashSet<>();
-                }
-
-                plotSet.add(entity);
-                performanceCache.put(chunkPos, plotSet);
-
-                // Move the test point 1 chunk side length in the Z direction
-                testPoint.add(0, 0, 16);
-            }
-
-            // Move the test point 1 chunk side length in the X direction
-            testPoint.add(16, 0, 0);
-        }
+//        Vector3i testPoint = Vector3i.from(entity.getSouthWestCorner().getX(), 0, entity.getSouthWestCorner().getY());
+//
+//        // while the test point coordinates are still within X range of the plot
+//        while (MathUtils.fitsInRange(testPoint.getX(), entity.getSouthWestCorner().getX(), entity.getNorthEastCorner().getX())) {
+//            // while the test point coordinates are still within the Y range of the plot
+//            while (MathUtils.fitsInRange(testPoint.getY(), entity.getSouthWestCorner().getY(), entity.getNorthEastCorner().getY())) {
+//                // get the chunk coordinates of the current test point and add it to the cache
+//                Vector3i chunkCoords = Sponge.getServer().getChunkLayout().forceToChunk(testPoint);
+//                Vector2i chunkPos = Vector2i.from(chunkCoords.getX(), chunkCoords.getY());
+//
+//                Set<Plot> plotSet;
+//
+//                if (performanceCache.containsKey(chunkPos)) {
+//                    plotSet = performanceCache.get(chunkPos);
+//                } else {
+//                    plotSet = new HashSet<>();
+//                }
+//
+//                plotSet.add(entity);
+//                performanceCache.put(chunkPos, plotSet);
+//
+//                // Move the test point 1 chunk side length in the Z direction
+//                testPoint.add(0, 0, 16);
+//            }
+//
+//            // Move the test point 1 chunk side length in the X direction
+//            testPoint.add(16, 0, 0);
+//        }
     }
 
-    public Set<Plot> getPlotsAtChunk(Vector3i chunkPosition) {
-        return performanceCache.get(Vector2i.from(chunkPosition.getX(), chunkPosition.getY()));
+    public Collection<Plot> getPlotsAtChunk(Vector3i chunkPosition) {
+        return getCache().values();
+        // return performanceCache.get(Vector2i.from(chunkPosition.getX(), chunkPosition.getY()));
     }
 
     public Stream<Plot> parallelStream() {

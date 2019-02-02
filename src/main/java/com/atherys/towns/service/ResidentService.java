@@ -117,18 +117,18 @@ public class ResidentService {
     }
 
     public void transferCurrency(Resident source, Town destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source, destination.getId(), currency, amount, cause);
+        transferCurrency(source, destination.getBank(), currency, amount, cause);
     }
 
     public void transferCurrency(Resident source, Nation destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source, destination.getId(), currency, amount, cause);
+        transferCurrency(source, destination.getBank(), currency, amount, cause);
     }
 
     public void transferCurrency(Town source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source.getId(), destination, currency, amount, cause);
+        transferCurrency(source.getBank(), destination, currency, amount, cause);
     }
 
     public void transferCurrency(Nation source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source.getId(), destination, currency, amount, cause);
+        transferCurrency(source.getBank(), destination, currency, amount, cause);
     }
 }

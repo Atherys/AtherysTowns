@@ -1,8 +1,10 @@
 package com.atherys.towns.api.permission;
 
-import org.spongepowered.api.util.Identifiable;
+import com.atherys.core.db.Identifiable;
 
-public interface Subject<T extends Subject> extends Identifiable {
+import java.io.Serializable;
+
+public interface Subject<T extends Subject, ID extends Serializable> extends Identifiable<ID> {
 
     boolean hasParent();
 

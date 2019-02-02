@@ -1,6 +1,8 @@
 package com.atherys.towns.api.permission;
 
-import org.spongepowered.api.util.Identifiable;
+import com.atherys.core.db.Identifiable;
 
-public interface Actor extends Identifiable {
+import java.io.Serializable;
+
+public interface Actor<T extends Serializable> extends Identifiable<T> {
 }

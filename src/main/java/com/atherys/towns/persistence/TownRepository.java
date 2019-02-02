@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Singleton
-public class TownRepository extends HibernateRepository<Town, UUID> {
+public class TownRepository extends HibernateRepository<Town, Long> {
     protected TownRepository() {
         super(Town.class);
     }

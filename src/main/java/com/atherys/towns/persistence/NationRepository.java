@@ -7,7 +7,7 @@ import com.google.inject.Singleton;
 import java.util.UUID;
 
 @Singleton
-public class NationRepository extends HibernateRepository<Nation, UUID> {
+public class NationRepository extends HibernateRepository<Nation, Long> {
     protected NationRepository() {
         super(Nation.class);
     }

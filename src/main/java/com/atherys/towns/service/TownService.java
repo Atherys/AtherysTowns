@@ -69,11 +69,8 @@ public class TownService {
     public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, Text name) {
         Town town = new Town();
 
-        town.setId(UUID.randomUUID());
-
         town.setLeader(leader);
         town.setName(name);
-
         town.setDescription(DEFAULT_TOWN_DESCRIPTION);
         town.setMotd(DEFAULT_TOWN_MOTD);
         town.setColor(DEFAULT_TOWN_COLOR);
@@ -81,6 +78,7 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(world.getUniqueId());
+        town.setBank(UUID.randomUUID());
         town.setSpawn(spawn);
 
         townRepository.saveOne(town);
@@ -91,6 +89,7 @@ public class TownService {
         plotRepository.saveOne(homePlot);
 
         leader.setTown(town);
+        town.addResident(leader);
 
         residentRepository.saveOne(leader);
 

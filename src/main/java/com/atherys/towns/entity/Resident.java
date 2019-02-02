@@ -12,12 +12,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Resident implements SpongeIdentifiable, Actor {
+public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     private String name;

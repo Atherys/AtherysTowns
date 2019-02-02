@@ -205,11 +205,11 @@ public class PermissionService implements CatalogRegistryModule<Permission> {
     }
 
     private String formatUserId(Actor user) {
-        return String.format("%s{%s}", user.getClass().getSimpleName(), user.getUniqueId().toString());
+        return String.format("%s{%s}", user.getClass().getSimpleName(), user.getId().toString());
     }
 
     private String formatContextId(Subject subject) {
-        return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getUniqueId().toString());
+        return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getId().toString());
     }
 
     @Override

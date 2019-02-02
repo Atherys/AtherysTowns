@@ -1,13 +1,12 @@
 package com.atherys.towns.entity;
 
-import com.atherys.core.db.SpongeIdentifiable;
+import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
-import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -21,13 +20,12 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
+public class Town implements Identifiable<Long>, Subject<Nation,Long>, Actor<Long> {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    private Long id;
 
     @Convert(converter = TextConverter.class)
     private Text name;
@@ -68,16 +66,18 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     private boolean pvpEnabled;
 
+    private UUID bank;
+
     @Version
     private int version;
 
     @Nonnull
     @Override
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -248,5 +248,13 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
 
     protected void setVersion(int version) {
         this.version = version;
+    }
+
+    public UUID getBank() {
+        return bank;
+    }
+
+    public void setBank(UUID bank) {
+        this.bank = bank;
     }
 }

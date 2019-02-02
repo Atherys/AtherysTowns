@@ -1,5 +1,6 @@
 package com.atherys.towns.entity;
 
+import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Subject;
@@ -16,13 +17,11 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements SpongeIdentifiable, Subject, Actor {
+public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<Long> {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
 
     @Convert(converter = TextConverter.class)
     private Text name;
@@ -62,6 +61,8 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     private double tax;
 
+    private UUID bank;
+
     @Version
     private int version;
 
@@ -70,11 +71,11 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     @Nonnull
     @Override
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -148,7 +149,7 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
     }
 
     @Override
-    public Subject getParent() {
+    public Nation getParent() {
         return this;
     }
 
@@ -202,5 +203,13 @@ public class Nation implements SpongeIdentifiable, Subject, Actor {
 
     protected void setVersion(int version) {
         this.version = version;
+    }
+
+    public UUID getBank() {
+        return bank;
+    }
+
+    public void setBank(UUID bank) {
+        this.bank = bank;
     }
 }
