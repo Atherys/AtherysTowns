@@ -14,17 +14,7 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -77,6 +67,9 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     private boolean freelyJoinable;
 
     private boolean pvpEnabled;
+
+    @Version
+    private int version;
 
     @Nonnull
     @Override
@@ -247,5 +240,13 @@ public class Town implements SpongeIdentifiable, Subject<Nation>, Actor {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, motd, world, spawn);
+    }
+
+    protected int getVersion() {
+        return version;
+    }
+
+    protected void setVersion(int version) {
+        this.version = version;
     }
 }

@@ -28,6 +28,8 @@ public class PermissionNode implements Identifiable<Long> {
 
     private boolean permitted;
 
+    private int version;
+
     public PermissionNode() {
     }
 
@@ -88,5 +90,13 @@ public class PermissionNode implements Identifiable<Long> {
     @Override
     public int hashCode() {
         return Objects.hash(id, userId, contextId, permission, permitted);
+    }
+
+    protected int getVersion() {
+        return version;
+    }
+
+    protected void setVersion(int version) {
+        this.version = version;
     }
 }

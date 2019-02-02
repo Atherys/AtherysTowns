@@ -5,15 +5,7 @@ import com.atherys.towns.api.permission.Actor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -41,6 +33,9 @@ public class Resident implements SpongeIdentifiable, Actor {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<Resident> friends = new HashSet<>();
+
+    @Version
+    private int version;
 
     @Nonnull
     @Override
@@ -97,5 +92,13 @@ public class Resident implements SpongeIdentifiable, Actor {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
+    }
+
+    protected int getVersion() {
+        return version;
+    }
+
+    protected void setVersion(int version) {
+        this.version = version;
     }
 }
