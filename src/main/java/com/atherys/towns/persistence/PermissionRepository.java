@@ -23,12 +23,26 @@ public class PermissionRepository extends HibernateRepository<PermissionNode, Lo
 
     public void deleteAllWithActorId(String actorId) {
         // TODO: Clear PermissionNodes from cache as well
+
+        getCache().values().forEach(node -> {
+            if (node.getActorId().equals(actorId)) {
+                getCache().remove(node.getId());
+            }
+        });
+
         execute("DELETE FROM PermissionNode n WHERE n.actor_id=:actorId",
                 query -> query.setParameter("actorId", actorId));
     }
 
     public void deleteAllWithActorIdAndSubjectId(String actorId, String subjectId) {
         // TODO: Clear PermissionNodes from cache as well
+
+        getCache().values().forEach(node -> {
+            if (node.getActorId().equals(actorId) && node.getSubjectId().equals(subjectId)) {
+                getCache().remove(node.getId());
+            }
+        });
+
         execute("DELETE FROM PermissionNode n WHERE n.actor_id=:actorId AND n.subject_id=:subjectId",
                 query -> {
                     query.setParameter("actorId", actorId);
