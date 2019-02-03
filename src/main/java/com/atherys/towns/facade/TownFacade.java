@@ -12,8 +12,10 @@ import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import javafx.scene.control.Pagination;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
@@ -175,8 +177,6 @@ public class TownFacade {
     }
 
     private void sendTownInfo(Town town, Player player) {
-        player.sendMessage(Text.of(town.toString()));
-
-        // TODO
+        player.sendMessage(Text.of("Oooooooooo ", town.getName(), " oooooooooO"));
     }
 }

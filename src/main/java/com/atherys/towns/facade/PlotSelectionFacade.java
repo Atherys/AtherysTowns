@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -79,12 +80,18 @@ public class PlotSelectionFacade {
 
     public void selectPointAFromPlayerLocation(Player player) {
         selectPointAAtLocation(player, player.getLocation());
-        townMsg.info(player, "You have selected point A at ", player.getLocation().toString());
+        sendPointSelectionMessage(player, "A");
     }
 
     public void selectPointBFromPlayerLocation(Player player) {
         selectPointBAtLocation(player, player.getLocation());
-        townMsg.info(player, "You have selected point B at ", player.getLocation().toString());
+        sendPointSelectionMessage(player, "B");
+    }
+
+    private void sendPointSelectionMessage(Player player, String point) {
+        Location<World> location = player.getLocation();
+        townMsg.info(player, "You have selected point", TextColors.GOLD, " ", point, " ", TextColors.DARK_GREEN,
+                "at ", location.getBlockX(), ", ", location.getBlockY(), ", ", location.getBlockZ(), ".");
     }
 
     /**
