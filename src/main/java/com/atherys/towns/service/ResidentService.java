@@ -96,4 +96,8 @@ public class ResidentService {
     public void transferCurrency(Nation source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
         Economy.transferCurrency(source.getBank(), destination.getId(), currency, amount, cause);
     }
+
+    public boolean isResidentTownLeader(Resident resident, Town town) {
+        return town.getLeader().getId().equals(resident.getId());
+    }
 }

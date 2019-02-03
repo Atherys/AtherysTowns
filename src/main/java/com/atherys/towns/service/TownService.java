@@ -138,4 +138,17 @@ public class TownService {
         plotRepository.saveOne(plot);
         townRepository.saveOne(town);
     }
+
+    public void removeTown(Town town) {
+        permissionService.removeAll(town);
+
+        town.getResidents().forEach(resident -> {
+            permissionService.removeAll(resident, town);
+            resident.setTown(null);
+            residentRepository.saveOne(resident);
+        });
+
+        plotRepository.deleteAll(town.getPlots());
+        townRepository.deleteOne(town);
+    }
 }

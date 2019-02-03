@@ -13,6 +13,7 @@ import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
@@ -51,6 +52,10 @@ public class TownFacade {
     public void createTown(Player player, String name) throws CommandException {
         if (name == null || name.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
+        }
+
+        if (hasPlayerTown(player)) {
+            throw new TownsCommandException("You are already in a town!");
         }
 
         // get player's plot selection
@@ -117,6 +122,21 @@ public class TownFacade {
         }
     }
 
+    public void ruinPlayerTown(Player player) throws TownsCommandException {
+        Resident resident = residentService.getOrCreate(player);
+
+        if (resident.getTown() == null) {
+            throw new TownsCommandException("You are not part of a town.");
+        }
+
+        // Only the town leader may remove the town
+        if (!residentService.isResidentTownLeader(resident, resident.getTown())) {
+            throw new TownsCommandException("Only the town leader may remove the town.");
+        }
+
+        townService.removeTown(resident.getTown());
+    }
+
     public Town getPlayerTown(Player source) throws TownsCommandException {
         Town town = residentService.getOrCreate(source).getTown();
 
@@ -178,5 +198,9 @@ public class TownFacade {
         player.sendMessage(Text.of(town.toString()));
 
         // TODO
+    }
+
+    private boolean hasPlayerTown(Player player) {
+        return residentFacade.getPlayerTown(player).isPresent();
     }
 }

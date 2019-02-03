@@ -5,11 +5,7 @@ import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -19,9 +15,11 @@ public class PermissionNode implements Identifiable<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userId;
+    @Column(name = "actor_id")
+    private String actorId;
 
-    private String contextId;
+    @Column(name = "subject_id")
+    private String subjectId;
 
     @Convert(converter = PermissionConverter.class)
     private Permission permission;
@@ -43,20 +41,20 @@ public class PermissionNode implements Identifiable<Long> {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getActorId() {
+        return actorId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setActorId(String actorId) {
+        this.actorId = actorId;
     }
 
-    public String getContextId() {
-        return contextId;
+    public String getSubjectId() {
+        return subjectId;
     }
 
-    public void setContextId(String contextId) {
-        this.contextId = contextId;
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 
     public Permission getPermission() {
@@ -82,14 +80,14 @@ public class PermissionNode implements Identifiable<Long> {
         PermissionNode that = (PermissionNode) o;
         return permitted == that.permitted &&
                 id.equals(that.id) &&
-                userId.equals(that.userId) &&
-                contextId.equals(that.contextId) &&
+                actorId.equals(that.actorId) &&
+                subjectId.equals(that.subjectId) &&
                 permission.equals(that.permission);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, contextId, permission, permitted);
+        return Objects.hash(id, actorId, subjectId, permission, permitted);
     }
 
     protected int getVersion() {

@@ -3,18 +3,11 @@ package com.atherys.towns.service;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
-import com.atherys.towns.api.permission.nation.NationPermissions;
-import com.atherys.towns.api.permission.town.TownPermissions;
-import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.entity.PermissionNode;
 import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;
-import org.spongepowered.api.registry.CatalogRegistryModule;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,8 +53,8 @@ public class PermissionService {
 
     public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = new PermissionNode();
-        node.setUserId(formatUserId(actor));
-        node.setContextId(formatContextId(subject));
+        node.setActorId(formatUserId(actor));
+        node.setSubjectId(formatContextId(subject));
         node.setPermission(permission);
         node.setPermitted(permitted);
 
@@ -146,4 +139,11 @@ public class PermissionService {
         return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getId().toString());
     }
 
+    public void removeAll(Actor actor) {
+        permissionRepository.deleteAllWithActorId(formatUserId(actor));
+    }
+
+    public void removeAll(Actor actor, Subject subject) {
+        permissionRepository.deleteAllWithActorIdAndSubjectId(formatUserId(actor), formatContextId(subject));
+    }
 }
