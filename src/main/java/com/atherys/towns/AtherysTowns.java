@@ -42,7 +42,6 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.service.economy.EconomyService;
 
 import javax.annotation.Nullable;
 
@@ -216,10 +215,6 @@ public class AtherysTowns {
         return components.chatService;
     }
 
-    public EconomyService getEconomyService() {
-        return components.economyService;
-    }
-
     private static class Components {
 
         @Inject
@@ -239,10 +234,6 @@ public class AtherysTowns {
 
         @Inject
         private PermissionRepository permissionRepository;
-
-        @Inject(optional = true)
-        @Nullable
-        private EconomyService economyService;
 
         @Inject
         private NationService nationService;

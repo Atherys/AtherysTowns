@@ -22,7 +22,6 @@ import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.user.UserStorageService;
 
 public class AtherysTownsModule extends AbstractModule {
@@ -41,9 +40,6 @@ public class AtherysTownsModule extends AbstractModule {
         // Sponge Services
         bind(UserStorageService.class).toProvider(() -> {
             return Sponge.getServiceManager().provide(UserStorageService.class).orElse(null);
-        }).in(Scopes.SINGLETON);
-        bind(EconomyService.class).toProvider(() -> {
-            return Sponge.getServiceManager().provide(EconomyService.class).orElse(null);
         }).in(Scopes.SINGLETON);
 
         // Services

@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.core.economy.Economy;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
@@ -11,7 +12,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.service.economy.Currency;
-import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 
@@ -29,37 +29,7 @@ public class ResidentService {
     @Inject
     private UserStorageService userStorageService;
 
-    @Inject(optional = true)
-    @Nullable
-    private EconomyService economyService;
-
     ResidentService() {
-    }
-
-    private void transferCurrency(Resident resident, UUID destination, Currency currency, BigDecimal amount, Cause cause) {
-        getResidentBank(resident).ifPresent(residentAccount -> {
-            economyService.getOrCreateAccount(destination).ifPresent(destinationAccount -> {
-                residentAccount.transfer(
-                        destinationAccount,
-                        currency,
-                        amount,
-                        cause
-                );
-            });
-        });
-    }
-
-    private void transferCurrency(UUID source, Resident resident, Currency currency, BigDecimal amount, Cause cause) {
-        getResidentBank(resident).ifPresent(residentAccount -> {
-            economyService.getOrCreateAccount(source).ifPresent(sourceAccount -> {
-                sourceAccount.transfer(
-                        residentAccount,
-                        currency,
-                        amount,
-                        cause
-                );
-            });
-        });
     }
 
     protected Resident getOrCreate(UUID playerUuid, String playerName) {
@@ -100,35 +70,30 @@ public class ResidentService {
     }
 
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
-
-        if (economyService == null) {
-            return Optional.empty();
-        }
-
-        return economyService.getOrCreateAccount(resident.getId());
+        return Economy.getUniqueAccount(resident.getId());
     }
 
     public void addCurrency(Resident resident, BigDecimal amount, Currency currency, Cause cause) {
-        getResidentBank(resident).ifPresent(account -> account.deposit(currency, amount, cause));
+        Economy.addCurrency(resident.getId(), currency, amount, cause);
     }
 
     public void removeCurrency(Resident resident, BigDecimal amount, Currency currency, Cause cause) {
-        getResidentBank(resident).ifPresent(account -> account.withdraw(currency, amount, cause));
+        Economy.removeCurrency(resident.getId(), currency, amount, cause);
     }
 
     public void transferCurrency(Resident source, Town destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source, destination.getBank(), currency, amount, cause);
+        Economy.transferCurrency(source.getId(), destination.getBank(), currency, amount, cause);
     }
 
     public void transferCurrency(Resident source, Nation destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source, destination.getBank(), currency, amount, cause);
+        Economy.transferCurrency(source.getId(), destination.getBank(), currency, amount, cause);
     }
 
     public void transferCurrency(Town source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source.getBank(), destination, currency, amount, cause);
+        Economy.transferCurrency(source.getBank(), destination.getId(), currency, amount, cause);
     }
 
     public void transferCurrency(Nation source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
-        transferCurrency(source.getBank(), destination, currency, amount, cause);
+        Economy.transferCurrency(source.getBank(), destination.getId(), currency, amount, cause);
     }
 }
