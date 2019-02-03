@@ -22,7 +22,7 @@ public class PermissionRepository extends HibernateRepository<PermissionNode, Lo
     }
 
     public void deleteAllWithActorId(String actorId) {
-        // TODO: Clear PermissionNodes from cache as well
+        // TODO: Optimize this
 
         getCache().values().forEach(node -> {
             if (node.getActorId().equals(actorId)) {
@@ -35,7 +35,7 @@ public class PermissionRepository extends HibernateRepository<PermissionNode, Lo
     }
 
     public void deleteAllWithActorIdAndSubjectId(String actorId, String subjectId) {
-        // TODO: Clear PermissionNodes from cache as well
+        // TODO: Optimize this
 
         getCache().values().forEach(node -> {
             if (node.getActorId().equals(actorId) && node.getSubjectId().equals(subjectId)) {
