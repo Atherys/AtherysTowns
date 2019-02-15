@@ -9,10 +9,10 @@ import org.spongepowered.api.text.format.TextColors;
 @Singleton
 public class TownsMessagingFacade {
 
-    public static final Text PREFIX = Text.of(TextColors.DARK_AQUA, "[", TextColors.DARK_GREEN, "Towns", TextColors.DARK_AQUA, "] ");
+    public static final Text PREFIX = Text.of(TextColors.DARK_GREEN, "[", TextColors.GOLD, "Towns", TextColors.DARK_GREEN, "] ");
 
     public Text formatInfo(Object... message) {
-        return Text.of(PREFIX, TextColors.AQUA, Text.of(message));
+        return Text.of(PREFIX, TextColors.DARK_GREEN, Text.of(message));
     }
 
     public Text formatError(Object... message) {

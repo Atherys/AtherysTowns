@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -30,6 +31,10 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<Resident> friends = new HashSet<>();
+
+    private LocalDateTime registeredOn;
+
+    private LocalDateTime lastLogin;
 
     @Version
     private int version;
@@ -74,6 +79,22 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     public boolean removeFriend(Resident friend) {
         return friends.remove(friend);
+    }
+
+    public LocalDateTime getRegisteredOn() {
+        return registeredOn;
+    }
+
+    public void setRegisteredOn(LocalDateTime registeredOn) {
+        this.registeredOn = registeredOn;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     @Override
