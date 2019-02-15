@@ -24,7 +24,7 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
     @JoinColumn(name = "town_id")
     private Town town;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "resident_friends",
             joinColumns = @JoinColumn(name = "resident_id"),

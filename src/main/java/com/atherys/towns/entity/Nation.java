@@ -29,7 +29,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<L
     @Convert(converter = TextConverter.class)
     private Text description;
 
-    @OneToMany(mappedBy = "nation")
+    @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
     private Set<Town> towns = new HashSet<>();
 
     @OneToOne
@@ -38,7 +38,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<L
     @OneToOne
     private Town capital;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "nation_allies",
             joinColumns = @JoinColumn(name = "nation_id"),
@@ -46,7 +46,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<L
     )
     private Set<Nation> allies = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "nation_enemies",
             joinColumns = @JoinColumn(name = "nation_id"),

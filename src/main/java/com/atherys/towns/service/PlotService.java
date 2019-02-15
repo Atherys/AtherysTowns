@@ -13,6 +13,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.List;
 import java.util.Optional;
 
 @Singleton
@@ -133,5 +134,13 @@ public class PlotService {
         int sizeX = plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX();
         int sizeY = plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY();
         return new Vector2i(sizeX, sizeY);
+    }
+
+    public int getCollectivePlotArea(List<Plot> plots) {
+        int area = 0;
+        for (Plot plot : plots) {
+            area += getPlotArea(plot);
+        }
+        return area;
     }
 }

@@ -17,8 +17,10 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class TownService {
@@ -160,5 +162,13 @@ public class TownService {
 
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
+    }
+
+    public CompletableFuture<List<Plot>> getTownPlots(Town town) {
+        return townRepository.getTownPlotsAsync(town);
+    }
+
+    public CompletableFuture<List<Resident>> getTownResidents(Town town) {
+        return townRepository.getTownResidentsAsync(town);
     }
 }
