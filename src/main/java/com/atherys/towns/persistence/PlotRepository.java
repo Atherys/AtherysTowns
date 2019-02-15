@@ -60,7 +60,7 @@ public class PlotRepository extends HibernateRepository<Plot, Long> {
 
         query.select(variableRoot);
 
-        queryMultiple(query, entities -> entities.forEach(this::cachePlot));
+        queryMultiple(query, q -> {}, entities -> entities.forEach(this::cachePlot));
     }
 
     private void cachePlot(Plot entity) {

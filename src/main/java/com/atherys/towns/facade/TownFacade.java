@@ -209,14 +209,14 @@ public class TownFacade {
                 .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
                 .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
                 .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
-                .append(Text.of("Town leader: ", town.getLeader().getName()))
+                .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
                 .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
                 .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
 
         Text.Builder townResidents = Text.builder();
         town.getResidents().forEach(resident -> townResidents.append(Text.of(resident.getName(), "; ")));
-        townText.append(Text.of("Town residents: ", townResidents, Text.NEW_LINE));
+        townText.append(Text.of("Town residents: ", townResidents));
 
         player.sendMessage(townText.build());
     }
