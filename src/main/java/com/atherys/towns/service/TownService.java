@@ -139,6 +139,16 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
+    public int getTownSize(Town town) {
+        int size = 0;
+
+        for (Plot plot : town.getPlots()) {
+            size += plotService.getPlotArea(plot);
+        }
+
+        return size;
+    }
+
     public void removeTown(Town town) {
         permissionService.removeAll(town);
 

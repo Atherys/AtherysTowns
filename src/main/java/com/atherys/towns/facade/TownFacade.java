@@ -13,7 +13,6 @@ import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
@@ -23,28 +22,28 @@ import java.util.Optional;
 public class TownFacade {
 
     @Inject
-    PlotSelectionFacade plotSelectionFacade;
+    private PlotSelectionFacade plotSelectionFacade;
 
     @Inject
-    PlotService plotService;
+    private PlotService plotService;
 
     @Inject
-    TownService townService;
+    private TownService townService;
 
     @Inject
-    ResidentService residentService;
+    private ResidentService residentService;
 
     @Inject
-    TownsMessagingFacade townsMsg;
+    private TownsMessagingFacade townsMsg;
 
     @Inject
-    ResidentFacade residentFacade;
+    private ResidentFacade residentFacade;
 
     @Inject
-    PermissionFacade permissionFacade;
+    private PermissionFacade permissionFacade;
 
     @Inject
-    PermissionService permissionService;
+    private PermissionService permissionService;
 
     TownFacade() {
     }
@@ -162,6 +161,11 @@ public class TownFacade {
         }
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.UNCLAIM_PLOT)) {
+
+            if (town.getPlots().size() == 1) {
+                throw new TownsCommandException("You cannot unclaim your last remaining plot.");
+            }
+
             townService.removePlotFromTown(town, plot.get());
             townsMsg.info(source, "Plot abandoned.");
         }
@@ -186,6 +190,10 @@ public class TownFacade {
 
             if (plotService.plotIntersectsAnyOthers(plot)) {
                 throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+            }
+
+            if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
             }
 
             townService.claimPlotForTown(plot, town);
