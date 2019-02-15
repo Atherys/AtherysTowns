@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
 
@@ -203,9 +204,21 @@ public class TownFacade {
     }
 
     private void sendTownInfo(Town town, Player player) {
-        player.sendMessage(Text.of(town.toString()));
+        Text.Builder townText = Text.builder()
+                .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
+                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
+                .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
+                .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
+                .append(Text.of("Town leader: ", town.getLeader().getName()))
+                .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
+                .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
+                .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
 
-        // TODO
+        Text.Builder townResidents = Text.builder();
+        town.getResidents().forEach(resident -> townResidents.append(Text.of(resident.getName(), "; ")));
+        townText.append(Text.of("Town residents: ", townResidents, Text.NEW_LINE));
+
+        player.sendMessage(townText.build());
     }
 
     private boolean hasPlayerTown(Player player) {
