@@ -17,7 +17,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class TownFacade {
@@ -204,21 +206,35 @@ public class TownFacade {
     }
 
     private void sendTownInfo(Town town, Player player) {
+        player.sendMessage(Text.of("Fetching..."));
+        player.sendMessage(Text.of("Thread id: ", Thread.currentThread().getId()));
+        CompletableFuture<List<Plot>> townPlots = townService.getTownPlots(town);
+        CompletableFuture<List<Resident>> townResidents = townService.getTownResidents(town);
+
+        CompletableFuture.allOf(townPlots, townResidents).thenAccept((v) -> {
+            List<Plot> plots = townPlots.join();
+            List<Resident> residents = townResidents.join();
+            player.sendMessage(getTownText(town, plots, residents));
+            player.sendMessage(Text.of("Thread id: ", Thread.currentThread().getId()));
+        });
+    }
+
+    private Text getTownText(Town town, List<Plot> plots, List<Resident> residents) {
         Text.Builder townText = Text.builder()
                 .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
                 .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
                 .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
                 .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
                 .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
-                .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
+                .append(Text.of("Town size: ", plotService.getCollectivePlotArea(plots), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
                 .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
 
-        Text.Builder townResidents = Text.builder();
-        town.getResidents().forEach(resident -> townResidents.append(Text.of(resident.getName(), "; ")));
-        townText.append(Text.of("Town residents: ", townResidents));
+        Text.Builder townResidentsText = Text.builder();
+        residents.forEach(resident -> townResidentsText.append(Text.of(resident.getName(), "; ")));
+        townText.append(Text.of("Town residents: ", townResidentsText));
 
-        player.sendMessage(townText.build());
+        return townText.build();
     }
 
     private boolean hasPlayerTown(Player player) {
