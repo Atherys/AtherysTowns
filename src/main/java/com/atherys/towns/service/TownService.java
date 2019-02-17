@@ -99,7 +99,7 @@ public class TownService {
         return town;
     }
 
-    public Optional<Town> getTownFromName(String townName) {
+    public Optional<Town> getTownFromName(Text townName) {
         return townRepository.findByName(townName);
     }
 

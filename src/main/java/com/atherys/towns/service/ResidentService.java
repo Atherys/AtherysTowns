@@ -15,7 +15,6 @@ import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;

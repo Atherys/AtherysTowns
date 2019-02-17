@@ -12,14 +12,14 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class Plot implements Identifiable<Long>, Subject<Town,Long> {
+public class Plot implements Identifiable<Long>, Subject<Town, Long> {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
 

@@ -88,11 +88,11 @@ public class PlotService {
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {
-        return plotRepository.parallelStream().anyMatch(other -> plotsIntersect(plot, other));
+        return plotRepository.getAll().stream().anyMatch(other -> plotsIntersect(plot, other));
     }
 
     public Optional<Plot> getPlotByLocation(Location<World> location) {
-        for (Plot plot : plotRepository.getPlotsAtChunk(location.getChunkPosition())) {
+        for (Plot plot : plotRepository.getPlotsIntersectingChunk(location.getChunkPosition())) {
             if (isLocationWithinPlot(location, plot)) return Optional.of(plot);
         }
 

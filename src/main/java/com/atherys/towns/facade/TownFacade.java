@@ -96,7 +96,7 @@ public class TownFacade {
         sendTownInfo(getPlayerTown(player), player);
     }
 
-    public void sendTownInfo(Player player, String townName) throws TownsCommandException {
+    public void sendTownInfo(Player player, Text townName) throws TownsCommandException {
         if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Empty town name.");
         }
@@ -204,7 +204,21 @@ public class TownFacade {
     }
 
     private void sendTownInfo(Town town, Player player) {
-        player.sendMessage(Text.of("Oooooooooo ", town.getName(), " oooooooooO"));
+        Text.Builder townText = Text.builder()
+                .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
+                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
+                .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
+                .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
+                .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
+                .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
+                .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
+                .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
+
+        Text.Builder townResidentsText = Text.builder();
+        town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), "; ")));
+        townText.append(Text.of("Town residents: ", townResidentsText));
+
+        player.sendMessage(townText.build());
     }
 
     private boolean hasPlayerTown(Player player) {

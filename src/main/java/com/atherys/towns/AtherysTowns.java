@@ -11,28 +11,11 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.PermissionNode;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
-import com.atherys.towns.facade.NationFacade;
-import com.atherys.towns.facade.PermissionFacade;
-import com.atherys.towns.facade.PlotFacade;
-import com.atherys.towns.facade.PlotSelectionFacade;
-import com.atherys.towns.facade.ResidentFacade;
-import com.atherys.towns.facade.TownFacade;
-import com.atherys.towns.facade.TownsMessagingFacade;
-import com.atherys.towns.persistence.NationRepository;
-import com.atherys.towns.persistence.PermissionRepository;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
-import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.PermissionService;
-import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownService;
+import com.atherys.towns.entity.*;
+import com.atherys.towns.facade.*;
+import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.cache.TownsCache;
+import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
@@ -42,8 +25,6 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-
-import javax.annotation.Nullable;
 
 import static com.atherys.towns.AtherysTowns.*;
 
@@ -72,7 +53,9 @@ public class AtherysTowns {
 
     @Inject
     private Injector spongeInjector;
+
     private Components components;
+
     private Injector townsInjector;
 
     public static AtherysTowns getInstance() {
@@ -93,10 +76,7 @@ public class AtherysTowns {
     }
 
     private void start() {
-        getResidentRepository().cacheAll();
-        getPlotRepository().cacheAll();
-        getTownRepository().cacheAll();
-        getNationRepository().cacheAll();
+        getTownsCache().initCache();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -109,10 +89,7 @@ public class AtherysTowns {
     }
 
     private void stop() {
-        getResidentRepository().flushCache();
-        getPlotRepository().flushCache();
-        getTownRepository().flushCache();
-        getNationRepository().flushCache();
+        getTownsCache().flushCache();
     }
 
     @Listener
@@ -215,10 +192,17 @@ public class AtherysTowns {
         return components.chatService;
     }
 
+    protected TownsCache getTownsCache() {
+        return components.townsCache;
+    }
+
     private static class Components {
 
         @Inject
         private TownsConfig config;
+
+        @Inject
+        private TownsCache townsCache;
 
         @Inject
         private NationRepository nationRepository;

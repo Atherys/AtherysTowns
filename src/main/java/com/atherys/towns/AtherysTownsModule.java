@@ -1,23 +1,10 @@
 package com.atherys.towns;
 
 import com.atherys.towns.api.chat.TownsChatService;
-import com.atherys.towns.facade.NationFacade;
-import com.atherys.towns.facade.PermissionFacade;
-import com.atherys.towns.facade.PlotFacade;
-import com.atherys.towns.facade.PlotSelectionFacade;
-import com.atherys.towns.facade.ResidentFacade;
-import com.atherys.towns.facade.TownFacade;
-import com.atherys.towns.facade.TownsMessagingFacade;
-import com.atherys.towns.persistence.NationRepository;
-import com.atherys.towns.persistence.PermissionRepository;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
-import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.PermissionService;
-import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownService;
+import com.atherys.towns.facade.*;
+import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.cache.TownsCache;
+import com.atherys.towns.service.*;
 import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -29,6 +16,9 @@ public class AtherysTownsModule extends AbstractModule {
     protected void configure() {
         // Config
         bind(TownsConfig.class);
+
+        // Cache
+        bind(TownsCache.class);
 
         // Repositories
         bind(NationRepository.class);

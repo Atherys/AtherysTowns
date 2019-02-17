@@ -2,7 +2,6 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -20,11 +19,11 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     private String name;
 
-    @ManyToOne(optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "resident_friends",
             joinColumns = @JoinColumn(name = "resident_id"),
