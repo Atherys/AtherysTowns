@@ -13,6 +13,8 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 @Aliases("info")
 @Description("Displays information about a town.")
@@ -21,13 +23,13 @@ public class TownInfoCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.string(Text.of("town"))
+                GenericArguments.text(Text.of("town"), TextSerializers.FORMATTING_CODE, true)
         };
     }
 
     @Override
     public CommandResult execute(Player player, CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().sendTownInfo(player, args.<String>getOne("town").orElse(""));
+        AtherysTowns.getInstance().getTownFacade().sendTownInfo(player, args.<Text>getOne("town").orElse(Text.EMPTY));
         return CommandResult.success();
     }
 }

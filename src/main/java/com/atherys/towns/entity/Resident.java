@@ -2,10 +2,10 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -19,17 +19,21 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     private String name;
 
-    @ManyToOne(optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "resident_friends",
             joinColumns = @JoinColumn(name = "resident_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<Resident> friends = new HashSet<>();
+
+    private LocalDateTime registeredOn;
+
+    private LocalDateTime lastLogin;
 
     @Version
     private int version;
@@ -74,6 +78,22 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     public boolean removeFriend(Resident friend) {
         return friends.remove(friend);
+    }
+
+    public LocalDateTime getRegisteredOn() {
+        return registeredOn;
+    }
+
+    public void setRegisteredOn(LocalDateTime registeredOn) {
+        this.registeredOn = registeredOn;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     @Override

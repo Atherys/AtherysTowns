@@ -88,11 +88,11 @@ public class PlotService {
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {
-        return plotRepository.parallelStream().anyMatch(other -> plotsIntersect(plot, other));
+        return plotRepository.getAll().stream().anyMatch(other -> plotsIntersect(plot, other));
     }
 
     public Optional<Plot> getPlotByLocation(Location<World> location) {
-        for (Plot plot : plotRepository.getPlotsAtChunk(location.getChunkPosition())) {
+        for (Plot plot : plotRepository.getPlotsIntersectingChunk(location.getChunkPosition())) {
             if (isLocationWithinPlot(location, plot)) return Optional.of(plot);
         }
 
@@ -122,5 +122,16 @@ public class PlotService {
         }
 
         return false;
+    }
+
+    public int getPlotArea(Plot plot) {
+        Vector2i plotSize = getPlotSize(plot);
+        return plotSize.getX() * plotSize.getY();
+    }
+
+    public Vector2i getPlotSize(Plot plot) {
+        int sizeX = plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX();
+        int sizeY = plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY();
+        return new Vector2i(sizeX, sizeY);
     }
 }

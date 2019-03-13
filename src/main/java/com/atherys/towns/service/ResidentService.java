@@ -15,8 +15,8 @@ import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,12 +36,15 @@ public class ResidentService {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 
         if (resident.isPresent()) {
-            return resident.get();
+            Resident res = resident.get();
+            res.setLastLogin(LocalDateTime.now());
+            return res;
         } else {
             Resident newResident = new Resident();
 
             newResident.setId(playerUuid);
             newResident.setName(playerName);
+            newResident.setRegisteredOn(LocalDateTime.now());
 
             residentRepository.saveOne(newResident);
 

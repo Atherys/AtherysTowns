@@ -99,7 +99,7 @@ public class TownService {
         return town;
     }
 
-    public Optional<Town> getTownFromName(String townName) {
+    public Optional<Town> getTownFromName(Text townName) {
         return townRepository.findByName(townName);
     }
 
@@ -137,6 +137,16 @@ public class TownService {
 
         plotRepository.saveOne(plot);
         townRepository.saveOne(town);
+    }
+
+    public int getTownSize(Town town) {
+        int size = 0;
+
+        for (Plot plot : town.getPlots()) {
+            size += plotService.getPlotArea(plot);
+        }
+
+        return size;
     }
 
     public void removeTown(Town town) {

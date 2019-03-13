@@ -1,12 +1,10 @@
 package com.atherys.towns.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.core.db.SpongeIdentifiable;
 import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.persistence.converter.TextConverter;
-import org.hibernate.annotations.GenericGenerator;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
@@ -17,10 +15,10 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<Long> {
+public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<Long> {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Convert(converter = TextConverter.class)
@@ -29,7 +27,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation,Long>, Actor<L
     @Convert(converter = TextConverter.class)
     private Text description;
 
-    @OneToMany(mappedBy = "nation")
+    @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
     private Set<Town> towns = new HashSet<>();
 
     @OneToOne

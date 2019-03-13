@@ -12,12 +12,10 @@ import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import javafx.scene.control.Pagination;
 import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
 
@@ -25,28 +23,28 @@ import java.util.Optional;
 public class TownFacade {
 
     @Inject
-    PlotSelectionFacade plotSelectionFacade;
+    private PlotSelectionFacade plotSelectionFacade;
 
     @Inject
-    PlotService plotService;
+    private PlotService plotService;
 
     @Inject
-    TownService townService;
+    private TownService townService;
 
     @Inject
-    ResidentService residentService;
+    private ResidentService residentService;
 
     @Inject
-    TownsMessagingFacade townsMsg;
+    private TownsMessagingFacade townsMsg;
 
     @Inject
-    ResidentFacade residentFacade;
+    private ResidentFacade residentFacade;
 
     @Inject
-    PermissionFacade permissionFacade;
+    private PermissionFacade permissionFacade;
 
     @Inject
-    PermissionService permissionService;
+    private PermissionService permissionService;
 
     TownFacade() {
     }
@@ -98,7 +96,7 @@ public class TownFacade {
         sendTownInfo(getPlayerTown(player), player);
     }
 
-    public void sendTownInfo(Player player, String townName) throws TownsCommandException {
+    public void sendTownInfo(Player player, Text townName) throws TownsCommandException {
         if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Empty town name.");
         }
@@ -164,6 +162,11 @@ public class TownFacade {
         }
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.UNCLAIM_PLOT)) {
+
+            if (town.getPlots().size() == 1) {
+                throw new TownsCommandException("You cannot unclaim your last remaining plot.");
+            }
+
             townService.removePlotFromTown(town, plot.get());
             townsMsg.info(source, "Plot abandoned.");
         }
@@ -190,6 +193,10 @@ public class TownFacade {
                 throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
             }
 
+            if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+            }
+
             townService.claimPlotForTown(plot, town);
 
             townsMsg.info(source, "Plot claimed.");
@@ -197,7 +204,21 @@ public class TownFacade {
     }
 
     private void sendTownInfo(Town town, Player player) {
-        player.sendMessage(Text.of("Oooooooooo ", town.getName(), " oooooooooO"));
+        Text.Builder townText = Text.builder()
+                .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
+                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
+                .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
+                .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
+                .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
+                .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
+                .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
+                .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
+
+        Text.Builder townResidentsText = Text.builder();
+        town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), "; ")));
+        townText.append(Text.of("Town residents: ", townResidentsText));
+
+        player.sendMessage(townText.build());
     }
 
     private boolean hasPlayerTown(Player player) {

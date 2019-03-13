@@ -1,21 +1,38 @@
 package com.atherys.towns.persistence;
 
-import com.atherys.core.db.HibernateRepository;
+import com.atherys.core.db.CachedHibernateRepository;
 import com.atherys.towns.entity.Town;
+import com.atherys.towns.persistence.cache.TownsCache;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Singleton
-public class TownRepository extends HibernateRepository<Town, Long> {
-    protected TownRepository() {
+public class TownRepository extends CachedHibernateRepository<Town, Long> {
+
+    @Inject
+    private TownsCache townsCache;
+
+    @Inject
+    protected TownRepository(TownsCache townsCache) {
         super(Town.class);
+        super.cache = townsCache.getTownCache();
+        this.townsCache = townsCache;
     }
 
-    public Optional<Town> findByName(String townName) {
-        Text textName = Text.of(townName);
-        return getCache().values().parallelStream().filter(town -> town.getName().equals(textName)).findFirst();
+    public Optional<Town> findByName(Text townName) {
+        return cache.findOne(t -> t.getName().equals(townName));
+    }
+
+    @Override
+    public void initCache() {
+        townsCache.getResidentCache().getAll().forEach(resident -> {
+            Town town = resident.getTown();
+            if (town != null) {
+                cache.add(town);
+            }
+        });
     }
 }

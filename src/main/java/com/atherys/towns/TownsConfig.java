@@ -6,7 +6,6 @@ import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
 
