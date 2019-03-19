@@ -175,8 +175,7 @@ public class TownFacade {
     public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
-        Resident resident = residentService.getOrCreate(source);
-        Town town = resident.getTown();
+        Town town = getPlayerTown(source);
 
         if (town == null) {
             throw TownsCommandException.notPartOfTown();

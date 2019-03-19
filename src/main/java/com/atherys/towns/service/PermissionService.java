@@ -53,8 +53,8 @@ public class PermissionService {
 
     public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = new PermissionNode();
-        node.setActorId(formatUserId(actor));
-        node.setSubjectId(formatContextId(subject));
+        node.setActorId(formatActorId(actor));
+        node.setSubjectId(formatSubjectId(subject));
         node.setPermission(permission);
         node.setPermitted(permitted);
 
@@ -97,25 +97,31 @@ public class PermissionService {
      */
     public boolean isPermitted(Actor actor, Subject subject, Permission permission) {
 
-        String userId = formatUserId(actor);
-        String contextId = formatContextId(subject);
+        String userId = formatActorId(actor);
+        String contextId = formatSubjectId(subject);
 
         // check for an explicit permission
         Optional<PermissionNode> any = permissionRepository.findAnyBy(userId, contextId, permission);
 
         // if explicitly permitted, return
-        if (any.isPresent()) return any.get().isPermitted();
+        if (any.isPresent()) {
+            return any.get().isPermitted();
+        }
 
         // check for transient permissions
         boolean transientPermitted = subject.hasParent() && isPermitted(actor, subject.getParent(), permission);
 
         // if transiently permitted, return
-        if (transientPermitted) return transientPermitted;
+        if (transientPermitted) {
+            return true;
+        }
 
         // if the user being checked is also a subject, check it's parents for explicit and transient permissions
         if (actor instanceof Subject) {
 
-            if (!((Subject) actor).hasParent()) return false;
+            if (!((Subject) actor).hasParent()) {
+                return false;
+            }
 
             Subject parent = ((Subject) actor).getParent();
 
@@ -131,19 +137,19 @@ public class PermissionService {
         if (isPermitted(actor, subject, permission)) action.run();
     }
 
-    private String formatUserId(Actor user) {
-        return String.format("%s{%s}", user.getClass().getSimpleName(), user.getId().toString());
+    private String formatActorId(Actor actor) {
+        return String.format("%s{%s}", actor.getClass().getSimpleName(), actor.getId().toString());
     }
 
-    private String formatContextId(Subject subject) {
+    private String formatSubjectId(Subject subject) {
         return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getId().toString());
     }
 
     public void removeAll(Actor actor) {
-        permissionRepository.deleteAllWithActorId(formatUserId(actor));
+        permissionRepository.deleteAllWithActorId(formatActorId(actor));
     }
 
     public void removeAll(Actor actor, Subject subject) {
-        permissionRepository.deleteAllWithActorIdAndSubjectId(formatUserId(actor), formatContextId(subject));
+        permissionRepository.deleteAllWithActorIdAndSubjectId(formatActorId(actor), formatSubjectId(subject));
     }
 }
