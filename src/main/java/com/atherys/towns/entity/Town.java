@@ -187,7 +187,7 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
 
     @Override
     public boolean hasParent() {
-        return true;
+        return nation != null;
     }
 
     @Override

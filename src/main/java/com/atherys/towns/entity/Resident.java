@@ -19,11 +19,11 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "resident_friends",
             joinColumns = @JoinColumn(name = "resident_id"),

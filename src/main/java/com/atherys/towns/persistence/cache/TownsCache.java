@@ -6,10 +6,7 @@ import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
-import com.atherys.towns.persistence.NationRepository;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.persistence.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -30,6 +27,9 @@ public class TownsCache {
     @Inject
     private NationRepository nationRepository;
 
+    @Inject
+    private PermissionRepository permissionRepository;
+
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
     private PlotCache plotCache = new PlotCache();
@@ -47,6 +47,8 @@ public class TownsCache {
         townRepository.initCache();
         plotRepository.initCache();
         nationRepository.initCache();
+
+        permissionRepository.initCache();
     }
 
     public void flushCache() {
@@ -54,6 +56,7 @@ public class TownsCache {
         plotRepository.flushCache();
         townRepository.flushCache();
         nationRepository.flushCache();
+        permissionRepository.flushCache();
     }
 
     public Cache<Nation, Long> getNationCache() {
