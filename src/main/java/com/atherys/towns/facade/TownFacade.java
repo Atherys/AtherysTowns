@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
@@ -16,6 +17,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Optional;
 
@@ -222,5 +224,20 @@ public class TownFacade {
 
     private boolean hasPlayerTown(Player player) {
         return residentFacade.getPlayerTown(player).isPresent();
+    }
+
+
+    public void setTownDescription(Player player, String desc) throws TownsCommandException {
+        Town town = null;
+        try {
+            town = getPlayerTown(player);
+        } catch (TownsCommandException e) {
+            throw e;
+        }
+
+        permissionFacade.isPermitted(player, town, TownPermissions.SET_DESCRIPTION);
+
+        Text description = TextSerializers.FORMATTING_CODE.deserialize(desc);
+        townService.setTownDescription(town, description);
     }
 }

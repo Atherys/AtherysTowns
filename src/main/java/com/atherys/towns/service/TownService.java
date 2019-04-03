@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.core.command.PlayerCommand;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Plot;
@@ -12,9 +13,11 @@ import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
@@ -160,5 +163,10 @@ public class TownService {
 
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
+    }
+
+    public void setTownDescription(Town town, Text description) {
+        town.setDescription(description);
+        townRepository.saveOne(town);
     }
 }
