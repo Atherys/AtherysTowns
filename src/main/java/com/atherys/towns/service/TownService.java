@@ -161,4 +161,10 @@ public class TownService {
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
+
+    public void setTownColor(Town town, TextColor textColor) {
+        town.setColor(textColor);
+        townRepository.saveOne(town);
+    }
+
 }

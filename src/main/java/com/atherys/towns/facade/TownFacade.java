@@ -15,6 +15,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
@@ -223,4 +224,17 @@ public class TownFacade {
     private boolean hasPlayerTown(Player player) {
         return residentFacade.getPlayerTown(player).isPresent();
     }
+
+    public void setTownColor(Player player, TextColor textColor) throws TownsCommandException {
+        Town town = null;
+        try {
+            town = getPlayerTown(player);
+        } catch (TownsCommandException e) {
+            throw e;
+        }
+        permissionFacade.isPermitted(player, town, TownPermissions.SET_COLOR);
+
+        townService.setTownColor(town, textColor);
+    }
+
 }
