@@ -6,6 +6,10 @@ import com.flowpowered.math.vector.Vector3i;
 
 public class MathUtils {
 
+    public static Vector2i vec3iToVec2i(Vector3i vector3i) {
+        return Vector2i.from(vector3i.getX(), vector3i.getZ());
+    }
+
     public static boolean vectorFitsInRange(Vector3d vec, Vector3i lower, Vector3i upper) {
         return fitsInRange(vec.getX(), lower.getX(), upper.getX()) &&
                 fitsInRange(vec.getY(), lower.getY(), upper.getY()) &&

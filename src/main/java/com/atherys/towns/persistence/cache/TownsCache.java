@@ -32,7 +32,7 @@ public class TownsCache {
 
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
-    private Cache<Plot, Long> plotCache = new SimpleCache<>();
+    private PlotCache plotCache = new PlotCache();
 
     private Cache<Town, Long> townCache = new SimpleCache<>();
 
@@ -64,7 +64,7 @@ public class TownsCache {
         return residentCache;
     }
 
-    public Cache<Plot, Long> getPlotCache() {
+    public PlotCache getPlotCache() {
         return plotCache;
     }
 

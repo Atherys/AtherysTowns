@@ -93,7 +93,9 @@ public class PlotService {
 
     public Optional<Plot> getPlotByLocation(Location<World> location) {
         for (Plot plot : plotRepository.getPlotsIntersectingChunk(location.getChunkPosition())) {
-            if (isLocationWithinPlot(location, plot)) return Optional.of(plot);
+            if (isLocationWithinPlot(location, plot)) {
+                return Optional.of(plot);
+            }
         }
 
         return Optional.empty();
