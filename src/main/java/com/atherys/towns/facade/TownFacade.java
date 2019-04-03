@@ -223,4 +223,25 @@ public class TownFacade {
     private boolean hasPlayerTown(Player player) {
         return residentFacade.getPlayerTown(player).isPresent();
     }
+
+    public void playerLeavesTown(Player source) throws TownsCommandException {
+        Town town = null;
+        try {
+            town = getPlayerTown(source);
+        } catch (TownsCommandException e) {
+            return;
+        }
+
+        Resident resident = residentService.getOrCreate(source);
+
+        if (town.getLeader().equals(resident) && town.getResidents().size() > 1)  {
+            source.sendMessage(Text.of());
+            throw new TownsCommandException("Leader may not leave a town, give leader role to somebody else first.");
+        }
+        if (town.getResidents().size() > 1) {
+            townService.removeResident(town, resident);
+        } else {
+            townService.removeTown(town);
+        }
+    }
 }
