@@ -88,7 +88,10 @@ public class TownFacade {
 
             sendTownInfo(town, player);
 
-            townsMsg.broadcastInfo(player.getName(), " has created the town of ", town.getName());
+            townsMsg.broadcastInfo(
+                    player.getName(), " has created the town of ",
+                    TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, "."
+            );
         }
     }
 
@@ -123,14 +126,11 @@ public class TownFacade {
     }
 
     public void ruinPlayerTown(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(player);
 
-        if (resident.getTown() == null) {
-            throw new TownsCommandException("You are not part of a town.");
-        }
-
         // Only the town leader may remove the town
-        if (!residentService.isResidentTownLeader(resident, resident.getTown())) {
+        if (!residentService.isResidentTownLeader(resident, town)) {
             throw new TownsCommandException("Only the town leader may remove the town.");
         }
 
@@ -176,10 +176,6 @@ public class TownFacade {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
         Town town = getPlayerTown(source);
-
-        if (town == null) {
-            throw TownsCommandException.notPartOfTown();
-        }
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.CLAIM_PLOT)) {
             Plot plot = plotService.createPlotFromSelection(selection);
