@@ -67,7 +67,7 @@ public class PlotService {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        plot.setNorthEastCorner(Vector2i.from((int) Math.ceil(pNE.getX()), (int) Math.ceil(pNE.getY())));
+        plot.setNorthEastCorner(new Vector2i(Math.ceil(pNE.getX()), Math.ceil(pNE.getY())));
         plot.setSouthWestCorner(Vector2i.from(pSW.getFloorX(), pSW.getFloorY()));
 
         plot.setName(DEFAULT_PLOT_NAME);
