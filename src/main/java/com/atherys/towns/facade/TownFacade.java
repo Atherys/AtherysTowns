@@ -204,14 +204,16 @@ public class TownFacade {
     public void inviteToTown(Player inviter, Player invitee) throws TownsCommandException {
         Town town = getPlayerTown(inviter);
         if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
+            Text townText = Text.of(TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, ".");
             Text invitationText = townsMsg.formatInfo(
-                    "You have been invited to the town ", TextColors.GOLD, town.getName(), TextColors.GREEN, "."
+                    "You have been invited to the town ", townText
             );
             Question townInvite = Question.of(invitationText)
                     .addAnswer(Answer.of(
                             Text.of(TextStyles.BOLD, TextColors.DARK_GREEN, "Accept"),
                             player -> {
                                 townService.addResidentToTown(residentService.getOrCreate(player), town);
+                                joinTownMessage(player, town);
                             }
                     ))
                     .addAnswer(Answer.of(
@@ -220,6 +222,14 @@ public class TownFacade {
                     ))
                     .build();
             townInvite.pollChat(invitee);
+        }
+    }
+
+    public void joinTown(Player player, String townName) throws TownsCommandException {
+        Town town = getTownFromName(townName);
+        if (town.isFreelyJoinable()) {
+            townService.addResidentToTown(residentService.getOrCreate(player), town);
+            joinTownMessage(player, town);
         }
     }
 
@@ -239,6 +249,16 @@ public class TownFacade {
         townText.append(Text.of("Town residents: ", townResidentsText));
 
         player.sendMessage(townText.build());
+    }
+
+    private Town getTownFromName(String townName) throws TownsCommandException {
+        return townService.getTownFromName(Text.of(townName)).orElseThrow(TownsCommandException::townNotFound);
+    }
+
+    private void joinTownMessage(Player player, Town town) {
+        //TODO: Send message to whole town
+        Text townText = Text.of(TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, ".");
+        townsMsg.info(player, "You have joined the town of ", townText);
     }
 
     private boolean hasPlayerTown(Player player) {

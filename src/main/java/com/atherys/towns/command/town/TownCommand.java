@@ -29,7 +29,9 @@ import org.spongepowered.api.entity.living.player.Player;
         SetTownColorCommand.class,
         SetTownDescriptionCommand.class,
         SetTownMotdCommand.class,
-        SetTownNameCommand.class
+        SetTownNameCommand.class,
+        InviteToTownCommand.class,
+        JoinTownCommand.class
 })
 public class TownCommand implements PlayerCommand {
     @Override
