@@ -4,6 +4,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
 @Singleton
@@ -19,12 +20,12 @@ public class TownsMessagingFacade {
         return Text.of(PREFIX, TextColors.RED, Text.of(message));
     }
 
-    public void info(Player player, Object... message) {
-        player.sendMessage(formatInfo(message));
+    public void info(MessageReceiver receiver, Object... message) {
+        receiver.sendMessage(formatInfo(message));
     }
 
-    public void error(Player player, Object... message) {
-        player.sendMessage(formatError(message));
+    public void error(MessageReceiver receiver, Object... message) {
+        receiver.sendMessage(formatError(message));
     }
 
     public void broadcastInfo(Object... message) {

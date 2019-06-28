@@ -149,6 +149,16 @@ public class TownService {
         return size;
     }
 
+    public void increaseTownSize(Town town, int amount) {
+        town.setMaxSize(town.getMaxSize() + amount);
+        townRepository.saveOne(town);
+    }
+    
+    public void decreaseTownSize(Town town, int amount) {
+        town.setMaxSize(town.getMaxSize() - amount);
+        townRepository.saveOne(town);
+    }
+
     public void removeTown(Town town) {
         permissionService.removeAll(town);
 

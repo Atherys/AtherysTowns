@@ -5,6 +5,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Children;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.command.town.admin.DecreaseTownSizeCommand;
+import com.atherys.towns.command.town.admin.IncreaseTownSizeCommand;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;

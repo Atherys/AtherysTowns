@@ -120,6 +120,10 @@ public class AtherysTowns {
         return components.config;
     }
 
+    public Logger getLogger() {
+        return logger;
+    }
+
     public NationRepository getNationRepository() {
         return components.nationRepository;
     }
@@ -170,6 +174,10 @@ public class AtherysTowns {
 
     public TownFacade getTownFacade() {
         return components.townFacade;
+    }
+
+    public TownAdminFacade getTownAdminFacade() {
+        return components.townAdminFacade;
     }
 
     public PlotFacade getPlotFacade() {
@@ -245,6 +253,9 @@ public class AtherysTowns {
 
         @Inject
         private TownFacade townFacade;
+
+        @Inject
+        private TownAdminFacade townAdminFacade;
 
         @Inject
         private PlotFacade plotFacade;
