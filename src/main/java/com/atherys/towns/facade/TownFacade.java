@@ -1,5 +1,7 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.utils.Question;
+import static com.atherys.core.utils.Question.Answer;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
@@ -16,6 +18,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.Optional;
 
@@ -195,6 +198,28 @@ public class TownFacade {
             townService.claimPlotForTown(plot, town);
 
             townsMsg.info(source, "Plot claimed.");
+        }
+    }
+
+    public void inviteToTown(Player inviter, Player invitee) throws TownsCommandException {
+        Town town = getPlayerTown(inviter);
+        if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
+            Text invitationText = townsMsg.formatInfo(
+                    "You have been invited to the town ", TextColors.GOLD, town.getName(), TextColors.GREEN, "."
+            );
+            Question townInvite = Question.of(invitationText)
+                    .addAnswer(Answer.of(
+                            Text.of(TextStyles.BOLD, TextColors.DARK_GREEN, "Accept"),
+                            player -> {
+                                townService.addResidentToTown(residentService.getOrCreate(player), town);
+                            }
+                    ))
+                    .addAnswer(Answer.of(
+                            Text.of(TextStyles.BOLD, TextColors.DARK_RED, "Decline"),
+                            player -> {}
+                    ))
+                    .build();
+            townInvite.pollChat(invitee);
         }
     }
 

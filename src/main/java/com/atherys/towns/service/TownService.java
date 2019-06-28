@@ -171,4 +171,11 @@ public class TownService {
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
+
+    public void addResidentToTown(Resident resident, Town town) {
+        town.addResident(resident);
+        resident.setTown(town);
+        townRepository.saveOne(town);
+        residentRepository.saveOne(resident);
+    }
 }

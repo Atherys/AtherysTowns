@@ -1,6 +1,5 @@
 package com.atherys.towns.facade;
 
-import com.atherys.core.command.CommandService;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.TownService;
