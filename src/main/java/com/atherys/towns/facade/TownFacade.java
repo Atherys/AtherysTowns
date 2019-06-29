@@ -17,7 +17,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
+import static org.spongepowered.api.text.format.TextColors.*;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.Optional;
@@ -93,7 +93,7 @@ public class TownFacade {
 
             townsMsg.broadcastInfo(
                     player.getName(), " has created the town of ",
-                    TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, "."
+                    GOLD, town.getName(), DARK_GREEN, "."
             );
         }
     }
@@ -204,20 +204,20 @@ public class TownFacade {
     public void inviteToTown(Player inviter, Player invitee) throws TownsCommandException {
         Town town = getPlayerTown(inviter);
         if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
-            Text townText = Text.of(TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, ".");
+            Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
             Text invitationText = townsMsg.formatInfo(
                     "You have been invited to the town ", townText
             );
             Question townInvite = Question.of(invitationText)
                     .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, TextColors.DARK_GREEN, "Accept"),
+                            Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
                             player -> {
                                 townService.addResidentToTown(residentService.getOrCreate(player), town);
                                 joinTownMessage(player, town);
                             }
                     ))
                     .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, TextColors.DARK_RED, "Decline"),
+                            Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
                             player -> {}
                     ))
                     .build();
@@ -233,10 +233,16 @@ public class TownFacade {
         }
     }
 
+    public void leaveTown(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+        townService.removeResidentFromTown(residentService.getOrCreate(player), town);
+        townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+    }
+
     private void sendTownInfo(Town town, Player player) {
         Text.Builder townText = Text.builder()
                 .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
-                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), TextColors.RESET, Text.NEW_LINE))
+                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), RESET, Text.NEW_LINE))
                 .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
                 .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
                 .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
@@ -257,7 +263,7 @@ public class TownFacade {
 
     private void joinTownMessage(Player player, Town town) {
         //TODO: Send message to whole town
-        Text townText = Text.of(TextColors.GOLD, town.getName(), TextColors.DARK_GREEN, ".");
+        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
         townsMsg.info(player, "You have joined the town of ", townText);
     }
 

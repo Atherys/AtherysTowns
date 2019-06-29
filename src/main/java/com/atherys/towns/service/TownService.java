@@ -178,4 +178,11 @@ public class TownService {
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }
+
+    public void removeResidentFromTown(Resident resident, Town town) {
+        town.removeResident(resident);
+        resident.setTown(null);
+        townRepository.saveOne(town);
+        residentRepository.saveOne(resident);
+    }
 }
