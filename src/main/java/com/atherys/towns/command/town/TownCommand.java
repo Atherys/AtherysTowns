@@ -4,12 +4,15 @@ import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Children;
 import com.atherys.core.command.annotation.Description;
+import com.atherys.core.command.annotation.HelpCommand;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.command.town.admin.DecreaseTownSizeCommand;
 import com.atherys.towns.command.town.admin.IncreaseTownSizeCommand;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 
 @Aliases({"town", "t"})
@@ -33,10 +36,16 @@ import org.spongepowered.api.entity.living.player.Player;
         InviteToTownCommand.class,
         JoinTownCommand.class
 })
-public class TownCommand implements PlayerCommand {
+@HelpCommand(
+        title = "Town Help",
+        command = "help"
+)
+public class TownCommand implements CommandExecutor {
     @Override
-    public CommandResult execute(Player src, CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().sendTownInfo(src);
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+        if (src instanceof Player) {
+            AtherysTowns.getInstance().getTownFacade().sendTownInfo((Player) src);
+        }
         return CommandResult.success();
     }
 }

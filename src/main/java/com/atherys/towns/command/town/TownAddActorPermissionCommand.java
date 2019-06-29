@@ -12,7 +12,7 @@ import org.spongepowered.api.command.args.CommandElement;
 
 @Aliases("permit")
 @Description("Gives an entity a permission.")
-@Permission("atherystown.town.permit")
+@Permission("atherystowns.town.permit")
 public class TownAddActorPermissionCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
