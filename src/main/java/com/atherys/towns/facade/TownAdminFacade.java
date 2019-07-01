@@ -17,7 +17,7 @@ public class TownAdminFacade {
     public void decreaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
         Town town = townService.getTownFromName(Text.of(townName)).orElseThrow(TownsCommandException::townNotFound);
 
-        if (town.getMaxSize() - amount < townService.getTownSize(town)) {
+        if (town.getMaxSize() - amount > townService.getTownSize(town)) {
             townService.decreaseTownSize(town, amount);
             townsMsg.info(source, "Town size decreased.");
         }
