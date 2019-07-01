@@ -20,9 +20,9 @@ public class TownAdminFacade {
         if (town.getMaxSize() - amount > townService.getTownSize(town)) {
             townService.decreaseTownSize(town, amount);
             townsMsg.info(source, "Town size decreased.");
+        } else {
+            townsMsg.error(source, "Town size could not be decreased. You are trying to decrease by too much.");
         }
-
-        townsMsg.error(source, "Town size could not be decreased. You are trying to decrease by too much.");
     }
 
     public void increaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
