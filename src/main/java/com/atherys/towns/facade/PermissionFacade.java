@@ -3,6 +3,7 @@ package com.atherys.towns.facade;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
@@ -12,10 +13,13 @@ import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Singleton
 public class PermissionFacade {
@@ -84,5 +88,12 @@ public class PermissionFacade {
         }
 
         return isPermitted(source, plot.get(), permission);
+    }
+
+    public Collection<TownPermission> getTownPermissions() {
+        return Sponge.getGame().getRegistry().getAllOf(Permission.class).stream()
+                .filter(permission -> permission instanceof TownPermission)
+                .map(permission -> (TownPermission) permission)
+                .collect(Collectors.toList());
     }
 }

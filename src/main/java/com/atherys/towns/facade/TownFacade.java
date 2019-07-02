@@ -3,6 +3,7 @@ package com.atherys.towns.facade;
 import com.atherys.core.utils.Question;
 import static com.atherys.core.utils.Question.Answer;
 import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
@@ -16,11 +17,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import static org.spongepowered.api.text.format.TextColors.*;
-import org.spongepowered.api.text.format.TextStyles;
 
-import java.util.Optional;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextStyles;
 
 @Singleton
 public class TownFacade {
@@ -107,13 +109,9 @@ public class TownFacade {
             throw new TownsCommandException("Empty town name.");
         }
 
-        Optional<Town> town = townService.getTownFromName(townName);
+        Town town = townService.getTownFromName(townName).orElseThrow(() -> TownsCommandException.townNotFound(townName));
 
-        if (!town.isPresent()) {
-            throw new TownsCommandException("No town called \"", townName, "\" could be found.");
-        }
-
-        sendTownInfo(town.get(), player);
+        sendTownInfo(town, player);
     }
 
     public void setPlayerTownName(Player source, String name) throws TownsCommandException {
@@ -125,6 +123,41 @@ public class TownFacade {
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.SET_NAME)) {
             townService.setTownName(town, name);
+        } else {
+            throw TownsCommandException.notPermittedForTown("name");
+        }
+    }
+
+    public void setPlayerTownDescription(Player player, Text description) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_DESCRIPTION)) {
+            townService.setTownDescription(town, description);
+            townsMsg.info(player, "Town description set.");
+        } else {
+            throw TownsCommandException.notPermittedForTown("description");
+        }
+    }
+
+    public void setPlayerTownColor(Player player, TextColor color) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_COLOR)) {
+            townService.setTownColor(town, color);
+            townsMsg.info(player, "Town color set.");
+        } else {
+            throw TownsCommandException.notPermittedForTown("color");
+        }
+    }
+
+    public void setPlayerTownMotd(Player player, Text motd) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_MOTD)) {
+            townService.setTownMotd(town, motd);
+            townsMsg.info(player, "Town motd set.");
+        } else {
+            throw TownsCommandException.notPermittedForTown("motd");
         }
     }
 
@@ -151,27 +184,21 @@ public class TownFacade {
     }
 
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
-        Optional<Plot> plot = plotService.getPlotByLocation(source.getLocation());
-
-        if (!plot.isPresent()) {
-            throw new TownsCommandException("You are not currently standing on a claim area.");
-        }
-
-        Resident resident = residentService.getOrCreate(source);
-        Town town = resident.getTown();
-
-        if (town == null) {
-            throw TownsCommandException.notPartOfTown();
-        }
+        Town town = getPlayerTown(source);
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.UNCLAIM_PLOT)) {
+            Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() -> {
+                return new TownsCommandException("You are not currently standing on a claim area.");
+            });
 
             if (town.getPlots().size() == 1) {
                 throw new TownsCommandException("You cannot unclaim your last remaining plot.");
             }
 
-            townService.removePlotFromTown(town, plot.get());
+            townService.removePlotFromTown(town, plot);
             townsMsg.info(source, "Plot abandoned.");
+        } else {
+            throw new TownsCommandException("You are not permitted to unclaim plots in the town.");
         }
     }
 
@@ -198,11 +225,14 @@ public class TownFacade {
             townService.claimPlotForTown(plot, town);
 
             townsMsg.info(source, "Plot claimed.");
+        } else {
+            throw new TownsCommandException("You are not permitted to claim plots for the town.");
         }
     }
 
     public void inviteToTown(Player inviter, Player invitee) throws TownsCommandException {
         Town town = getPlayerTown(inviter);
+
         if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
             Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
             Text invitationText = townsMsg.formatInfo(
@@ -221,7 +251,10 @@ public class TownFacade {
                             player -> {}
                     ))
                     .build();
+
             townInvite.pollChat(invitee);
+        } else {
+            townsMsg.error(inviter, "You are not permitted to invite people to the town.");
         }
     }
 
@@ -230,6 +263,8 @@ public class TownFacade {
         if (town.isFreelyJoinable()) {
             townService.addResidentToTown(residentService.getOrCreate(player), town);
             joinTownMessage(player, town);
+        } else {
+            townsMsg.error(player, town.getName(), " is not freely joinable.");
         }
     }
 
@@ -237,6 +272,47 @@ public class TownFacade {
         Town town = getPlayerTown(player);
         townService.removeResidentFromTown(residentService.getOrCreate(player), town);
         townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+    }
+
+    public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+
+        if (!partOfSameTown(source, target)) {
+            throw new TownsCommandException(GOLD, target.getName(), " is not part of your town.");
+        }
+
+        if (permissionFacade.isPermitted(source, town, TownPermissions.ADD_PERMISSION)) {
+            permissionService.permit(residentService.getOrCreate(source), town, permission);
+
+            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
+            target.getPlayer().ifPresent(player -> {
+                townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
+            });
+        } else {
+            throw new TownsCommandException("You are not permitted to grant permissions.");
+        }
+    }
+
+    public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+
+        if (!partOfSameTown(source, target)) {
+            throw new TownsCommandException(GOLD, target.getName(), " is not part of your town.");
+        }
+
+        if (permissionFacade.isPermitted(source, town, TownPermissions.REVOKE_PERMISSION)) {
+            permissionService.remove(residentService.getOrCreate(target), town, permission, true);
+            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
+            target.getPlayer().ifPresent(player -> {
+                townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
+            });
+        }
+    }
+
+    private boolean partOfSameTown(User user, User other) {
+        Resident res = residentService.getOrCreate(user);
+        Resident otherRes = residentService.getOrCreate(other);
+        return (res.getTown() != null && res.getTown().equals(otherRes.getTown()));
     }
 
     private void sendTownInfo(Town town, Player player) {
@@ -251,14 +327,15 @@ public class TownFacade {
                 .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
 
         Text.Builder townResidentsText = Text.builder();
-        town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), "; ")));
+        town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), ", ")));
         townText.append(Text.of("Town residents: ", townResidentsText));
 
         player.sendMessage(townText.build());
     }
 
     private Town getTownFromName(String townName) throws TownsCommandException {
-        return townService.getTownFromName(Text.of(townName)).orElseThrow(TownsCommandException::townNotFound);
+        return townService.getTownFromName(Text.of(townName))
+                .orElseThrow(() -> TownsCommandException.townNotFound(Text.of(townName)));
     }
 
     private void joinTownMessage(Player player, Town town) {

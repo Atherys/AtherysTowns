@@ -30,7 +30,9 @@ public class SetTownNameCommand implements PlayerCommand, ParameterizedCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownName(source, args.<String>getOne("name").orElse(""));
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownName(
+                source, args.<String>getOne("name").orElse("")
+        );
         return CommandResult.success();
     }
 }

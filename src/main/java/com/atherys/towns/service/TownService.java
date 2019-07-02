@@ -105,7 +105,21 @@ public class TownService {
 
     public void setTownName(Town town, String name) {
         town.setName(Text.of(name));
+        townRepository.saveOne(town);
+    }
 
+    public void setTownMotd(Town town, Text motd) {
+        town.setMotd(motd);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownColor(Town town, TextColor textColor) {
+        town.setColor(textColor);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownDescription(Town town, Text desc) {
+        town.setDescription(desc);
         townRepository.saveOne(town);
     }
 
