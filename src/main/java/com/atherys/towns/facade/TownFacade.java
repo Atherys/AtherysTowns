@@ -1,7 +1,6 @@
 package com.atherys.towns.facade;
 
 import com.atherys.core.utils.Question;
-import static com.atherys.core.utils.Question.Answer;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
@@ -19,10 +18,11 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
-import static org.spongepowered.api.text.format.TextColors.*;
-
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+
+import static com.atherys.core.utils.Question.Answer;
+import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class TownFacade {

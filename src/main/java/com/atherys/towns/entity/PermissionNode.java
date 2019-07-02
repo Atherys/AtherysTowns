@@ -4,7 +4,8 @@ import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.permission.Permission;
 
 import javax.annotation.Nonnull;
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 import java.util.Objects;
 
 @Entity
