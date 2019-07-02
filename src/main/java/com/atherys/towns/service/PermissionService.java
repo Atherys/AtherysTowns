@@ -4,6 +4,7 @@ import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.entity.PermissionNode;
+import com.atherys.towns.entity.PermissionNodeId;
 import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;
 
@@ -36,7 +37,8 @@ public class PermissionService {
     }
 
     public void remove(Actor actor, Subject subject, Permission permission, boolean permitted) {
-        permissionRepository.deleteOne(createPermissionNode(actor, subject, permission, permitted));
+        PermissionNode node = createPermissionNode(actor, subject, permission, permitted);
+        permissionRepository.deleteOne(node);
     }
 
     /**
@@ -48,14 +50,19 @@ public class PermissionService {
      * @param permitted
      */
     public void permit(Actor user, Subject subject, Permission permission, boolean permitted) {
-        permissionRepository.saveOne(createPermissionNode(user, subject, permission, permitted));
+        PermissionNode node = createPermissionNode(user, subject, permission, permitted);
+        permissionRepository.saveOne(node);
     }
 
     public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = new PermissionNode();
-        node.setActorId(formatActorId(actor));
-        node.setSubjectId(formatSubjectId(subject));
-        node.setPermission(permission);
+        PermissionNodeId nodeId = new PermissionNodeId(
+                formatActorId(actor),
+                formatSubjectId(subject),
+                permission
+        );
+
+        node.setId(nodeId);
         node.setPermitted(permitted);
 
         return node;

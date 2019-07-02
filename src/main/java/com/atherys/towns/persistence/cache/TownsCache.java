@@ -3,7 +3,6 @@ package com.atherys.towns.persistence.cache;
 import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
 import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.*;

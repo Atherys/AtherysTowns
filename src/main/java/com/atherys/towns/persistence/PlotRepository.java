@@ -1,24 +1,16 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.cache.PlotCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.util.MathUtils;
-import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Singleton
 public class PlotRepository extends CachedHibernateRepository<Plot, Long> {

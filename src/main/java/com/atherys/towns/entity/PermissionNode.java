@@ -2,27 +2,16 @@ package com.atherys.towns.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class PermissionNode implements Identifiable<Long> {
+public class PermissionNode implements Identifiable<PermissionNodeId> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "actor_id")
-    private String actorId;
-
-    @Column(name = "subject_id")
-    private String subjectId;
-
-    @Convert(converter = PermissionConverter.class)
-    private Permission permission;
+    @EmbeddedId
+    PermissionNodeId id;
 
     private boolean permitted;
 
@@ -33,36 +22,24 @@ public class PermissionNode implements Identifiable<Long> {
 
     @Nonnull
     @Override
-    public Long getId() {
+    public PermissionNodeId getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(PermissionNodeId id) {
         this.id = id;
     }
 
     public String getActorId() {
-        return actorId;
-    }
-
-    public void setActorId(String actorId) {
-        this.actorId = actorId;
+        return id.getActorId();
     }
 
     public String getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
+        return id.getSubjectId();
     }
 
     public Permission getPermission() {
-        return permission;
-    }
-
-    public void setPermission(Permission permission) {
-        this.permission = permission;
+        return id.getPermission();
     }
 
     public boolean isPermitted() {
@@ -78,16 +55,12 @@ public class PermissionNode implements Identifiable<Long> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PermissionNode that = (PermissionNode) o;
-        return permitted == that.permitted &&
-                id.equals(that.id) &&
-                actorId.equals(that.actorId) &&
-                subjectId.equals(that.subjectId) &&
-                permission.equals(that.permission);
+        return permitted == that.permitted && that.id.equals(id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, actorId, subjectId, permission, permitted);
+        return Objects.hash(id, permitted);
     }
 
     protected int getVersion() {
