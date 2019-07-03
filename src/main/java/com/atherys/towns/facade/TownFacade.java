@@ -171,6 +171,7 @@ public class TownFacade {
         }
 
         townService.removeTown(resident.getTown());
+        townsMsg.info(player, "Town ruined.");
     }
 
     public Town getPlayerTown(Player source) throws TownsCommandException {

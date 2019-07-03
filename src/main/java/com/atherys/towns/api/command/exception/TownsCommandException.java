@@ -19,7 +19,7 @@ public class TownsCommandException extends CommandException {
     }
 
     public static TownsCommandException townNotFound(Text townName) {
-        return new TownsCommandException("Town with name, ", townName, " not found.");
+        return new TownsCommandException("Town with name ", townName, " not found.");
     }
 
     public static TownsCommandException notPermittedForTown(String field) {

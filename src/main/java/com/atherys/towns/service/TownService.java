@@ -19,6 +19,8 @@ import org.spongepowered.api.world.World;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Singleton
 public class TownService {
@@ -174,12 +176,14 @@ public class TownService {
     }
 
     public void removeTown(Town town) {
-        permissionService.removeAll(town);
+        CompletableFuture<Void> complete = permissionService.removeAll(town);
 
-        town.getResidents().forEach(resident -> {
-            permissionService.removeAll(resident, town);
-            resident.setTown(null);
-            residentRepository.saveOne(resident);
+        complete.thenAccept(__ -> {
+            town.getResidents().forEach(resident -> {
+                permissionService.removeAll(resident, town);
+                resident.setTown(null);
+                residentRepository.saveOne(resident);
+            });
         });
 
         plotRepository.deleteAll(town.getPlots());

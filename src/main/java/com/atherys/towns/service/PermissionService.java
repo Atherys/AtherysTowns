@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 import javax.inject.Inject;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class PermissionService {
@@ -152,11 +153,11 @@ public class PermissionService {
         return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getId().toString());
     }
 
-    public void removeAll(Actor actor) {
-        permissionRepository.deleteAllWithActorId(formatActorId(actor));
+    public CompletableFuture<Void> removeAll(Actor actor) {
+        return permissionRepository.deleteAllWithActorId(formatActorId(actor));
     }
 
-    public void removeAll(Actor actor, Subject subject) {
-        permissionRepository.deleteAllWithActorIdAndSubjectId(formatActorId(actor), formatSubjectId(subject));
+    public CompletableFuture<Void> removeAll(Actor actor, Subject subject) {
+        return permissionRepository.deleteAllWithActorIdAndSubjectId(formatActorId(actor), formatSubjectId(subject));
     }
 }

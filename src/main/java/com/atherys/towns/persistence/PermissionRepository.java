@@ -7,6 +7,7 @@ import com.atherys.towns.entity.PermissionNodeId;
 import com.google.inject.Singleton;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Singleton
 public class PermissionRepository extends CachedHibernateRepository<PermissionNode, PermissionNodeId> {
@@ -23,11 +24,11 @@ public class PermissionRepository extends CachedHibernateRepository<PermissionNo
         );
     }
 
-    public void deleteAllWithActorId(String actorId) {
-        deleteAllAsync(cache.findAll(node -> node.getActorId().equals(actorId)));
+    public CompletableFuture<Void> deleteAllWithActorId(String actorId) {
+        return deleteAllAsync(cache.findAll(node -> node.getActorId().equals(actorId)));
     }
 
-    public void deleteAllWithActorIdAndSubjectId(String actorId, String subjectId) {
-        deleteAllAsync(cache.findAll(node -> node.getActorId().equals(actorId) && node.getSubjectId().equals(subjectId)));
+    public CompletableFuture<Void> deleteAllWithActorIdAndSubjectId(String actorId, String subjectId) {
+        return deleteAllAsync(cache.findAll(node -> node.getActorId().equals(actorId) && node.getSubjectId().equals(subjectId)));
     }
 }
