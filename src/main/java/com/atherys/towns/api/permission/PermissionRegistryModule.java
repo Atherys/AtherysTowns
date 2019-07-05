@@ -30,7 +30,8 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 NationPermissions.DECLARE_WAR,
                 NationPermissions.DECLARE_PEACE,
                 NationPermissions.TRANSFER_LEADERSHIP,
-                NationPermissions.CHAT
+                NationPermissions.CHAT,
+                NationPermissions.SET_CAPITAL
         );
 
         put(

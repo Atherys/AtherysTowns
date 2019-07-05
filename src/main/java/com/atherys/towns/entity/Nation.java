@@ -133,6 +133,10 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         this.allies = allies;
     }
 
+    public void addAlly(Nation nation) {
+        allies.add(nation);
+    }
+
     public Set<Nation> getEnemies() {
         return enemies;
     }

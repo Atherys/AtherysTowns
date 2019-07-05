@@ -109,7 +109,7 @@ public class TownFacade {
             throw new TownsCommandException("Empty town name.");
         }
 
-        Town town = townService.getTownFromName(townName).orElseThrow(() -> TownsCommandException.townNotFound(townName));
+        Town town = townService.getTownFromName(townName).orElseThrow(() -> TownsCommandException.townNotFound(townName.toPlain()));
 
         sendTownInfo(town, player);
     }
@@ -334,9 +334,9 @@ public class TownFacade {
         player.sendMessage(townText.build());
     }
 
-    private Town getTownFromName(String townName) throws TownsCommandException {
+    public Town getTownFromName(String townName) throws TownsCommandException {
         return townService.getTownFromName(Text.of(townName))
-                .orElseThrow(() -> TownsCommandException.townNotFound(Text.of(townName)));
+                .orElseThrow(() -> TownsCommandException.townNotFound(townName));
     }
 
     private void joinTownMessage(Player player, Town town) {

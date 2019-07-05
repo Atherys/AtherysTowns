@@ -32,4 +32,6 @@ public final class NationPermissions {
     public static final Permission KICK_TOWN = new NationPermission("kick_town", "Kick Town");
 
     public static final Permission INVITE_TOWN = new NationPermission("invite_town", "Invite Town");
+
+    public static final Permission SET_CAPITAL = new NationPermission("set_capital", "Set Capital");
 }

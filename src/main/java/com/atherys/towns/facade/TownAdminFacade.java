@@ -16,7 +16,7 @@ public class TownAdminFacade {
 
     public void decreaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
         Town town = townService.getTownFromName(Text.of(townName)).orElseThrow(() -> {
-            return TownsCommandException.townNotFound(Text.of(townName));
+            return TownsCommandException.townNotFound(townName);
         });
 
         if (town.getMaxSize() - amount > townService.getTownSize(town)) {
@@ -29,7 +29,7 @@ public class TownAdminFacade {
 
     public void increaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
         Town town = townService.getTownFromName(Text.of(townName)).orElseThrow(() -> {
-            return TownsCommandException.townNotFound(Text.of(townName));
+            return TownsCommandException.townNotFound(townName);
         });
 
         townService.increaseTownSize(town, amount);

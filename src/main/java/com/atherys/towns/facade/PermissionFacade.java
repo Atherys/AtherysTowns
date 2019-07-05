@@ -47,7 +47,11 @@ public class PermissionFacade {
 
         Resident resident = residentService.getOrCreate(source);
 
-        if (permissionService.isPermitted(resident, subject, permission)) {
+        return permissionService.isPermitted(resident, subject, permission);
+    }
+
+    public boolean isPermittedOrThrow(Player source, Subject subject, Permission permission) throws TownsCommandException {
+        if (isPermitted(source, subject, permission)) {
             return true;
         } else {
             throw new TownsCommandException(Text.of("You are not allowed to ", permission.getName()));

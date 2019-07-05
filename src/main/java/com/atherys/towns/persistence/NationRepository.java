@@ -6,6 +6,9 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.text.Text;
+
+import java.util.Optional;
 
 @Singleton
 public class NationRepository extends CachedHibernateRepository<Nation, Long> {
@@ -29,4 +32,7 @@ public class NationRepository extends CachedHibernateRepository<Nation, Long> {
         });
     }
 
+    public Optional<Nation> findByName(Text townName) {
+        return cache.findOne(n -> n.getName().equals(townName));
+    }
 }

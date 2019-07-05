@@ -18,11 +18,19 @@ public class TownsCommandException extends CommandException {
         return new TownsCommandException("You are not part of a town.");
     }
 
-    public static TownsCommandException townNotFound(Text townName) {
+    public static TownsCommandException townNotFound(String townName) {
         return new TownsCommandException("Town with name ", townName, " not found.");
     }
 
     public static TownsCommandException notPermittedForTown(String field) {
         return new TownsCommandException("You are not permitted to change the town ", field, ".");
+    }
+
+    public static TownsCommandException nationNotFound(String nationName) {
+        return new TownsCommandException("Nation with name ", nationName, " not found.");
+    }
+
+    public static TownsCommandException notPermittedForNation(String field) {
+        return new TownsCommandException("You are not permitted to change the nation ", field, ".");
     }
 }
