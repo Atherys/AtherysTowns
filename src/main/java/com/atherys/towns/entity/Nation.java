@@ -36,7 +36,10 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     @OneToOne
     private Town capital;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(
+			cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+			fetch = FetchType.EAGER
+	)
     @JoinTable(
             name = "nation_allies",
             joinColumns = @JoinColumn(name = "nation_id"),
@@ -44,7 +47,10 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     )
     private Set<Nation> allies = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(
+			cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+			fetch = FetchType.EAGER
+	)
     @JoinTable(
             name = "nation_enemies",
             joinColumns = @JoinColumn(name = "nation_id"),
@@ -137,12 +143,24 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         allies.add(nation);
     }
 
+    public void removeAlly(Nation nation) {
+        allies.remove(nation);
+    }
+
     public Set<Nation> getEnemies() {
         return enemies;
     }
 
     public void setEnemies(Set<Nation> enemies) {
         this.enemies = enemies;
+    }
+
+    public void addEnemy(Nation nation) {
+        enemies.add(nation);
+    }
+
+    public void removeEnemy(Nation nation) {
+        enemies.remove(nation);
     }
 
     @Override

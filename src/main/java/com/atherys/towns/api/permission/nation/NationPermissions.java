@@ -15,6 +15,10 @@ public final class NationPermissions {
 
     public static final Permission ADD_ALLY = new NationPermission("add_ally", "Add Ally");
 
+    public static final Permission ADD_NEUTRAL = new NationPermission("add_neutral", "Add Neutral");
+
+    public static final Permission ADD_ENEMY = new NationPermission("add_enemy", "Add Enemy");
+
     public static final Permission SET_FREELY_JOINABLE = new NationPermission("set_freely_joinable", "Set Freely Joinable");
 
     public static final Permission SET_DESCRIPTION = new NationPermission("set_description", "Set Description");

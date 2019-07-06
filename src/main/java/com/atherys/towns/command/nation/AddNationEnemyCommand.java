@@ -1,4 +1,4 @@
-package com.atherys.towns.command.town;
+package com.atherys.towns.command.nation;
 
 import com.atherys.core.command.ParameterizedCommand;
 import com.atherys.core.command.PlayerCommand;
@@ -6,42 +6,32 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.api.permission.town.TownPermission;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
-@Aliases("revoke")
-@Description("Removes a permission from an entity.")
-@Permission("atherystowns.town.revoke")
-public class TownRemoveActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
+@Aliases("enemy")
+@Description("Makes a nation enemies with yours.")
+@Permission("atherystowns.nation.enemy")
+public class AddNationEnemyCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.player(Text.of("player")),
-                GenericArguments.choices(
-                        Text.of("permission"),
-                        AtherysTowns.getInstance().getPermissionFacade().TOWN_PERMISSIONS
-                )
+                GenericArguments.string(Text.of("nation"))
         };
     }
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().removeTownPermission(
-                source,
-                args.<User>getOne("player").get(),
-                args.<TownPermission>getOne("permission").get()
+        AtherysTowns.getInstance().getNationFacade().addNationEnemy(
+                source, args.<String>getOne("nation").get()
         );
         return CommandResult.success();
     }

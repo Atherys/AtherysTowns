@@ -24,7 +24,9 @@ import org.spongepowered.api.entity.living.player.Player;
         SetNationNameCommand.class,
         SetNationTaxCommand.class,
         SetNationCapitalCommand.class,
-        AddNationAllyCommand.class
+        AddNationAllyCommand.class,
+        AddNationEnemyCommand.class,
+        AddNationNeutralCommand.class
 })
 public class NationCommand implements CommandExecutor {
     @Override

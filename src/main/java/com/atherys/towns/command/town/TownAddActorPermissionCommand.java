@@ -24,17 +24,14 @@ import java.util.Map;
 @Description("Gives an entity a permission.")
 @Permission("atherystowns.town.permit")
 public class TownAddActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
-    private static final Map<String, TownPermission> TOWN_PERMISSIONS = new HashMap<>();
-    static {
-        AtherysTowns.getInstance().getPermissionFacade().getTownPermissions()
-                .forEach(permission -> TOWN_PERMISSIONS.put(permission.getId(), permission));
-    }
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.user(Text.of("player")),
-                GenericArguments.choices(Text.of("permission"), TOWN_PERMISSIONS)
+                GenericArguments.choices(
+                        Text.of("permission"),
+                        AtherysTowns.getInstance().getPermissionFacade().TOWN_PERMISSIONS
+                )
         };
     }
 

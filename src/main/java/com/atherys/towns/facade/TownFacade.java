@@ -311,9 +311,9 @@ public class TownFacade {
     }
 
     private boolean partOfSameTown(User user, User other) {
-        Resident res = residentService.getOrCreate(user);
-        Resident otherRes = residentService.getOrCreate(other);
-        return (res.getTown() != null && res.getTown().equals(otherRes.getTown()));
+        Town town = residentService.getOrCreate(user).getTown();
+        Town otherTown = residentService.getOrCreate(other).getTown();
+        return (town != null && town.equals(otherTown));
     }
 
     private void sendTownInfo(Town town, Player player) {

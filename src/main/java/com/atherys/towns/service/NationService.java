@@ -97,4 +97,17 @@ public class NationService {
         nation.addAlly(ally);
         nationRepository.saveOne(nation);
     }
+
+    public void addNationNeutral(Nation nation, Nation neutral) {
+        nation.removeAlly(neutral);
+        nation.removeEnemy(neutral);
+
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationEnemy(Nation nation, Nation enemy) {
+        nation.addEnemy(enemy);
+        nationRepository.saveOne(nation);
+    }
+
 }
