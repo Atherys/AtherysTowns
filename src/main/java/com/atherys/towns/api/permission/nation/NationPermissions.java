@@ -11,8 +11,6 @@ public final class NationPermissions {
 
     public static final Permission DECLARE_WAR = new NationPermission("declare_war", "Declare War");
 
-    public static final Permission REMOVE_ALLY = new NationPermission("remove_ally", "Remove Ally");
-
     public static final Permission ADD_ALLY = new NationPermission("add_ally", "Add Ally");
 
     public static final Permission ADD_NEUTRAL = new NationPermission("add_neutral", "Add Neutral");

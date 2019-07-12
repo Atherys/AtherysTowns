@@ -123,6 +123,7 @@ public class TownFacade {
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.SET_NAME)) {
             townService.setTownName(town, name);
+            townsMsg.info(source, "Town name set.");
         } else {
             throw TownsCommandException.notPermittedForTown("name");
         }

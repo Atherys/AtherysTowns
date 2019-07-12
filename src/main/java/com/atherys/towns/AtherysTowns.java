@@ -13,6 +13,7 @@ import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.entity.*;
 import com.atherys.towns.facade.*;
+import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
@@ -77,6 +78,8 @@ public class AtherysTowns {
 
     private void start() {
         getTownsCache().initCache();
+
+        Sponge.getEventManager().registerListeners(this, components.playerListener);
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -268,5 +271,8 @@ public class AtherysTowns {
 
         @Inject
         private PlotSelectionFacade plotSelectionFacade;
+
+        @Inject
+        private PlayerListener playerListener;
     }
 }
