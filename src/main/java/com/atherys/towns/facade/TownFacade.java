@@ -162,6 +162,17 @@ public class TownFacade {
         }
     }
 
+    public void setPlayerTownJoinable(Player player, boolean joinable) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_FREELY_JOINABLE)) {
+            townService.setTownJoinable(town, joinable);
+            townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
+        } else {
+            throw new TownsCommandException("You are not permitted to change the town's joinable status.");
+        }
+    }
+
     public void ruinPlayerTown(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(player);
@@ -286,10 +297,6 @@ public class TownFacade {
     public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        if (!partOfSameTown(source, target)) {
-            throw new TownsCommandException(GOLD, target.getName(), " is not part of your town.");
-        }
-
         if (permissionFacade.isPermitted(source, town, TownPermissions.ADD_PERMISSION)) {
             permissionService.permit(residentService.getOrCreate(source), town, permission);
 
@@ -304,10 +311,6 @@ public class TownFacade {
 
     public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
-
-        if (!partOfSameTown(source, target)) {
-            throw new TownsCommandException(GOLD, target.getName(), " is not part of your town.");
-        }
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.REVOKE_PERMISSION)) {
             permissionService.remove(residentService.getOrCreate(target), town, permission, true);

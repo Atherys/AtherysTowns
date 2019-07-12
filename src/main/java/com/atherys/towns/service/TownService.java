@@ -139,6 +139,11 @@ public class TownService {
         nationRepository.saveOne(nation);
     }
 
+    public void setTownJoinable(Town town, boolean joinable) {
+        town.setFreelyJoinable(joinable);
+        townRepository.saveOne(town);
+    }
+
     public void removePlotFromTown(Town town, Plot plot) {
         town.removePlot(plot);
 

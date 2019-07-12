@@ -127,10 +127,6 @@ public class NationFacade {
     public void addNationPermission(Player source, User user, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
-        if (!partOfSameNation(source, user)) {
-            throw new TownsCommandException(user.getName(), " is not part of your nation.");
-        }
-
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
             permissionService.permit(residentService.getOrCreate(user), nation, permission);
 
@@ -145,10 +141,6 @@ public class NationFacade {
 
     public void removeNationPermission(Player source, User user, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-
-        if (!partOfSameNation(source, user)) {
-            throw new TownsCommandException(user.getName(), " is not part of your nation.");
-        }
 
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
             permissionService.remove(residentService.getOrCreate(user), nation, permission, true);
