@@ -17,8 +17,6 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 @Aliases("permit")
 @Description("Gives an entity a permission.")

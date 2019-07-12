@@ -12,7 +12,6 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;

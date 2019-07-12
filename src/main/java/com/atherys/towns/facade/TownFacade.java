@@ -236,28 +236,35 @@ public class TownFacade {
         Town town = getPlayerTown(inviter);
 
         if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
-            Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
-            Text invitationText = townsMsg.formatInfo(
-                    "You have been invited to the town ", townText
-            );
-            Question townInvite = Question.of(invitationText)
-                    .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
-                            player -> {
-                                townService.addResidentToTown(residentService.getOrCreate(player), town);
-                                joinTownMessage(player, town);
-                            }
-                    ))
-                    .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
-                            player -> {}
-                    ))
-                    .build();
+            if (partOfSameTown(inviter, invitee)) {
+                throw new TownsCommandException(invitee.getName(), " is already part of your town.");
+            }
 
-            townInvite.pollChat(invitee);
+            generateTownInvite(town, invitee).pollChat(invitee);
         } else {
             townsMsg.error(inviter, "You are not permitted to invite people to the town.");
         }
+    }
+
+    private Question generateTownInvite(Town town, Player invitee) {
+        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
+        Text invitationText = townsMsg.formatInfo(
+                "You have been invited to the town ", townText
+        );
+
+        return Question.of(invitationText)
+                .addAnswer(Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
+                        player -> {
+                            townService.addResidentToTown(residentService.getOrCreate(player), town);
+                            joinTownMessage(player, town);
+                        }
+                ))
+                .addAnswer(Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
+                        player -> {}
+                ))
+                .build();
     }
 
     public void joinTown(Player player, String townName) throws TownsCommandException {

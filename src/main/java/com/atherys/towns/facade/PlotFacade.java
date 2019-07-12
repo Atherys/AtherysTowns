@@ -3,7 +3,6 @@ package com.atherys.towns.facade;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
@@ -39,15 +38,18 @@ public class PlotFacade {
             return new TownsCommandException("No plot found at your position.");
         });
 
-        player.sendMessage(Text.of("Plot: ", plot.getName()));
-        player.sendMessage(Text.of("Size: ", plotService.getPlotArea(plot)));
-        player.sendMessage(Text.of("Point A: ", plot.getNorthEastCorner()));
-        player.sendMessage(Text.of("Point B: ", plot.getSouthWestCorner()));
-        player.sendMessage(Text.of("Town: ", plot.getTown().getName()));
+        Text message = Text.builder()
+                .append(Text.of("Plot: ", plot.getName()))
+                .append(Text.of("Size: ", plotService.getPlotArea(plot)))
+                .append(Text.of("Point A: ", plot.getNorthEastCorner()))
+                .append(Text.of("Point B: ", plot.getSouthWestCorner()))
+                .append(Text.of("Town: ", plot.getTown().getName()))
+                .build();
+
+        player.sendMessage(message);
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        // TODO
         Optional<Plot> plot = plotService.getPlotByLocation(to.getLocation());
         if (!plot.isPresent()) return;
 

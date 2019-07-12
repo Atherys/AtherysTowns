@@ -4,7 +4,6 @@ import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.PermissionService;
@@ -15,8 +14,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
-
-import java.util.Optional;
 
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
