@@ -1,5 +1,6 @@
 package com.atherys.towns.command.nation;
 
+import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Children;
 import com.atherys.core.command.annotation.Description;
@@ -7,10 +8,10 @@ import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
+
+import javax.annotation.Nonnull;
 
 @Aliases("nation")
 @Description("Base nation command.")
@@ -26,14 +27,14 @@ import org.spongepowered.api.entity.living.player.Player;
         SetNationCapitalCommand.class,
         AddNationAllyCommand.class,
         AddNationEnemyCommand.class,
-        AddNationNeutralCommand.class
+        AddNationNeutralCommand.class,
+        NationListCommand.class
 })
-public class NationCommand implements CommandExecutor {
+public class NationCommand implements PlayerCommand {
+    @Nonnull
     @Override
-    public CommandResult execute(CommandSource src, CommandContext arg) throws CommandException {
-        if (src instanceof Player) {
-            AtherysTowns.getInstance().getNationFacade().sendPlayerNationInfo((Player) src);
-        }
+    public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
+        AtherysTowns.getInstance().getNationFacade().sendPlayerNationInfo(source);
         return CommandResult.success();
     }
 }

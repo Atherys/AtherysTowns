@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.text.Text;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Singleton
@@ -30,6 +31,10 @@ public class NationRepository extends CachedHibernateRepository<Nation, Long> {
                 super.cache.add(town.getNation());
             }
         });
+    }
+
+    public Collection<Nation> getAllNations() {
+        return townsCache.getNationCache().getAll();
     }
 
     public Optional<Nation> findByName(Text townName) {

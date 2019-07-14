@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.text.Text;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Singleton
@@ -108,6 +109,10 @@ public class NationService {
     public void addNationEnemy(Nation nation, Nation enemy) {
         nation.addEnemy(enemy);
         nationRepository.saveOne(nation);
+    }
+
+    public Collection<Nation> getAllNations() {
+        return nationRepository.getAllNations();
     }
 
 }

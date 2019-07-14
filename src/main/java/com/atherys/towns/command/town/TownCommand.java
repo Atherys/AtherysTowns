@@ -1,9 +1,6 @@
 package com.atherys.towns.command.town;
 
-import com.atherys.core.command.annotation.Aliases;
-import com.atherys.core.command.annotation.Children;
-import com.atherys.core.command.annotation.Description;
-import com.atherys.core.command.annotation.HelpCommand;
+import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.command.town.admin.DecreaseTownSizeCommand;
 import com.atherys.towns.command.town.admin.IncreaseTownSizeCommand;
@@ -36,6 +33,7 @@ import org.spongepowered.api.entity.living.player.Player;
         InviteToTownCommand.class,
         JoinTownCommand.class
 })
+@Permission("atherystowns.town")
 @HelpCommand(
         title = "Town Help",
         command = "help"

@@ -160,16 +160,18 @@ public class NationFacade {
 
     public void sendNationInfo(MessageReceiver receiver, Nation nation) {
         Text.Builder info = Text.builder();
-        info.append(Text.of("Name: "), nation.getName(), Text.NEW_LINE);
-        info.append(Text.of("Description: "), nation.getDescription(), Text.NEW_LINE);
-        info.append(Text.of("Capital: "), nation.getCapital().getName(), Text.NEW_LINE);
-        info.append(Text.of("Leader: ", nation.getLeader().getName()), Text.NEW_LINE);
-        info.append(Text.of("Allies: "));
+        info.append(Text.of("Name: "), nation.getName(), Text.NEW_LINE)
+                .append(Text.of("Description: "), nation.getDescription(), Text.NEW_LINE)
+                .append(Text.of("Capital: "), nation.getCapital().getName(), Text.NEW_LINE)
+                .append(Text.of("Leader: ", nation.getLeader().getName()), Text.NEW_LINE)
+                .append(Text.of("Allies: "));
+
         nation.getAllies().forEach(n -> info.append(n.getName(), Text.of(", ")));
         info.append(Text.NEW_LINE);
         info.append(Text.of("Enemies: "));
         nation.getEnemies().forEach(n -> info.append(n.getName(), Text.of(", ")));
         info.append(Text.NEW_LINE);
+
         receiver.sendMessage(info.build());
     }
 
@@ -177,19 +179,19 @@ public class NationFacade {
         sendNationInfo(receiver, getNationFromName(nationName));
     }
 
+    public void listNations(MessageReceiver receiver) {
+        Text.Builder nations = Text.builder().append(Text.of("Nations: "));
+        nationService.getAllNations().forEach(nation -> {
+            nations.append(Text.of(nation.getName(), "," ));
+        });
+
+        receiver.sendMessage(nations.build());
+    }
+
     public Nation getNationFromName(String nationName) throws TownsCommandException {
         return nationService.getNationFromName(nationName).orElseThrow(() -> {
             return TownsCommandException.nationNotFound(nationName);
         });
-    }
-
-    public boolean partOfSameNation(User user, User other) {
-        Town town = residentService.getOrCreate(user).getTown();
-        Town otherTown = residentService.getOrCreate(other).getTown();
-
-        if (town == null || otherTown == null) return  false;
-
-        return (town.getNation() != null && town.getNation().equals(otherTown.getNation()));
     }
 
     public Nation getPlayerNation(Player player) throws TownsCommandException {
