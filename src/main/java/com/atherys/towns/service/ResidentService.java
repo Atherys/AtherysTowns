@@ -72,6 +72,16 @@ public class ResidentService {
         return user.flatMap(User::getPlayer);
     }
 
+    public void addResidentFriend(Resident resident, Resident friend) {
+        resident.addFriend(friend);
+        residentRepository.saveOne(resident);
+    }
+
+    public void removeResidentFriend(Resident resident, Resident friend) {
+        resident.removeFriend(friend);
+        residentRepository.saveOne(resident);
+    }
+
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
         return Economy.getUniqueAccount(resident.getId());
     }

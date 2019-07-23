@@ -20,7 +20,7 @@ public class ResidentInfoCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.player(Text.of("player"))
+                GenericArguments.string(Text.of("player"))
         };
     }
 

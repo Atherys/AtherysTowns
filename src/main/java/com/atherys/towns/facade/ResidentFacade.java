@@ -7,7 +7,6 @@ import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
-import com.flowpowered.noise.module.modifier.ScalePoint;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -15,6 +14,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Optional;
 
@@ -26,6 +26,9 @@ public class ResidentFacade {
 
     @Inject
     TownService townService;
+
+    @Inject
+    TownsMessagingFacade townsMsg;
 
     ResidentFacade() {
     }
@@ -45,7 +48,7 @@ public class ResidentFacade {
     public void sendResidentInfo(MessageReceiver receiver, Resident resident) {
         Text.Builder residentInfo = Text.builder()
                 .append(Text.of("Name: ", resident.getName()), Text.NEW_LINE)
-                .append(Text.of("Town: ", resident.getTown() == null ? resident.getTown().getName() : "No town", Text.NEW_LINE))
+                .append(Text.of("Town: ", resident.getTown() == null ? "No town" : resident.getTown().getName(), Text.NEW_LINE))
                 .append(Text.of("Last online: ", resident.getLastLogin().toString(), Text.NEW_LINE))
                 .append(Text.of("First online: ", resident.getRegisteredOn().toString(), Text.NEW_LINE));
 
@@ -56,6 +59,35 @@ public class ResidentFacade {
         resident.getFriends().forEach(friend -> residentInfo.append(Text.of(friend.getName(), ", ")));
 
         receiver.sendMessage(residentInfo.build());
+    }
+
+    public void addResidentFriend(Player player, String name) throws TownsCommandException {
+        User friend = UserUtils.getUser(name).orElseThrow(() -> {
+            return new TownsCommandException("Player with name ", name, " not found.");
+        });
+
+        residentService.addResidentFriend(
+                residentService.getOrCreate(player),
+                residentService.getOrCreate(friend)
+        );
+
+        townsMsg.info(player, TextColors.GOLD, name, TextColors.DARK_GREEN, " was added as a friend.");
+    }
+
+    public void removeResidentFriend(Player player, String name) throws TownsCommandException {
+        User friend = UserUtils.getUser(name).orElseThrow(() -> {
+            return new TownsCommandException("Player with name ", name, " not found.");
+        });
+
+        Resident resident = residentService.getOrCreate(player);
+        Resident residentFriend = residentService.getOrCreate(friend);
+
+        if (resident.getFriends().contains(residentFriend)) {
+            residentService.removeResidentFriend(resident, residentFriend);
+            townsMsg.info(player, TextColors.GOLD, name, TextColors.DARK_GREEN, " was removed from your friends.");
+        } else {
+            townsMsg.error(player, name, " is not your friend.");
+        }
     }
 
     public boolean isPlayerInTown(Player player, Town town) {
