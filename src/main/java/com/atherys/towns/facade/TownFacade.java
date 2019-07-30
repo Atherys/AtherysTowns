@@ -290,8 +290,14 @@ public class TownFacade {
 
     public void leaveTown(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
-        townService.removeResidentFromTown(residentService.getOrCreate(player), town);
-        townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+        Resident resident = residentService.getOrCreate(player);
+
+        if (town.getLeader().equals(resident)) {
+            throw new TownsCommandException("The town leader cannot leave the town.");
+        } else {
+            townService.removeResidentFromTown(resident, town);
+            townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+        }
     }
 
     public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
