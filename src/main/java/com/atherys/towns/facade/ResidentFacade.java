@@ -39,7 +39,7 @@ public class ResidentFacade {
 
     public void sendResidentInfo(MessageReceiver receiver, String resident) throws TownsCommandException {
         User user = UserUtils.getUser(resident).orElseThrow(() -> {
-            return new TownsCommandException("No player with name ", resident, " found.");
+            return TownsCommandException.playerNotFound(resident);
         });
 
         sendResidentInfo(receiver, residentService.getOrCreate(user));
@@ -63,7 +63,7 @@ public class ResidentFacade {
 
     public void addResidentFriend(Player player, String name) throws TownsCommandException {
         User friend = UserUtils.getUser(name).orElseThrow(() -> {
-            return new TownsCommandException("Player with name ", name, " not found.");
+            return TownsCommandException.playerNotFound(name);
         });
 
         residentService.addResidentFriend(
@@ -76,7 +76,7 @@ public class ResidentFacade {
 
     public void removeResidentFriend(Player player, String name) throws TownsCommandException {
         User friend = UserUtils.getUser(name).orElseThrow(() -> {
-            return new TownsCommandException("Player with name ", name, " not found.");
+            return TownsCommandException.playerNotFound(name);
         });
 
         Resident resident = residentService.getOrCreate(player);

@@ -1,6 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.core.utils.Question;
+import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
@@ -19,6 +20,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
 import static com.atherys.core.utils.Question.Answer;
@@ -251,13 +253,32 @@ public class TownFacade {
                 throw new TownsCommandException(invitee.getName(), " is already part of your town.");
             }
 
-            generateTownInvite(town, invitee).pollChat(invitee);
+            generateTownInvite(town).pollChat(invitee);
         } else {
-            townsMsg.error(inviter, "You are not permitted to invite people to the town.");
+            throw new TownsCommandException("You are not permitted to invite people to the town.");
         }
     }
 
-    private Question generateTownInvite(Town town, Player invitee) {
+    public void kickFromTown(Player player, String name) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+        User user = UserUtils.getUser(name).orElseThrow(() -> {
+            return TownsCommandException.playerNotFound(name);
+        });
+        Resident resident = residentService.getOrCreate(user);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.KICK_RESIDENT)) {
+            if (town.equals(resident.getTown())) {
+                townService.removeResidentFromTown(resident, town);
+                townsMsg.info(player, GOLD, user.getName(), DARK_GREEN, " was kicked from the town.");
+            } else {
+                throw new TownsCommandException(user.getName(), " is not part of your town.");
+            }
+        } else {
+            throw new TownsCommandException("You are not permitted to kick residents.");
+        }
+    }
+
+    private Question generateTownInvite(Town town) {
         Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
         Text invitationText = townsMsg.formatInfo(
                 "You have been invited to the town ", townText
