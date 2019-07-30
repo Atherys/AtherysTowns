@@ -30,7 +30,9 @@ public class TownKickCommand implements ParameterizedCommand, PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().kickFromTown();
+        AtherysTowns.getInstance().getTownFacade().kickFromTown(
+                source, args.<String>getOne("player").get()
+        );
         return CommandResult.success();
     }
 }
