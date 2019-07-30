@@ -268,6 +268,11 @@ public class TownFacade {
 
         if (permissionFacade.isPermitted(player, town, TownPermissions.KICK_RESIDENT)) {
             if (town.equals(resident.getTown())) {
+
+                if (town.getLeader().equals(resident)) {
+                    throw new TownsCommandException("You cannot kick the leader of the town.");
+                }
+
                 townService.removeResidentFromTown(resident, town);
                 townsMsg.info(player, GOLD, user.getName(), DARK_GREEN, " was kicked from the town.");
             } else {
