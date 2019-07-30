@@ -31,6 +31,7 @@ import org.spongepowered.api.entity.living.player.Player;
         SetTownNameCommand.class,
         SetTownJoinableCommand.class,
         InviteToTownCommand.class,
+        TownKickCommand.class,
         JoinTownCommand.class
 })
 @Permission("atherystowns.town")
