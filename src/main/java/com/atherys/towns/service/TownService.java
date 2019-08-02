@@ -129,8 +129,13 @@ public class TownService {
         // if town is already part of another nation, remove it
         if (town.getNation() != null) {
             town.getNation().removeTown(town);
+            town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
             nationRepository.saveOne(town.getNation());
         }
+
+        town.getResidents().forEach(resident -> {
+            permissionService.permit(resident, nation, config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+        });
 
         town.setNation(nation);
         nation.addTown(town);
@@ -197,6 +202,12 @@ public class TownService {
     public void addResidentToTown(Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
+        permissionService.permit(resident, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+
+        if (town.getNation() != null) {
+            permissionService.permit(resident, town.getNation(), config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+        }
+
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }
@@ -204,6 +215,12 @@ public class TownService {
     public void removeResidentFromTown(Resident resident, Town town) {
         town.removeResident(resident);
         resident.setTown(null);
+        permissionService.removeAll(resident, town);
+
+        if (town.getNation() != null) {
+            permissionService.removeAll(resident, town.getNation());
+        }
+
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }

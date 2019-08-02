@@ -82,6 +82,9 @@ public class NationService {
     }
 
     public void removeTown(Nation nation, Town town) {
+        if (town.getNation() != null) {
+            town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
+        }
         town.setNation(null);
         nation.removeTown(town);
 

@@ -20,6 +20,9 @@ public class PlotFacade {
     @Inject
     PlotService plotService;
 
+    @Inject
+    TownsMessagingFacade townsMsg;
+
     PlotFacade() {
     }
 
@@ -30,6 +33,7 @@ public class PlotFacade {
             throw new TownsCommandException("Could not find a plot to rename at present location");
         } else {
             plotService.setPlotName(plot.get(), newName);
+            townsMsg.info(player, "Plot renamed.");
         }
     }
 
