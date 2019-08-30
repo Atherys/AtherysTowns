@@ -25,7 +25,7 @@ public class TownRemoveActorPermissionCommand implements ParameterizedCommand, P
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.player(Text.of("player")),
+                GenericArguments.string(Text.of("player")),
                 GenericArguments.choices(
                         Text.of("permission"),
                         AtherysTowns.getInstance().getPermissionFacade().TOWN_PERMISSIONS
@@ -38,7 +38,7 @@ public class TownRemoveActorPermissionCommand implements ParameterizedCommand, P
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getTownFacade().removeTownPermission(
                 source,
-                args.<User>getOne("player").get(),
+                args.<String>getOne("player").get(),
                 args.<TownPermission>getOne("permission").get()
         );
         return CommandResult.success();

@@ -25,7 +25,7 @@ public class TownAddActorPermissionCommand implements ParameterizedCommand, Play
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.user(Text.of("player")),
+                GenericArguments.string(Text.of("player")),
                 GenericArguments.choices(
                         Text.of("permission"),
                         AtherysTowns.getInstance().getPermissionFacade().TOWN_PERMISSIONS
@@ -37,7 +37,7 @@ public class TownAddActorPermissionCommand implements ParameterizedCommand, Play
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getTownFacade().addTownPermission(
                 source,
-                args.<User>getOne("player").get(),
+                args.<String>getOne("player").get(),
                 args.<TownPermission>getOne("permission").get()
         );
 

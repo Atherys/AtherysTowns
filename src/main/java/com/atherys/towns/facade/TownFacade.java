@@ -13,9 +13,11 @@ import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
+import com.atherys.towns.util.CommandUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
@@ -163,6 +165,17 @@ public class TownFacade {
         }
     }
 
+    public void setPlayerTownPvp(Player player, boolean pvp) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_PVP)) {
+            townService.setTownPvp(town, pvp);
+            townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
+        } else {
+            throw new TownsCommandException("You are not permitted to change the town's PvP status.");
+        }
+    }
+
     public void setPlayerTownJoinable(Player player, boolean joinable) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
@@ -260,9 +273,7 @@ public class TownFacade {
 
     public void kickFromTown(Player player, String name) throws TownsCommandException {
         Town town = getPlayerTown(player);
-        User user = UserUtils.getUser(name).orElseThrow(() -> {
-            return TownsCommandException.playerNotFound(name);
-        });
+        User user = CommandUtils.getUser(name);
         Resident resident = residentService.getOrCreate(user);
 
         if (permissionFacade.isPermitted(player, town, TownPermissions.KICK_RESIDENT)) {
@@ -325,14 +336,15 @@ public class TownFacade {
         }
     }
 
-    public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+    public void addTownPermission(Player source, String target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
+        User targetUser = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.ADD_PERMISSION)) {
             permissionService.permit(residentService.getOrCreate(source), town, permission);
 
-            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
-            target.getPlayer().ifPresent(player -> {
+            townsMsg.info(source, "Gave ", GOLD, targetUser.getName(), " permission ", GOLD, permission.getId(), ".");
+            targetUser.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
             });
         } else {
@@ -340,13 +352,14 @@ public class TownFacade {
         }
     }
 
-    public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+    public void removeTownPermission(Player source, String target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
+        User targetUser = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.REVOKE_PERMISSION)) {
-            permissionService.remove(residentService.getOrCreate(target), town, permission, true);
-            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
-            target.getPlayer().ifPresent(player -> {
+            permissionService.remove(residentService.getOrCreate(targetUser), town, permission, true);
+            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, targetUser.getName(), DARK_GREEN, ".");
+            targetUser.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
             });
         }

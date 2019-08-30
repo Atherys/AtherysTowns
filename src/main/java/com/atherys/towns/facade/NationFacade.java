@@ -8,6 +8,7 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.util.CommandUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
@@ -124,8 +125,9 @@ public class NationFacade {
         }
     }
 
-    public void addNationPermission(Player source, User user, NationPermission permission) throws TownsCommandException {
+    public void addNationPermission(Player source, String target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        User user = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
             permissionService.permit(residentService.getOrCreate(user), nation, permission);
@@ -139,8 +141,9 @@ public class NationFacade {
         }
     }
 
-    public void removeNationPermission(Player source, User user, NationPermission permission) throws TownsCommandException {
+    public void removeNationPermission(Player source, String target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        User user = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
             permissionService.remove(residentService.getOrCreate(user), nation, permission, true);

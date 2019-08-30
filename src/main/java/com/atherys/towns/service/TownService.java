@@ -124,6 +124,11 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
+    public void setTownPvp(Town town, boolean pvp) {
+        town.setPvpEnabled(pvp);
+        townRepository.saveOne(town);
+    }
+
     public void setTownNation(Town town, Nation nation) {
 
         // if town is already part of another nation, remove it
