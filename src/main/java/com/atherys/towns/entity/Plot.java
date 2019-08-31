@@ -32,6 +32,9 @@ public class Plot implements Identifiable<Long>, Subject<Town, Long> {
     @Convert(converter = Vector2iConverter.class)
     private Vector2i neCorner;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Resident owner;
+
     @Version
     private int version;
 
@@ -75,6 +78,13 @@ public class Plot implements Identifiable<Long>, Subject<Town, Long> {
 
     public void setNorthEastCorner(Vector2i neCorner) {
         this.neCorner = neCorner;
+    }
+
+    public Resident getOwner() {
+        return owner;
+    }
+    public void setOwner(Resident owner) {
+        this.owner = owner;
     }
 
     @Override

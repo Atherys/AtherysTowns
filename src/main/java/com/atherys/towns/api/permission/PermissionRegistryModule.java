@@ -40,6 +40,7 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.KICK_RESIDENT,
                 TownPermissions.CLAIM_PLOT,
                 TownPermissions.UNCLAIM_PLOT,
+                TownPermissions.RENAME_PLOT,
                 TownPermissions.ADD_PERMISSION,
                 TownPermissions.REVOKE_PERMISSION,
                 TownPermissions.WITHDRAW_FROM_BANK,

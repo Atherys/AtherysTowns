@@ -1,8 +1,10 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.service.PlotService;
+import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
@@ -21,19 +23,29 @@ public class PlotFacade {
     PlotService plotService;
 
     @Inject
+    PermissionFacade permissionFacade;
+
+    @Inject
     TownsMessagingFacade townsMsg;
+
+    @Inject
+    ResidentService residentService;
 
     PlotFacade() {
     }
 
-    public void renamePlotAtPlayerLocation(Player player, Text newName) throws CommandException {
-        Optional<Plot> plot = plotService.getPlotByLocation(player.getLocation());
+    public void renamePlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
+        Plot plot = plotService.getPlotByLocation(player.getLocation()).orElseThrow(() -> {
+            return new TownsCommandException("No plot found at your position");
+        });
 
-        if (!plot.isPresent()) {
-            throw new TownsCommandException("Could not find a plot to rename at present location");
-        } else {
-            plotService.setPlotName(plot.get(), newName);
+        if (permissionFacade.isPermitted(player, plot.getTown(), TownPermissions.RENAME_PLOT) ||
+            residentService.getOrCreate(player).equals(plot.getOwner())) {
+
+            plotService.setPlotName(plot, newName);
             townsMsg.info(player, "Plot renamed.");
+        } else {
+            throw new TownsCommandException("You are not permitted to rename this plot.");
         }
     }
 
@@ -53,6 +65,8 @@ public class PlotFacade {
         player.sendMessage(message);
     }
 
+
+
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
         Optional<Plot> plot = plotService.getPlotByLocation(to.getLocation());
         if (!plot.isPresent()) return;
@@ -60,6 +74,6 @@ public class PlotFacade {
         Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
         if (plotFrom.isPresent()) return;
 
-        player.sendTitle(Title.builder().title(plot.get().getTown().getName()).build());
+        player.sendTitle(Title.builder().stay(20).title(plot.get().getTown().getName()).build());
     }
 }
