@@ -37,12 +37,8 @@ public class ResidentFacade {
         sendResidentInfo(player, residentService.getOrCreate(player));
     }
 
-    public void sendResidentInfo(MessageReceiver receiver, String resident) throws TownsCommandException {
-        User user = UserUtils.getUser(resident).orElseThrow(() -> {
-            return TownsCommandException.playerNotFound(resident);
-        });
-
-        sendResidentInfo(receiver, residentService.getOrCreate(user));
+    public void sendResidentInfo(MessageReceiver receiver, User target) throws TownsCommandException {
+        sendResidentInfo(receiver, residentService.getOrCreate(target));
     }
 
     public void sendResidentInfo(MessageReceiver receiver, Resident resident) {
@@ -61,17 +57,13 @@ public class ResidentFacade {
         receiver.sendMessage(residentInfo.build());
     }
 
-    public void addResidentFriend(Player player, String name) throws TownsCommandException {
-        User friend = UserUtils.getUser(name).orElseThrow(() -> {
-            return TownsCommandException.playerNotFound(name);
-        });
-
+    public void addResidentFriend(Player player, User target) throws TownsCommandException {
         residentService.addResidentFriend(
                 residentService.getOrCreate(player),
-                residentService.getOrCreate(friend)
+                residentService.getOrCreate(target)
         );
 
-        townsMsg.info(player, TextColors.GOLD, name, TextColors.DARK_GREEN, " was added as a friend.");
+        townsMsg.info(player, TextColors.GOLD, target.getName(), TextColors.DARK_GREEN, " was added as a friend.");
     }
 
     public void removeResidentFriend(Player player, String name) throws TownsCommandException {

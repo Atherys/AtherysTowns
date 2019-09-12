@@ -35,9 +35,7 @@ public class PlotFacade {
     }
 
     public void renamePlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
-        Plot plot = plotService.getPlotByLocation(player.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("No plot found at your position");
-        });
+        Plot plot = getPlotAtPlayer(player);
 
         if (permissionFacade.isPermitted(player, plot.getTown(), TownPermissions.RENAME_PLOT) ||
             residentService.getOrCreate(player).equals(plot.getOwner())) {
@@ -50,9 +48,7 @@ public class PlotFacade {
     }
 
     public void sendInfoOnPlotAtPlayerLocation(Player player) throws TownsCommandException {
-        Plot plot = plotService.getPlotByLocation(player.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("No plot found at your position.");
-        });
+        Plot plot = getPlotAtPlayer(player);
 
         Text message = Text.builder()
                 .append(Text.of("Plot: ", plot.getName()))
@@ -60,12 +56,17 @@ public class PlotFacade {
                 .append(Text.of("Point A: ", plot.getNorthEastCorner()))
                 .append(Text.of("Point B: ", plot.getSouthWestCorner()))
                 .append(Text.of("Town: ", plot.getTown().getName()))
+                .append(Text.of("Owner: ", plot.getOwner() == null ? "None" : plot.getOwner().getName()))
                 .build();
 
         player.sendMessage(message);
     }
 
-
+    private Plot getPlotAtPlayer(Player player) throws TownsCommandException {
+        return plotService.getPlotByLocation(player.getLocation()).orElseThrow(() -> {
+            return new TownsCommandException("No plot found at your position");
+        });
+    }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
         Optional<Plot> plot = plotService.getPlotByLocation(to.getLocation());

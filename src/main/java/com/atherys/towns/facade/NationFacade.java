@@ -125,15 +125,14 @@ public class NationFacade {
         }
     }
 
-    public void addNationPermission(Player source, String target, NationPermission permission) throws TownsCommandException {
+    public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-        User user = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
-            permissionService.permit(residentService.getOrCreate(user), nation, permission);
+            permissionService.permit(residentService.getOrCreate(target), nation, permission);
 
-            townsMsg.info(source, "Gave ", GOLD, user.getName(), " permission ", GOLD, permission.getId(), ".");
-            user.getPlayer().ifPresent(player -> {
+            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
+            target.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
             });
         } else {
@@ -141,15 +140,14 @@ public class NationFacade {
         }
     }
 
-    public void removeNationPermission(Player source, String target, NationPermission permission) throws TownsCommandException {
+    public void removeNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-        User user = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
-            permissionService.remove(residentService.getOrCreate(user), nation, permission, true);
+            permissionService.remove(residentService.getOrCreate(target), nation, permission, true);
 
-            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, user.getName(), DARK_GREEN, ".");
-            user.getPlayer().ifPresent(player -> {
+            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
+            target.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
             });
         } else {

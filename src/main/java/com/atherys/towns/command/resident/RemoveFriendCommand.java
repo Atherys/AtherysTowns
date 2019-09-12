@@ -5,6 +5,7 @@ import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
+import com.atherys.core.utils.UserElement;
 import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -24,7 +25,7 @@ public class RemoveFriendCommand implements ParameterizedCommand, PlayerCommand 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.string(Text.of("friend"))
+                new UserElement(Text.of("friend"))
         };
     }
 

@@ -39,6 +39,8 @@ public final class TownPermissions {
 
     public static final Permission RENAME_PLOT = new TownPermission("rename_plot", "Rename Plot");
 
+    public static final Permission GRANT_PLOT = new TownPermission("grant_plot", "Grant Plot");
+
     public static final Permission KICK_RESIDENT = new TownPermission("kick_resident", "Kick Resident");
 
     public static final Permission INVITE_RESIDENT = new TownPermission("invite_resident", "Invite Resident");

@@ -19,7 +19,8 @@ import javax.annotation.Nonnull;
 public class SetNationTaxCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[0];
+        return new CommandElement[] {
+        };
     }
 
     @Nonnull

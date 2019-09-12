@@ -271,10 +271,9 @@ public class TownFacade {
         }
     }
 
-    public void kickFromTown(Player player, String name) throws TownsCommandException {
+    public void kickFromTown(Player player, User target) throws TownsCommandException {
         Town town = getPlayerTown(player);
-        User user = CommandUtils.getUser(name);
-        Resident resident = residentService.getOrCreate(user);
+        Resident resident = residentService.getOrCreate(target);
 
         if (permissionFacade.isPermitted(player, town, TownPermissions.KICK_RESIDENT)) {
             if (town.equals(resident.getTown())) {
@@ -284,9 +283,9 @@ public class TownFacade {
                 }
 
                 townService.removeResidentFromTown(resident, town);
-                townsMsg.info(player, GOLD, user.getName(), DARK_GREEN, " was kicked from the town.");
+                townsMsg.info(player, GOLD, target.getName(), DARK_GREEN, " was kicked from the town.");
             } else {
-                throw new TownsCommandException(user.getName(), " is not part of your town.");
+                throw new TownsCommandException(target.getName(), " is not part of your town.");
             }
         } else {
             throw new TownsCommandException("You are not permitted to kick residents.");
@@ -336,15 +335,14 @@ public class TownFacade {
         }
     }
 
-    public void addTownPermission(Player source, String target, TownPermission permission) throws TownsCommandException {
+    public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
-        User targetUser = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.ADD_PERMISSION)) {
             permissionService.permit(residentService.getOrCreate(source), town, permission);
 
-            townsMsg.info(source, "Gave ", GOLD, targetUser.getName(), " permission ", GOLD, permission.getId(), ".");
-            targetUser.getPlayer().ifPresent(player -> {
+            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
+            target.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
             });
         } else {
@@ -352,14 +350,13 @@ public class TownFacade {
         }
     }
 
-    public void removeTownPermission(Player source, String target, TownPermission permission) throws TownsCommandException {
+    public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
-        User targetUser = CommandUtils.getUser(target);
 
         if (permissionFacade.isPermitted(source, town, TownPermissions.REVOKE_PERMISSION)) {
-            permissionService.remove(residentService.getOrCreate(targetUser), town, permission, true);
-            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, targetUser.getName(), DARK_GREEN, ".");
-            targetUser.getPlayer().ifPresent(player -> {
+            permissionService.remove(residentService.getOrCreate(target), town, permission, true);
+            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
+            target.getPlayer().ifPresent(player -> {
                 townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
             });
         }

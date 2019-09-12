@@ -5,6 +5,7 @@ import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
+import com.atherys.core.utils.UserElement;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import org.spongepowered.api.command.CommandException;
@@ -25,7 +26,7 @@ public class NationRemoveActorPermissionCommand implements ParameterizedCommand,
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.string(Text.of("player")),
+                new UserElement(Text.of("player")),
                 GenericArguments.choices(
                         Text.of("permission"),
                         AtherysTowns.getInstance().getPermissionFacade().NATION_PERMISSIONS
@@ -38,7 +39,7 @@ public class NationRemoveActorPermissionCommand implements ParameterizedCommand,
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getNationFacade().removeNationPermission(
                 source,
-                args.<String>getOne("player").get(),
+                args.<User>getOne("player").get(),
                 args.<NationPermission>getOne("permission").get()
         );
         return CommandResult.success();
