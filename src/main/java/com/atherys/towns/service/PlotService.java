@@ -1,6 +1,7 @@
 package com.atherys.towns.service;
 
 import com.atherys.towns.entity.Plot;
+import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.plot.PlotSelection;
@@ -103,6 +104,11 @@ public class PlotService {
 
     public void setPlotName(Plot plot, Text newName) {
         plot.setName(newName);
+        plotRepository.saveOne(plot);
+    }
+
+    public void setPlotOwner(Plot plot, Resident owner) {
+        plot.setOwner(owner);
         plotRepository.saveOne(plot);
     }
 

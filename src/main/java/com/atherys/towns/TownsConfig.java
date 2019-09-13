@@ -62,6 +62,7 @@ public class TownsConfig extends PluginConfig {
             TownPermissions.KICK_RESIDENT,
             TownPermissions.CLAIM_PLOT,
             TownPermissions.UNCLAIM_PLOT,
+            TownPermissions.GRANT_PLOT,
             TownPermissions.ADD_PERMISSION,
             TownPermissions.REVOKE_PERMISSION,
             TownPermissions.WITHDRAW_FROM_BANK,

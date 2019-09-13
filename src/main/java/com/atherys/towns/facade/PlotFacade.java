@@ -10,11 +10,14 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+
+import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class PlotFacade {
@@ -60,6 +63,18 @@ public class PlotFacade {
                 .build();
 
         player.sendMessage(message);
+    }
+
+    public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
+        Plot plot = getPlotAtPlayer(player);
+
+        if (permissionFacade.isPermitted(player, plot.getTown(), TownPermissions.GRANT_PLOT)) {
+            plotService.setPlotOwner(plot, residentService.getOrCreate(target));
+
+            townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");
+        } else {
+            throw new TownsCommandException("You are not permitted to grant plots in this town.");
+        }
     }
 
     private Plot getPlotAtPlayer(Player player) throws TownsCommandException {
