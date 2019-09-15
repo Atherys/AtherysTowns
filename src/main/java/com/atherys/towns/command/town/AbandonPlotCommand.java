@@ -13,7 +13,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import javax.annotation.Nonnull;
 
 @Aliases({"abandon", "unclaim"})
-@Description("Unclaims a plot.")
+@Description("Unclaims a plot from your town.")
 @Permission("atherystowns.town.unclaim")
 public class AbandonPlotCommand implements PlayerCommand {
     @Nonnull

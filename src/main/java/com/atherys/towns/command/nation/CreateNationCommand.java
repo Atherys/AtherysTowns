@@ -13,6 +13,8 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nonnull;
+
 @Aliases("create")
 @Description("Creates a nation.")
 @Permission("atherystowns.nation.create")
@@ -25,8 +27,9 @@ public class CreateNationCommand implements ParameterizedCommand {
         };
     }
 
+    @Nonnull
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(@Nonnull CommandSource src, CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getNationFacade().createNation(
                 args.<String>getOne("name").get(),
                 args.<String>getOne("capital").get()

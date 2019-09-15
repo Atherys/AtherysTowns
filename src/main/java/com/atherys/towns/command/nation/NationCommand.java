@@ -1,10 +1,7 @@
 package com.atherys.towns.command.nation;
 
 import com.atherys.core.command.PlayerCommand;
-import com.atherys.core.command.annotation.Aliases;
-import com.atherys.core.command.annotation.Children;
-import com.atherys.core.command.annotation.Description;
-import com.atherys.core.command.annotation.Permission;
+import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -13,7 +10,7 @@ import org.spongepowered.api.entity.living.player.Player;
 
 import javax.annotation.Nonnull;
 
-@Aliases("nation")
+@Aliases({"nation", "n"})
 @Description("Base nation command.")
 @Permission("atherystowns.nation")
 @Children({
@@ -30,6 +27,7 @@ import javax.annotation.Nonnull;
         AddNationNeutralCommand.class,
         NationListCommand.class
 })
+@HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {
     @Nonnull
     @Override

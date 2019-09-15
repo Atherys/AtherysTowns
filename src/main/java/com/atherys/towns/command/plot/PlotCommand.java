@@ -14,10 +14,11 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         PlotSelectCommand.class,
         SetPlotNameCommand.class,
         PlotAddActorPermissionCommand.class,
-        PlotRemoveActorPermissionCommand.class
+        PlotRemoveActorPermissionCommand.class,
+        GrantPlotCommand.class
 })
 @Permission("atherystowns.plot")
-@HelpCommand(title = "Plot Help")
+@HelpCommand(title = "Plot Help", command = "help")
 public class PlotCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {

@@ -13,6 +13,8 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nonnull;
+
 @Aliases("info")
 @Description("Displays information about the nation.")
 @Permission("atherystowns.nation.info")
@@ -24,8 +26,9 @@ public class NationInfoCommand implements ParameterizedCommand {
         };
     }
 
+    @Nonnull
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getNationFacade().sendNationInfo(src, args.<String>getOne("nation").get());
         return CommandResult.success();
     }

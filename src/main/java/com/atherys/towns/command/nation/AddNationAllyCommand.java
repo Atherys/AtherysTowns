@@ -17,7 +17,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("ally")
-@Description("Add an allied nation.")
+@Description("Makes a nation allied with yours.")
 @Permission("atherystowns.nation.ally")
 public class AddNationAllyCommand implements ParameterizedCommand, PlayerCommand {
     @Override

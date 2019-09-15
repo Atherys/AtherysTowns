@@ -20,7 +20,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("permit")
-@Description("Adds a permission to an entity.")
+@Description("Grants a resident, town, or nation a permission with your nation.")
 @Permission("atherystowns.nation.permit")
 public class NationAddActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
     @Override

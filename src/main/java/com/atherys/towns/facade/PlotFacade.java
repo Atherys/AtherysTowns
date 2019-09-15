@@ -54,11 +54,11 @@ public class PlotFacade {
         Plot plot = getPlotAtPlayer(player);
 
         Text message = Text.builder()
-                .append(Text.of("Plot: ", plot.getName()))
-                .append(Text.of("Size: ", plotService.getPlotArea(plot)))
-                .append(Text.of("Point A: ", plot.getNorthEastCorner()))
-                .append(Text.of("Point B: ", plot.getSouthWestCorner()))
-                .append(Text.of("Town: ", plot.getTown().getName()))
+                .append(Text.of("Plot: ", plot.getName(), Text.NEW_LINE))
+                .append(Text.of("Size: ", plotService.getPlotArea(plot), Text.NEW_LINE))
+                .append(Text.of("Point A: ", plot.getNorthEastCorner(), Text.NEW_LINE))
+                .append(Text.of("Point B: ", plot.getSouthWestCorner(), Text.NEW_LINE))
+                .append(Text.of("Town: ", plot.getTown().getName(), Text.NEW_LINE))
                 .append(Text.of("Owner: ", plot.getOwner() == null ? "None" : plot.getOwner().getName()))
                 .build();
 
