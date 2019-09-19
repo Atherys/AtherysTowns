@@ -1,5 +1,9 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.AtherysCore;
+import com.atherys.core.economy.Economy;
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
@@ -11,16 +15,23 @@ import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.util.CommandUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
+
+import java.math.BigDecimal;
 
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
 public class NationFacade {
+    @Inject
+    TownsConfig config;
+
     @Inject
     NationService nationService;
 
@@ -152,6 +163,50 @@ public class NationFacade {
             });
         } else {
             throw new TownsCommandException("You are not permitted to grant permissions.");
+        }
+    }
+
+    public void depositToNation(Player player, BigDecimal amount) throws TownsCommandException {
+        if (!AtherysTowns.economyIsEnabled()) {
+            throw TownsCommandException.economyNotEnabled();
+        }
+
+        Nation nation = getPlayerNation(player);
+
+        if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
+            Economy.transferCurrency(
+                    player.getUniqueId(),
+                    nation.getBank().toString(),
+                    config.CURRENCY,
+                    amount,
+                    Sponge.getCauseStackManager().getCurrentCause()
+            );
+
+            townsMsg.info(player, "Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation.");
+        } else {
+            throw new TownsCommandException("You are not permitted to deposit to the nation.");
+        }
+    }
+
+    public void withdrawFromNation(Player player, BigDecimal amount) throws TownsCommandException {
+        if (!AtherysTowns.economyIsEnabled()) {
+            throw TownsCommandException.economyNotEnabled();
+        }
+
+        Nation nation = getPlayerNation(player);
+
+        if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
+            Economy.transferCurrency(
+                    nation.getBank().toString(),
+                    player.getUniqueId(),
+                    config.CURRENCY,
+                    amount,
+                    Sponge.getCauseStackManager().getCurrentCause()
+            );
+
+            townsMsg.info(player, "Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation.");
+        } else {
+            throw new TownsCommandException("You are not permitted to withdraw from the nation.");
         }
     }
 

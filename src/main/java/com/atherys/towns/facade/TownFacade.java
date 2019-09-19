@@ -1,7 +1,11 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.AtherysCore;
+import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
 import com.atherys.core.utils.UserUtils;
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
@@ -14,15 +18,21 @@ import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
 import com.atherys.towns.util.CommandUtils;
+import com.flowpowered.noise.module.modifier.ScalePoint;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.CauseStackManager;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+
+import java.math.BigDecimal;
 
 import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -44,6 +54,9 @@ public class TownFacade {
 
     @Inject
     private TownsMessagingFacade townsMsg;
+
+    @Inject
+    private TownsConfig config;
 
     @Inject
     private ResidentFacade residentFacade;
@@ -368,6 +381,49 @@ public class TownFacade {
         return (town != null && town.equals(otherTown));
     }
 
+    public void depositToTown(Player player, BigDecimal amount) throws TownsCommandException {
+        if (!AtherysTowns.economyIsEnabled()) {
+            throw TownsCommandException.economyNotEnabled();
+        }
+
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK)) {
+            Economy.transferCurrency(
+                    player.getUniqueId(),
+                    town.getBank().toString(),
+                    config.CURRENCY,
+                    amount,
+                    Sponge.getCauseStackManager().getCurrentCause()
+            );
+            townsMsg.info(player, "Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town.");
+        } else {
+            throw new TownsCommandException("You are not permitted to deposit to the town.");
+        }
+    }
+
+    public void withdrawFromTown(Player player, BigDecimal amount) throws TownsCommandException {
+        if (!AtherysTowns.economyIsEnabled()) {
+            throw TownsCommandException.economyNotEnabled();
+        }
+
+        Town town = getPlayerTown(player);
+
+        if (permissionFacade.isPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK)) {
+            Economy.transferCurrency(
+                    town.getBank().toString(),
+                    player.getUniqueId(),
+                    config.CURRENCY,
+                    amount,
+                    Sponge.getCauseStackManager().getCurrentCause()
+            );
+
+            townsMsg.info(player, "Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town.");
+        } else {
+            throw new TownsCommandException("You are not permitted to withdraw from the town.");
+        }
+    }
+
     private void sendTownInfo(Town town, Player player) {
         Text.Builder townText = Text.builder()
                 .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
@@ -378,6 +434,12 @@ public class TownFacade {
                 .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
                 .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
+
+        if (AtherysTowns.economyIsEnabled()) {
+            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString()).ifPresent(account -> {
+                townText.append(Text.of("Town balance: ", config.CURRENCY.format(account.getBalance(config.CURRENCY)), Text.NEW_LINE));
+            });
+        }
 
         Text.Builder townResidentsText = Text.builder();
         town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), ", ")));

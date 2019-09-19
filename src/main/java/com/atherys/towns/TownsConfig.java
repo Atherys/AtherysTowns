@@ -8,6 +8,7 @@ import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
+import org.spongepowered.api.service.economy.Currency;
 
 import java.io.IOException;
 import java.util.Set;
@@ -23,6 +24,12 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("default-town-max-size")
     public int DEFAULT_TOWN_MAX_SIZE = 4096;
+
+    @Setting("economy-enabled")
+    public boolean ECONOMY = true;
+
+    @Setting("currency")
+    public Currency CURRENCY;
 
     @Setting("default-nation-leader-permissions")
     public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = ImmutableSet.of(

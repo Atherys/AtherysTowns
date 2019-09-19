@@ -1,5 +1,8 @@
 package com.atherys.towns.service;
 
+import com.atherys.core.AtherysCore;
+import com.atherys.core.economy.Economy;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Plot;
@@ -80,6 +83,9 @@ public class TownService {
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(world.getUniqueId());
         town.setBank(UUID.randomUUID());
+        if (AtherysTowns.economyIsEnabled()) {
+           AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
+        }
         town.setSpawn(spawn);
 
         townRepository.saveOne(town);

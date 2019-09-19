@@ -19,6 +19,10 @@ public class TownsCommandException extends CommandException {
         return new TownsCommandException("You are not part of a town.");
     }
 
+    public static TownsCommandException economyNotEnabled() {
+        return new TownsCommandException("Economy not enabled.");
+    }
+
     public static TownsCommandException playerNotFound(String playerName) {
         return new TownsCommandException("No player with name ", playerName, " found.");
     }

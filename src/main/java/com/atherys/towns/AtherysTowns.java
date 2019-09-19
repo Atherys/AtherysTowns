@@ -2,6 +2,7 @@ package com.atherys.towns;
 
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
+import com.atherys.core.economy.Economy;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
@@ -47,6 +48,8 @@ public class AtherysTowns {
 
     private static AtherysTowns instance;
 
+    private boolean economyEnabled;
+
     private static boolean init = false;
 
     @Inject
@@ -80,6 +83,8 @@ public class AtherysTowns {
         getTownsCache().initCache();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
+
+        economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -117,6 +122,10 @@ public class AtherysTowns {
     @Listener
     public void onStop(GameStoppingServerEvent event) {
         if (init) stop();
+    }
+
+    public static boolean economyIsEnabled() {
+        return getInstance().economyEnabled;
     }
 
     public TownsConfig getConfig() {

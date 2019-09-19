@@ -83,7 +83,7 @@ public class ResidentService {
     }
 
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
-        return Economy.getUniqueAccount(resident.getId());
+        return Economy.getAccount(resident.getId());
     }
 
     public void addCurrency(Resident resident, BigDecimal amount, Currency currency, Cause cause) {

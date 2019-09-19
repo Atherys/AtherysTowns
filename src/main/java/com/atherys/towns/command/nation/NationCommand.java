@@ -25,7 +25,9 @@ import javax.annotation.Nonnull;
         AddNationAllyCommand.class,
         AddNationEnemyCommand.class,
         AddNationNeutralCommand.class,
-        NationListCommand.class
+        NationListCommand.class,
+        DepositNationCommand.class,
+        WithdrawNationCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {

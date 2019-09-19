@@ -7,7 +7,6 @@ import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
