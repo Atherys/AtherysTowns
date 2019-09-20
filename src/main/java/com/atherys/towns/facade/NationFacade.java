@@ -1,6 +1,5 @@
 package com.atherys.towns.facade;
 
-import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
@@ -12,23 +11,23 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.util.CommandUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
-public class NationFacade {
+public class NationFacade implements TransactionFacade {
     @Inject
     TownsConfig config;
 
@@ -174,7 +173,7 @@ public class NationFacade {
         Nation nation = getPlayerNation(player);
 
         if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
-            Economy.transferCurrency(
+             Optional<TransferResult> result = Economy.transferCurrency(
                     player.getUniqueId(),
                     nation.getBank().toString(),
                     config.CURRENCY,
@@ -182,7 +181,15 @@ public class NationFacade {
                     Sponge.getCauseStackManager().getCurrentCause()
             );
 
-            townsMsg.info(player, "Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation.");
+            if (result.isPresent()) {
+                Text feedback = getResultFeedback(
+                        result.get().getResult(),
+                        Text.of("Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation."),
+                        Text.of("You do not have enough to deposit."),
+                        Text.of("Depositing failed.")
+                );
+                townsMsg.info(player, feedback);
+            }
         } else {
             throw new TownsCommandException("You are not permitted to deposit to the nation.");
         }
@@ -196,7 +203,7 @@ public class NationFacade {
         Nation nation = getPlayerNation(player);
 
         if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
-            Economy.transferCurrency(
+             Optional<TransferResult> result = Economy.transferCurrency(
                     nation.getBank().toString(),
                     player.getUniqueId(),
                     config.CURRENCY,
@@ -204,7 +211,15 @@ public class NationFacade {
                     Sponge.getCauseStackManager().getCurrentCause()
             );
 
-            townsMsg.info(player, "Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation.");
+            if (result.isPresent()) {
+                Text feedback = getResultFeedback(
+                        result.get().getResult(),
+                        Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation."),
+                        Text.of("The town does not have enough to withdraw."),
+                        Text.of("Withdrawing failed.")
+                );
+                townsMsg.info(player, feedback);
+            }
         } else {
             throw new TownsCommandException("You are not permitted to withdraw from the nation.");
         }

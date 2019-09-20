@@ -3,7 +3,6 @@ package com.atherys.towns.facade;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
-import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.exception.TownsCommandException;
@@ -17,28 +16,25 @@ import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
-import com.atherys.towns.util.CommandUtils;
-import com.flowpowered.noise.module.modifier.ScalePoint;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.CauseStackManager;
-import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
-public class TownFacade {
+public class TownFacade implements TransactionFacade {
 
     @Inject
     private PlotSelectionFacade plotSelectionFacade;
@@ -389,14 +385,23 @@ public class TownFacade {
         Town town = getPlayerTown(player);
 
         if (permissionFacade.isPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK)) {
-            Economy.transferCurrency(
+            Optional<TransferResult> result = Economy.transferCurrency(
                     player.getUniqueId(),
                     town.getBank().toString(),
                     config.CURRENCY,
                     amount,
                     Sponge.getCauseStackManager().getCurrentCause()
             );
-            townsMsg.info(player, "Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town.");
+
+            if (result.isPresent()) {
+                Text feedback = getResultFeedback(
+                        result.get().getResult(),
+                        Text.of("Deposited", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                        Text.of("You do not have enough to deposit."),
+                        Text.of("Depositing failed.")
+                );
+                townsMsg.info(player, feedback);
+            }
         } else {
             throw new TownsCommandException("You are not permitted to deposit to the town.");
         }
@@ -410,7 +415,7 @@ public class TownFacade {
         Town town = getPlayerTown(player);
 
         if (permissionFacade.isPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK)) {
-            Economy.transferCurrency(
+            Optional<TransferResult> result = Economy.transferCurrency(
                     town.getBank().toString(),
                     player.getUniqueId(),
                     config.CURRENCY,
@@ -418,7 +423,15 @@ public class TownFacade {
                     Sponge.getCauseStackManager().getCurrentCause()
             );
 
-            townsMsg.info(player, "Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town.");
+            if (result.isPresent()) {
+                Text feedback = getResultFeedback(
+                        result.get().getResult(),
+                        Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town."),
+                        Text.of("The town does not have enough to withdraw."),
+                        Text.of("Withdrawing failed.")
+                );
+                townsMsg.info(player, feedback);
+            }
         } else {
             throw new TownsCommandException("You are not permitted to withdraw from the town.");
         }
