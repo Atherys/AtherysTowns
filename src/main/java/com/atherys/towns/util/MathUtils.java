@@ -59,9 +59,9 @@ public class MathUtils {
         boolean withinY = ((rectBNorthEast.getY() >= rectASouthWest.getY() && rectBNorthEast.getY() <= rectANorthEast.getY()) ||
                            (rectBSouthWest.getY() >= rectASouthWest.getY() && rectBSouthWest.getY() <= rectANorthEast.getY()));
 
-        return ((Math.abs(rectASouthWest.getY() - rectBNorthEast.getY()) == 1 && withinX) ||
-                (Math.abs(rectASouthWest.getX() - rectBNorthEast.getX()) == 1 && withinY) ||
-                (Math.abs(rectANorthEast.getY() - rectBSouthWest.getY()) == 1 && withinX) ||
-                (Math.abs(rectANorthEast.getX() - rectBSouthWest.getX()) == 1 && withinY));
+        return ((Math.abs(rectASouthWest.getY() - rectBNorthEast.getY()) == 0 && withinX) ||
+                (Math.abs(rectASouthWest.getX() - rectBNorthEast.getX()) == 0 && withinY) ||
+                (Math.abs(rectANorthEast.getY() - rectBSouthWest.getY()) == 0 && withinX) ||
+                (Math.abs(rectANorthEast.getX() - rectBSouthWest.getX()) == 0 && withinY));
     }
 }
