@@ -36,6 +36,8 @@ public class PermissionFacade {
     @Inject
     PlotService plotService;
 
+    static final String NOT_PERMITTED = "You are not permitted to ";
+
     public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
 
     public final Map<String, NationPermission> NATION_PERMISSIONS = getNationPermissions();
@@ -57,11 +59,9 @@ public class PermissionFacade {
         return permissionService.isPermitted(resident, subject, permission);
     }
 
-    public boolean isPermittedOrThrow(Player source, Subject subject, Permission permission) throws TownsCommandException {
-        if (isPermitted(source, subject, permission)) {
-            return true;
-        } else {
-            throw new TownsCommandException(Text.of("You are not allowed to ", permission.getName()));
+    public void checkPermitted(Player source, Subject subject, Permission permission, String message) throws TownsCommandException {
+        if (!isPermitted(source, subject, permission)) {
+            throw new TownsCommandException(NOT_PERMITTED + message);
         }
     }
 

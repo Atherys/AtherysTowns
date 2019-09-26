@@ -1,6 +1,5 @@
 package com.atherys.towns.api.command.exception;
 
-import com.atherys.towns.entity.Town;
 import com.atherys.towns.facade.TownsMessagingFacade;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.text.Text;

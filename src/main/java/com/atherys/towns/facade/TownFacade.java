@@ -1,6 +1,5 @@
 package com.atherys.towns.facade;
 
-import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
 import com.atherys.towns.AtherysTowns;
@@ -34,7 +33,7 @@ import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
-public class TownFacade implements TransactionFacade {
+public class TownFacade implements EconomyFacade {
 
     @Inject
     private PlotSelectionFacade plotSelectionFacade;
@@ -62,6 +61,9 @@ public class TownFacade implements TransactionFacade {
 
     @Inject
     private PermissionService permissionService;
+
+    @Inject
+    private TownsConfig townsConfig;
 
     TownFacade() {
     }
@@ -133,67 +135,51 @@ public class TownFacade implements TransactionFacade {
 
         Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(source, town, TownPermissions.SET_NAME)) {
-            townService.setTownName(town, name);
-            townsMsg.info(source, "Town name set.");
-        } else {
-            throw TownsCommandException.notPermittedForTown("name");
-        }
+        permissionFacade.checkPermitted(source, town, TownPermissions.SET_NAME, "change the town's name.");
+
+        townService.setTownName(town, name);
+        townsMsg.info(source, "Town name set.");
     }
 
     public void setPlayerTownDescription(Player player, Text description) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_DESCRIPTION)) {
-            townService.setTownDescription(town, description);
-            townsMsg.info(player, "Town description set.");
-        } else {
-            throw TownsCommandException.notPermittedForTown("description");
-        }
+        permissionFacade.checkPermitted(player, town, TownPermissions.SET_DESCRIPTION, "change the town's description.");
+
+        townService.setTownDescription(town, description);
+        townsMsg.info(player, "Town description set.");
     }
 
     public void setPlayerTownColor(Player player, TextColor color) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_COLOR)) {
-            townService.setTownColor(town, color);
-            townsMsg.info(player, "Town color set.");
-        } else {
-            throw TownsCommandException.notPermittedForTown("color");
-        }
+        permissionFacade.checkPermitted(player, town, TownPermissions.SET_COLOR, "change the town's color.");
+        townService.setTownColor(town, color);
+        townsMsg.info(player, "Town color set.");
     }
 
     public void setPlayerTownMotd(Player player, Text motd) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_MOTD)) {
-            townService.setTownMotd(town, motd);
-            townsMsg.info(player, "Town motd set.");
-        } else {
-            throw TownsCommandException.notPermittedForTown("motd");
-        }
+        permissionFacade.checkPermitted(player, town, TownPermissions.SET_MOTD, "change the town's MOTD.");
+        townService.setTownMotd(town, motd);
+        townsMsg.info(player, "Town motd set.");
     }
 
     public void setPlayerTownPvp(Player player, boolean pvp) throws TownsCommandException {
         Town town = getPlayerTown(player);
+        permissionFacade.checkPermitted(player, town, TownPermissions.SET_PVP, "change the town's PvP status.");
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_PVP)) {
-            townService.setTownPvp(town, pvp);
-            townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
-        } else {
-            throw new TownsCommandException("You are not permitted to change the town's PvP status.");
-        }
+        townService.setTownPvp(town, pvp);
+        townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
     }
 
     public void setPlayerTownJoinable(Player player, boolean joinable) throws TownsCommandException {
         Town town = getPlayerTown(player);
+        permissionFacade.checkPermitted(player, town, TownPermissions.SET_FREELY_JOINABLE, "change the town's joinable status.");
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.SET_FREELY_JOINABLE)) {
-            townService.setTownJoinable(town, joinable);
-            townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
-        } else {
-            throw new TownsCommandException("You are not permitted to change the town's joinable status.");
-        }
+        townService.setTownJoinable(town, joinable);
+        townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
     }
 
     public void ruinPlayerTown(Player player) throws TownsCommandException {
@@ -222,20 +208,18 @@ public class TownFacade implements TransactionFacade {
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(source, town, TownPermissions.UNCLAIM_PLOT)) {
-            Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() -> {
-                return new TownsCommandException("You are not currently standing on a claim area.");
-            });
+        permissionFacade.checkPermitted(source, town, TownPermissions.UNCLAIM_PLOT, "unclaim plots.");
 
-            if (town.getPlots().size() == 1) {
-                throw new TownsCommandException("You cannot unclaim your last remaining plot.");
-            }
+        Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() -> {
+            return new TownsCommandException("You are not currently standing on a claim area.");
+        });
 
-            townService.removePlotFromTown(town, plot);
-            townsMsg.info(source, "Plot abandoned.");
-        } else {
-            throw new TownsCommandException("You are not permitted to unclaim plots in the town.");
+        if (town.getPlots().size() == 1) {
+            throw new TownsCommandException("You cannot unclaim your last remaining plot.");
         }
+
+        townService.removePlotFromTown(town, plot);
+        townsMsg.info(source, "Plot abandoned.");
     }
 
     public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
@@ -243,61 +227,55 @@ public class TownFacade implements TransactionFacade {
 
         Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(source, town, TownPermissions.CLAIM_PLOT)) {
-            Plot plot = plotService.createPlotFromSelection(selection);
+        permissionFacade.checkPermitted(source, town, TownPermissions.CLAIM_PLOT, "claim plots.");
 
-            if (!plotService.plotBordersTown(town, plot)) {
-                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
-            }
+        Plot plot = plotService.createPlotFromSelection(selection);
 
-            if (plotService.plotIntersectsAnyOthers(plot)) {
-                throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
-            }
-
-            if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
-                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-            }
-
-            townService.claimPlotForTown(plot, town);
-
-            townsMsg.info(source, "Plot claimed.");
-        } else {
-            throw new TownsCommandException("You are not permitted to claim plots for the town.");
+        if (!plotService.plotBordersTown(town, plot)) {
+            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
         }
+
+        if (plotService.plotIntersectsAnyOthers(plot)) {
+            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+        }
+
+        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+        }
+
+        townService.claimPlotForTown(plot, town);
+
+        townsMsg.info(source, "Plot claimed.");
     }
 
-    public void inviteToTown(Player inviter, Player invitee) throws TownsCommandException {
-        Town town = getPlayerTown(inviter);
+    public void inviteToTown(Player source, Player invitee) throws TownsCommandException {
+        Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(inviter, town, TownPermissions.INVITE_RESIDENT)) {
-            if (partOfSameTown(inviter, invitee)) {
-                throw new TownsCommandException(invitee.getName(), " is already part of your town.");
-            }
+        permissionFacade.checkPermitted(source, town, TownPermissions.INVITE_RESIDENT, "invite people to the town.");
 
-            generateTownInvite(town).pollChat(invitee);
-        } else {
-            throw new TownsCommandException("You are not permitted to invite people to the town.");
+        if (partOfSameTown(source, invitee)) {
+            throw new TownsCommandException(invitee.getName(), " is already part of your town.");
         }
+
+        generateTownInvite(town).pollChat(invitee);
     }
 
     public void kickFromTown(Player player, User target) throws TownsCommandException {
         Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(target);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.KICK_RESIDENT)) {
-            if (town.equals(resident.getTown())) {
+        permissionFacade.checkPermitted(player, town, TownPermissions.KICK_RESIDENT, "kick residents.");
 
-                if (town.getLeader().equals(resident)) {
-                    throw new TownsCommandException("You cannot kick the leader of the town.");
-                }
+        if (town.equals(resident.getTown())) {
 
-                townService.removeResidentFromTown(resident, town);
-                townsMsg.info(player, GOLD, target.getName(), DARK_GREEN, " was kicked from the town.");
-            } else {
-                throw new TownsCommandException(target.getName(), " is not part of your town.");
+            if (town.getLeader().equals(resident)) {
+                throw new TownsCommandException("You cannot kick the leader of the town.");
             }
+
+            townService.removeResidentFromTown(resident, town);
+            townsMsg.info(player, GOLD, target.getName(), DARK_GREEN, " was kicked from the town.");
         } else {
-            throw new TownsCommandException("You are not permitted to kick residents.");
+            throw new TownsCommandException(target.getName(), " is not part of your town.");
         }
     }
 
@@ -324,6 +302,7 @@ public class TownFacade implements TransactionFacade {
 
     public void joinTown(Player player, String townName) throws TownsCommandException {
         Town town = getTownFromName(townName);
+
         if (town.isFreelyJoinable()) {
             townService.addResidentToTown(residentService.getOrCreate(player), town);
             joinTownMessage(player, town);
@@ -378,63 +357,69 @@ public class TownFacade implements TransactionFacade {
     }
 
     public void depositToTown(Player player, BigDecimal amount) throws TownsCommandException {
-        if (!AtherysTowns.economyIsEnabled()) {
-            throw TownsCommandException.economyNotEnabled();
-        }
+        checkEconomyEnabled();
 
         Town town = getPlayerTown(player);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK)) {
-            Optional<TransferResult> result = Economy.transferCurrency(
-                    player.getUniqueId(),
-                    town.getBank().toString(),
-                    config.CURRENCY,
-                    amount,
-                    Sponge.getCauseStackManager().getCurrentCause()
-            );
+        permissionFacade.checkPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK, "deposit to the town.");
 
-            if (result.isPresent()) {
-                Text feedback = getResultFeedback(
-                        result.get().getResult(),
-                        Text.of("Deposited", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town."),
-                        Text.of("You do not have enough to deposit."),
-                        Text.of("Depositing failed.")
-                );
-                townsMsg.info(player, feedback);
-            }
-        } else {
-            throw new TownsCommandException("You are not permitted to deposit to the town.");
+        if (townsConfig.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
+            throw new TownsCommandException("You must be inside your town to deposit.");
+        }
+
+        Optional<TransferResult> result = Economy.transferCurrency(
+                player.getUniqueId(),
+                town.getBank().toString(),
+                config.CURRENCY,
+                amount,
+                Sponge.getCauseStackManager().getCurrentCause()
+        );
+
+        if (result.isPresent()) {
+            Text feedback = getResultFeedback(
+                    result.get().getResult(),
+                    Text.of("Deposited", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                    Text.of("You do not have enough to deposit."),
+                    Text.of("Depositing failed.")
+            );
+            townsMsg.info(player, feedback);
         }
     }
 
     public void withdrawFromTown(Player player, BigDecimal amount) throws TownsCommandException {
-        if (!AtherysTowns.economyIsEnabled()) {
-            throw TownsCommandException.economyNotEnabled();
-        }
+        checkEconomyEnabled();
 
         Town town = getPlayerTown(player);
 
-        if (permissionFacade.isPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK)) {
-            Optional<TransferResult> result = Economy.transferCurrency(
-                    town.getBank().toString(),
-                    player.getUniqueId(),
-                    config.CURRENCY,
-                    amount,
-                    Sponge.getCauseStackManager().getCurrentCause()
-            );
+        permissionFacade.checkPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK, "withdraw from the town.");
 
-            if (result.isPresent()) {
-                Text feedback = getResultFeedback(
-                        result.get().getResult(),
-                        Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town."),
-                        Text.of("The town does not have enough to withdraw."),
-                        Text.of("Withdrawing failed.")
-                );
-                townsMsg.info(player, feedback);
-            }
-        } else {
-            throw new TownsCommandException("You are not permitted to withdraw from the town.");
+        if (townsConfig.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
+            throw new TownsCommandException("You must be inside your town to deposit.");
         }
+
+        Optional<TransferResult> result = Economy.transferCurrency(
+                town.getBank().toString(),
+                player.getUniqueId(),
+                config.CURRENCY,
+                amount,
+                Sponge.getCauseStackManager().getCurrentCause()
+        );
+
+        if (result.isPresent()) {
+            Text feedback = getResultFeedback(
+                    result.get().getResult(),
+                    Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town."),
+                    Text.of("The town does not have enough to withdraw."),
+                    Text.of("Withdrawing failed.")
+            );
+            townsMsg.info(player, feedback);
+        }
+    }
+
+    private boolean playerInsideTown(Player player, Town town) {
+        return plotService.getPlotByLocation(player.getLocation())
+                .map(plot -> plot.getTown().equals(town))
+                .orElse(false);
     }
 
     private void sendTownInfo(Town town, Player player) {
@@ -449,7 +434,7 @@ public class TownFacade implements TransactionFacade {
                 .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
 
         if (AtherysTowns.economyIsEnabled()) {
-            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString()).ifPresent(account -> {
+            Economy.getAccount(town.getBank().toString()).ifPresent(account -> {
                 townText.append(Text.of("Town balance: ", config.CURRENCY.format(account.getBalance(config.CURRENCY)), Text.NEW_LINE));
             });
         }

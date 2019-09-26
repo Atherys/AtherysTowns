@@ -1,7 +1,6 @@
 package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.exception.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
@@ -27,7 +26,7 @@ import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
-public class NationFacade implements TransactionFacade {
+public class NationFacade implements EconomyFacade {
     @Inject
     TownsConfig config;
 
@@ -59,169 +58,140 @@ public class NationFacade implements TransactionFacade {
         townsMsg.broadcastInfo("The nation of ", GOLD, nationName, DARK_GREEN, " was created.");
     }
 
-    public void setNationName(Player player, String nationName) throws TownsCommandException {
-        Nation nation = getPlayerNation(player);
+    public void setNationName(Player source, String nationName) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.SET_NAME, "change the nation's name");
 
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.SET_NAME)) {
-            nationService.setNationName(nation, nationName);
-            townsMsg.info(player, "Nation name set.");
-        } else {
-            throw TownsCommandException.notPermittedForNation("name");
-        }
+        nationService.setNationName(nation, nationName);
+        townsMsg.info(source, "Nation name set.");
     }
 
-    public void setNationDescription(Player player, Text nationDescription) throws TownsCommandException {
-        Nation nation = getPlayerNation(player);
+    public void setNationDescription(Player source, Text nationDescription) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.SET_DESCRIPTION, "change the nation's description");
 
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.SET_DESCRIPTION)) {
-            nationService.setNationDescription(nation, nationDescription);
-            townsMsg.info(player, "Nation description set.");
-        } else {
-            throw TownsCommandException.notPermittedForNation("description");
-        }
+        nationService.setNationDescription(nation, nationDescription);
+        townsMsg.info(source, "Nation description set.");
     }
 
-    public void setNationCapital(Player player, String townName) throws TownsCommandException {
-        Nation nation = getPlayerNation(player);
+    public void setNationCapital(Player source, String townName) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
         Town town = townFacade.getTownFromName(townName);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.SET_CAPITAL, "change the nation's capital");
 
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.SET_CAPITAL)) {
-            // If the town doesn't have a nation, or the town's nation isn't the nation
-            if (town.getNation() == null || town.getNation() != nation) {
-                throw new TownsCommandException("Town ", townName, " is not part of your nation.");
-            }
-
-            nationService.addTown(nation, town);
-            nationService.setCapital(nation, town);
-            townsMsg.info(player, "Nation capital set.");
-        } else {
-            throw TownsCommandException.notPermittedForNation("capital");
+        // If the town doesn't have a nation, or the town's nation isn't the nation
+        if (town.getNation() == null || town.getNation() != nation) {
+            throw new TownsCommandException("Town ", townName, " is not part of your nation.");
         }
+
+        nationService.addTown(nation, town);
+        nationService.setCapital(nation, town);
+        townsMsg.info(source, "Nation capital set.");
     }
 
-    public void addNationAlly(Player player, String nationName) throws TownsCommandException {
-        Nation nation = getPlayerNation(player);
-        Nation ally = getNationFromName(nationName);
+    public void addNationAlly(Player source, String nationName) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ALLY, "add allies.");
 
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.ADD_ALLY)) {
-            if (nation.equals(ally)) {
-                throw new TownsCommandException("Cannot add your nation as an ally.");
-            }
-            nationService.addNationAlly(nation, ally);
+        Nation ally = getNationFromName(nationName);
+        if (nation.equals(ally)) {
+            throw new TownsCommandException("Cannot add your own nation as an ally.");
         }
+        nationService.addNationAlly(nation, ally);
     }
 
     public void addNationNeutral(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
 
-        if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_NEUTRAL)) {
-            Nation neutral = getNationFromName(nationName);
-            nationService.addNationNeutral(nation, neutral);
-            townsMsg.info(source, "Your nation is now neutral with ", GOLD, nationName, DARK_GREEN, ".");
-        } else {
-            throw new TownsCommandException("You are not permitted to add neutral nations.");
-        }
+        Nation neutral = getNationFromName(nationName);
+        nationService.addNationNeutral(nation, neutral);
+        townsMsg.info(source, "Your nation is now neutral with ", GOLD, nationName, DARK_GREEN, ".");
     }
 
     public void addNationEnemy(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ENEMY, "add enemies.");
 
-        if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_ENEMY)) {
-            Nation enemy = getNationFromName(nationName);
-            nationService.addNationEnemy(nation, enemy);
-            townsMsg.info(source, "Your nation is now enemies with ", GOLD, nationName, DARK_GREEN, ".");
-        } else {
-            throw new TownsCommandException("You are not permitted to add enemy nations.");
-        }
+        Nation enemy = getNationFromName(nationName);
+        nationService.addNationEnemy(nation, enemy);
+        townsMsg.info(source, "Your nation is now enemies with ", GOLD, nationName, DARK_GREEN, ".");
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_PERMISSION,
+                "grant permissions for your nation.");
 
-        if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
-            permissionService.permit(residentService.getOrCreate(target), nation, permission);
+        permissionService.permit(residentService.getOrCreate(target), nation, permission);
 
-            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
-            target.getPlayer().ifPresent(player -> {
-                townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
-            });
-        } else {
-            throw new TownsCommandException("You are not permitted to grant permissions.");
-        }
+        townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
+        target.getPlayer().ifPresent(player -> {
+            townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
+        });
     }
 
     public void removeNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_PERMISSION,
+                "revoke permissions for your nation.");
 
-        if (permissionFacade.isPermitted(source, nation, NationPermissions.ADD_PERMISSION)) {
-            permissionService.remove(residentService.getOrCreate(target), nation, permission, true);
+        permissionService.remove(residentService.getOrCreate(target), nation, permission, true);
 
-            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
-            target.getPlayer().ifPresent(player -> {
-                townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
-            });
-        } else {
-            throw new TownsCommandException("You are not permitted to grant permissions.");
+        townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
+        target.getPlayer().ifPresent(player -> {
+            townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
+        });
+    }
+
+    public void depositToNation(Player source, BigDecimal amount) throws TownsCommandException {
+        checkEconomyEnabled();
+
+        Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.DEPOSIT_INTO_BANK, "deposit to your nation.");
+
+         Optional<TransferResult> result = Economy.transferCurrency(
+                source.getUniqueId(),
+                nation.getBank().toString(),
+                config.CURRENCY,
+                amount,
+                Sponge.getCauseStackManager().getCurrentCause()
+        );
+
+        if (result.isPresent()) {
+            Text feedback = getResultFeedback(
+                    result.get().getResult(),
+                    Text.of("Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation."),
+                    Text.of("You do not have enough to deposit."),
+                    Text.of("Depositing failed.")
+            );
+            townsMsg.info(source, feedback);
         }
     }
 
-    public void depositToNation(Player player, BigDecimal amount) throws TownsCommandException {
-        if (!AtherysTowns.economyIsEnabled()) {
-            throw TownsCommandException.economyNotEnabled();
-        }
+    public void withdrawFromNation(Player source, BigDecimal amount) throws TownsCommandException {
+        checkEconomyEnabled();
 
-        Nation nation = getPlayerNation(player);
+        Nation nation = getPlayerNation(source);
+        permissionFacade.checkPermitted(source, nation, NationPermissions.WITHDRAW_FROM_BANK,
+                "withdraw from your nation");
 
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
-             Optional<TransferResult> result = Economy.transferCurrency(
-                    player.getUniqueId(),
-                    nation.getBank().toString(),
-                    config.CURRENCY,
-                    amount,
-                    Sponge.getCauseStackManager().getCurrentCause()
+         Optional<TransferResult> result = Economy.transferCurrency(
+                nation.getBank().toString(),
+                source.getUniqueId(),
+                config.CURRENCY,
+                amount,
+                Sponge.getCauseStackManager().getCurrentCause()
+        );
+
+        if (result.isPresent()) {
+            Text feedback = getResultFeedback(
+                    result.get().getResult(),
+                    Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation."),
+                    Text.of("The town does not have enough to withdraw."),
+                    Text.of("Withdrawing failed.")
             );
-
-            if (result.isPresent()) {
-                Text feedback = getResultFeedback(
-                        result.get().getResult(),
-                        Text.of("Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation."),
-                        Text.of("You do not have enough to deposit."),
-                        Text.of("Depositing failed.")
-                );
-                townsMsg.info(player, feedback);
-            }
-        } else {
-            throw new TownsCommandException("You are not permitted to deposit to the nation.");
-        }
-    }
-
-    public void withdrawFromNation(Player player, BigDecimal amount) throws TownsCommandException {
-        if (!AtherysTowns.economyIsEnabled()) {
-            throw TownsCommandException.economyNotEnabled();
-        }
-
-        Nation nation = getPlayerNation(player);
-
-        if (permissionFacade.isPermitted(player, nation, NationPermissions.DEPOSIT_INTO_BANK)) {
-             Optional<TransferResult> result = Economy.transferCurrency(
-                    nation.getBank().toString(),
-                    player.getUniqueId(),
-                    config.CURRENCY,
-                    amount,
-                    Sponge.getCauseStackManager().getCurrentCause()
-            );
-
-            if (result.isPresent()) {
-                Text feedback = getResultFeedback(
-                        result.get().getResult(),
-                        Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation."),
-                        Text.of("The town does not have enough to withdraw."),
-                        Text.of("Withdrawing failed.")
-                );
-                townsMsg.info(player, feedback);
-            }
-        } else {
-            throw new TownsCommandException("You are not permitted to withdraw from the nation.");
+            townsMsg.info(source, feedback);
         }
     }
 
@@ -275,5 +245,4 @@ public class NationFacade implements TransactionFacade {
 
         return nation;
     }
-
 }
