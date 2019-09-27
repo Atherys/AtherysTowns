@@ -1,5 +1,7 @@
 package com.atherys.towns.service;
 
+import com.atherys.core.AtherysCore;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Town;
@@ -11,6 +13,7 @@ import org.spongepowered.api.text.Text;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class NationService {
@@ -57,6 +60,11 @@ public class NationService {
 
         permissionService.permit(nation.getLeader(), nation, config.DEFAULT_NATION_LEADER_PERMISSIONS);
         permissionService.permit(capital, nation, config.DEFAULT_NATION_TOWN_PERMISSIONS);
+
+        nation.setBank(UUID.randomUUID());
+        if (AtherysTowns.economyIsEnabled()) {
+            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank().toString());
+        }
 
         nationRepository.saveOne(nation);
 
