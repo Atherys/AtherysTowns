@@ -60,6 +60,7 @@ public class NationFacade implements EconomyFacade {
 
     public void setNationName(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_NAME, "change the nation's name");
 
         nationService.setNationName(nation, nationName);
@@ -68,6 +69,7 @@ public class NationFacade implements EconomyFacade {
 
     public void setNationDescription(Player source, Text nationDescription) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_DESCRIPTION, "change the nation's description");
 
         nationService.setNationDescription(nation, nationDescription);
@@ -77,6 +79,7 @@ public class NationFacade implements EconomyFacade {
     public void setNationCapital(Player source, String townName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
         Town town = townFacade.getTownFromName(townName);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_CAPITAL, "change the nation's capital");
 
         // If the town doesn't have a nation, or the town's nation isn't the nation
@@ -91,6 +94,7 @@ public class NationFacade implements EconomyFacade {
 
     public void addNationAlly(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ALLY, "add allies.");
 
         Nation ally = getNationFromName(nationName);
@@ -102,6 +106,7 @@ public class NationFacade implements EconomyFacade {
 
     public void addNationNeutral(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
 
         Nation neutral = getNationFromName(nationName);
@@ -111,6 +116,7 @@ public class NationFacade implements EconomyFacade {
 
     public void addNationEnemy(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ENEMY, "add enemies.");
 
         Nation enemy = getNationFromName(nationName);
@@ -120,6 +126,7 @@ public class NationFacade implements EconomyFacade {
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
+
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_PERMISSION,
                 "grant permissions for your nation.");
 

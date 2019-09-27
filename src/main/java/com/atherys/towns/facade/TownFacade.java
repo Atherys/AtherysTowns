@@ -326,28 +326,26 @@ public class TownFacade implements EconomyFacade {
     public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(source, town, TownPermissions.ADD_PERMISSION)) {
-            permissionService.permit(residentService.getOrCreate(source), town, permission);
+        permissionFacade.checkPermitted(source, town, TownPermissions.ADD_PERMISSION, "grant permissions.");
 
-            townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
-            target.getPlayer().ifPresent(player -> {
-                townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
-            });
-        } else {
-            throw new TownsCommandException("You are not permitted to grant permissions.");
-        }
+        permissionService.permit(residentService.getOrCreate(source), town, permission);
+
+        townsMsg.info(source, "Gave ", GOLD, target.getName(), " permission ", GOLD, permission.getId(), ".");
+        target.getPlayer().ifPresent(player -> {
+            townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
+        });
     }
 
     public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        if (permissionFacade.isPermitted(source, town, TownPermissions.REVOKE_PERMISSION)) {
-            permissionService.remove(residentService.getOrCreate(target), town, permission, true);
-            townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
-            target.getPlayer().ifPresent(player -> {
-                townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
-            });
-        }
+        permissionFacade.checkPermitted(source, town, TownPermissions.REVOKE_PERMISSION, "revoke permissions");
+
+        permissionService.remove(residentService.getOrCreate(target), town, permission, true);
+        townsMsg.info(source, "Removed permission ", GOLD, permission.getId(), DARK_GREEN, " from ", GOLD, target.getName(), DARK_GREEN, ".");
+        target.getPlayer().ifPresent(player -> {
+            townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
+        });
     }
 
     private boolean partOfSameTown(User user, User other) {
