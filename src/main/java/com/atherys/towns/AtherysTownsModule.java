@@ -35,6 +35,7 @@ public class AtherysTownsModule extends AbstractModule {
         // Services
         bind(NationService.class);
         bind(TownService.class);
+        bind(TownSpawnService.class);
         bind(PlotService.class);
         bind(ResidentService.class);
         bind(PermissionService.class);

@@ -34,6 +34,9 @@ public class TownsConfig extends PluginConfig {
     @Setting("currency")
     public Currency CURRENCY;
 
+    @Setting("town-spawn-cooldown-minutes")
+    public int TOWN_COOLDOWN = 0;
+
     @Setting("default-nation-leader-permissions")
     public Set<Permission> DEFAULT_NATION_LEADER_PERMISSIONS = ImmutableSet.of(
             NationPermissions.INVITE_TOWN,

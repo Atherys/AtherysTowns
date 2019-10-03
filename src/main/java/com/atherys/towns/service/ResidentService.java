@@ -17,6 +17,7 @@ import org.spongepowered.api.service.user.UserStorageService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +46,7 @@ public class ResidentService {
             newResident.setId(playerUuid);
             newResident.setName(playerName);
             newResident.setRegisteredOn(LocalDateTime.now());
+            newResident.setLastTownSpawn(LocalDateTime.now().minus(1, ChronoUnit.YEARS));
 
             residentRepository.saveOne(newResident);
 
@@ -79,6 +81,11 @@ public class ResidentService {
 
     public void removeResidentFriend(Resident resident, Resident friend) {
         resident.removeFriend(friend);
+        residentRepository.saveOne(resident);
+    }
+
+    public void setLastTownSpawn(Resident resident, LocalDateTime time) {
+        resident.setLastTownSpawn(time);
         residentRepository.saveOne(resident);
     }
 

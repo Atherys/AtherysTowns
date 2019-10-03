@@ -11,10 +11,7 @@ import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
-import com.atherys.towns.service.PermissionService;
-import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownService;
+import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -28,6 +25,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.TeleportHelper;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Optional;
 
 import static com.atherys.core.utils.Question.Answer;
@@ -44,6 +42,9 @@ public class TownFacade implements EconomyFacade {
 
     @Inject
     private TownService townService;
+
+    @Inject
+    private TownSpawnService townSpawnService;
 
     @Inject
     private ResidentService residentService;
@@ -423,10 +424,17 @@ public class TownFacade implements EconomyFacade {
         townService.setTownSpawn(town, source.getTransform());
     }
 
-    public void spawnPlayerTown(Player player) throws TownsCommandException {
-        Town town = getPlayerTown(player);
+    public void spawnPlayerTown(Player source) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+        Duration timeLeft = townSpawnService.cooldownLeft(source);
 
-        player.setTransformSafely(town.getSpawn());
+        if (timeLeft.isNegative()) {
+            long minutes = Math.round(timeLeft.abs().getSeconds() / 60.0);
+            String unit = minutes == 1 ? " minute" : " minutes";
+            throw new TownsCommandException(minutes + unit + " left on cooldown.");
+        }
+
+        townSpawnService.spawnPlayer(source, town);
     }
 
     private boolean playerInsideTown(Player player, Town town) {

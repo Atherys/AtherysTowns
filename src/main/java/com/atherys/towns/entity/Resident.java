@@ -35,6 +35,8 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     private LocalDateTime lastLogin;
 
+    private LocalDateTime lastTownSpawn;
+
     @Version
     private int version;
 
@@ -94,6 +96,14 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public LocalDateTime getLastTownSpawn() {
+        return lastTownSpawn;
+    }
+
+    public void setLastTownSpawn(LocalDateTime lastTownSpawn) {
+        this.lastTownSpawn = lastTownSpawn;
     }
 
     @Override
