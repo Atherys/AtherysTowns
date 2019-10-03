@@ -34,7 +34,9 @@ import org.spongepowered.api.entity.living.player.Player;
         TownKickCommand.class,
         JoinTownCommand.class,
         WithdrawTownCommand.class,
-        DepositTownCommand.class
+        DepositTownCommand.class,
+        SetTownSpawnCommand.class,
+        TownSpawnCommand.class
 })
 @Permission("atherystowns.town")
 @HelpCommand(

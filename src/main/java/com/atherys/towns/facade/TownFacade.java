@@ -25,6 +25,7 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.world.TeleportHelper;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -412,6 +413,20 @@ public class TownFacade implements EconomyFacade {
             );
             townsMsg.info(player, feedback);
         }
+    }
+
+    public void setPlayerTownSpawn(Player source) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+
+        permissionFacade.checkPermitted(source, town, TownPermissions.SET_SPAWN, "set the town spawn.");
+        townsMsg.info(source, "Town spawn set.");
+        townService.setTownSpawn(town, source.getTransform());
+    }
+
+    public void spawnPlayerTown(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        player.setTransformSafely(town.getSpawn());
     }
 
     private boolean playerInsideTown(Player player, Town town) {

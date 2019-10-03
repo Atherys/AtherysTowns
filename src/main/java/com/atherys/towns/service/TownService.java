@@ -15,6 +15,7 @@ import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -157,6 +158,11 @@ public class TownService {
 
     public void setTownJoinable(Town town, boolean joinable) {
         town.setFreelyJoinable(joinable);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownSpawn(Town town, Transform<World> spawn) {
+        town.setSpawn(spawn);
         townRepository.saveOne(town);
     }
 
