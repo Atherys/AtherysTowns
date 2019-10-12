@@ -19,7 +19,7 @@ public class TownSpawnCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().spawnPlayerTown(source);
+        AtherysTowns.getInstance().getTownSpawnCommand().spawnPlayerTown(source);
         return CommandResult.success();
     }
 }

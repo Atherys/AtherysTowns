@@ -37,6 +37,9 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     private LocalDateTime lastTownSpawn;
 
+    @Transient
+    private int warmupSecondsLeft;
+
     @Version
     private int version;
 
@@ -104,6 +107,14 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
 
     public void setLastTownSpawn(LocalDateTime lastTownSpawn) {
         this.lastTownSpawn = lastTownSpawn;
+    }
+
+    public int getWarmupSecondsLeft() {
+        return warmupSecondsLeft;
+    }
+
+    public void setWarmupSecondsLeft(int secondsLeft) {
+        warmupSecondsLeft = secondsLeft;
     }
 
     @Override

@@ -94,6 +94,16 @@ public class AtherysTowns {
         } catch (CommandService.AnnotatedCommandException e) {
             e.printStackTrace();
         }
+
+        if (components.config.TOWN_WARMUP < 0) {
+            logger.warn("Town spawn warmup is negative. Will default to zero.");
+            components.config.TOWN_WARMUP = 0;
+        }
+
+        if (components.config.TOWN_COOLDOWN < 0) {
+            components.config.TOWN_COOLDOWN = 0;
+            logger.warn("Town spawn cooldown is negative. Will default to zero.");
+        }
     }
 
     private void stop() {
@@ -188,6 +198,10 @@ public class AtherysTowns {
         return components.townFacade;
     }
 
+    public TownSpawnFacade getTownSpawnCommand() {
+        return components.townSpawnFacade;
+    }
+
     public TownAdminFacade getTownAdminFacade() {
         return components.townAdminFacade;
     }
@@ -265,6 +279,9 @@ public class AtherysTowns {
 
         @Inject
         private TownFacade townFacade;
+
+        @Inject
+        private TownSpawnFacade townSpawnFacade;
 
         @Inject
         private TownAdminFacade townAdminFacade;
