@@ -230,16 +230,16 @@ public class TownFacade implements EconomyFacade {
 
         Plot plot = plotService.createPlotFromSelection(selection);
 
-        if (!plotService.plotBordersTown(town, plot)) {
-            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
         }
 
         if (plotService.plotIntersectsAnyOthers(plot)) {
             throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
         }
 
-        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
-            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+        if (!plotService.plotBordersTown(town, plot)) {
+            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
         }
 
         townService.claimPlotForTown(plot, town);

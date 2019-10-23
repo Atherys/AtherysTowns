@@ -29,12 +29,12 @@ public class MathUtils {
 
     public static boolean vectorXZFitsInRange(Vector3d position, Vector2i lower, Vector2i upper) {
         return fitsInRange(position.getX(), lower.getX(), upper.getX()) &&
-                fitsInRange(position.getZ(), lower.getY(), upper.getY());
+                fitsInRange(position.getZ(), upper.getY(), lower.getY());
     }
 
     public static boolean vectorXZFitsInRange(Vector3i position, Vector2i lower, Vector2i upper) {
         return fitsInRange(position.getX(), lower.getX(), upper.getX()) &&
-                fitsInRange(position.getZ(), lower.getY(), upper.getY());
+                fitsInRange(position.getZ(), upper.getY(), lower.getY());
     }
 
     public static boolean fitsInRange(int number, int lower, int upper) {
@@ -46,22 +46,17 @@ public class MathUtils {
     }
 
     public static boolean overlaps(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
-        return rectASouthWest.getX() < rectBNorthEast.getX() &&
-               rectANorthEast.getX() > rectBSouthWest.getX() &&
-               rectANorthEast.getY() > rectBSouthWest.getY() &&
-               rectASouthWest.getY() < rectBNorthEast.getY();
+        return !(rectBNorthEast.getY() > rectASouthWest.getY() ||
+                 rectBSouthWest.getX() > rectANorthEast.getX() ||
+                 rectANorthEast.getY() > rectBSouthWest.getY() ||
+                 rectASouthWest.getX() > rectBNorthEast.getX());
+
+
     }
 
     public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
-        boolean withinX = ((rectBSouthWest.getX() >= rectASouthWest.getX() && rectBSouthWest.getX() <= rectANorthEast.getX()) ||
-                           (rectBNorthEast.getX() >= rectASouthWest.getX() && rectBNorthEast.getX() <= rectANorthEast.getX()));
-
-        boolean withinY = ((rectBNorthEast.getY() >= rectASouthWest.getY() && rectBNorthEast.getY() <= rectANorthEast.getY()) ||
-                           (rectBSouthWest.getY() >= rectASouthWest.getY() && rectBSouthWest.getY() <= rectANorthEast.getY()));
-
-        return ((Math.abs(rectASouthWest.getY() - rectBNorthEast.getY()) == 0 && withinX) ||
-                (Math.abs(rectASouthWest.getX() - rectBNorthEast.getX()) == 0 && withinY) ||
-                (Math.abs(rectANorthEast.getY() - rectBSouthWest.getY()) == 0 && withinX) ||
-                (Math.abs(rectANorthEast.getX() - rectBSouthWest.getX()) == 0 && withinY));
+        return overlaps(
+                rectASouthWest.add(-1, 1), rectANorthEast.add(1, -1), rectBSouthWest, rectBNorthEast
+        );
     }
 }

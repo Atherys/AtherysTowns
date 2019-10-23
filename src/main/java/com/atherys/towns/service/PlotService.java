@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
@@ -30,37 +31,39 @@ public class PlotService {
     public Plot createPlotFromSelection(PlotSelection selection) {
         Plot plot = new Plot();
 
-        Vector2d pA = Vector2d.from(selection.getPointA().getPosition().getX(), selection.getPointA().getPosition().getZ());
-        Vector2d pB = Vector2d.from(selection.getPointB().getPosition().getX(), selection.getPointB().getPosition().getZ());
+        Vector2d pA = selection.getPointA().getPosition().toVector2(true);
+        Vector2d pB = selection.getPointB().getPosition().toVector2(true);
 
         Vector2d pNE;
         Vector2d pSW;
 
-        //    +---+ pA
-        //    |   |
-        // pB +---+
-        if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
+        //              NE
+        //      +---+ pA
+        //      |   |
+        //   pB +---+
+        // SW
+        if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
             pNE = pA;
             pSW = pB;
 
             //    +---+ pB
             //    |   |
             // pA +---+
-        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
+        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
             pNE = pB;
             pSW = pA;
 
             // pB +---+
             //    |   |
             //    +---+ pA
-        } else if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
+        } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
             pNE = Vector2d.from(pA.getX(), pB.getY());
             pSW = Vector2d.from(pB.getX(), pA.getY());
 
             // pA +---+
             //    |   |
             //    +---+ pB
-        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
+        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
             pNE = Vector2d.from(pB.getX(), pA.getY());
             pSW = Vector2d.from(pA.getX(), pB.getY());
 
@@ -68,8 +71,16 @@ public class PlotService {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        plot.setNorthEastCorner(new Vector2i(Math.ceil(pNE.getX()), Math.ceil(pNE.getY())));
-        plot.setSouthWestCorner(Vector2i.from(pSW.getFloorX(), pSW.getFloorY()));
+        AtherysTowns.getInstance().getLogger().info("New Plot NorthEast: {}", pNE);
+        AtherysTowns.getInstance().getLogger().info("New Plot NorthWest: {}", pSW);
+
+        AtherysTowns.getInstance().getLogger().info("" + Math.ceil(pNE.getY()));
+
+        plot.setNorthEastCorner(new Vector2i(pNE.getFloorX(), pNE.getFloorY()));
+        plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY()));
+
+        AtherysTowns.getInstance().getLogger().info("New Plot NorthEast: {}", plot.getNorthEastCorner());
+        AtherysTowns.getInstance().getLogger().info("New Plot SouthWest: {}", plot.getSouthWestCorner());
 
         plot.setName(DEFAULT_PLOT_NAME);
 
@@ -114,7 +125,7 @@ public class PlotService {
 
     public boolean plotBordersTown(Town town, Plot plot) {
         for (Plot townPlot : town.getPlots()) {
-            if (!plotsBorder(townPlot, plot)) {
+            if (!plotsBorder(plot, townPlot)) {
                 return false;
             }
         }
