@@ -4,7 +4,7 @@ import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
@@ -20,12 +20,13 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.atherys.core.utils.Question.Answer;
@@ -56,6 +57,9 @@ public class TownFacade implements EconomyFacade {
     private ResidentFacade residentFacade;
 
     @Inject
+    private NationFacade nationFacade;
+
+    @Inject
     private PermissionFacade permissionFacade;
 
     @Inject
@@ -70,6 +74,14 @@ public class TownFacade implements EconomyFacade {
     public void createTown(Player player, String name) throws CommandException {
         if (name == null || name.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
+        }
+
+        if (townService.getTownFromName(name).isPresent()) {
+            throw new TownsCommandException("A town with that name already exists.");
+        }
+
+        if (name.length() > townsConfig.MAX_TOWN_NAME_LENGTH) {
+            throw new TownsCommandException("Your new name is longer than the maximum (", townsConfig.MAX_TOWN_NAME_LENGTH, ").");
         }
 
         if (hasPlayerTown(player)) {
@@ -101,7 +113,7 @@ public class TownFacade implements EconomyFacade {
                     player.getTransform(),
                     residentService.getOrCreate(player),
                     homePlot,
-                    Text.of(name)
+                    name
             );
 
             sendTownInfo(town, player);
@@ -115,16 +127,6 @@ public class TownFacade implements EconomyFacade {
 
     public void sendTownInfo(Player player) throws TownsCommandException {
         sendTownInfo(getPlayerTown(player), player);
-    }
-
-    public void sendTownInfo(Player player, Text townName) throws TownsCommandException {
-        if (townName == null || townName.isEmpty()) {
-            throw new TownsCommandException("Empty town name.");
-        }
-
-        Town town = townService.getTownFromName(townName).orElseThrow(() -> TownsCommandException.townNotFound(townName.toPlain()));
-
-        sendTownInfo(town, player);
     }
 
     public void setPlayerTownName(Player source, String name) throws TownsCommandException {
@@ -299,9 +301,7 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    public void joinTown(Player player, String townName) throws TownsCommandException {
-        Town town = getTownFromName(townName);
-
+    public void joinTown(Player player, Town town) throws TownsCommandException {
         if (town.isFreelyJoinable()) {
             townService.addResidentToTown(residentService.getOrCreate(player), town);
             joinTownMessage(player, town);
@@ -360,7 +360,7 @@ public class TownFacade implements EconomyFacade {
 
         permissionFacade.checkPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK, "deposit to the town.");
 
-        if (townsConfig.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
+        if (townsConfig.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
@@ -390,7 +390,7 @@ public class TownFacade implements EconomyFacade {
 
         permissionFacade.checkPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK, "withdraw from the town.");
 
-        if (townsConfig.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
+        if (townsConfig.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
@@ -421,39 +421,70 @@ public class TownFacade implements EconomyFacade {
         townService.setTownSpawn(town, source.getTransform());
     }
 
-    private boolean playerInsideTown(Player player, Town town) {
+    private boolean playerOutsideTown(Player player, Town town) {
         return plotService.getPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
     }
 
-    private void sendTownInfo(Town town, Player player) {
-        Text.Builder townText = Text.builder()
-                .append(Text.of("Town name: ", town.getName(), Text.NEW_LINE))
-                .append(Text.of("Town color: ", town.getColor(), town.getColor().getName(), RESET, Text.NEW_LINE))
-                .append(Text.of("Town MOTD: ", town.getMotd(), Text.NEW_LINE))
-                .append(Text.of("Town description: ", town.getDescription(), Text.NEW_LINE))
-                .append(Text.of("Town leader: ", town.getLeader().getName(), Text.NEW_LINE))
-                .append(Text.of("Town size: ", townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
-                .append(Text.of("Town PvP enabled: ", town.isPvpEnabled(), Text.NEW_LINE))
-                .append(Text.of("Town Freely Joinable: ", town.isFreelyJoinable(), Text.NEW_LINE));
+    public void sendTownInfo(Town town, MessageReceiver receiver) {
+        Text.Builder townText = Text.builder();
 
-        if (AtherysTowns.economyIsEnabled()) {
-            Economy.getAccount(town.getBank().toString()).ifPresent(account -> {
-                townText.append(Text.of("Town balance: ", config.CURRENCY.format(account.getBalance(config.CURRENCY)), Text.NEW_LINE));
-            });
-        }
+        townText
+                .append(townsMsg.createTownsHeader(town.getName()))
+                .append(Text.of(GOLD, town.getDescription(), Text.NEW_LINE));
 
-        Text.Builder townResidentsText = Text.builder();
-        town.getResidents().forEach(resident -> townResidentsText.append(Text.of(resident.getName(), ", ")));
-        townText.append(Text.of("Town residents: ", townResidentsText));
+        townText.append(Text.of(
+                DARK_GREEN, "Nation: ",
+                town.getNation() == null ? Text.of(RED, "None") : nationFacade.renderNation(town.getNation()),
+                Text.NEW_LINE
+        ));
 
-        player.sendMessage(townText.build());
+        townText
+                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
+                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
+                .append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
+                .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE));
+
+        townText.append(Text.of(
+                DARK_GREEN, "Residents [", GREEN, town.getResidents().size(), DARK_GREEN, "]: ",
+                GOLD, residentFacade.renderResidents(town.getResidents())
+        ));
+
+        receiver.sendMessage(townText.build());
     }
 
-    public Town getTownFromName(String townName) throws TownsCommandException {
-        return townService.getTownFromName(Text.of(townName))
-                .orElseThrow(() -> TownsCommandException.townNotFound(townName));
+    public Text renderTown(Town town) {
+        if (town == null) {
+            return Text.of(GOLD, "No Town");
+        }
+
+        return Text.builder()
+                .append(Text.of(GOLD, town.getName()))
+                .onHover(TextActions.showText(Text.of(
+                        GOLD, town.getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Nation: ", nationFacade.renderNation(town.getNation()), Text.NEW_LINE,
+                        DARK_GREEN, "Leader: ", GOLD, town.getLeader().getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Residents: ", GOLD, town.getResidents().size(), Text.NEW_LINE,
+                        DARK_GRAY, "Click to view"
+                )))
+                .onClick(TextActions.executeCallback(source -> sendTownInfo(town, source)))
+                .build();
+    }
+
+    public Text renderTowns(Collection<Town> towns) {
+        Text.Builder townsText = Text.builder();
+        int i = 0;
+        for (Town town : towns) {
+            i++;
+            townsText.append(
+                    Text.of(renderTown(town), i == towns.size() ? "" : ", ")
+            );
+        }
+
+        return townsText.build();
     }
 
     private void joinTownMessage(Player player, Town town) {

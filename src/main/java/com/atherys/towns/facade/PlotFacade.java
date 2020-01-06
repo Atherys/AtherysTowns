@@ -1,6 +1,6 @@
 package com.atherys.towns.facade;
 
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.service.PlotService;
@@ -85,6 +85,6 @@ public class PlotFacade {
         Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
         if (plotFrom.isPresent()) return;
 
-        player.sendTitle(Title.builder().stay(20).title(plot.get().getTown().getName()).build());
+        player.sendTitle(Title.builder().stay(20).title(Text.of(plot.get().getTown().getName())).build());
     }
 }

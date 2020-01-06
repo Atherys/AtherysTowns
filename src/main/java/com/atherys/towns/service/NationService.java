@@ -45,14 +45,16 @@ public class NationService {
         this.permissionService = permissionService;
     }
 
-    public Optional<Nation> getNationFromName(String townName) {
-        return nationRepository.findByName(Text.of(townName));
+    public Optional<Nation> getNationFromName(String nationName) {
+        return nationRepository.findByName(nationName);
     }
 
-    public Nation createNation(Text name, Town capital) {
+    public Nation createNation(String name, Town capital) {
         Nation nation = new Nation();
         nation.setName(name);
         nation.setDescription(DEFAULT_NATION_DESCRIPTION);
+
+        nationRepository.saveOne(nation);
 
         townService.setTownNation(capital, nation);
         nation.setCapital(capital);
@@ -72,7 +74,7 @@ public class NationService {
     }
 
     public void setNationName(Nation nation, String name) {
-        nation.setName(Text.of(name));
+        nation.setName(name);
         nationRepository.saveOne(nation);
     }
 
@@ -98,6 +100,12 @@ public class NationService {
 
         townRepository.saveOne(town);
         nationRepository.saveOne(nation);
+    }
+
+    public int getNationPopulation(Nation nation) {
+        return nation.getTowns().stream()
+                .mapToInt(town -> town.getResidents().size())
+                .reduce(0, Integer::sum);
     }
 
     public void setCapital(Nation nation, Town town) {

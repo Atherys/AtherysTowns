@@ -1,11 +1,10 @@
 package com.atherys.towns.facade;
 
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.text.Text;
 
 public class TownAdminFacade {
     @Inject
@@ -15,7 +14,7 @@ public class TownAdminFacade {
     TownsMessagingFacade townsMsg;
 
     public void decreaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
-        Town town = townService.getTownFromName(Text.of(townName)).orElseThrow(() -> {
+        Town town = townService.getTownFromName(townName).orElseThrow(() -> {
             return TownsCommandException.townNotFound(townName);
         });
 
@@ -28,7 +27,7 @@ public class TownAdminFacade {
     }
 
     public void increaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
-        Town town = townService.getTownFromName(Text.of(townName)).orElseThrow(() -> {
+        Town town = townService.getTownFromName(townName).orElseThrow(() -> {
             return TownsCommandException.townNotFound(townName);
         });
 

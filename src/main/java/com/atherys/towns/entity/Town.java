@@ -27,8 +27,7 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Convert(converter = TextConverter.class)
-    private Text name;
+    private String name;
 
     @Convert(converter = TextConverter.class)
     private Text description;
@@ -81,11 +80,11 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.id = id;
     }
 
-    public Text getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Text name) {
+    public void setName(String name) {
         this.name = name;
     }
 

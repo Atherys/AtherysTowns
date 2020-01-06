@@ -5,6 +5,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.entity.Nation;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -22,14 +24,14 @@ public class NationInfoCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.string(Text.of("nation"))
+                TownsElements.nation()
         };
     }
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull CommandSource src, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getNationFacade().sendNationInfo(src, args.<String>getOne("nation").get());
+        AtherysTowns.getInstance().getNationFacade().sendNationInfo(src, args.<Nation>getOne("nation").get());
         return CommandResult.success();
     }
 }

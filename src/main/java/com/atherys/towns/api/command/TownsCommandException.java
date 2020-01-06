@@ -1,13 +1,12 @@
-package com.atherys.towns.api.command.exception;
+package com.atherys.towns.api.command;
 
-import com.atherys.towns.facade.TownsMessagingFacade;
+import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
 public class TownsCommandException extends CommandException {
     public TownsCommandException(Text message) {
-        super(Text.of(TownsMessagingFacade.PREFIX, TextColors.RED, message));
+        super(AtherysTowns.getInstance().getTownsMessagingService().formatError(message));
     }
 
     public TownsCommandException(Object... msg) {

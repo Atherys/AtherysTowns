@@ -18,7 +18,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import javax.annotation.Nonnull;
 
 @Aliases({"describe", "description"})
-@Description("Sets the description of your town.")
+@Description("Sets the description of your town. You can use colors and styles with the format code (&).")
 @Permission("atherystowns.town.describe")
 public class SetTownDescriptionCommand implements ParameterizedCommand, PlayerCommand {
     @Override

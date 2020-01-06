@@ -50,8 +50,6 @@ public class MathUtils {
                  rectBSouthWest.getX() > rectANorthEast.getX() ||
                  rectANorthEast.getY() > rectBSouthWest.getY() ||
                  rectASouthWest.getX() > rectBNorthEast.getX());
-
-
     }
 
     public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {

@@ -71,7 +71,7 @@ public class TownService {
         this.nationRepository = nationRepository;
     }
 
-    public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, Text name) {
+    public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, String name) {
         Town town = new Town();
 
         town.setLeader(leader);
@@ -107,12 +107,12 @@ public class TownService {
         return town;
     }
 
-    public Optional<Town> getTownFromName(Text townName) {
+    public Optional<Town> getTownFromName(String townName) {
         return townRepository.findByName(townName);
     }
 
     public void setTownName(Town town, String name) {
-        town.setName(Text.of(name));
+        town.setName(name);
         townRepository.saveOne(town);
     }
 

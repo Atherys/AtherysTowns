@@ -1,7 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.plot.PlotSelection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

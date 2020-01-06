@@ -6,6 +6,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.entity.Town;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -23,14 +25,14 @@ public class SetNationCapitalCommand implements ParameterizedCommand, PlayerComm
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.string(Text.of("town"))
+                TownsElements.town()
         };
     }
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getNationFacade().setNationCapital(source, args.<String>getOne("town").get());
+        AtherysTowns.getInstance().getNationFacade().setNationCapital(source, args.<Town>getOne("town").get());
         return CommandResult.success();
     }
 }

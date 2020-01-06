@@ -14,6 +14,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
@@ -34,7 +35,7 @@ public class RemoveFriendCommand implements ParameterizedCommand, PlayerCommand 
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getResidentFacade().removeResidentFriend(
                 source,
-                args.<String>getOne("friend").get()
+                args.<User>getOne("friend").get()
         );
         return CommandResult.success();
     }

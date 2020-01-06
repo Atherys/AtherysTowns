@@ -2,11 +2,9 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
-import com.atherys.towns.facade.TownFacade;
-import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -18,7 +16,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 

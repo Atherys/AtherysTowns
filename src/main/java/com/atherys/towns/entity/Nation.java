@@ -21,8 +21,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Convert(converter = TextConverter.class)
-    private Text name;
+    private String name;
 
     @Convert(converter = TextConverter.class)
     private Text description;
@@ -83,11 +82,11 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         this.id = id;
     }
 
-    public Text getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Text name) {
+    public void setName(String name) {
         this.name = name;
     }
 

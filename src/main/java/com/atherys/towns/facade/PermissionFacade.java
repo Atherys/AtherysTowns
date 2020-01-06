@@ -1,6 +1,6 @@
 package com.atherys.towns.facade;
 
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.nation.NationPermission;
@@ -16,7 +16,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -1,7 +1,10 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.UserUtils;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
@@ -9,26 +12,44 @@ import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.statistic.Statistics;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
+
+import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class ResidentFacade {
 
     @Inject
-    ResidentService residentService;
+    private ResidentService residentService;
 
     @Inject
-    TownService townService;
+    private TownsMessagingFacade townsMsg;
 
     @Inject
-    TownsMessagingFacade townsMsg;
+    private NationFacade nationFacade;
+
+    @Inject
+    private TownFacade townFacade;
+
+    @Inject
+    private TownsConfig config;
 
     ResidentFacade() {
     }
@@ -42,43 +63,89 @@ public class ResidentFacade {
     }
 
     public void sendResidentInfo(MessageReceiver receiver, Resident resident) {
-        Text.Builder residentInfo = Text.builder()
-                .append(Text.of("Name: ", resident.getName()), Text.NEW_LINE)
-                .append(Text.of("Town: ", resident.getTown() == null ? "No town" : resident.getTown().getName(), Text.NEW_LINE))
-                .append(Text.of("Last online: ", resident.getLastLogin().toString(), Text.NEW_LINE))
-                .append(Text.of("First online: ", resident.getRegisteredOn().toString(), Text.NEW_LINE));
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(Locale.UK)
+                .withZone(ZoneId.systemDefault());
 
         boolean online = Sponge.getServer().getPlayer(resident.getUniqueId()).isPresent();
-        residentInfo.append(Text.of("Online: ", online ? "Yes" : "No", Text.NEW_LINE));
+        Text status = online ? Text.of(GREEN, "Online") : Text.of(RED, "Offline");
+        Text title = Text.of(GOLD, resident.getName(), DARK_GRAY, " (", status, DARK_GRAY, ")");
+        String padding = StringUtils.repeat("=", townsMsg.getPadding(title.toPlain().length()));
 
-        residentInfo.append(Text.of("Friends: "));
-        resident.getFriends().forEach(friend -> residentInfo.append(Text.of(friend.getName(), ", ")));
+        String lastPlayed = formatter.format(UserUtils.getUser(resident.getId()).get().get(Keys.LAST_DATE_PLAYED).get());
+
+        Text.Builder residentInfo = Text.builder()
+                .append(Text.of(DARK_GRAY, "[]", padding, "[ ", title, DARK_GRAY, " ]", padding, "[]", Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Town: ", townFacade.renderTown(resident.getTown()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Last online: ", GOLD, lastPlayed, Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "First online: ", GOLD, formatter.format(resident.getRegisteredOn()), Text.NEW_LINE))
+                .append(townsMsg.renderBank(resident.getId()));
+
+
+        if (!resident.getFriends().isEmpty()) {
+            residentInfo.append(Text.of(Text.NEW_LINE, DARK_GREEN, "Friends: ", GOLD, renderResidents(resident.getFriends())));
+        }
 
         receiver.sendMessage(residentInfo.build());
     }
 
+    public Text renderResident(Resident resident) {
+        return Text.builder()
+                .append(Text.of(GOLD, resident.getName()))
+                .onHover(TextActions.showText(
+                        Text.of(
+                                GOLD, resident.getName(), Text.NEW_LINE,
+                                DARK_GREEN, "Town: ", GOLD, resident.getTown() == null ? "No Town" : resident.getTown().getName(), Text.NEW_LINE,
+                                townsMsg.renderBank(resident.getId()), Text.NEW_LINE,
+                                DARK_GRAY, "Click to view"
+                        )
+                ))
+                .onClick(TextActions.executeCallback(source -> {
+                    sendResidentInfo(source, resident);
+                }))
+                .build();
+    }
+
+    public Text renderResidents(Collection<Resident> residents) {
+        Text.Builder residentsText = Text.builder();
+        int i = 0;
+        for (Resident resident : residents) {
+            i++;
+            residentsText.append(
+                    Text.of(renderResident(resident), i == residents.size() || i == config.MAX_RESIDENTS_DISPLAY ? "" : ", ")
+            );
+
+            if (i == config.MAX_RESIDENTS_DISPLAY) {
+                residentsText.append(Text.of(".."));
+            }
+        }
+
+        return residentsText.build();
+    }
+
     public void addResidentFriend(Player player, User target) throws TownsCommandException {
+        if (player.getUniqueId().equals(target.getUniqueId())) {
+            throw new TownsCommandException("Cannot add yourself as a friend.");
+        }
+
         residentService.addResidentFriend(
                 residentService.getOrCreate(player),
                 residentService.getOrCreate(target)
         );
 
-        townsMsg.info(player, TextColors.GOLD, target.getName(), TextColors.DARK_GREEN, " was added as a friend.");
+        townsMsg.info(player, GOLD, target.getName(), TextColors.DARK_GREEN, " was added as a friend.");
     }
 
-    public void removeResidentFriend(Player player, String name) throws TownsCommandException {
-        User friend = UserUtils.getUser(name).orElseThrow(() -> {
-            return TownsCommandException.playerNotFound(name);
-        });
-
+    public void removeResidentFriend(Player player, User target) throws TownsCommandException {
         Resident resident = residentService.getOrCreate(player);
-        Resident residentFriend = residentService.getOrCreate(friend);
+        Resident residentFriend = residentService.getOrCreate(target);
 
         if (resident.getFriends().contains(residentFriend)) {
             residentService.removeResidentFriend(resident, residentFriend);
-            townsMsg.info(player, TextColors.GOLD, name, TextColors.DARK_GREEN, " was removed from your friends.");
+            townsMsg.info(player, GOLD, target.getName(), TextColors.DARK_GREEN, " was removed from your friends.");
         } else {
-            townsMsg.error(player, name, " is not your friend.");
+            townsMsg.error(player, target.getName(), " is not your friend.");
         }
     }
 

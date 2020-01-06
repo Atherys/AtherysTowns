@@ -37,7 +37,7 @@ public class NationRepository extends CachedHibernateRepository<Nation, Long> {
         return townsCache.getNationCache().getAll();
     }
 
-    public Optional<Nation> findByName(Text townName) {
-        return cache.findOne(n -> n.getName().equals(townName));
+    public Optional<Nation> findByName(String nationName) {
+        return cache.findOne(n -> n.getName().equals(nationName));
     }
 }

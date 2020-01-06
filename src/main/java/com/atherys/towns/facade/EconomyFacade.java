@@ -1,7 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import org.spongepowered.api.service.economy.transaction.ResultType;
 import org.spongepowered.api.text.Text;
 

@@ -5,6 +5,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.entity.Town;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -23,7 +25,7 @@ public class CreateNationCommand implements ParameterizedCommand {
     public CommandElement[] getArguments() {
         return new CommandElement[]{
                 GenericArguments.string(Text.of("name")),
-                GenericArguments.string(Text.of("capital"))
+                TownsElements.town()
         };
     }
 
@@ -32,7 +34,7 @@ public class CreateNationCommand implements ParameterizedCommand {
     public CommandResult execute(@Nonnull CommandSource src, CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getNationFacade().createNation(
                 args.<String>getOne("name").get(),
-                args.<String>getOne("capital").get()
+                args.<Town>getOne("capital").get()
         );
         return CommandResult.success();
     }

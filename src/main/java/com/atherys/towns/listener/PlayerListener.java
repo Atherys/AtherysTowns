@@ -25,5 +25,4 @@ public class PlayerListener {
             plotFacade.onPlayerMove(event.getFromTransform(), event.getToTransform(), (Player) event.getTargetEntity());
             townSpawnFacade.onPlayerMove(player);
         }
-    }
-}
+    } }

@@ -25,6 +25,15 @@ public class TownsConfig extends PluginConfig {
     @Setting("default-town-max-size")
     public int DEFAULT_TOWN_MAX_SIZE = 4096;
 
+    @Setting("max-town-name-size")
+    public int MAX_TOWN_NAME_LENGTH = 25;
+
+    @Setting("max-nation-name-size")
+    public int MAX_NATION_NAME_LENGTH = 25;
+
+    @Setting("max-residents-to-display")
+    public int MAX_RESIDENTS_DISPLAY = 25;
+
     @Setting("economy-enabled")
     public boolean ECONOMY = true;
 

@@ -71,16 +71,8 @@ public class PlotService {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        AtherysTowns.getInstance().getLogger().info("New Plot NorthEast: {}", pNE);
-        AtherysTowns.getInstance().getLogger().info("New Plot NorthWest: {}", pSW);
-
-        AtherysTowns.getInstance().getLogger().info("" + Math.ceil(pNE.getY()));
-
         plot.setNorthEastCorner(new Vector2i(pNE.getFloorX(), pNE.getFloorY()));
         plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY()));
-
-        AtherysTowns.getInstance().getLogger().info("New Plot NorthEast: {}", plot.getNorthEastCorner());
-        AtherysTowns.getInstance().getLogger().info("New Plot SouthWest: {}", plot.getSouthWestCorner());
 
         plot.setName(DEFAULT_PLOT_NAME);
 
@@ -149,8 +141,8 @@ public class PlotService {
     }
 
     public Vector2i getPlotSize(Plot plot) {
-        int sizeX = plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX();
-        int sizeY = plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY();
+        int sizeX = Math.abs(plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX());
+        int sizeY = Math.abs(plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY());
         return new Vector2i(sizeX, sizeY);
     }
 }

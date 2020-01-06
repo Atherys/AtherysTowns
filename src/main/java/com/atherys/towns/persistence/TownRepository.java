@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.text.Text;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Singleton
@@ -22,7 +23,7 @@ public class TownRepository extends CachedHibernateRepository<Town, Long> {
         this.townsCache = townsCache;
     }
 
-    public Optional<Town> findByName(Text townName) {
+    public Optional<Town> findByName(String townName) {
         return cache.findOne(t -> t.getName().equals(townName));
     }
 
@@ -34,5 +35,9 @@ public class TownRepository extends CachedHibernateRepository<Town, Long> {
                 cache.add(town);
             }
         });
+    }
+
+    public Collection<Town> getAll() {
+        return townsCache.getTownCache().getAll();
     }
 }

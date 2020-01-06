@@ -6,6 +6,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.entity.Nation;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -23,14 +25,14 @@ public class AddNationAllyCommand implements ParameterizedCommand, PlayerCommand
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.string(Text.of("nation"))
+                TownsElements.nation()
         };
     }
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getNationFacade().addNationAlly(source, args.<String>getOne("nation").get());
+        AtherysTowns.getInstance().getNationFacade().addNationAlly(source, args.<Nation>getOne("nation").get());
         return CommandResult.success();
     }
 }

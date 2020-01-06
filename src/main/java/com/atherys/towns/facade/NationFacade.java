@@ -2,7 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.exception.TownsCommandException;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.entity.Nation;
@@ -16,14 +16,16 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Optional;
 
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class NationFacade implements EconomyFacade {
@@ -40,6 +42,9 @@ public class NationFacade implements EconomyFacade {
     TownFacade townFacade;
 
     @Inject
+    ResidentFacade residentFacade;
+
+    @Inject
     PermissionFacade permissionFacade;
 
     @Inject
@@ -51,10 +56,16 @@ public class NationFacade implements EconomyFacade {
     NationFacade() {
     }
 
-    public void createNation(String nationName, String capitalName) throws TownsCommandException {
-        Town town = townFacade.getTownFromName(capitalName);
+    public void createNation(String nationName, Town capital) throws TownsCommandException {
+        if (nationName.length() > config.MAX_NATION_NAME_LENGTH) {
+            throw new TownsCommandException("Your name is longer than the maximum (", config.MAX_NATION_NAME_LENGTH, ").");
+        }
 
-        nationService.createNation(Text.of(nationName), town);
+        if (nationService.getNationFromName(nationName).isPresent()) {
+            throw new TownsCommandException("A nation with that name already exists.");
+        }
+
+        nationService.createNation(nationName, capital);
         townsMsg.broadcastInfo("The nation of ", GOLD, nationName, DARK_GREEN, " was created.");
     }
 
@@ -76,15 +87,14 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation description set.");
     }
 
-    public void setNationCapital(Player source, String townName) throws TownsCommandException {
+    public void setNationCapital(Player source, Town town) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-        Town town = townFacade.getTownFromName(townName);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_CAPITAL, "change the nation's capital");
 
         // If the town doesn't have a nation, or the town's nation isn't the nation
         if (town.getNation() == null || town.getNation() != nation) {
-            throw new TownsCommandException("Town ", townName, " is not part of your nation.");
+            throw new TownsCommandException("Town ", town.getName(), " is not part of your nation.");
         }
 
         nationService.addTown(nation, town);
@@ -92,36 +102,33 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
-    public void addNationAlly(Player source, String nationName) throws TownsCommandException {
+    public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ALLY, "add allies.");
 
-        Nation ally = getNationFromName(nationName);
         if (nation.equals(ally)) {
             throw new TownsCommandException("Cannot add your own nation as an ally.");
         }
         nationService.addNationAlly(nation, ally);
     }
 
-    public void addNationNeutral(Player source, String nationName) throws TownsCommandException {
+    public void addNationNeutral(Player source, Nation neutral) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
 
-        Nation neutral = getNationFromName(nationName);
         nationService.addNationNeutral(nation, neutral);
-        townsMsg.info(source, "Your nation is now neutral with ", GOLD, nationName, DARK_GREEN, ".");
+        townsMsg.info(source, "Your nation is now neutral with ", GOLD, neutral.getName(), DARK_GREEN, ".");
     }
 
-    public void addNationEnemy(Player source, String nationName) throws TownsCommandException {
+    public void addNationEnemy(Player source, Nation enemy) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ENEMY, "add enemies.");
 
-        Nation enemy = getNationFromName(nationName);
         nationService.addNationEnemy(nation, enemy);
-        townsMsg.info(source, "Your nation is now enemies with ", GOLD, nationName, DARK_GREEN, ".");
+        townsMsg.info(source, "Your nation is now enemies with ", GOLD, DARK_GREEN, ".");
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
@@ -207,39 +214,86 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void sendNationInfo(MessageReceiver receiver, Nation nation) {
-        Text.Builder info = Text.builder();
-        info.append(Text.of("Name: "), nation.getName(), Text.NEW_LINE)
-                .append(Text.of("Description: "), nation.getDescription(), Text.NEW_LINE)
-                .append(Text.of("Capital: "), nation.getCapital().getName(), Text.NEW_LINE)
-                .append(Text.of("Leader: ", nation.getLeader().getName()), Text.NEW_LINE)
-                .append(Text.of("Allies: "));
+        Text.Builder nationInfo = Text.builder();
 
-        nation.getAllies().forEach(n -> info.append(n.getName(), Text.of(", ")));
-        info.append(Text.NEW_LINE);
-        info.append(Text.of("Enemies: "));
-        nation.getEnemies().forEach(n -> info.append(n.getName(), Text.of(", ")));
-        info.append(Text.NEW_LINE);
+        nationInfo.append(townsMsg.createTownsHeader(nation.getName()));
+        
+        if (!nation.getDescription().equals(NationService.DEFAULT_NATION_DESCRIPTION)) {
+            nationInfo.append(nation.getDescription(), Text.NEW_LINE);
+        }
 
-        receiver.sendMessage(info.build());
+        nationInfo
+                .append(Text.of(DARK_GREEN, "Capital: ", GOLD, townFacade.renderTown(nation.getCapital()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(nation.getLeader())), Text.NEW_LINE)
+                .append(townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE)
+                .append(Text.of(DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation)), Text.NEW_LINE)
+                .append(Text.of(
+                        DARK_GREEN, "Towns [", GREEN, nation.getTowns().size(), DARK_GREEN, "]: ",
+                        GOLD, townFacade.renderTowns(nation.getTowns())
+                ));
+
+        if (!nation.getAllies().isEmpty()) {
+            nationInfo.append(Text.of(DARK_GREEN, "Allies: ", renderNations(nation.getAllies())), Text.NEW_LINE);
+        }
+
+        if (!nation.getEnemies().isEmpty()) {
+            nationInfo.append(Text.of(DARK_GREEN, "Enemies: ", renderNations(nation.getEnemies())), Text.NEW_LINE);
+        }
+
+        receiver.sendMessage(nationInfo.build());
     }
 
-    public void sendNationInfo(MessageReceiver receiver, String nationName) throws TownsCommandException {
-        sendNationInfo(receiver, getNationFromName(nationName));
+    public Text renderNation(Nation nation) {
+        if (nation == null) {
+            return Text.of(GOLD, "No Nation");
+        }
+
+        return Text.builder()
+                .append(Text.of(GOLD, nation.getName()))
+                .onHover(TextActions.showText(Text.of(
+                        GOLD, nation.getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Leader: ", GOLD, nation.getLeader().getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Towns: ", GOLD, nation.getTowns().size(), Text.NEW_LINE,
+                        DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation), Text.NEW_LINE,
+                        townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE,
+                        DARK_GRAY, "Click to view"
+                )))
+                .onClick(TextActions.executeCallback(source -> sendNationInfo(source, nation)))
+                .build();
+    }
+
+    public Text renderNations(Collection<Nation> nations) {
+        Text.Builder nationsText = Text.builder();
+        int i = 0;
+        for (Nation nation: nations) {
+            i++;
+            nationsText.append(
+                    Text.of(renderNation(nation), i == nations.size() ? "" : ", ")
+            );
+        }
+
+        return nationsText.build();
     }
 
     public void listNations(MessageReceiver receiver) {
-        Text.Builder nations = Text.builder().append(Text.of("Nations: "));
-        nationService.getAllNations().forEach(nation -> {
-            nations.append(Text.of(nation.getName(), "," ));
-        });
+        Text.Builder nationList = Text.builder()
+                .append(Text.of(DARK_GRAY, "[]====[ ", GOLD, "Nations", DARK_GRAY, " ]====[]", Text.NEW_LINE));
 
-        receiver.sendMessage(nations.build());
-    }
+        int i = 1;
+        Collection<Nation> allNations = nationService.getAllNations();
+        for (Nation nation : allNations) {
+            nationList.append(Text.of(DARK_GREEN, "- ", renderNation(nation)));
+            if (i < allNations.size()) {
+                nationList.append(Text.NEW_LINE);
+            }
+            i++;
+        }
 
-    public Nation getNationFromName(String nationName) throws TownsCommandException {
-        return nationService.getNationFromName(nationName).orElseThrow(() -> {
-            return TownsCommandException.nationNotFound(nationName);
-        });
+        receiver.sendMessage(nationList.build());
+
+        //Text.Builder nations = Text.builder().append(Text.of(DARK_GREEN, "Nations: ", renderNations(nationService.getAllNations())));
+
+        //receiver.sendMessage(nations.build());
     }
 
     public Nation getPlayerNation(Player player) throws TownsCommandException {
