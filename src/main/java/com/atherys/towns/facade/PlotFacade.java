@@ -16,7 +16,8 @@ import org.spongepowered.api.world.World;
 
 import java.util.Optional;
 
-import static org.spongepowered.api.text.format.TextColors.*;
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
 public class PlotFacade {

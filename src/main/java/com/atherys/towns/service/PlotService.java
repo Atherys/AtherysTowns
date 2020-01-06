@@ -1,6 +1,5 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.entity.Plot;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;

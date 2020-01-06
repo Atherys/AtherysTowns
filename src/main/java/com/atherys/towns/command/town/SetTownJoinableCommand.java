@@ -1,6 +1,5 @@
 package com.atherys.towns.command.town;
 
-import com.atherys.core.AtherysCore;
 import com.atherys.core.command.ParameterizedCommand;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;

@@ -1,7 +1,6 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.AtherysCore;
-import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.entity.Nation;
@@ -15,7 +14,6 @@ import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;

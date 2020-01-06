@@ -1,15 +1,12 @@
 package com.atherys.towns.facade;
 
-import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.UserUtils;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.entity.Nation;
 import com.atherys.towns.entity.Resident;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -17,8 +14,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.profile.GameProfile;
-import org.spongepowered.api.statistic.Statistics;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;

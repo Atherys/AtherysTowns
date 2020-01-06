@@ -6,7 +6,6 @@ import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.text.Text;
 
 import java.util.Collection;
 import java.util.Optional;
