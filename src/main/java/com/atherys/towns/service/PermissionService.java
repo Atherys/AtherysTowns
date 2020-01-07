@@ -4,6 +4,7 @@ import com.atherys.towns.api.permission.Actor;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.nation.NationPermission;
+import com.atherys.towns.api.permission.role.Role;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.entity.*;
@@ -55,6 +56,18 @@ public class PermissionService {
     public void permit(Actor user, Subject subject, Permission permission, boolean permitted) {
         PermissionNode node = createPermissionNode(user, subject, permission, permitted);
         permissionRepository.saveOne(node);
+    }
+
+    public void grant(Resident resident, TownRole role) {
+        resident.getTownRoles().add(role);
+    }
+
+    public void grant(Resident resident, NationRole role) {
+        resident.getNationRoles().add(role);
+    }
+
+    public void revoke(Resident resident, Role role) {
+
     }
 
     public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {

@@ -4,6 +4,7 @@ import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.entity.Nation;
+import com.atherys.towns.entity.NationRole;
 import com.atherys.towns.entity.Town;
 import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -26,6 +27,8 @@ public class NationService {
 
     private PermissionService permissionService;
 
+    private ResidentService residentService;
+
     private TownRepository townRepository;
 
     private TownsConfig config;
@@ -36,13 +39,14 @@ public class NationService {
             TownService townService,
             TownRepository townRepository,
             TownsConfig config,
-            PermissionService permissionService
-    ) {
+            PermissionService permissionService,
+            ResidentService residentService) {
         this.nationRepository = nationRepository;
         this.townService = townService;
         this.townRepository = townRepository;
         this.config = config;
         this.permissionService = permissionService;
+        this.residentService = residentService;
     }
 
     public Optional<Nation> getNationFromName(String nationName) {
@@ -60,8 +64,16 @@ public class NationService {
         nation.setCapital(capital);
         nation.setLeader(capital.getLeader());
 
-        permissionService.permit(nation.getLeader(), nation, config.DEFAULT_NATION_LEADER_PERMISSIONS);
-        permissionService.permit(capital, nation, config.DEFAULT_NATION_TOWN_PERMISSIONS);
+        NationRole leaderRole = permissionService.getNationLeaderRole();
+        NationRole memberRole = permissionService.getNationDefaultRole();
+
+        residentService.grantRole(nation.getLeader(), leaderRole);
+
+        // TODO: This will update every resident of the town separately, which is inefficient
+        capital.getResidents().forEach(resident -> residentService.grantRole(resident, memberRole));
+
+        // permissionService.permit(nation.getLeader(), nation, config.DEFAULT_NATION_LEADER_PERMISSIONS);
+        // permissionService.permit(capital, nation, config.DEFAULT_NATION_TOWN_PERMISSIONS);
 
         nation.setBank(UUID.randomUUID());
         if (AtherysTowns.economyIsEnabled()) {

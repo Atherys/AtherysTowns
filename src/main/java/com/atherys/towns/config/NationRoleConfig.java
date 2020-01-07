@@ -1,0 +1,49 @@
+package com.atherys.towns.config;
+
+import com.atherys.towns.api.permission.nation.NationPermission;
+import com.atherys.towns.api.permission.town.TownPermission;
+import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@ConfigSerializable
+public class NationRoleConfig {
+
+    @Setting("short-name")
+    private String shortName;
+
+    @Setting("name")
+    private String name;
+
+    @Setting("nation-permissions")
+    private Set<NationPermission> townPermissions = new HashSet<>();
+
+    public NationRoleConfig() {
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<NationPermission> getTownPermissions() {
+        return townPermissions;
+    }
+
+    public void setTownPermissions(Set<NationPermission> townPermissions) {
+        this.townPermissions = townPermissions;
+    }
+}

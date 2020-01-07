@@ -99,8 +99,7 @@ public class TownService {
 
         residentRepository.saveOne(leader);
 
-        permissionService.permit(leader, town, config.DEFAULT_TOWN_LEADER_PERMISSIONS);
-        permissionService.permit(town, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        permissionService.permit(leader, town, permissionService.getTownLeaderRole());
 
         return town;
     }

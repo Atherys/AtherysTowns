@@ -1,9 +1,7 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.entity.*;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -119,5 +117,25 @@ public class ResidentService {
 
     public boolean isResidentTownLeader(Resident resident, Town town) {
         return town.getLeader().getId().equals(resident.getId());
+    }
+
+    public void grantRole(Resident resident, TownRole role) {
+        resident.getTownRoles().add(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void grantRole(Resident resident, NationRole role) {
+        resident.getNationRoles().add(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void removeRole(Resident resident, TownRole role) {
+        resident.getTownRoles().remove(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void removeRole(Resident resident, NationRole role) {
+        resident.getNationRoles().remove(role);
+        residentRepository.saveOne(resident);
     }
 }
