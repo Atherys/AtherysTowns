@@ -31,6 +31,10 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
     )
     private Set<Resident> friends = new HashSet<>();
 
+    private Set<TownRole> townRoles;
+
+    private Set<NationRole> nationRoles;
+
     private LocalDateTime registeredOn;
 
     private LocalDateTime lastLogin;
@@ -77,12 +81,20 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
         this.friends = friends;
     }
 
-    public boolean addFriend(Resident friend) {
-        return friends.add(friend);
+    public Set<TownRole> getTownRoles() {
+        return townRoles;
     }
 
-    public boolean removeFriend(Resident friend) {
-        return friends.remove(friend);
+    public void setTownRoles(Set<TownRole> townRoles) {
+        this.townRoles = townRoles;
+    }
+
+    public Set<NationRole> getNationRoles() {
+        return nationRoles;
+    }
+
+    public void setNationRoles(Set<NationRole> nationRoles) {
+        this.nationRoles = nationRoles;
     }
 
     public LocalDateTime getRegisteredOn() {
@@ -113,8 +125,16 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
         return warmupSecondsLeft;
     }
 
-    public void setWarmupSecondsLeft(int secondsLeft) {
-        warmupSecondsLeft = secondsLeft;
+    public void setWarmupSecondsLeft(int warmupSecondsLeft) {
+        this.warmupSecondsLeft = warmupSecondsLeft;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     @Override
@@ -130,13 +150,5 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    protected int getVersion() {
-        return version;
-    }
-
-    protected void setVersion(int version) {
-        this.version = version;
     }
 }

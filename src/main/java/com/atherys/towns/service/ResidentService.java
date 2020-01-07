@@ -75,12 +75,12 @@ public class ResidentService {
     }
 
     public void addResidentFriend(Resident resident, Resident friend) {
-        resident.addFriend(friend);
+        resident.getFriends().add(friend);
         residentRepository.saveOne(resident);
     }
 
     public void removeResidentFriend(Resident resident, Resident friend) {
-        resident.removeFriend(friend);
+        resident.getFriends().remove(friend);
         residentRepository.saveOne(resident);
     }
 
