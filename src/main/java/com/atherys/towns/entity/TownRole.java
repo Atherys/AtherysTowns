@@ -4,8 +4,10 @@ import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.role.Role;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Objects;
@@ -21,8 +23,10 @@ public class TownRole implements Role<TownPermission> {
 
     private String name;
 
+    @Convert(converter = PermissionConverter.class)
     private Set<TownPermission> permissions;
 
+    @Convert(converter = PermissionConverter.class)
     private Set<WorldPermission> worldPermissions;
 
     public TownRole() {

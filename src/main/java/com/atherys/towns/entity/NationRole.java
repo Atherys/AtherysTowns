@@ -2,8 +2,10 @@ package com.atherys.towns.entity;
 
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.role.Role;
+import com.atherys.towns.persistence.converter.PermissionConverter;
 
 import javax.annotation.Nonnull;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Objects;
@@ -19,6 +21,7 @@ public class NationRole implements Role<NationPermission> {
 
     private String name;
 
+    @Convert(converter = PermissionConverter.class)
     private Set<NationPermission> permissions;
 
     public NationRole() {
