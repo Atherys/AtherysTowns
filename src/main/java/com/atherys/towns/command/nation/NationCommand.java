@@ -27,7 +27,8 @@ import javax.annotation.Nonnull;
         AddNationNeutralCommand.class,
         NationListCommand.class,
         DepositNationCommand.class,
-        WithdrawNationCommand.class
+        WithdrawNationCommand.class,
+        NationRoleCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {
