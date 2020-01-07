@@ -3,6 +3,7 @@ package com.atherys.towns.entity;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.role.Role;
 import com.atherys.towns.api.permission.town.TownPermission;
+import com.atherys.towns.api.permission.world.WorldPermission;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Entity;
@@ -21,6 +22,8 @@ public class TownRole implements Role<TownPermission> {
     private String name;
 
     private Set<TownPermission> permissions;
+
+    private Set<WorldPermission> worldPermissions;
 
     public TownRole() {
     }
@@ -60,6 +63,14 @@ public class TownRole implements Role<TownPermission> {
 
     public void setPermissions(Set<TownPermission> permissions) {
         this.permissions = permissions;
+    }
+
+    public Set<WorldPermission> getWorldPermissions() {
+        return worldPermissions;
+    }
+
+    public void setWorldPermissions(Set<WorldPermission> worldPermissions) {
+        this.worldPermissions = worldPermissions;
     }
 
     @Override
