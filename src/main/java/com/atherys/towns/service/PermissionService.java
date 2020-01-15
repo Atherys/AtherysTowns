@@ -10,8 +10,10 @@ import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.entity.*;
 import com.atherys.towns.persistence.PermissionRepository;
 import com.google.inject.Singleton;
+import org.apache.commons.lang3.ObjectUtils;
 
 import javax.inject.Inject;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -87,9 +89,13 @@ public class PermissionService {
     /**
      * Check if the provided Actor has the permissions to act upon the provided subject.
      * <br><br>
-     * This method will first check if the actor is a Resident, in which case it will go through the
-     * resident's nation and town roles, and afterwards it will check for explicit permissions ( see {@link #isExplicitlyPermitted(Actor, Subject, Permission)} )
-     *
+     * This method will also account for Resident Town and Nation roles.
+     * Roles will only be checked if:<br>
+     * * The actor is of type Resident<br>
+     * * The subject is a Town, and is the same Town that the actor is a part of<br>
+     * * The subject is a Nation, and is the same Nation that the actor is a part of
+     * <br><br>
+     * If the above conditions are not met, explicit permissions will be checked instead. See {@link #isExplicitlyPermitted(Actor, Subject, Permission)}
      * @param actor      The actor ( A resident/town/nation )
      * @param subject    The subject ( A plot/town/nation )
      * @param permission the permission ( also known as an "action" ).
@@ -97,28 +103,40 @@ public class PermissionService {
      */
     public boolean isPermitted(Actor actor, Subject subject, Permission permission) {
 
+        boolean shouldCheckRoles = false;
+
+        // Roles will only be checked if:
+        // * The actor is of type Resident
+        // * The subject is a Town, and is the same Town that the actor is a part of
+        // * The subject is a Nation, and is the same Nation that the actor is a part of
         if (actor instanceof Resident) {
             Resident resident = (Resident) actor;
 
-            if (subject instanceof Town) {
+            boolean subjectIsResidentsTown = (subject instanceof Town) && Objects.equals(subject, resident.getTown());
+            boolean subjectIsResidentsNation = (subject instanceof Nation) && resident.getTown() != null && Objects.equals(subject, resident.getTown().getNation());
 
-                if (permission instanceof TownPermission) {
-                    // Check for town permissions in the resident's townRole(s)
-                    if (resident.getTownRoles().stream().anyMatch(role -> role.getPermissions().contains(permission))) {
-                        return true;
-                    }
+            shouldCheckRoles = subjectIsResidentsTown || subjectIsResidentsNation;
+        }
+
+        // Roles will only be checked if the actor is of type Resident
+        if (shouldCheckRoles) {
+            Resident resident = (Resident) actor;
+
+            if (permission instanceof TownPermission) {
+                // Check for town permissions in the resident's townRole(s)
+                if (resident.getTownRoles().stream().anyMatch(role -> role.getPermissions().contains(permission))) {
+                    return true;
                 }
-
-                if (permission instanceof WorldPermission) {
-                    // check for world permissions in the resident's townRole(s)
-                    if (resident.getTownRoles().stream().anyMatch(role -> role.getWorldPermissions().contains(permission))) {
-                        return true;
-                    }
-                }
-
             }
 
-            if (subject instanceof Nation && permission instanceof NationPermission) {
+            if (permission instanceof WorldPermission) {
+                // check for world permissions in the resident's townRole(s)
+                if (resident.getTownRoles().stream().anyMatch(role -> role.getWorldPermissions().contains(permission))) {
+                    return true;
+                }
+            }
+
+            if (permission instanceof NationPermission) {
                 // check for nation permissions in the resident's nationRole(s)
                 if (resident.getNationRoles().stream().anyMatch(role -> role.getPermissions().contains(permission))) {
                     return true;
@@ -195,7 +213,7 @@ public class PermissionService {
 
             Subject parent = ((Subject) actor).getParent();
 
-            return (parent instanceof Actor) && isPermitted((Actor) parent, subject, permission);
+            return (parent instanceof Actor) && isExplicitlyPermitted((Actor) parent, subject, permission);
 
         }
 
