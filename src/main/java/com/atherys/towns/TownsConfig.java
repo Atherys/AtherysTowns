@@ -40,6 +40,9 @@ public class TownsConfig extends PluginConfig {
     @Setting("require-being-in-town-for-transactions")
     public boolean LOCAL_TRANSACTIONS = false;
 
+    @Setting("respawn-in-town")
+    public boolean SPAWN_IN_TOWN = true;
+
     @Setting("currency")
     public Currency CURRENCY;
 

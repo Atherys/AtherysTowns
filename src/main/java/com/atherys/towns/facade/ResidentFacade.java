@@ -12,8 +12,10 @@ import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -23,6 +25,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -47,6 +50,15 @@ public class ResidentFacade {
     private TownsConfig config;
 
     ResidentFacade() {
+    }
+
+    public void onPlayerSpawn(SpawnEntityEvent event) {
+        List<? extends Entity> players = event.filterEntities(entity -> !(entity instanceof Player));
+        players.forEach(player -> {
+            getPlayerTown((Player) player).ifPresent(town -> {
+                player.setTransformSafely(town.getSpawn());
+            });
+        });
     }
 
     public void sendResidentInfo(Player player) {
