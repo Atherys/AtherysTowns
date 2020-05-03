@@ -1,7 +1,9 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
-import com.atherys.towns.entity.*;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -103,7 +105,7 @@ public class ResidentService {
         Economy.transferCurrency(source.getId(), destination.getBank(), currency, amount, cause);
     }
 
-    public void transferCurrency(Resident source, Nation destination, Currency currency, BigDecimal amount, Cause cause) {
+    public void transferCurrency(Resident source, NationConfig destination, Currency currency, BigDecimal amount, Cause cause) {
         Economy.transferCurrency(source.getId(), destination.getBank(), currency, amount, cause);
     }
 
@@ -111,7 +113,7 @@ public class ResidentService {
         Economy.transferCurrency(source.getBank(), destination.getId(), currency, amount, cause);
     }
 
-    public void transferCurrency(Nation source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
+    public void transferCurrency(NationConfig source, Resident destination, Currency currency, BigDecimal amount, Cause cause) {
         Economy.transferCurrency(source.getBank(), destination.getId(), currency, amount, cause);
     }
 

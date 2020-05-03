@@ -1,39 +1,32 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
+import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.Actor;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Resident implements SpongeIdentifiable, Actor<UUID> {
+public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     @Id
     private UUID id;
 
     private String name;
 
+    private String title;
+
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "resident_friends",
-            joinColumns = @JoinColumn(name = "resident_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id")
-    )
-    private Set<Resident> friends = new HashSet<>();
+    private Set<String> townRoleIds;
 
-    private Set<TownRole> townRoles;
-
-    private Set<NationRole> nationRoles;
+    private Set<String> nationRoleIds;
 
     private LocalDateTime registeredOn;
 
@@ -73,28 +66,20 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
         this.town = town;
     }
 
-    public Set<Resident> getFriends() {
-        return friends;
+    public Set<String> getTownRolesIds() {
+        return townRoleIds;
     }
 
-    public void setFriends(Set<Resident> friends) {
-        this.friends = friends;
+    public void setTownRoles(Set<String> townRoles) {
+        this.townRoleIds = townRoles;
     }
 
-    public Set<TownRole> getTownRoles() {
-        return townRoles;
+    public Set<String> getNationRoles() {
+        return nationRoleIds;
     }
 
-    public void setTownRoles(Set<TownRole> townRoles) {
-        this.townRoles = townRoles;
-    }
-
-    public Set<NationRole> getNationRoles() {
-        return nationRoles;
-    }
-
-    public void setNationRoles(Set<NationRole> nationRoles) {
-        this.nationRoles = nationRoles;
+    public void setNationRoles(Set<String> nationRoles) {
+        this.nationRoleIds = nationRoles;
     }
 
     public LocalDateTime getRegisteredOn() {

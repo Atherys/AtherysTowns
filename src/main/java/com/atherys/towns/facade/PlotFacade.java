@@ -2,7 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
-import com.atherys.towns.entity.Plot;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;

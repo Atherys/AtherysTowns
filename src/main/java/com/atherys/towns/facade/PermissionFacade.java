@@ -1,14 +1,16 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.NationRoleConfig;
+import com.atherys.towns.config.TownRoleConfig;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
@@ -16,15 +18,19 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectReference;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Singleton
 public class PermissionFacade {
+
+    @Inject
+    TownsConfig config;
 
     @Inject
     ResidentService residentService;
@@ -35,6 +41,8 @@ public class PermissionFacade {
     @Inject
     PlotService plotService;
 
+    org.spongepowered.api.service.permission.PermissionService spongePermissionService;
+
     static final String NOT_PERMITTED = "You are not permitted to ";
 
     public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
@@ -42,6 +50,48 @@ public class PermissionFacade {
     public final Map<String, NationPermission> NATION_PERMISSIONS = getNationPermissions();
 
     PermissionFacade() {
+    }
+
+    public void init() {
+        spongePermissionService = Sponge.getServiceManager().provide(org.spongepowered.api.service.permission.PermissionService.class).get();
+
+        config.NATIONS.forEach(nationConfig -> {
+            SubjectReference lastRoleProcessed = null;
+            for (NationRoleConfig roleConfig : nationConfig.getRoles()) {
+                String roleId = nationConfig.getId() + "-" + roleConfig.getId();
+
+                spongePermissionService.getGroupSubjects().hasSubject(roleId).thenAcceptAsync(roleExists -> {
+                    if (!roleExists) {
+                        lastRoleProcessed = createRole(roleId, lastRoleProcessed);
+                    }
+                });
+            }
+        });
+
+        SubjectReference lastRoleProcessed = null;
+        for (TownRoleConfig roleConfig : config.TOWN.ROLES) {
+            String roleId = "town-" + roleConfig.getId();
+
+            if (roleExists(roleId)) {
+                continue;
+            }
+
+            lastRoleProcessed = createRole(roleId, lastRoleProcessed);
+        }
+    }
+
+    private boolean roleExists(String id) {
+        SubjectReference role = spongePermissionService.getGroupSubjects().newSubjectReference(id);
+    }
+
+    private SubjectReference createRole(String id, SubjectReference parent) {
+        SubjectReference role = spongePermissionService.getGroupSubjects().newSubjectReference(id);
+
+        if (parent != null) {
+            role.resolve().thenAcceptAsync(subject -> subject.getSubjectData().addParent(new HashSet<>(), parent));
+        }
+
+        return role;
     }
 
     public boolean isPermitted(Player source, Subject subject, Permission permission) throws TownsCommandException {
@@ -81,7 +131,7 @@ public class PermissionFacade {
             throw TownsCommandException.notPartOfTown();
         }
 
-        Nation nation = town.getNation();
+        NationConfig nation = town.getNation();
 
         if (nation == null) {
             throw new TownsCommandException("Your town is not part of a nation.");

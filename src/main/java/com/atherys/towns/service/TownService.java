@@ -3,10 +3,10 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
@@ -77,7 +77,7 @@ public class TownService {
         town.setDescription(DEFAULT_TOWN_DESCRIPTION);
         town.setMotd(DEFAULT_TOWN_MOTD);
         town.setColor(DEFAULT_TOWN_COLOR);
-        town.setMaxSize(config.DEFAULT_TOWN_MAX_SIZE);
+        town.setMaxSize(config.TOWN.DEFAULT_TOWN_MAX_SIZE);
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(world.getUniqueId());
@@ -133,7 +133,7 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
-    public void setTownNation(Town town, Nation nation) {
+    public void setTownNation(Town town, NationConfig nation) {
 
         // if town is already part of another nation, remove it
         if (town.getNation() != null) {

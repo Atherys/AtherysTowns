@@ -2,9 +2,9 @@ package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,7 +35,7 @@ public class TownsCache {
 
     private Cache<Town, Long> townCache = new SimpleCache<>();
 
-    private Cache<Nation, Long> nationCache = new SimpleCache<>();
+    private Cache<NationConfig, Long> nationCache = new SimpleCache<>();
 
     public TownsCache() {
     }
@@ -58,7 +58,7 @@ public class TownsCache {
         permissionRepository.flushCache();
     }
 
-    public Cache<Nation, Long> getNationCache() {
+    public Cache<NationConfig, Long> getNationCache() {
         return nationCache;
     }
 

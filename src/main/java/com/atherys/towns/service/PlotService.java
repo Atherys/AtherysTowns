@@ -1,8 +1,8 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.util.MathUtils;

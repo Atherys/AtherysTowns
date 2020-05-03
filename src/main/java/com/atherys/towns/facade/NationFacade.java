@@ -5,8 +5,8 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.ResidentService;
@@ -69,7 +69,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void setNationName(Player source, String nationName) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_NAME, "change the nation's name");
 
@@ -78,7 +78,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void setNationDescription(Player source, Text nationDescription) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_DESCRIPTION, "change the nation's description");
 
@@ -87,7 +87,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void setNationCapital(Player source, Town town) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.SET_CAPITAL, "change the nation's capital");
 
@@ -101,8 +101,8 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
-    public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+    public void addNationAlly(Player source, NationConfig ally) throws TownsCommandException {
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ALLY, "add allies.");
 
@@ -112,8 +112,8 @@ public class NationFacade implements EconomyFacade {
         nationService.addNationAlly(nation, ally);
     }
 
-    public void addNationNeutral(Player source, Nation neutral) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+    public void addNationNeutral(Player source, NationConfig neutral) throws TownsCommandException {
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
 
@@ -121,8 +121,8 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Your nation is now neutral with ", GOLD, neutral.getName(), DARK_GREEN, ".");
     }
 
-    public void addNationEnemy(Player source, Nation enemy) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+    public void addNationEnemy(Player source, NationConfig enemy) throws TownsCommandException {
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_ENEMY, "add enemies.");
 
@@ -131,7 +131,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
 
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_PERMISSION,
                 "grant permissions for your nation.");
@@ -145,7 +145,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void removeNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
         permissionFacade.checkPermitted(source, nation, NationPermissions.ADD_PERMISSION,
                 "revoke permissions for your nation.");
 
@@ -160,13 +160,13 @@ public class NationFacade implements EconomyFacade {
     public void depositToNation(Player source, BigDecimal amount) throws TownsCommandException {
         checkEconomyEnabled();
 
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
         permissionFacade.checkPermitted(source, nation, NationPermissions.DEPOSIT_INTO_BANK, "deposit to your nation.");
 
          Optional<TransferResult> result = Economy.transferCurrency(
                 source.getUniqueId(),
                 nation.getBank().toString(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -174,7 +174,7 @@ public class NationFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Deposited ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the nation."),
+                    Text.of("Deposited ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the nation."),
                     Text.of("You do not have enough to deposit."),
                     Text.of("Depositing failed.")
             );
@@ -185,14 +185,14 @@ public class NationFacade implements EconomyFacade {
     public void withdrawFromNation(Player source, BigDecimal amount) throws TownsCommandException {
         checkEconomyEnabled();
 
-        Nation nation = getPlayerNation(source);
+        NationConfig nation = getPlayerNation(source);
         permissionFacade.checkPermitted(source, nation, NationPermissions.WITHDRAW_FROM_BANK,
                 "withdraw from your nation");
 
          Optional<TransferResult> result = Economy.transferCurrency(
                 nation.getBank().toString(),
                 source.getUniqueId(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -200,7 +200,7 @@ public class NationFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the nation."),
+                    Text.of("Withdrew ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " from the nation."),
                     Text.of("The town does not have enough to withdraw."),
                     Text.of("Withdrawing failed.")
             );
@@ -212,7 +212,7 @@ public class NationFacade implements EconomyFacade {
        sendNationInfo(player, getPlayerNation(player));
     }
 
-    public void sendNationInfo(MessageReceiver receiver, Nation nation) {
+    public void sendNationInfo(MessageReceiver receiver, NationConfig nation) {
         Text.Builder nationInfo = Text.builder();
 
         nationInfo.append(townsMsg.createTownsHeader(nation.getName()));
@@ -242,7 +242,7 @@ public class NationFacade implements EconomyFacade {
         receiver.sendMessage(nationInfo.build());
     }
 
-    public Text renderNation(Nation nation) {
+    public Text renderNation(NationConfig nation) {
         if (nation == null) {
             return Text.of(GOLD, "No Nation");
         }
@@ -261,10 +261,10 @@ public class NationFacade implements EconomyFacade {
                 .build();
     }
 
-    public Text renderNations(Collection<Nation> nations) {
+    public Text renderNations(Collection<NationConfig> nations) {
         Text.Builder nationsText = Text.builder();
         int i = 0;
-        for (Nation nation: nations) {
+        for (NationConfig nation: nations) {
             i++;
             nationsText.append(
                     Text.of(renderNation(nation), i == nations.size() ? "" : ", ")
@@ -279,8 +279,8 @@ public class NationFacade implements EconomyFacade {
                 .append(Text.of(DARK_GRAY, "[]====[ ", GOLD, "Nations", DARK_GRAY, " ]====[]", Text.NEW_LINE));
 
         int i = 1;
-        Collection<Nation> allNations = nationService.getAllNations();
-        for (Nation nation : allNations) {
+        Collection<NationConfig> allNations = nationService.getAllNations();
+        for (NationConfig nation : allNations) {
             nationList.append(Text.of(DARK_GREEN, "- ", renderNation(nation)));
             if (i < allNations.size()) {
                 nationList.append(Text.NEW_LINE);
@@ -295,9 +295,9 @@ public class NationFacade implements EconomyFacade {
         //receiver.sendMessage(nations.build());
     }
 
-    public Nation getPlayerNation(Player player) throws TownsCommandException {
+    public NationConfig getPlayerNation(Player player) throws TownsCommandException {
         Town town = townFacade.getPlayerTown(player);
-        Nation nation = town.getNation();
+        NationConfig nation = town.getNation();
 
         if (nation == null) {
             throw new TownsCommandException("Your town is not part of a nation!");

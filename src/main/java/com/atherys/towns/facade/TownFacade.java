@@ -6,9 +6,9 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.PermissionService;
 import com.atherys.towns.service.PlotService;
@@ -109,14 +109,18 @@ public class TownFacade implements EconomyFacade {
                 throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
             }
 
+            Resident mayor = residentService.getOrCreate(player);
+
             // create the town
             Town town = townService.createTown(
                     player.getWorld(),
                     player.getTransform(),
-                    residentService.getOrCreate(player),
+                    mayor,
                     homePlot,
                     name
             );
+
+            permissionService.updateContexts(player, mayor);
 
             sendTownInfo(town, player);
 
@@ -369,7 +373,7 @@ public class TownFacade implements EconomyFacade {
         Optional<TransferResult> result = Economy.transferCurrency(
                 player.getUniqueId(),
                 town.getBank().toString(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -377,7 +381,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Deposited", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                    Text.of("Deposited", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
                     Text.of("You do not have enough to deposit."),
                     Text.of("Depositing failed.")
             );
@@ -399,7 +403,7 @@ public class TownFacade implements EconomyFacade {
         Optional<TransferResult> result = Economy.transferCurrency(
                 town.getBank().toString(),
                 player.getUniqueId(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -407,7 +411,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town."),
+                    Text.of("Withdrew ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " from the town."),
                     Text.of("The town does not have enough to withdraw."),
                     Text.of("Withdrawing failed.")
             );

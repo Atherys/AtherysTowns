@@ -1,7 +1,7 @@
 package com.atherys.towns.chat;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.entity.Nation;
+import com.atherys.towns.config.NationConfig;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -18,9 +18,9 @@ public class NationMessageChannel extends ResidentMessageChannel {
 
     public static final Text NATION_CHAT_PREFIX = Text.of(TextColors.GOLD, "[", TextColors.YELLOW, "NC", TextColors.GOLD, "] ");
 
-    private Nation nation;
+    private NationConfig nation;
 
-    public NationMessageChannel(Nation nation) {
+    public NationMessageChannel(NationConfig nation) {
         this.nation = nation;
     }
 

@@ -12,7 +12,9 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.entity.*;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.persistence.*;
@@ -95,13 +97,13 @@ public class AtherysTowns {
             e.printStackTrace();
         }
 
-        if (components.config.TOWN_WARMUP < 0) {
+        if (components.config.TOWN.TOWN_WARMUP < 0) {
             logger.warn("Town spawn warmup is negative. Will default to zero.");
-            components.config.TOWN_WARMUP = 0;
+            components.config.TOWN.TOWN_WARMUP = 0;
         }
 
-        if (components.config.TOWN_COOLDOWN < 0) {
-            components.config.TOWN_COOLDOWN = 0;
+        if (components.config.TOWN.TOWN_COOLDOWN < 0) {
+            components.config.TOWN.TOWN_COOLDOWN = 0;
             logger.warn("Town spawn cooldown is negative. Will default to zero.");
         }
     }
@@ -117,11 +119,9 @@ public class AtherysTowns {
 
     @Listener
     public void onHibernateConfiguration(AtherysHibernateConfigurationEvent event) {
-        event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-        event.registerEntity(PermissionNode.class);
     }
 
     @Listener

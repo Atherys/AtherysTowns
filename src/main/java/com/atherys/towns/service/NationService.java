@@ -3,9 +3,8 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.NationRole;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
@@ -49,12 +48,12 @@ public class NationService {
         this.residentService = residentService;
     }
 
-    public Optional<Nation> getNationFromName(String nationName) {
+    public Optional<NationConfig> getNationFromName(String nationName) {
         return nationRepository.findByName(nationName);
     }
 
-    public Nation createNation(String name, Town capital) {
-        Nation nation = new Nation();
+    public NationConfig createNation(String name, Town capital) {
+        NationConfig nation = new NationConfig();
         nation.setName(name);
         nation.setDescription(DEFAULT_NATION_DESCRIPTION);
 
@@ -85,17 +84,17 @@ public class NationService {
         return nation;
     }
 
-    public void setNationName(Nation nation, String name) {
+    public void setNationName(NationConfig nation, String name) {
         nation.setName(name);
         nationRepository.saveOne(nation);
     }
 
-    public void setNationDescription(Nation nation, Text description) {
+    public void setNationDescription(NationConfig nation, Text description) {
         nation.setDescription(description);
         nationRepository.saveOne(nation);
     }
 
-    public void addTown(Nation nation, Town town) {
+    public void addTown(NationConfig nation, Town town) {
         town.setNation(nation);
         nation.addTown(town);
 
@@ -103,7 +102,7 @@ public class NationService {
         nationRepository.saveOne(nation);
     }
 
-    public void removeTown(Nation nation, Town town) {
+    public void removeTown(NationConfig nation, Town town) {
         if (town.getNation() != null) {
             town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
         }
@@ -114,35 +113,35 @@ public class NationService {
         nationRepository.saveOne(nation);
     }
 
-    public int getNationPopulation(Nation nation) {
+    public int getNationPopulation(NationConfig nation) {
         return nation.getTowns().stream()
                 .mapToInt(town -> town.getResidents().size())
                 .reduce(0, Integer::sum);
     }
 
-    public void setCapital(Nation nation, Town town) {
+    public void setCapital(NationConfig nation, Town town) {
         nation.setCapital(town);
         nationRepository.saveOne(nation);
     }
 
-    public void addNationAlly(Nation nation, Nation ally) {
+    public void addNationAlly(NationConfig nation, NationConfig ally) {
         nation.addAlly(ally);
         nationRepository.saveOne(nation);
     }
 
-    public void addNationNeutral(Nation nation, Nation neutral) {
+    public void addNationNeutral(NationConfig nation, NationConfig neutral) {
         nation.removeAlly(neutral);
         nation.removeEnemy(neutral);
 
         nationRepository.saveOne(nation);
     }
 
-    public void addNationEnemy(Nation nation, Nation enemy) {
+    public void addNationEnemy(NationConfig nation, NationConfig enemy) {
         nation.addEnemy(enemy);
         nationRepository.saveOne(nation);
     }
 
-    public Collection<Nation> getAllNations() {
+    public Collection<NationConfig> getAllNations() {
         return nationRepository.getAllNations();
     }
 

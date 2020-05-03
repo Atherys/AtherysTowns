@@ -1,9 +1,7 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
-import com.atherys.towns.api.permission.Actor;
-import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
@@ -20,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Long> {
+public class Town implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +39,7 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
     @OneToOne
     private Resident leader;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "nation_id")
-    private Nation nation;
+    private String nation;
 
     private UUID world;
 
@@ -112,11 +108,11 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.leader = leader;
     }
 
-    public Nation getNation() {
+    public String getNation() {
         return nation;
     }
 
-    public void setNation(Nation nation) {
+    public void setNation(String nation) {
         this.nation = nation;
     }
 
@@ -184,16 +180,6 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.freelyJoinable = freelyJoinable;
     }
 
-    @Override
-    public boolean hasParent() {
-        return nation != null;
-    }
-
-    @Override
-    public Nation getParent() {
-        return nation;
-    }
-
     public boolean isPvpEnabled() {
         return pvpEnabled;
     }
@@ -219,28 +205,6 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.messageChannel = messageChannel;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Town town = (Town) o;
-        return id.equals(town.id) &&
-                name.equals(town.name) &&
-                description.equals(town.description) &&
-                motd.equals(town.motd) &&
-                leader.equals(town.leader) &&
-                nation.equals(town.nation) &&
-                world.equals(town.world) &&
-                spawn.equals(town.spawn) &&
-                residents.equals(town.residents) &&
-                plots.equals(town.plots);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, motd, world, spawn);
-    }
-
     protected int getVersion() {
         return version;
     }
@@ -255,5 +219,34 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
 
     public void setBank(UUID bank) {
         this.bank = bank;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Town town = (Town) o;
+        return maxSize == town.maxSize &&
+                freelyJoinable == town.freelyJoinable &&
+                pvpEnabled == town.pvpEnabled &&
+                version == town.version &&
+                Objects.equals(id, town.id) &&
+                Objects.equals(name, town.name) &&
+                Objects.equals(description, town.description) &&
+                Objects.equals(motd, town.motd) &&
+                Objects.equals(color, town.color) &&
+                Objects.equals(leader, town.leader) &&
+                Objects.equals(nation, town.nation) &&
+                Objects.equals(world, town.world) &&
+                Objects.equals(spawn, town.spawn) &&
+                Objects.equals(residents, town.residents) &&
+                Objects.equals(plots, town.plots) &&
+                Objects.equals(messageChannel, town.messageChannel) &&
+                Objects.equals(bank, town.bank);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, motd, color, leader, nation, world, spawn, residents, plots, messageChannel, maxSize, freelyJoinable, pvpEnabled, bank, version);
     }
 }

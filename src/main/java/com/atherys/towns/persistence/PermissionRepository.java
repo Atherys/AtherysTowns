@@ -2,8 +2,6 @@ package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.entity.PermissionNode;
-import com.atherys.towns.entity.PermissionNodeId;
 import com.google.inject.Singleton;
 
 import java.util.Optional;

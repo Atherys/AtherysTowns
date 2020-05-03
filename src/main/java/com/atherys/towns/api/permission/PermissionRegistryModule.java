@@ -18,8 +18,7 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
         put(
                 NationPermissions.INVITE_TOWN,
                 NationPermissions.KICK_TOWN,
-                NationPermissions.ADD_PERMISSION,
-                NationPermissions.REVOKE_PERMISSION,
+                NationPermissions.SET_PERMISSION,
                 NationPermissions.WITHDRAW_FROM_BANK,
                 NationPermissions.DEPOSIT_INTO_BANK,
                 NationPermissions.SET_NAME,
@@ -42,11 +41,9 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.UNCLAIM_PLOT,
                 TownPermissions.RENAME_PLOT,
                 TownPermissions.GRANT_PLOT,
-                TownPermissions.ADD_PERMISSION,
-                TownPermissions.REVOKE_PERMISSION,
+                TownPermissions.SET_PERMISSION,
                 TownPermissions.WITHDRAW_FROM_BANK,
                 TownPermissions.DEPOSIT_INTO_BANK,
-                TownPermissions.LEAVE_NATION,
                 TownPermissions.JOIN_NATION,
                 TownPermissions.SET_NAME,
                 TownPermissions.SET_DESCRIPTION,
@@ -57,17 +54,6 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.SET_PVP,
                 TownPermissions.TRANSFER_LEADERSHIP,
                 TownPermissions.CHAT
-        );
-
-        put(
-                WorldPermissions.BUILD,
-                WorldPermissions.DESTROY,
-                WorldPermissions.DAMAGE_NONPLAYERS,
-                WorldPermissions.DAMAGE_PLAYERS,
-                WorldPermissions.INTERACT_CHESTS,
-                WorldPermissions.INTERACT_DOORS,
-                WorldPermissions.INTERACT_REDSTONE,
-                WorldPermissions.INTERACT_ENTITIES
         );
     }
 

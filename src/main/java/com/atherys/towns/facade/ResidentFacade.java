@@ -3,9 +3,9 @@ package com.atherys.towns.facade;
 import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -148,7 +148,7 @@ public class ResidentFacade {
         return town.equals(residentService.getOrCreate(player).getTown());
     }
 
-    public boolean isPlayerInNation(Player player, Nation nation) {
+    public boolean isPlayerInNation(Player player, NationConfig nation) {
         Resident resident = residentService.getOrCreate(player);
 
         if (resident.getTown() == null) {
@@ -162,7 +162,7 @@ public class ResidentFacade {
         return Optional.ofNullable(residentService.getOrCreate(player).getTown());
     }
 
-    public Optional<Nation> getPlayerNation(Player player) {
+    public Optional<NationConfig> getPlayerNation(Player player) {
         return getPlayerTown(player).map(Town::getNation);
     }
 }

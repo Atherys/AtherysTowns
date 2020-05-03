@@ -11,8 +11,8 @@ import java.util.Set;
 @ConfigSerializable
 public class NationRoleConfig {
 
-    @Setting("short-name")
-    private String shortName;
+    @Setting("id")
+    private String id;
 
     @Setting("name")
     private String name;
@@ -23,12 +23,12 @@ public class NationRoleConfig {
     public NationRoleConfig() {
     }
 
-    public String getShortName() {
-        return shortName;
+    public String getId() {
+        return id;
     }
 
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -1,7 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import org.spongepowered.api.command.CommandSource;

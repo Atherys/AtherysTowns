@@ -1,242 +1,164 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.api.permission.Actor;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.api.permission.Subject;
-import com.atherys.towns.api.permission.nation.NationPermission;
-import com.atherys.towns.api.permission.role.Role;
-import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.entity.*;
-import com.atherys.towns.persistence.PermissionRepository;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.apache.commons.lang3.ObjectUtils;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.util.Tristate;
 
-import javax.inject.Inject;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 @Singleton
 public class PermissionService {
 
-    private PermissionRepository permissionRepository;
+    // this context represents the town that the player is currently a part of
+    public static final String TOWN_CONTEXT_KEY = "atherystowns:town";
 
-    @Inject
-    PermissionService(
-            PermissionRepository permissionRepository
-    ) {
-        this.permissionRepository = permissionRepository;
-    }
+    // this context represents the town that the player is currently standing in, in the world
+    public static final String TOWN_WORLD_CONTEXT_KEY = "atherystowns:world_town";
 
-    public void permit(Actor actor, Subject subject, Set<Permission> permissions) {
-        permissions.forEach(permission -> permit(actor, subject, permission));
-    }
+    // this context represents the nation that the player is currently a part of
+    public static final String NATION_CONTEXT_KEY = "atherystowns:nation";
 
-    public void revoke(Actor actor, Subject subject, Set<Permission> permissions) {
-        permissions.forEach(permission -> remove(actor, subject, permission, true));
-    }
+    // this context represents the nation that the player is currently standing in, in the world
+    public static final String NATION_WORLD_CONTEXT_KEY = "atherystowns:world_nation";
 
-    public void permit(Actor user, Subject subject, Permission permission) {
-        permit(user, subject, permission, true);
-    }
+    // Can't do database access in a context calculator, need to be fast.
+    // For that purpose, cache players and their town/nation uuids
+    // Crude, but effective.
 
-    public void remove(Actor actor, Subject subject, Permission permission, boolean permitted) {
-        PermissionNode node = createPermissionNode(actor, subject, permission, permitted);
-        permissionRepository.deleteOne(node);
-    }
+    private Map<UUID, Context> playerTownContexts = new HashMap<>();
 
-    /**
-     * Create a new PermissionNode object and store it in the database
-     *
-     * @param user
-     * @param subject
-     * @param permission
-     * @param permitted
-     */
-    public void permit(Actor user, Subject subject, Permission permission, boolean permitted) {
-        PermissionNode node = createPermissionNode(user, subject, permission, permitted);
-        permissionRepository.saveOne(node);
-    }
+    private Map<UUID, Context> playerNationContexts = new HashMap<>();
 
-    public void grant(Resident resident, TownRole role) {
-        resident.getTownRoles().add(role);
-    }
+    private Map<UUID, Context> playerWorldTownContexts = new HashMap<>();
 
-    public void grant(Resident resident, NationRole role) {
-        resident.getNationRoles().add(role);
-    }
+    private Map<UUID, Context> playerWorldNationContexts = new HashMap<>();
 
-    public void revoke(Resident resident, Role role) {
-
-    }
-
-    public PermissionNode createPermissionNode(Actor actor, Subject subject, Permission permission, boolean permitted) {
-        PermissionNode node = new PermissionNode();
-        PermissionNodeId nodeId = new PermissionNodeId(
-                formatActorId(actor),
-                formatSubjectId(subject),
-                permission
-        );
-
-        node.setId(nodeId);
-        node.setPermitted(permitted);
-
-        return node;
+    public PermissionService() {
     }
 
     /**
-     * Check if the provided Actor has the permissions to act upon the provided subject.
-     * <br><br>
-     * This method will also account for Resident Town and Nation roles.
-     * Roles will only be checked if:<br>
-     * * The actor is of type Resident<br>
-     * * The subject is a Town, and is the same Town that the actor is a part of<br>
-     * * The subject is a Nation, and is the same Nation that the actor is a part of
-     * <br><br>
-     * If the above conditions are not met, explicit permissions will be checked instead. See {@link #isExplicitlyPermitted(Actor, Subject, Permission)}
-     * @param actor      The actor ( A resident/town/nation )
-     * @param subject    The subject ( A plot/town/nation )
-     * @param permission the permission ( also known as an "action" ).
-     * @return Whether the Actor is permitted to execute the specified action upon the Subject.
+     * This method should ideally be called every time a player's town or nation changes.
+     * Additionally, it should also be called when the player joins the server.
+     * @param player The player whose town or nation has changed
+     * @param resident The resident object for that player
      */
-    public boolean isPermitted(Actor actor, Subject subject, Permission permission) {
+    public void updateContexts(@Nonnull Player player, @Nullable Resident resident) {
+        if (resident != null) {
+            Town town = resident.getTown();
 
-        boolean shouldCheckRoles = false;
+            playerTownContexts.put(
+                    player.getUniqueId(),
+                    new Context(TOWN_CONTEXT_KEY, town.getId().toString())
+            );
 
-        // Roles will only be checked if:
-        // * The actor is of type Resident
-        // * The subject is a Town, and is the same Town that the actor is a part of
-        // * The subject is a Nation, and is the same Nation that the actor is a part of
-        if (actor instanceof Resident) {
-            Resident resident = (Resident) actor;
+            String nation = town.getNation();
 
-            boolean subjectIsResidentsTown = (subject instanceof Town) && Objects.equals(subject, resident.getTown());
-            boolean subjectIsResidentsNation = (subject instanceof Nation) && resident.getTown() != null && Objects.equals(subject, resident.getTown().getNation());
-
-            shouldCheckRoles = subjectIsResidentsTown || subjectIsResidentsNation;
+            if (nation != null) {
+                playerNationContexts.put(
+                        player.getUniqueId(),
+                        new Context(NATION_CONTEXT_KEY, nation)
+                );
+            }
+        } else {
+            playerTownContexts.remove(player.getUniqueId());
+            playerNationContexts.remove(player.getUniqueId());
         }
-
-        // Roles will only be checked if the actor is of type Resident
-        if (shouldCheckRoles) {
-            Resident resident = (Resident) actor;
-
-            if (permission instanceof TownPermission) {
-                // Check for town permissions in the resident's townRole(s)
-                if (resident.getTownRoles().stream().anyMatch(role -> role.getPermissions().contains(permission))) {
-                    return true;
-                }
-            }
-
-            if (permission instanceof WorldPermission) {
-                // check for world permissions in the resident's townRole(s)
-                if (resident.getTownRoles().stream().anyMatch(role -> role.getWorldPermissions().contains(permission))) {
-                    return true;
-                }
-            }
-
-            if (permission instanceof NationPermission) {
-                // check for nation permissions in the resident's nationRole(s)
-                if (resident.getNationRoles().stream().anyMatch(role -> role.getPermissions().contains(permission))) {
-                    return true;
-                }
-            }
-        }
-
-        // if no role permissions could be found, look for explicit ones
-        return isExplicitlyPermitted(actor, subject, permission);
     }
 
     /**
-     * Check the database for PermissionNode objects which may grant the actor the provided permission, within the
-     * context of the subject.
-     * <br><br>
-     * Firstly, a check is made for what are known as "explicit" permissions. An explicit permission is one where
-     * there is a PermissionNode which grants this specific Actor to act upon this specific Subject in the specified
-     * way.
-     * <br><br>
-     * If an explicit PermissionNode is found which does the opposite, to explicitly deny the Actor this permission,
-     * then no further checks will be made.
-     * <br><br>
-     * If no such PermissionNode is found, the next check to follow is to see whether the Actor is transiently
-     * permitted to execute this action.
-     * <br><br>
-     * A transient permission is when the Actor is permitted the action upon the provided Subject's
-     * parent object instead.
-     * <br><br>
-     * For example, if a Resident is permitted to destroy within a Town, then that means that they are allowed
-     * to destroy within all Plots belonging to said town. This is transient, because the permission's subject is
-     * not the Plot itself, but rather the Plot's parent object - the Town.
-     * <br><br>
-     * This method is actually recursive, in that it will call itself to check for an explicit permission where the
-     * Actor is the same, but the Subject is now the previous Subject's parent.
-     * <br><br>
-     * If no transient PermissionNode is found either, then the next check will see if the Actor is itself
-     * also a Subject. If so, a check will be made if the Actor's parent Subject ( if any ) is permitted to
-     * execute the action in question upon the provided Subject. All previous checks mentioned will also be done.
-     * <br><br>
-     *
-     * Unlike {@link #isPermitted(Actor, Subject, Permission)}, this method will not check role permissions.
-     *
-     * @param actor      The actor ( A resident/town/nation )
-     * @param subject    The subject ( A plot/town/nation )
-     * @param permission the permission ( also known as an "action" ).
-     * @return Whether the Actor is permitted to execute the specified action upon the Subject.
+     * This method should ideally be called every time a player enters or exists a town.
+     * Additionally, it should also be called when the player joins the server.
+     * @param player The player who has exited or entered a town
+     * @param town The town ( if null, will remove town and nation contexts )
      */
-    public boolean isExplicitlyPermitted(Actor actor, Subject subject, Permission permission) {
-        String userId = formatActorId(actor);
-        String contextId = formatSubjectId(subject);
+    public void updateWorldContexts(@Nonnull Player player, @Nullable Town town) {
+        if (town != null) {
+            playerWorldTownContexts.put(
+                    player.getUniqueId(),
+                    new Context(TOWN_WORLD_CONTEXT_KEY, town.getId().toString())
+            );
 
-        // check for an explicit permission
-        Optional<PermissionNode> any = permissionRepository.findAnyBy(userId, contextId, permission);
+            String nation = town.getNation();
 
-        // if explicitly permitted, return
-        if (any.isPresent()) {
-            return any.get().isPermitted();
-        }
-
-        // check for transient permissions
-        boolean transientPermitted = subject.hasParent() && isPermitted(actor, subject.getParent(), permission);
-
-        // if transiently permitted, return
-        if (transientPermitted) {
-            return true;
-        }
-
-        // if the user being checked is also a subject, check it's parents for explicit and transient permissions
-        if (actor instanceof Subject) {
-
-            if (!((Subject) actor).hasParent()) {
-                return false;
+            if (nation != null) {
+                playerWorldNationContexts.put(
+                        player.getUniqueId(),
+                        new Context(NATION_WORLD_CONTEXT_KEY, nation)
+                );
             }
+        } else {
+            playerWorldTownContexts.remove(player.getUniqueId());
+            playerWorldNationContexts.remove(player.getUniqueId());
+        }
+    }
 
-            Subject parent = ((Subject) actor).getParent();
-
-            return (parent instanceof Actor) && isExplicitlyPermitted((Actor) parent, subject, permission);
-
+    /**
+     * Collect the contexts applicable for this player.
+     * This includes normal as well as world contexts.
+     * @param calculable The player
+     * @param accumulator The set to accumulate the contexts
+     */
+    public void accumulateContexts(Player calculable, Set<Context> accumulator) {
+        if (playerTownContexts.containsKey(calculable.getUniqueId())) {
+            accumulator.add(playerTownContexts.get(calculable.getUniqueId()));
         }
 
-        return false;
+        if (playerNationContexts.containsKey(calculable.getUniqueId())) {
+            accumulator.add(playerNationContexts.get(calculable.getUniqueId()));
+        }
+
+        if (playerWorldTownContexts.containsKey(calculable.getUniqueId())) {
+            accumulator.add(playerWorldTownContexts.get(calculable.getUniqueId()));
+        }
+
+        if (playerWorldNationContexts.containsKey(calculable.getUniqueId())) {
+            accumulator.add(playerWorldNationContexts.get(calculable.getUniqueId()));
+        }
     }
 
-    public void ifPermitted(Actor actor, Subject subject, Permission permission, Runnable action) {
-        if (isPermitted(actor, subject, permission)) action.run();
+    public boolean isPermitted(Player player, Permission permission) {
+        return player.hasPermission(permission.getId());
     }
 
-    private String formatActorId(Actor actor) {
-        return String.format("%s{%s}", actor.getClass().getSimpleName(), actor.getId().toString());
+    public void setPermission(Player player, Permission permission, Tristate tristate) {
+        Set<Context> contexts = new HashSet<>();
+
+        if (playerTownContexts.containsKey(player.getUniqueId())) {
+            contexts.add(playerTownContexts.get(player.getUniqueId()));
+        }
+
+        if (playerNationContexts.containsKey(player.getUniqueId())) {
+            contexts.add(playerNationContexts.get(player.getUniqueId()));
+        }
+
+        player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
     }
 
-    private String formatSubjectId(Subject subject) {
-        return String.format("%s{%s}", subject.getClass().getSimpleName(), subject.getId().toString());
+    public void setWorldPermission(Player player, WorldPermission permission, Tristate tristate) {
+        Set<Context> contexts = new HashSet<>();
+
+        if (playerWorldTownContexts.containsKey(player.getUniqueId())) {
+            contexts.add(playerWorldTownContexts.get(player.getUniqueId()));
+        }
+
+        if (playerWorldNationContexts.containsKey(player.getUniqueId())) {
+            contexts.add(playerWorldNationContexts.get(player.getUniqueId()));
+        }
+
+        player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
     }
 
-    public CompletableFuture<Void> removeAll(Actor actor) {
-        return permissionRepository.deleteAllWithActorId(formatActorId(actor));
-    }
-
-    public CompletableFuture<Void> removeAll(Actor actor, Subject subject) {
-        return permissionRepository.deleteAllWithActorIdAndSubjectId(formatActorId(actor), formatSubjectId(subject));
-    }
+    public
 }
