@@ -16,7 +16,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("add")
-@Description("Add role to nation resident")
+@Description("Add role to nation resident.")
 @Permission("atherystowns.nation.role.add")
 public class AddNationRoleCommand implements UserCommand, ParameterizedCommand {
     @Override

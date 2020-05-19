@@ -6,11 +6,12 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
+import org.spongepowered.api.service.permission.Subject;
 
 import java.util.Set;
 
 @Singleton
-public class TownsContextCalculator implements ContextCalculator<Player> {
+public class TownsContextCalculator implements ContextCalculator<Subject> {
 
     @Inject
     private PermissionService permissionService;
@@ -19,12 +20,12 @@ public class TownsContextCalculator implements ContextCalculator<Player> {
     }
 
     @Override
-    public void accumulateContexts(Player calculable, Set<Context> accumulator) {
+    public void accumulateContexts(Subject calculable, Set<Context> accumulator) {
         permissionService.accumulateContexts(calculable, accumulator);
     }
 
     @Override
-    public boolean matches(Context context, Player calculable) {
+    public boolean matches(Context context, Subject calculable) {
         return PermissionService.NATION_CONTEXT_KEY.equals(context.getKey()) || PermissionService.TOWN_CONTEXT_KEY.equals(context.getKey());
     }
 }

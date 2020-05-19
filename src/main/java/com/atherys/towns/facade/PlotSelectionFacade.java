@@ -112,13 +112,13 @@ public class PlotSelectionFacade {
         }
 
         int selectionArea = getPlotSelectionArea(selection);
-        if (selectionArea > config.MAX_PLOT_AREA) {
-            throw new TownsCommandException("Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.MAX_PLOT_AREA, " )");
+        if (selectionArea > config.TOWN.MAX_PLOT_AREA) {
+            throw new TownsCommandException("Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
         }
 
         int smallestSide = getSmallestPlotSelectionSideSize(selection);
-        if (smallestSide < config.MIN_PLOT_SIDE - 1) {
-            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.MIN_PLOT_SIDE, " )");
+        if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
+            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
         }
 
         return true;

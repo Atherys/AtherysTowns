@@ -3,11 +3,10 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -48,8 +47,6 @@ public class TownService {
 
     private PermissionService permissionService;
 
-    private NationRepository nationRepository;
-
     @Inject
     TownService(
             TownsConfig config,
@@ -57,8 +54,7 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
-            PermissionService permissionService,
-            NationRepository nationRepository
+            PermissionService permissionService
     ) {
         this.config = config;
         this.plotService = plotService;
@@ -66,7 +62,6 @@ public class TownService {
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
         this.permissionService = permissionService;
-        this.nationRepository = nationRepository;
     }
 
     public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, String name) {
@@ -99,7 +94,7 @@ public class TownService {
 
         residentRepository.saveOne(leader);
 
-        permissionService.permit(leader, town, permissionService.getTownLeaderRole());
+        // TODO: Set role for leader
 
         return town;
     }
@@ -133,24 +128,22 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
-    public void setTownNation(Town town, NationConfig nation) {
+    public void setTownNation(Town town, Nation nation) {
 
         // if town is already part of another nation, remove it
         if (town.getNation() != null) {
-            town.getNation().removeTown(town);
-            town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
-            nationRepository.saveOne(town.getNation());
+            town.getResidents().forEach(resident -> {
+                // TODO: Remove perms
+            });
         }
 
         town.getResidents().forEach(resident -> {
-            permissionService.permit(resident, nation, config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+            // TODO: Set roles for residents
         });
 
         town.setNation(nation);
-        nation.addTown(town);
 
         townRepository.saveOne(town);
-        nationRepository.saveOne(nation);
     }
 
     public void setTownJoinable(Town town, boolean joinable) {
@@ -199,14 +192,9 @@ public class TownService {
     }
 
     public void removeTown(Town town) {
-        CompletableFuture<Void> complete = permissionService.removeAll(town);
-
-        complete.thenAccept(__ -> {
-            town.getResidents().forEach(resident -> {
-                permissionService.removeAll(resident, town);
-                resident.setTown(null);
-                residentRepository.saveOne(resident);
-            });
+        town.getResidents().forEach(resident -> {
+            resident.setTown(null);
+            residentRepository.saveOne(resident);
         });
 
         plotRepository.deleteAll(town.getPlots());
@@ -216,10 +204,10 @@ public class TownService {
     public void addResidentToTown(Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        permissionService.permit(resident, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        // TODO: Set resident permissions
 
         if (town.getNation() != null) {
-            permissionService.permit(resident, town.getNation(), config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+            // TODO: Set nation permissions
         }
 
         townRepository.saveOne(town);
@@ -229,10 +217,10 @@ public class TownService {
     public void removeResidentFromTown(Resident resident, Town town) {
         town.removeResident(resident);
         resident.setTown(null);
-        permissionService.removeAll(resident, town);
+        // TODO: Remove resident permissions
 
         if (town.getNation() != null) {
-            permissionService.removeAll(resident, town.getNation());
+            // permissionService.removeAll(resident, town.getNation());
         }
 
         townRepository.saveOne(town);

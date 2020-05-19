@@ -38,6 +38,9 @@ public class TownConfig {
     @Setting("town-default-role")
     public String TOWN_DEFAULT_ROLE = "resident";
 
+    @Setting("local-transactions")
+    public boolean LOCAL_TRANSACTIONS = false;
+
     @Setting("roles")
     public List<TownRoleConfig> ROLES = new ArrayList<>();
     {

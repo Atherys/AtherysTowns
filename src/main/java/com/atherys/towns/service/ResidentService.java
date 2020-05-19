@@ -2,6 +2,8 @@ package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.NationRoleConfig;
+import com.atherys.towns.config.TownRoleConfig;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
@@ -75,12 +77,12 @@ public class ResidentService {
     }
 
     public void addResidentFriend(Resident resident, Resident friend) {
-        resident.getFriends().add(friend);
+        //resident.getFriends().add(friend);
         residentRepository.saveOne(resident);
     }
 
     public void removeResidentFriend(Resident resident, Resident friend) {
-        resident.getFriends().remove(friend);
+        //resident.getFriends().remove(friend);
         residentRepository.saveOne(resident);
     }
 
@@ -121,23 +123,23 @@ public class ResidentService {
         return town.getLeader().getId().equals(resident.getId());
     }
 
-    public void grantRole(Resident resident, TownRole role) {
-        resident.getTownRoles().add(role);
+    public void grantRole(Resident resident, TownRoleConfig role) {
+        resident.getTownRoleIds().add(role.getId());
         residentRepository.saveOne(resident);
     }
 
-    public void grantRole(Resident resident, NationRole role) {
-        resident.getNationRoles().add(role);
+    public void grantRole(Resident resident, NationRoleConfig role) {
+        resident.getNationRoleIds().add(role.getId());
         residentRepository.saveOne(resident);
     }
 
-    public void removeRole(Resident resident, TownRole role) {
-        resident.getTownRoles().remove(role);
+    public void removeRole(Resident resident, TownRoleConfig role) {
+        resident.getTownRoleIds().remove(role.getId());
         residentRepository.saveOne(resident);
     }
 
-    public void removeRole(Resident resident, NationRole role) {
-        resident.getNationRoles().remove(role);
+    public void removeRole(Resident resident, NationRoleConfig role) {
+        resident.getNationRoleIds().remove(role.getId());
         residentRepository.saveOne(resident);
     }
 }

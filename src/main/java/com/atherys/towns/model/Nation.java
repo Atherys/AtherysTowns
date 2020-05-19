@@ -31,78 +31,64 @@ public class Nation {
 
     private Set<String> roles;
 
-    public Nation() {
+    public Nation(String id,
+                  Text name,
+                  Text description,
+                  Resident leader,
+                  Town capital,
+                  boolean joinable,
+                  double tax,
+                  Account bankAccount,
+                  String nationLeaderRole,
+                  String defaultNationRole,
+                  Set<String> roles
+    ) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.leader = leader;
+        this.capital = capital;
+        this.joinable = joinable;
+        this.tax = tax;
+        this.bankAccount = bankAccount;
+        this.nationLeaderRole = nationLeaderRole;
+        this.defaultNationRole = defaultNationRole;
+        this.roles = roles;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Text getName() {
         return name;
-    }
-
-    public void setName(Text name) {
-        this.name = name;
     }
 
     public Text getDescription() {
         return description;
     }
 
-    public void setDescription(Text description) {
-        this.description = description;
-    }
-
     public Resident getLeader() {
         return leader;
-    }
-
-    public void setLeader(Resident leader) {
-        this.leader = leader;
     }
 
     public Town getCapital() {
         return capital;
     }
 
-    public void setCapital(Town capital) {
-        this.capital = capital;
-    }
-
     public boolean isJoinable() {
         return joinable;
-    }
-
-    public void setJoinable(boolean joinable) {
-        this.joinable = joinable;
     }
 
     public double getTax() {
         return tax;
     }
 
-    public void setTax(double tax) {
-        this.tax = tax;
-    }
-
     public Account getBankAccount() {
         return bankAccount;
     }
 
-    public void setBankAccount(Account bankAccount) {
-        this.bankAccount = bankAccount;
-    }
-
     public Set<String> getRoles() {
         return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
     }
 }

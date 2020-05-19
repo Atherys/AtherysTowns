@@ -6,6 +6,7 @@ import com.atherys.core.db.SpongeIdentifiable;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,14 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
     private Town town;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "resident_friends",
+            joinColumns = @JoinColumn(name = "resident_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private Set<Resident> friends = new HashSet<>();
 
     private Set<String> townRoleIds;
 
@@ -66,7 +75,15 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         this.town = town;
     }
 
-    public Set<String> getTownRolesIds() {
+    public Set<Resident> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<Resident> friends) {
+        this.friends = friends;
+    }
+
+    public Set<String> getTownRoleIds() {
         return townRoleIds;
     }
 
@@ -74,7 +91,7 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         this.townRoleIds = townRoles;
     }
 
-    public Set<String> getNationRoles() {
+    public Set<String> getNationRoleIds() {
         return nationRoleIds;
     }
 

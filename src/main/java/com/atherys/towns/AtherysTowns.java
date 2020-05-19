@@ -17,6 +17,7 @@ import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
+import com.atherys.towns.permission.TownsContextCalculator;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
@@ -88,6 +89,10 @@ public class AtherysTowns {
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
+        Sponge.getServiceManager()
+                .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
+                .registerContextCalculator(new TownsContextCalculator());
+
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
             AtherysCore.getCommandService().register(new PlotCommand(), this);
@@ -146,10 +151,6 @@ public class AtherysTowns {
         return logger;
     }
 
-    public NationRepository getNationRepository() {
-        return components.nationRepository;
-    }
-
     public TownRepository getTownRepository() {
         return components.townRepository;
     }
@@ -160,10 +161,6 @@ public class AtherysTowns {
 
     public ResidentRepository getResidentRepository() {
         return components.residentRepository;
-    }
-
-    public PermissionRepository getPermissionRepository() {
-        return components.permissionRepository;
     }
 
     public NationService getNationService() {
@@ -239,9 +236,6 @@ public class AtherysTowns {
         private TownsCache townsCache;
 
         @Inject
-        private NationRepository nationRepository;
-
-        @Inject
         private TownRepository townRepository;
 
         @Inject
@@ -249,9 +243,6 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
-
-        @Inject
-        private PermissionRepository permissionRepository;
 
         @Inject
         private NationService nationService;

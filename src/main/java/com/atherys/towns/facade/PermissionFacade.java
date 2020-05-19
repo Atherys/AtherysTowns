@@ -62,7 +62,7 @@ public class PermissionFacade {
 
                 spongePermissionService.getGroupSubjects().hasSubject(roleId).thenAcceptAsync(roleExists -> {
                     if (!roleExists) {
-                        lastRoleProcessed = createRole(roleId, lastRoleProcessed);
+                        createRole(roleId, lastRoleProcessed);
                     }
                 });
             }
@@ -82,6 +82,7 @@ public class PermissionFacade {
 
     private boolean roleExists(String id) {
         SubjectReference role = spongePermissionService.getGroupSubjects().newSubjectReference(id);
+        return true;
     }
 
     private SubjectReference createRole(String id, SubjectReference parent) {
@@ -94,60 +95,18 @@ public class PermissionFacade {
         return role;
     }
 
-    public boolean isPermitted(Player source, Subject subject, Permission permission) throws TownsCommandException {
-        if (subject == null) {
-            throw new TownsCommandException("Failed to establish command subject. Will not proceed.");
-        }
-
+    public boolean isPermitted(Player source, Permission permission) throws TownsCommandException {
         if (permission == null) {
             throw new TownsCommandException("Failed to establish command permission. Will not proceed.");
         }
 
-        Resident resident = residentService.getOrCreate(source);
-
-        return permissionService.isPermitted(resident, subject, permission);
+        return permissionService.isPermitted(source, permission);
     }
 
-    public void checkPermitted(Player source, Subject subject, Permission permission, String message) throws TownsCommandException {
-        if (!isPermitted(source, subject, permission)) {
+    public void checkPermitted(Player source, Permission permission, String message) throws TownsCommandException {
+        if (!isPermitted(source, permission)) {
             throw new TownsCommandException(NOT_PERMITTED + message);
         }
-    }
-
-    public boolean isPlayerPermittedInOwnTown(Player source, Permission permission) throws TownsCommandException {
-        Town town = residentService.getOrCreate(source).getTown();
-
-        if (town == null) {
-            throw TownsCommandException.notPartOfTown();
-        }
-
-        return isPermitted(source, town, permission);
-    }
-
-    public boolean isPlayerPermittedInOwnNation(Player source, Permission permission) throws TownsCommandException {
-        Town town = residentService.getOrCreate(source).getTown();
-
-        if (town == null) {
-            throw TownsCommandException.notPartOfTown();
-        }
-
-        NationConfig nation = town.getNation();
-
-        if (nation == null) {
-            throw new TownsCommandException("Your town is not part of a nation.");
-        }
-
-        return isPermitted(source, nation, permission);
-    }
-
-    public boolean isPlayerPermittedInCurrentPlot(Player source, Permission permission) throws TownsCommandException {
-        Optional<Plot> plot = plotService.getPlotByLocation(source.getLocation());
-
-        if (!plot.isPresent()) {
-            throw new TownsCommandException("You are not standing on any plot.");
-        }
-
-        return isPermitted(source, plot.get(), permission);
     }
 
     private Map<String, TownPermission> getTownPermissions() {

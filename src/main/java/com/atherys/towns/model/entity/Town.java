@@ -3,6 +3,8 @@ package com.atherys.towns.model.entity;
 import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
 import com.atherys.towns.chat.TownMessageChannel;
+import com.atherys.towns.model.Nation;
+import com.atherys.towns.persistence.converter.NationConverter;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.entity.Transform;
@@ -39,7 +41,8 @@ public class Town implements Identifiable<Long> {
     @OneToOne
     private Resident leader;
 
-    private String nation;
+    @Convert(converter = NationConverter.class)
+    private Nation nation;
 
     private UUID world;
 
@@ -108,11 +111,11 @@ public class Town implements Identifiable<Long> {
         this.leader = leader;
     }
 
-    public String getNation() {
+    public Nation getNation() {
         return nation;
     }
 
-    public void setNation(String nation) {
+    public void setNation(Nation nation) {
         this.nation = nation;
     }
 

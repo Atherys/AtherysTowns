@@ -14,17 +14,9 @@ import javax.annotation.Nonnull;
 @Description("Base nation command.")
 @Permission("atherystowns.nation")
 @Children({
-        CreateNationCommand.class,
         NationAddActorPermissionCommand.class,
         NationInfoCommand.class,
         NationRemoveActorPermissionCommand.class,
-        SetNationDescriptionCommand.class,
-        SetNationNameCommand.class,
-        SetNationTaxCommand.class,
-        SetNationCapitalCommand.class,
-        AddNationAllyCommand.class,
-        AddNationEnemyCommand.class,
-        AddNationNeutralCommand.class,
         NationListCommand.class,
         DepositNationCommand.class,
         WithdrawNationCommand.class,

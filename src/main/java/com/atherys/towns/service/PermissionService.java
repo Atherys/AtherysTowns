@@ -1,17 +1,17 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.nation.NationPermission;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.config.NationConfig;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Tristate;
 
 import javax.annotation.Nonnull;
@@ -63,12 +63,12 @@ public class PermissionService {
                     new Context(TOWN_CONTEXT_KEY, town.getId().toString())
             );
 
-            String nation = town.getNation();
+            Nation nation = town.getNation();
 
             if (nation != null) {
                 playerNationContexts.put(
                         player.getUniqueId(),
-                        new Context(NATION_CONTEXT_KEY, nation)
+                        new Context(NATION_CONTEXT_KEY, nation.getId())
                 );
             }
         } else {
@@ -78,7 +78,7 @@ public class PermissionService {
     }
 
     /**
-     * This method should ideally be called every time a player enters or exists a town.
+     * This method should ideally be called every time a player enters or exits a town.
      * Additionally, it should also be called when the player joins the server.
      * @param player The player who has exited or entered a town
      * @param town The town ( if null, will remove town and nation contexts )
@@ -90,12 +90,12 @@ public class PermissionService {
                     new Context(TOWN_WORLD_CONTEXT_KEY, town.getId().toString())
             );
 
-            String nation = town.getNation();
+            Nation nation = town.getNation();
 
             if (nation != null) {
                 playerWorldNationContexts.put(
                         player.getUniqueId(),
-                        new Context(NATION_WORLD_CONTEXT_KEY, nation)
+                        new Context(NATION_WORLD_CONTEXT_KEY, nation.getId())
                 );
             }
         } else {
@@ -110,21 +110,26 @@ public class PermissionService {
      * @param calculable The player
      * @param accumulator The set to accumulate the contexts
      */
-    public void accumulateContexts(Player calculable, Set<Context> accumulator) {
-        if (playerTownContexts.containsKey(calculable.getUniqueId())) {
-            accumulator.add(playerTownContexts.get(calculable.getUniqueId()));
-        }
+    public void accumulateContexts(Subject calculable, Set<Context> accumulator) {
+        Optional<CommandSource> commandSource = calculable.getCommandSource();
+        if (commandSource.isPresent() && commandSource.get() instanceof Player) {
+            Player player = (Player) commandSource.get();
 
-        if (playerNationContexts.containsKey(calculable.getUniqueId())) {
-            accumulator.add(playerNationContexts.get(calculable.getUniqueId()));
-        }
+            if (playerTownContexts.containsKey(player.getUniqueId())) {
+                accumulator.add(playerTownContexts.get(player.getUniqueId()));
+            }
 
-        if (playerWorldTownContexts.containsKey(calculable.getUniqueId())) {
-            accumulator.add(playerWorldTownContexts.get(calculable.getUniqueId()));
-        }
+            if (playerNationContexts.containsKey(player.getUniqueId())) {
+                accumulator.add(playerNationContexts.get(player.getUniqueId()));
+            }
 
-        if (playerWorldNationContexts.containsKey(calculable.getUniqueId())) {
-            accumulator.add(playerWorldNationContexts.get(calculable.getUniqueId()));
+            if (playerWorldTownContexts.containsKey(player.getUniqueId())) {
+                accumulator.add(playerWorldTownContexts.get(player.getUniqueId()));
+            }
+
+            if (playerWorldNationContexts.containsKey(player.getUniqueId())) {
+                accumulator.add(playerWorldNationContexts.get(player.getUniqueId()));
+            }
         }
     }
 
@@ -132,18 +137,24 @@ public class PermissionService {
         return player.hasPermission(permission.getId());
     }
 
-    public void setPermission(Player player, Permission permission, Tristate tristate) {
-        Set<Context> contexts = new HashSet<>();
-
-        if (playerTownContexts.containsKey(player.getUniqueId())) {
-            contexts.add(playerTownContexts.get(player.getUniqueId()));
-        }
-
+    /**
+     * Sets a permission in the context of a player's current nation.
+     */
+    public void setNationPermission(Player player, NationPermission permission, Tristate tristate) {
         if (playerNationContexts.containsKey(player.getUniqueId())) {
-            contexts.add(playerNationContexts.get(player.getUniqueId()));
+            Set<Context> nationContext = Collections.singleton(playerNationContexts.get(player.getUniqueId()));
+            player.getSubjectData().setPermission(nationContext, permission.getId(), tristate);
         }
+    }
 
-        player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
+    /**
+     * Sets a permission in the context of a player's current town.
+     */
+    public void setTownPermission(Player player, TownPermission permission, Tristate tristate) {
+        if (playerTownContexts.containsKey(player.getUniqueId())) {
+            Set<Context> townContext = Collections.singleton(playerTownContexts.get(player.getUniqueId()));
+            player.getSubjectData().setPermission(townContext, permission.getId(), tristate);
+        }
     }
 
     public void setWorldPermission(Player player, WorldPermission permission, Tristate tristate) {
@@ -159,6 +170,4 @@ public class PermissionService {
 
         player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
     }
-
-    public
 }

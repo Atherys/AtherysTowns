@@ -40,7 +40,7 @@ public class PlotFacade {
     public void renamePlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
 
-        if (permissionFacade.isPermitted(player, plot.getTown(), TownPermissions.RENAME_PLOT) ||
+        if (permissionFacade.isPermitted(player, TownPermissions.RENAME_PLOT) ||
             residentService.getOrCreate(player).equals(plot.getOwner())) {
 
             plotService.setPlotName(plot, newName);
@@ -67,7 +67,7 @@ public class PlotFacade {
 
     public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
-        permissionFacade.checkPermitted(player, plot.getTown(), TownPermissions.GRANT_PLOT, "grant plots.");
+        permissionFacade.checkPermitted(player, TownPermissions.GRANT_PLOT, "grant plots.");
 
         plotService.setPlotOwner(plot, residentService.getOrCreate(target));
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");
