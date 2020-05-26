@@ -10,7 +10,7 @@ import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
-import com.atherys.towns.service.PermissionService;
+import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownService;
@@ -21,7 +21,6 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
-import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -66,7 +65,7 @@ public class TownFacade implements EconomyFacade {
     private PermissionFacade permissionFacade;
 
     @Inject
-    private PermissionService permissionService;
+    private TownsPermissionService townsPermissionService;
 
     TownFacade() {
     }
@@ -113,12 +112,13 @@ public class TownFacade implements EconomyFacade {
             Town town = townService.createTown(
                     player.getWorld(),
                     player.getTransform(),
+                    player,
                     mayor,
                     homePlot,
                     name
             );
 
-            permissionService.updateContexts(player, mayor);
+            townsPermissionService.updateContexts(player, mayor);
 
             sendTownInfo(town, player);
 
@@ -277,7 +277,7 @@ public class TownFacade implements EconomyFacade {
                 throw new TownsCommandException("You cannot kick the leader of the town.");
             }
 
-            townService.removeResidentFromTown(resident, town);
+            townService.removeResidentFromTown(player, resident, town);
             townsMsg.info(player, GOLD, target.getName(), DARK_GREEN, " was kicked from the town.");
         } else {
             throw new TownsCommandException(target.getName(), " is not part of your town.");
@@ -294,7 +294,7 @@ public class TownFacade implements EconomyFacade {
                 .addAnswer(Answer.of(
                         Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
                         player -> {
-                            townService.addResidentToTown(residentService.getOrCreate(player), town);
+                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
                             joinTownMessage(player, town);
                         }
                 ))
@@ -307,7 +307,7 @@ public class TownFacade implements EconomyFacade {
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
         if (town.isFreelyJoinable()) {
-            townService.addResidentToTown(residentService.getOrCreate(player), town);
+            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
             joinTownMessage(player, town);
         } else {
             townsMsg.error(player, town.getName(), " is not freely joinable.");
@@ -321,7 +321,7 @@ public class TownFacade implements EconomyFacade {
         if (town.getLeader().equals(resident)) {
             throw new TownsCommandException("The town leader cannot leave the town.");
         } else {
-            townService.removeResidentFromTown(resident, town);
+            townService.removeResidentFromTown(player, resident, town);
             townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
         }
     }

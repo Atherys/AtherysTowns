@@ -1,6 +1,5 @@
 package com.atherys.towns.service;
 
-import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
@@ -15,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.service.economy.account.Account;
-import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 
 import java.util.*;
@@ -28,7 +26,7 @@ public class NationService {
 
     private TownService townService;
 
-    private PermissionService permissionService;
+    private TownsPermissionService townsPermissionService;
 
     private ResidentService residentService;
 
@@ -38,20 +36,20 @@ public class NationService {
 
     private TownsConfig config;
 
-    private Map<String, Nation> nations;
+    private Map<String, Nation> nations = new HashMap<>();
 
     @Inject
     NationService(
             TownService townService,
             TownRepository townRepository,
             TownsConfig config,
-            PermissionService permissionService,
+            TownsPermissionService townsPermissionService,
             ResidentService residentService,
             ResidentRepository residentRepository) {
         this.townService = townService;
         this.townRepository = townRepository;
         this.config = config;
-        this.permissionService = permissionService;
+        this.townsPermissionService = townsPermissionService;
         this.residentService = residentService;
         this.residentRepository = residentRepository;
 

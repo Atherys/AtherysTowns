@@ -1,6 +1,7 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.AtherysCore;
+import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.Nation;
@@ -12,15 +13,22 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Singleton
 public class TownService {
@@ -45,7 +53,9 @@ public class TownService {
 
     private ResidentRepository residentRepository;
 
-    private PermissionService permissionService;
+    private TownsPermissionService townsPermissionService;
+
+    private RoleService roleService;
 
     @Inject
     TownService(
@@ -54,17 +64,19 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
-            PermissionService permissionService
+            TownsPermissionService townsPermissionService,
+            RoleService roleService
     ) {
         this.config = config;
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
-        this.permissionService = permissionService;
+        this.townsPermissionService = townsPermissionService;
+        this.roleService = roleService;
     }
 
-    public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, String name) {
+    public Town createTown(World world, Transform<World> spawn, User leaderUser, Resident leader, Plot homePlot, String name) {
         Town town = new Town();
 
         town.setLeader(leader);
@@ -94,7 +106,7 @@ public class TownService {
 
         residentRepository.saveOne(leader);
 
-        // TODO: Set role for leader
+        roleService.setTownRole(leaderUser, config.TOWN.TOWN_LEADER_ROLE);
 
         return town;
     }
@@ -192,16 +204,24 @@ public class TownService {
     }
 
     public void removeTown(Town town) {
+        Set<Context> townContext = townsPermissionService.getContextsForTown(town);
+        Set<String> ids = new HashSet<>();
+
         town.getResidents().forEach(resident -> {
             resident.setTown(null);
+            ids.add(resident.getId().toString());
             residentRepository.saveOne(resident);
         });
+
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext));
 
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
 
-    public void addResidentToTown(Resident resident, Town town) {
+    public void addResidentToTown(User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
         // TODO: Set resident permissions
@@ -214,14 +234,10 @@ public class TownService {
         residentRepository.saveOne(resident);
     }
 
-    public void removeResidentFromTown(Resident resident, Town town) {
+    public void removeResidentFromTown(User user, Resident resident, Town town) {
         town.removeResident(resident);
         resident.setTown(null);
-        // TODO: Remove resident permissions
-
-        if (town.getNation() != null) {
-            // permissionService.removeAll(resident, town.getNation());
-        }
+        townsPermissionService.clearPermissions(user, town);
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);

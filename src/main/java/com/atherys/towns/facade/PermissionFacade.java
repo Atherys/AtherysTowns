@@ -5,25 +5,18 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.config.NationConfig;
 import com.atherys.towns.config.NationRoleConfig;
 import com.atherys.towns.config.TownRoleConfig;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.service.PermissionService;
+import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectReference;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -36,7 +29,7 @@ public class PermissionFacade {
     ResidentService residentService;
 
     @Inject
-    PermissionService permissionService;
+    TownsPermissionService townsPermissionService;
 
     @Inject
     PlotService plotService;
@@ -100,7 +93,7 @@ public class PermissionFacade {
             throw new TownsCommandException("Failed to establish command permission. Will not proceed.");
         }
 
-        return permissionService.isPermitted(source, permission);
+        return townsPermissionService.isPermitted(source, permission);
     }
 
     public void checkPermitted(Player source, Permission permission, String message) throws TownsCommandException {

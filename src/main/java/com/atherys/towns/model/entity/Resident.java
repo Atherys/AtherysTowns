@@ -33,9 +33,11 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
     )
     private Set<Resident> friends = new HashSet<>();
 
-    private Set<String> townRoleIds;
+    @ElementCollection
+    private Set<String> townRoleIds = new HashSet<>();
 
-    private Set<String> nationRoleIds;
+    @ElementCollection
+    private Set<String> nationRoleIds = new HashSet<>();
 
     private LocalDateTime registeredOn;
 

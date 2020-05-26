@@ -7,9 +7,11 @@ import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Tristate;
@@ -19,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @Singleton
-public class PermissionService {
+public class TownsPermissionService {
 
     // this context represents the town that the player is currently a part of
     public static final String TOWN_CONTEXT_KEY = "atherystowns:town";
@@ -45,7 +47,7 @@ public class PermissionService {
 
     private Map<UUID, Context> playerWorldNationContexts = new HashMap<>();
 
-    public PermissionService() {
+    public TownsPermissionService() {
     }
 
     /**
@@ -75,6 +77,16 @@ public class PermissionService {
             playerTownContexts.remove(player.getUniqueId());
             playerNationContexts.remove(player.getUniqueId());
         }
+    }
+
+    public Set<Context> getContextsForTown(Town town) {
+        Context townContext = new Context(TOWN_CONTEXT_KEY, town.getId().toString());
+        Context nationContext = town.getNation() == null ? null : new Context(NATION_CONTEXT_KEY, town.getNation().getId());
+
+        if (nationContext != null) {
+            return ImmutableSet.of(townContext, nationContext);
+        }
+        return Collections.singleton(townContext);
     }
 
     /**
@@ -169,5 +181,14 @@ public class PermissionService {
         }
 
         player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
+    }
+
+    public void clearPermissions(User user, Town town) {
+        clearPermissions(user, getContextsForTown(town));
+    }
+
+    public void clearPermissions(Subject subject, Set<Context> contexts) {
+        subject.getSubjectData().clearParents(contexts);
+        subject.getSubjectData().clearPermissions(contexts);
     }
 }

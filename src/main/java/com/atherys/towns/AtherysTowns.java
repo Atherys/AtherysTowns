@@ -179,8 +179,8 @@ public class AtherysTowns {
         return components.residentService;
     }
 
-    public PermissionService getPermissionService() {
-        return components.permissionService;
+    public TownsPermissionService getPermissionService() {
+        return components.townsPermissionService;
     }
 
     public TownsMessagingFacade getTownsMessagingService() {
@@ -219,10 +219,6 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    public TownsChatService getChatService() {
-        return components.chatService;
-    }
-
     protected TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -257,10 +253,7 @@ public class AtherysTowns {
         private ResidentService residentService;
 
         @Inject
-        private PermissionService permissionService;
-
-        @Inject
-        private TownsChatService chatService;
+        private TownsPermissionService townsPermissionService;
 
         @Inject
         private TownsMessagingFacade townsMessagingFacade;

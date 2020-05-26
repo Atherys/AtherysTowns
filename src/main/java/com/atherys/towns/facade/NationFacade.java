@@ -8,7 +8,7 @@ import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.PermissionService;
+import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -47,7 +47,7 @@ public class NationFacade implements EconomyFacade {
     PermissionFacade permissionFacade;
 
     @Inject
-    PermissionService permissionService;
+    TownsPermissionService townsPermissionService;
 
     @Inject
     ResidentService residentService;
