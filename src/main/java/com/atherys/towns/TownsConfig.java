@@ -20,9 +20,6 @@ public class TownsConfig extends PluginConfig {
     @Setting("economy-enabled")
     public boolean ECONOMY = true;
 
-    @Setting("require-being-in-town-for-transactions")
-    public boolean LOCAL_TRANSACTIONS = false;
-
     @Setting("default-currency")
     public Currency DEFAULT_CURRENCY;
 

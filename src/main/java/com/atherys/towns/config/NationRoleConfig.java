@@ -1,5 +1,6 @@
 package com.atherys.towns.config;
 
+import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -18,32 +19,33 @@ public class NationRoleConfig {
     private String name;
 
     @Setting("nation-permissions")
-    private Set<NationPermission> townPermissions = new HashSet<>();
+    private Set<Permission> nationPermissions = new HashSet<>();
 
     public NationRoleConfig() {
     }
 
-    public String getId() {
-        return id;
-    }
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public Set<NationPermission> getTownPermissions() {
-        return townPermissions;
+    public void setTownPermissions(Set<Permission> nationPermissions) {
+        this.nationPermissions = nationPermissions;
     }
 
-    public void setTownPermissions(Set<NationPermission> townPermissions) {
-        this.townPermissions = townPermissions;
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Set<Permission> getNationPermissions() {
+        return nationPermissions;
     }
 }

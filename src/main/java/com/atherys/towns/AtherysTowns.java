@@ -8,6 +8,8 @@ import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.PermissionRegistryModule;
+import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
@@ -74,10 +76,13 @@ public class AtherysTowns {
 
         // Register Permission Catalogue registry module
         Sponge.getRegistry().registerModule(Permission.class, new PermissionRegistryModule());
+        Sponge.getRegistry().registerModule(WorldPermission.class, new WorldPermissionRegistryModule());
 
         components = new Components();
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
         townsInjector.injectMembers(components);
+
+        getConfig().init();
 
         init = true;
     }
@@ -92,6 +97,8 @@ public class AtherysTowns {
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
+
+        getRoleService().init();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -179,6 +186,10 @@ public class AtherysTowns {
         return components.residentService;
     }
 
+    public RoleService getRoleService() {
+        return components.roleService;
+    }
+
     public TownsPermissionService getPermissionService() {
         return components.townsPermissionService;
     }
@@ -251,6 +262,9 @@ public class AtherysTowns {
 
         @Inject
         private ResidentService residentService;
+
+        @Inject
+        private RoleService roleService;
 
         @Inject
         private TownsPermissionService townsPermissionService;

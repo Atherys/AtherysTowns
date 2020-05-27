@@ -34,8 +34,6 @@ public class PermissionFacade {
     @Inject
     PlotService plotService;
 
-    org.spongepowered.api.service.permission.PermissionService spongePermissionService;
-
     static final String NOT_PERMITTED = "You are not permitted to ";
 
     public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
@@ -45,48 +43,6 @@ public class PermissionFacade {
     PermissionFacade() {
     }
 
-    public void init() {
-        spongePermissionService = Sponge.getServiceManager().provide(org.spongepowered.api.service.permission.PermissionService.class).get();
-
-        config.NATIONS.forEach(nationConfig -> {
-            SubjectReference lastRoleProcessed = null;
-            for (NationRoleConfig roleConfig : nationConfig.getRoles()) {
-                String roleId = nationConfig.getId() + "-" + roleConfig.getId();
-
-                spongePermissionService.getGroupSubjects().hasSubject(roleId).thenAcceptAsync(roleExists -> {
-                    if (!roleExists) {
-                        createRole(roleId, lastRoleProcessed);
-                    }
-                });
-            }
-        });
-
-        SubjectReference lastRoleProcessed = null;
-        for (TownRoleConfig roleConfig : config.TOWN.ROLES) {
-            String roleId = "town-" + roleConfig.getId();
-
-            if (roleExists(roleId)) {
-                continue;
-            }
-
-            lastRoleProcessed = createRole(roleId, lastRoleProcessed);
-        }
-    }
-
-    private boolean roleExists(String id) {
-        SubjectReference role = spongePermissionService.getGroupSubjects().newSubjectReference(id);
-        return true;
-    }
-
-    private SubjectReference createRole(String id, SubjectReference parent) {
-        SubjectReference role = spongePermissionService.getGroupSubjects().newSubjectReference(id);
-
-        if (parent != null) {
-            role.resolve().thenAcceptAsync(subject -> subject.getSubjectData().addParent(new HashSet<>(), parent));
-        }
-
-        return role;
-    }
 
     public boolean isPermitted(Player source, Permission permission) throws TownsCommandException {
         if (permission == null) {

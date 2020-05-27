@@ -36,7 +36,7 @@ public class NationService {
 
     private TownsConfig config;
 
-    private Map<String, Nation> nations = new HashMap<>();
+    private Map<String, Nation> nations;
 
     @Inject
     NationService(
@@ -80,6 +80,7 @@ public class NationService {
 
             nationBuilder.put(nationConfig.getId(), newNation);
         }
+        this.nations = nationBuilder.build();
     }
 
     public Optional<Nation> getNationFromId(String nationName) {

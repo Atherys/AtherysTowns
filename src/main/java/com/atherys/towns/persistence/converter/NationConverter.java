@@ -8,7 +8,7 @@ import javax.persistence.AttributeConverter;
 public class NationConverter implements AttributeConverter<Nation, String> {
     @Override
     public String convertToDatabaseColumn(Nation attribute) {
-        return attribute.getId();
+        return attribute == null ? "" : attribute.getId();
     }
 
     @Override
