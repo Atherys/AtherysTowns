@@ -17,7 +17,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         PlotRemoveActorPermissionCommand.class,
         GrantPlotCommand.class
 })
-@Permission("atherystowns.plot")
+@Permission("atherystowns.plot.base")
 @HelpCommand(title = "Plot Help", command = "help")
 public class PlotCommand implements CommandExecutor {
     @Override

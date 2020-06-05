@@ -89,6 +89,10 @@ public class TownsPermissionService {
         return Collections.singleton(townContext);
     }
 
+    public Set<Context> getContextForNation(Nation nation) {
+        return Collections.singleton(new Context(NATION_CONTEXT_KEY, nation.getId()));
+    }
+
     /**
      * This method should ideally be called every time a player enters or exits a town.
      * Additionally, it should also be called when the player joins the server.

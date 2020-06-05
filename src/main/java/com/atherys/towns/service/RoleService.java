@@ -1,10 +1,12 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.config.NationRoleConfig;
 import com.atherys.towns.config.TownRoleConfig;
+import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -15,6 +17,8 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.Collections;
@@ -35,6 +39,7 @@ public class RoleService {
     PermissionService permissionService;
 
     private static final String TOWN_PREFIX = "atherystowns.role.town.";
+    private static final String NATION_PREFIX = "atherystowns.role.nation.";
 
     public void init() {
         config.NATIONS.forEach(nationConfig -> {
@@ -42,13 +47,13 @@ public class RoleService {
                 String roleId = nationConfig.getId() + "-" + roleConfig.getId();
 
                 getSpongePermissionService().getGroupSubjects().hasSubject(roleId).thenAcceptAsync(roleExists -> {
-                    createRole(roleId, roleConfig.getNationPermissions(), Collections.emptySet());
+                    createRole(NATION_PREFIX + roleId, roleConfig.getNationPermissions(), Collections.emptySet());
                 });
             }
         });
 
         for (TownRoleConfig roleConfig : config.TOWN.ROLES) {
-            createRole(roleConfig.getId(), roleConfig.getTownPermissions(), roleConfig.getWorldPermissions());
+            createRole(TOWN_PREFIX + roleConfig.getId(), roleConfig.getTownPermissions(), roleConfig.getWorldPermissions());
         }
     }
 
@@ -60,6 +65,7 @@ public class RoleService {
 
             for (Permission permission : permissions) {
                 subjectData.setPermission(SubjectData.GLOBAL_CONTEXT, permission.getId(), Tristate.TRUE);
+                AtherysTowns.getInstance().getLogger().info(permission.getId());
             }
 
             for (WorldPermission permission : worldPermissions) {
@@ -68,26 +74,43 @@ public class RoleService {
         });
     }
 
-    public void setNationRole(User user, String role) {
+    public void addNationRole(Subject subject, Nation nation, String role) {
+        Subject roleSubject = getSpongePermissionService().getGroupSubjects().getSubject(NATION_PREFIX + nation.getId() + "-" + role).get();
+
+        Set<Context> nationContext = townsPermissionService.getContextForNation(nation);
+
+        subject.getTransientSubjectData().addParent(nationContext, roleSubject.asSubjectReference());
     }
 
-    public void setTownRole(User user, String role) {
-        Subject roleSubject = getSpongePermissionService().getGroupSubjects().getSubject(role).get();
-        Town town = residentService.getOrCreate(user).getTown();
+    public void removeNationRole(Subject subject, Nation nation, String role) {
+        Subject roleSubject = getSpongePermissionService().getGroupSubjects().getSubject(NATION_PREFIX + nation.getId() + "-" + role).get();
+
+        Set<Context> nationContext = townsPermissionService.getContextForNation(nation);
+
+        subject.getTransientSubjectData().removeParent(nationContext, roleSubject.asSubjectReference());
+    }
+
+    public void addTownRole(User user, Town town, String role) {
+        Subject roleSubject = getSpongePermissionService().getGroupSubjects().getSubject(TOWN_PREFIX + role).get();
 
         Set<Context> townContexts = townsPermissionService.getContextsForTown(town);
 
-        user.getSubjectData().clearParents(townContexts).thenAccept(__ -> {
-            user.getSubjectData().addParent(townContexts, roleSubject.asSubjectReference());
-        });
+        user.getTransientSubjectData().addParent(townContexts, roleSubject.asSubjectReference());
+    }
+
+    public void removeTownRole(User user, Town town, String role) {
+        Subject roleSubject = getSpongePermissionService().getGroupSubjects().getSubject(TOWN_PREFIX + role).get();
+
+        Set<Context> townContexts = townsPermissionService.getContextsForTown(town);
+
+        user.getTransientSubjectData().removeParent(townContexts, roleSubject.asSubjectReference());
     }
 
     private PermissionService getSpongePermissionService() {
         if (permissionService == null) {
-            permissionService = Sponge.getServiceManager().provide(org.spongepowered.api.service.permission.PermissionService.class).get();
+            permissionService = Sponge.getServiceManager().provide(PermissionService.class).get();
         }
 
         return permissionService;
     }
-
 }

@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 @Aliases({"nation", "n"})
 @Description("Base nation command.")
-@Permission("atherystowns.nation")
+@Permission("atherystowns.nation.base")
 @Children({
         NationAddActorPermissionCommand.class,
         NationInfoCommand.class,

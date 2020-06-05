@@ -1,7 +1,6 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.AtherysCore;
-import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.Nation;
@@ -18,16 +17,12 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -106,7 +101,8 @@ public class TownService {
 
         residentRepository.saveOne(leader);
 
-        roleService.setTownRole(leaderUser, config.TOWN.TOWN_LEADER_ROLE);
+        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_LEADER_ROLE);
+        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         return town;
     }
@@ -141,20 +137,22 @@ public class TownService {
     }
 
     public void setTownNation(Town town, Nation nation) {
+        Set<String> ids = town.getResidents().stream()
+                .map(resident -> resident.getId().toString())
+                .collect(Collectors.toSet());
 
-        // if town is already part of another nation, remove it
-        if (town.getNation() != null) {
-            town.getResidents().forEach(resident -> {
-                // TODO: Remove perms
-            });
-        }
+        Set<Context> nationContext = town.getNation() == null ? null : townsPermissionService.getContextForNation(town.getNation());
 
-        town.getResidents().forEach(resident -> {
-            // TODO: Set roles for residents
-        });
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> {
+                    if (town.getNation() != null) {
+                        townsPermissionService.clearPermissions(subject, nationContext);
+                    }
+                    roleService.addNationRole(subject, nation, nation.getDefaultNationRole());
+                }, ids);
 
         town.setNation(nation);
-
         townRepository.saveOne(town);
     }
 
@@ -210,13 +208,13 @@ public class TownService {
         town.getResidents().forEach(resident -> {
             resident.setTown(null);
             ids.add(resident.getId().toString());
-            residentRepository.saveOne(resident);
         });
 
         Sponge.getServiceManager().provideUnchecked(PermissionService.class)
                 .getUserSubjects()
-                .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext));
+                .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
+        residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
@@ -224,10 +222,10 @@ public class TownService {
     public void addResidentToTown(User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        // TODO: Set resident permissions
+        roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         if (town.getNation() != null) {
-            // TODO: Set nation permissions
+            roleService.addNationRole(user, town.getNation(), town.getNation().getDefaultNationRole());
         }
 
         townRepository.saveOne(town);

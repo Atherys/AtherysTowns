@@ -40,7 +40,10 @@ public final class TownPermissions {
     public static final TownPermission WITHDRAW_FROM_BANK = new TownPermission("atherystowns.town.withdraw", "Withdraw");
 
     // permission to change permissions of other residents in the town
-    public static final TownPermission SET_PERMISSION = new TownPermission("atherystowns.town.set.permission", "Revoke Permission");
+    public static final TownPermission SET_PERMISSION = new TownPermission("atherystowns.town.set.permission", "Set Permission");
+
+    // permission to grant and revoke roles of other residents in the town
+    public static final TownPermission SET_ROLE = new TownPermission("atherystowns.town.set.role", "Set Role");
 
     // permission to unclaim a plot belonging to the town
     public static final TownPermission UNCLAIM_PLOT = new TownPermission("atherystowns.town.plot.unclaim", "Unclaim Plot");

@@ -67,7 +67,6 @@ public class PlotFacade {
 
     public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
-        permissionFacade.checkPermitted(player, TownPermissions.GRANT_PLOT, "grant plots.");
 
         plotService.setPlotOwner(plot, residentService.getOrCreate(target));
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");

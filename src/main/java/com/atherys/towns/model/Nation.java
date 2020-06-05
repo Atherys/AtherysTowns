@@ -91,4 +91,12 @@ public class Nation {
     public Set<String> getRoles() {
         return roles;
     }
+
+    public String getNationLeaderRole() {
+        return nationLeaderRole;
+    }
+
+    public String getDefaultNationRole() {
+        return defaultNationRole;
+    }
 }

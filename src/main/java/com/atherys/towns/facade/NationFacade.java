@@ -5,9 +5,11 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
+import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
+import com.atherys.towns.service.RoleService;
 import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
@@ -29,28 +31,31 @@ import static org.spongepowered.api.text.format.TextColors.*;
 @Singleton
 public class NationFacade implements EconomyFacade {
     @Inject
-    TownsConfig config;
+    private TownsConfig config;
 
     @Inject
-    NationService nationService;
+    private NationService nationService;
 
     @Inject
-    TownsMessagingFacade townsMsg;
+    private RoleService roleService;
 
     @Inject
-    TownFacade townFacade;
+    private TownsMessagingFacade townsMsg;
 
     @Inject
-    ResidentFacade residentFacade;
+    private TownFacade townFacade;
 
     @Inject
-    PermissionFacade permissionFacade;
+    private ResidentFacade residentFacade;
 
     @Inject
-    TownsPermissionService townsPermissionService;
+    private PermissionFacade permissionFacade;
 
     @Inject
-    ResidentService residentService;
+    private TownsPermissionService townsPermissionService;
+
+    @Inject
+    private ResidentService residentService;
 
     NationFacade() {
     }
@@ -86,13 +91,34 @@ public class NationFacade implements EconomyFacade {
         */
     }
 
+    public void addNationRole(Player source, User target, String role) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        if (partOfSameNation(source, target)) {
+            roleService.addNationRole(target, nation, role);
+            townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " was granted the role ", GOLD, role, ".");
+        } else {
+            throw new TownsCommandException("");
+        }
+    }
+
+    public void removeNationRole(Player source, User target, String role) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        if (partOfSameNation(source, target)) {
+            roleService.removeNationRole(target, nation, role);
+            townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " had the role ", GOLD, role, DARK_GREEN, " revoked.");
+        } else {
+            throw new TownsCommandException("");
+        }
+    }
+
     public void depositToNation(Player source, BigDecimal amount) throws TownsCommandException {
         checkEconomyEnabled();
 
         Nation nation = getPlayerNation(source);
-        permissionFacade.checkPermitted(source,  NationPermissions.DEPOSIT_INTO_BANK, "deposit to your nation.");
 
-         Optional<TransferResult> result = Economy.transferCurrency(
+        Optional<TransferResult> result = Economy.transferCurrency(
                 source.getUniqueId(),
                 nation.getBankAccount().getIdentifier(),
                 config.DEFAULT_CURRENCY,
@@ -115,9 +141,8 @@ public class NationFacade implements EconomyFacade {
         checkEconomyEnabled();
 
         Nation nation = getPlayerNation(source);
-        permissionFacade.checkPermitted(source, NationPermissions.WITHDRAW_FROM_BANK, "withdraw from your nation");
 
-         Optional<TransferResult> result = Economy.transferCurrency(
+        Optional<TransferResult> result = Economy.transferCurrency(
                 nation.getBankAccount().getIdentifier(),
                 source.getUniqueId(),
                 config.DEFAULT_CURRENCY,
@@ -151,9 +176,12 @@ public class NationFacade implements EconomyFacade {
 
         Collection<Town> nationTowns = nationService.getTownsInNation(nation);
 
+        Text leader = nation.getLeader() == null ? Text.of("No Leader") : residentFacade.renderResident(nation.getLeader());
+        Text capital = nation.getCapital() == null ? Text.of("No Capital") : townFacade.renderTown(nation.getCapital());
+
         nationInfo
-                .append(Text.of(DARK_GREEN, "Capital: ", GOLD, townFacade.renderTown(nation.getCapital()), Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(nation.getLeader())), Text.NEW_LINE)
+                .append(Text.of(DARK_GREEN, "Capital: ", GOLD, capital), Text.NEW_LINE)
+                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, leader), Text.NEW_LINE)
                 .append(townsMsg.renderBank(nation.getBankAccount()), Text.NEW_LINE)
                 .append(Text.of(DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation)), Text.NEW_LINE)
                 .append(Text.of(
@@ -169,11 +197,13 @@ public class NationFacade implements EconomyFacade {
             return Text.of(GOLD, "No Nation");
         }
 
+        String leader = nation.getLeader() == null ? "No Leader" : nation.getLeader().getName();
+
         return Text.builder()
                 .append(Text.of(GOLD, nation.getName()))
                 .onHover(TextActions.showText(Text.of(
                         GOLD, nation.getName(), Text.NEW_LINE,
-                        DARK_GREEN, "Leader: ", GOLD, nation.getLeader().getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Leader: ", GOLD, leader, Text.NEW_LINE,
                         DARK_GREEN, "Towns: ", GOLD, nationService.getTownsInNation(nation).size(), Text.NEW_LINE,
                         DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation), Text.NEW_LINE,
                         townsMsg.renderBank(nation.getBankAccount()), Text.NEW_LINE,
@@ -226,5 +256,16 @@ public class NationFacade implements EconomyFacade {
         }
 
         return nation;
+    }
+
+    public boolean partOfSameNation(User user, User other) {
+        Town town = residentService.getOrCreate(user).getTown();
+        Town otherTown = residentService.getOrCreate(other).getTown();
+
+        if (town.getNation() != null) {
+            return town.getNation().equals(otherTown.getNation());
+        }
+
+        return false;
     }
 }

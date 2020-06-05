@@ -39,7 +39,7 @@ import org.spongepowered.api.entity.living.player.Player;
         TownSpawnCommand.class,
         TownRoleCommand.class
 })
-@Permission("atherystowns.town")
+@Permission("atherystowns.town.base")
 @HelpCommand(
         title = "Town Help",
         command = "help"
