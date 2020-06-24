@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 
 @Aliases({"describe", "description"})
 @Description("Sets the description of your town. You can use colors and styles with the format code (&).")
-@Permission("atherystowns.town.describe")
+@Permission("atherystowns.town.description")
 public class SetTownDescriptionCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {

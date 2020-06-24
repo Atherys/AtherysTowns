@@ -98,7 +98,7 @@ public class NationFacade implements EconomyFacade {
             roleService.addNationRole(target, nation, role);
             townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " was granted the role ", GOLD, role, ".");
         } else {
-            throw new TownsCommandException("");
+            throw new TownsCommandException(target.getName(), " is not in the same nation as you!");
         }
     }
 
@@ -109,7 +109,7 @@ public class NationFacade implements EconomyFacade {
             roleService.removeNationRole(target, nation, role);
             townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " had the role ", GOLD, role, DARK_GREEN, " revoked.");
         } else {
-            throw new TownsCommandException("");
+            throw new TownsCommandException(target.getName(), " is not in the same nation as you!");
         }
     }
 

@@ -19,19 +19,10 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 NationPermissions.INVITE_TOWN,
                 NationPermissions.KICK_TOWN,
                 NationPermissions.SET_PERMISSION,
+                NationPermissions.SET_ROLE,
                 NationPermissions.WITHDRAW_FROM_BANK,
                 NationPermissions.DEPOSIT_INTO_BANK,
-                NationPermissions.SET_NAME,
-                NationPermissions.SET_DESCRIPTION,
-                NationPermissions.SET_FREELY_JOINABLE,
-                NationPermissions.ADD_ALLY,
-                NationPermissions.ADD_NEUTRAL,
-                NationPermissions.ADD_ENEMY,
-                NationPermissions.DECLARE_WAR,
-                NationPermissions.DECLARE_PEACE,
-                NationPermissions.TRANSFER_LEADERSHIP,
-                NationPermissions.CHAT,
-                NationPermissions.SET_CAPITAL
+                NationPermissions.CHAT
         );
 
         put(
@@ -42,6 +33,8 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.RENAME_PLOT,
                 TownPermissions.GRANT_PLOT,
                 TownPermissions.SET_PERMISSION,
+                TownPermissions.SET_ROLE,
+                TownPermissions.RUIN_TOWN,
                 TownPermissions.WITHDRAW_FROM_BANK,
                 TownPermissions.DEPOSIT_INTO_BANK,
                 TownPermissions.JOIN_NATION,

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("permit")
 @Description("Grants a resident, town, or nation a permission with your nation.")
-@Permission("atherystowns.nation.permit")
+@Permission("atherystowns.nation.permission")
 public class NationAddActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {

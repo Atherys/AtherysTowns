@@ -12,9 +12,6 @@ import java.util.Set;
 @ConfigSerializable
 public class NationRoleConfig {
 
-    @Setting("id")
-    private String id;
-
     @Setting("name")
     private String name;
 
@@ -24,21 +21,12 @@ public class NationRoleConfig {
     public NationRoleConfig() {
     }
 
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setTownPermissions(Set<Permission> nationPermissions) {
         this.nationPermissions = nationPermissions;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getName() {

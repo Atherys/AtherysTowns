@@ -12,7 +12,7 @@ import org.spongepowered.api.entity.living.player.Player;
 
 @Aliases("claim")
 @Description("Claims a plot in the town.")
-@Permission("atherystowns.town.claim")
+@Permission("atherystowns.town.plot.claim")
 public class ClaimPlotCommand implements PlayerCommand {
     @Override
     public CommandResult execute(Player source, CommandContext args) throws CommandException {

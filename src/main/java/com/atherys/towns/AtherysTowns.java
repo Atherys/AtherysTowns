@@ -28,6 +28,7 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
@@ -99,6 +100,7 @@ public class AtherysTowns {
                 .registerContextCalculator(new TownsContextCalculator());
 
         getRoleService().init();
+        getNationService().init();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -144,6 +146,12 @@ public class AtherysTowns {
     @Listener
     public void onStop(GameStoppingServerEvent event) {
         if (init) stop();
+    }
+
+    @Listener
+    public void onReload(GameReloadEvent event) {
+        getConfig().init();
+        getNationService().init();
     }
 
     public static boolean economyIsEnabled() {

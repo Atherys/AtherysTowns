@@ -7,31 +7,31 @@ public final class TownPermissions {
     public static final TownPermission CHAT = new TownPermission("atherystowns.town.chat", "Use Town Chat");
 
     // permission to change town leader
-    public static final TownPermission TRANSFER_LEADERSHIP = new TownPermission("atherystowns.town.set.leader", "Transfer Leadership");
+    public static final TownPermission TRANSFER_LEADERSHIP = new TownPermission("atherystowns.town.leader", "Transfer Leadership");
 
     // permission to change town pvp policy
-    public static final TownPermission SET_PVP = new TownPermission("atherystowns.town.set.pvp", "Set PvP");
+    public static final TownPermission SET_PVP = new TownPermission("atherystowns.town.pvp", "Set PvP");
 
     // permission to change town spawn
-    public static final TownPermission SET_SPAWN = new TownPermission("atherystowns.town.set.spawn", "Set Spawn");
+    public static final TownPermission SET_SPAWN = new TownPermission("atherystowns.town.setspawn", "Set Spawn");
 
     // permission to change whether the town is freely joinable or not
-    public static final TownPermission SET_FREELY_JOINABLE = new TownPermission("atherystowns.town.set.joinable", "Set Freely Joinable");
+    public static final TownPermission SET_FREELY_JOINABLE = new TownPermission("atherystowns.town.joinable", "Set Freely Joinable");
 
     // permission to change the town color
-    public static final TownPermission SET_COLOR = new TownPermission("atherystowns.town.set.color", "Set Color");
+    public static final TownPermission SET_COLOR = new TownPermission("atherystowns.town.color", "Set Color");
 
     // permission to change the town motd
-    public static final TownPermission SET_MOTD = new TownPermission("atherystowns.town.set.motd", "Set Motd");
+    public static final TownPermission SET_MOTD = new TownPermission("atherystowns.town.motd", "Set Motd");
 
     // permission to change the town description
-    public static final TownPermission SET_DESCRIPTION = new TownPermission("atherystowns.town.set.description", "Set Description");
+    public static final TownPermission SET_DESCRIPTION = new TownPermission("atherystowns.town.description", "Set Description");
 
     // permission to change the town name
-    public static final TownPermission SET_NAME = new TownPermission("atherystowns.town.set.name", "Set Name");
+    public static final TownPermission SET_NAME = new TownPermission("atherystowns.town.name", "Set Name");
 
     // permission to change the nation that the town belongs to
-    public static final TownPermission JOIN_NATION = new TownPermission("atherystowns.town.set.nation", "Join Nation");
+    public static final TownPermission JOIN_NATION = new TownPermission("atherystowns.town.nation", "Join Nation");
 
     // permission to deposit into the town bank
     public static final TownPermission DEPOSIT_INTO_BANK = new TownPermission("atherystowns.town.deposit", "Deposit");
@@ -40,10 +40,10 @@ public final class TownPermissions {
     public static final TownPermission WITHDRAW_FROM_BANK = new TownPermission("atherystowns.town.withdraw", "Withdraw");
 
     // permission to change permissions of other residents in the town
-    public static final TownPermission SET_PERMISSION = new TownPermission("atherystowns.town.set.permission", "Set Permission");
+    public static final TownPermission SET_PERMISSION = new TownPermission("atherystowns.town.permission", "Set Permission");
 
     // permission to grant and revoke roles of other residents in the town
-    public static final TownPermission SET_ROLE = new TownPermission("atherystowns.town.set.role", "Set Role");
+    public static final TownPermission SET_ROLE = new TownPermission("atherystowns.town.role", "Set Role");
 
     // permission to unclaim a plot belonging to the town
     public static final TownPermission UNCLAIM_PLOT = new TownPermission("atherystowns.town.plot.unclaim", "Unclaim Plot");
@@ -58,8 +58,11 @@ public final class TownPermissions {
     public static final TownPermission GRANT_PLOT = new TownPermission("atherystowns.town.plot.grant", "Grant Plot");
 
     // permission to kick residents from the town
-    public static final TownPermission KICK_RESIDENT = new TownPermission("atherystowns.town.resident.kick", "Kick Resident");
+    public static final TownPermission KICK_RESIDENT = new TownPermission("atherystowns.town.kick", "Kick Resident");
 
     // permission to invite residents to the town
-    public static final TownPermission INVITE_RESIDENT = new TownPermission("atherystowns.town.resident.invite", "Invite Resident");
+    public static final TownPermission INVITE_RESIDENT = new TownPermission("atherystowns.town.invite", "Invite Resident");
+
+    // permission to destroy the town
+    public static final TownPermission RUIN_TOWN = new TownPermission("atherystowns.town.ruin", "Ruin Town");
 }

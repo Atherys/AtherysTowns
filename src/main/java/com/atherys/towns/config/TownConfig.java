@@ -6,10 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @ConfigSerializable
 public class TownConfig {
@@ -42,12 +39,12 @@ public class TownConfig {
     public boolean LOCAL_TRANSACTIONS = false;
 
     @Setting("roles")
-    public List<TownRoleConfig> ROLES = new ArrayList<>();
+    public Map<String, TownRoleConfig> ROLES = new HashMap<>();
     {
         TownRoleConfig townLeader = new TownRoleConfig();
-        townLeader.setId("mayor");
         townLeader.setName("Mayor");
         townLeader.setTownPermissions(ImmutableSet.of(
+                TownPermissions.RUIN_TOWN,
                 TownPermissions.INVITE_RESIDENT,
                 TownPermissions.KICK_RESIDENT,
                 TownPermissions.CLAIM_PLOT,
@@ -64,6 +61,7 @@ public class TownConfig {
                 TownPermissions.SET_FREELY_JOINABLE,
                 TownPermissions.SET_SPAWN,
                 TownPermissions.SET_PVP,
+                TownPermissions.SET_ROLE,
                 TownPermissions.TRANSFER_LEADERSHIP,
                 TownPermissions.CHAT
         ));
@@ -80,7 +78,6 @@ public class TownConfig {
         ));
 
         TownRoleConfig townMember = new TownRoleConfig();
-        townMember.setId("resident");
         townMember.setName("Resident");
         townMember.setTownPermissions(ImmutableSet.of(
                 TownPermissions.DEPOSIT_INTO_BANK,
@@ -98,7 +95,7 @@ public class TownConfig {
                 WorldPermissions.INTERACT_ENTITIES
         ));
 
-        ROLES.add(townLeader);
-        ROLES.add(townMember);
+        ROLES.put("mayor", townLeader);
+        ROLES.put("resident", townMember);
     }
 }

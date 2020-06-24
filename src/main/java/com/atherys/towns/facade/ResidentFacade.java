@@ -7,6 +7,7 @@ import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.service.RoleService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -35,6 +37,9 @@ public class ResidentFacade {
     private ResidentService residentService;
 
     @Inject
+    private RoleService roleService;
+
+    @Inject
     private TownsMessagingFacade townsMsg;
 
     @Inject
@@ -47,6 +52,12 @@ public class ResidentFacade {
     private TownsConfig config;
 
     ResidentFacade() {
+    }
+
+    public void onLogin(Player player) {
+        Resident resident = residentService.getOrCreate(player);
+        residentService.setLastTownSpawn(resident, LocalDateTime.now());
+        roleService.validateRoles(player, resident);
     }
 
     public void sendResidentInfo(Player player) {

@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 @Aliases({"revoke", "remove"})
 @Description("Revoke town role from resident")
-@Permission("atherystowns.town.set.role")
+@Permission("atherystowns.town.role")
 public class RevokeTownRoleCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {

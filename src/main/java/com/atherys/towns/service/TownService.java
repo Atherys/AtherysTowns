@@ -89,15 +89,15 @@ public class TownService {
         }
         town.setSpawn(spawn);
 
-        townRepository.saveOne(town);
-
         homePlot.setTown(town);
         town.addPlot(homePlot);
 
-        plotRepository.saveOne(homePlot);
 
         leader.setTown(town);
         town.addResident(leader);
+
+        townRepository.saveOne(town);
+        plotRepository.saveOne(homePlot);
 
         residentRepository.saveOne(leader);
 
@@ -141,6 +141,8 @@ public class TownService {
                 .map(resident -> resident.getId().toString())
                 .collect(Collectors.toSet());
 
+        AtherysTowns.getInstance().getLogger().info(ids.toString());
+
         Set<Context> nationContext = town.getNation() == null ? null : townsPermissionService.getContextForNation(town.getNation());
 
         Sponge.getServiceManager().provideUnchecked(PermissionService.class)
@@ -149,7 +151,7 @@ public class TownService {
                     if (town.getNation() != null) {
                         townsPermissionService.clearPermissions(subject, nationContext);
                     }
-                    roleService.addNationRole(subject, nation, nation.getDefaultNationRole());
+                    roleService.addNationRole(subject, nation, config.DEFAULT_ROLE);
                 }, ids);
 
         town.setNation(nation);
@@ -225,7 +227,7 @@ public class TownService {
         roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         if (town.getNation() != null) {
-            roleService.addNationRole(user, town.getNation(), town.getNation().getDefaultNationRole());
+            roleService.addNationRole(user, town.getNation(), config.DEFAULT_ROLE);
         }
 
         townRepository.saveOne(town);

@@ -12,9 +12,6 @@ import java.util.Set;
 @ConfigSerializable
 public class TownRoleConfig {
 
-    @Setting("id")
-    private String id;
-
     @Setting("name")
     private String name;
 
@@ -25,14 +22,6 @@ public class TownRoleConfig {
     private Set<WorldPermission> worldPermissions = new HashSet<>();
 
     public TownRoleConfig() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getName() {

@@ -13,8 +13,6 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         PlotInfoCommand.class,
         PlotSelectCommand.class,
         SetPlotNameCommand.class,
-        PlotAddActorPermissionCommand.class,
-        PlotRemoveActorPermissionCommand.class,
         GrantPlotCommand.class
 })
 @Permission("atherystowns.plot.base")

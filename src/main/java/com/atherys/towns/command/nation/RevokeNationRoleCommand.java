@@ -8,6 +8,7 @@ import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.core.utils.UserElement;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -21,13 +22,13 @@ import javax.annotation.Nonnull;
 
 @Aliases("revoke")
 @Description("Revoke role from nation resident")
-@Permission("atherystowns.nation.role.revoke")
+@Permission("atherystowns.nation.role")
 public class RevokeNationRoleCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 new UserElement(Text.of("resident")),
-                GenericArguments.string(Text.of("role"))
+                TownsElements.nationRole()
         };
     }
 

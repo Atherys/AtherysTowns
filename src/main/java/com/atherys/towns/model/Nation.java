@@ -5,6 +5,7 @@ import com.atherys.towns.model.entity.Town;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Nation {
@@ -25,12 +26,6 @@ public class Nation {
 
     private Account bankAccount;
 
-    private String nationLeaderRole;
-
-    private String defaultNationRole;
-
-    private Set<String> roles;
-
     public Nation(String id,
                   Text name,
                   Text description,
@@ -38,10 +33,7 @@ public class Nation {
                   Town capital,
                   boolean joinable,
                   double tax,
-                  Account bankAccount,
-                  String nationLeaderRole,
-                  String defaultNationRole,
-                  Set<String> roles
+                  Account bankAccount
     ) {
         this.id = id;
         this.name = name;
@@ -51,9 +43,6 @@ public class Nation {
         this.joinable = joinable;
         this.tax = tax;
         this.bankAccount = bankAccount;
-        this.nationLeaderRole = nationLeaderRole;
-        this.defaultNationRole = defaultNationRole;
-        this.roles = roles;
     }
 
     public String getId() {
@@ -88,15 +77,16 @@ public class Nation {
         return bankAccount;
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Nation nation = (Nation) o;
+        return Objects.equals(id, nation.id);
     }
 
-    public String getNationLeaderRole() {
-        return nationLeaderRole;
-    }
-
-    public String getDefaultNationRole() {
-        return defaultNationRole;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

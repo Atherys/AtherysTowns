@@ -91,6 +91,11 @@ public class ResidentService {
         residentRepository.saveOne(resident);
     }
 
+    public void setLastLogin(Resident resident, LocalDateTime time) {
+        resident.setLastLogin(time);
+        residentRepository.saveOne(resident);
+    }
+
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
         return Economy.getAccount(resident.getId());
     }
@@ -123,23 +128,23 @@ public class ResidentService {
         return town.getLeader().getId().equals(resident.getId());
     }
 
-    public void grantRole(Resident resident, TownRoleConfig role) {
-        resident.getTownRoleIds().add(role.getId());
+    public void grantTownRole(Resident resident, String role) {
+        resident.getTownRoleIds().add(role);
         residentRepository.saveOne(resident);
     }
 
-    public void grantRole(Resident resident, NationRoleConfig role) {
-        resident.getNationRoleIds().add(role.getId());
+    public void grantNationRole(Resident resident, String role) {
+        resident.getNationRoleIds().add(role);
         residentRepository.saveOne(resident);
     }
 
-    public void removeRole(Resident resident, TownRoleConfig role) {
-        resident.getTownRoleIds().remove(role.getId());
+    public void removeTownRole(Resident resident, String role) {
+        resident.getTownRoleIds().remove(role);
         residentRepository.saveOne(resident);
     }
 
-    public void removeRole(Resident resident, NationRoleConfig role) {
-        resident.getNationRoleIds().remove(role.getId());
+    public void removeNationRole(Resident resident, String role) {
+        resident.getNationRoleIds().remove(role);
         residentRepository.saveOne(resident);
     }
 }
