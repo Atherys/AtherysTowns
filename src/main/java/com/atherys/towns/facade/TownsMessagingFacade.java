@@ -92,6 +92,6 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
     }
 
     public Text renderBank(Account account) {
-        return Text.of(DARK_GREEN, "Bank: ", GOLD, config.CURRENCY.format(account.getBalance(config.CURRENCY)));
+        return Text.of(DARK_GREEN, "Bank: ", GOLD, config.DEFAULT_CURRENCY.format(account.getBalance(config.DEFAULT_CURRENCY)));
     }
 }

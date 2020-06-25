@@ -3,8 +3,8 @@ package com.atherys.towns.facade;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -38,7 +38,7 @@ public class TownSpawnFacade {
 
     private Task task = Task.builder()
             .execute(() -> {
-                if (config.TOWN_WARMUP == 0) return;
+                if (config.TOWN.TOWN_WARMUP == 0) return;
 
                 Map<Player, Resident> residents = Sponge.getServer().getOnlinePlayers().stream()
                         .collect(Collectors.toMap(p -> p, residentService::getOrCreate));
@@ -70,7 +70,7 @@ public class TownSpawnFacade {
         Town town = townFacade.getPlayerTown(source);
         Resident resident = residentService.getOrCreate(source);
         Duration timeLeft = Duration.between(
-                resident.getLastTownSpawn().plus(config.TOWN_COOLDOWN, ChronoUnit.MINUTES),
+                resident.getLastTownSpawn().plus(config.TOWN.TOWN_COOLDOWN, ChronoUnit.MINUTES),
                 LocalDateTime.now()
         );
 
@@ -80,9 +80,9 @@ public class TownSpawnFacade {
             throw new TownsCommandException(minutes + unit + " left on cooldown.");
         }
 
-        if (config.TOWN_WARMUP > 0) {
-            resident.setWarmupSecondsLeft(config.TOWN_WARMUP);
-            townsMsg.info(source, "Teleporting in ", GOLD, config.TOWN_WARMUP, DARK_GREEN, " seconds.");
+        if (config.TOWN.TOWN_WARMUP > 0) {
+            resident.setWarmupSecondsLeft(config.TOWN.TOWN_WARMUP);
+            townsMsg.info(source, "Teleporting in ", GOLD, config.TOWN.TOWN_WARMUP, DARK_GREEN, " seconds.");
         } else {
             teleport(source, resident);
         }
@@ -90,7 +90,7 @@ public class TownSpawnFacade {
 
     private void teleport(Player source, Resident resident) {
         source.setTransformSafely(resident.getTown().getSpawn());
-        if (config.TOWN_COOLDOWN > 0) {
+        if (config.TOWN.TOWN_COOLDOWN > 0) {
             residentService.setLastTownSpawn(resident, LocalDateTime.now());
         }
     }

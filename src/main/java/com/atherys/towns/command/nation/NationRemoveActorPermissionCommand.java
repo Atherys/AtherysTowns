@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("revoke")
 @Description("Revokes a permission from an entity.")
-@Permission("atherystowns.nation.revoke")
+@Permission("atherystowns.nation.permission")
 public class NationRemoveActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {

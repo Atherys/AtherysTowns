@@ -12,22 +12,15 @@ import javax.annotation.Nonnull;
 
 @Aliases({"nation", "n"})
 @Description("Base nation command.")
-@Permission("atherystowns.nation")
+@Permission("atherystowns.nation.base")
 @Children({
-        CreateNationCommand.class,
         NationAddActorPermissionCommand.class,
         NationInfoCommand.class,
         NationRemoveActorPermissionCommand.class,
-        SetNationDescriptionCommand.class,
-        SetNationNameCommand.class,
-        SetNationTaxCommand.class,
-        SetNationCapitalCommand.class,
-        AddNationAllyCommand.class,
-        AddNationEnemyCommand.class,
-        AddNationNeutralCommand.class,
         NationListCommand.class,
         DepositNationCommand.class,
-        WithdrawNationCommand.class
+        WithdrawNationCommand.class,
+        NationRoleCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {

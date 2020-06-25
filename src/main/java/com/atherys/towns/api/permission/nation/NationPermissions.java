@@ -1,39 +1,24 @@
 package com.atherys.towns.api.permission.nation;
 
-import com.atherys.towns.api.permission.Permission;
-
 public final class NationPermissions {
-    public static final Permission CHAT = new NationPermission("chat", "Nation Chat");
+    // permission to use nation chat
+    public static final NationPermission CHAT = new NationPermission("atherystowns.nation.chat", "Nation Chat");
 
-    public static final Permission TRANSFER_LEADERSHIP = new NationPermission("transfer_leadership", "Transfer Leadership");
+    // permission to invite a town to the nation
+    public static final NationPermission INVITE_TOWN = new NationPermission("atherystowns.nation.invite", "Declare War");
 
-    public static final Permission DECLARE_PEACE = new NationPermission("declare_peace", "Declare Peace");
+    // permission to kick a town from the nation
+    public static final NationPermission KICK_TOWN = new NationPermission("atherystowns.nation.kick", "Declare War");
 
-    public static final Permission DECLARE_WAR = new NationPermission("declare_war", "Declare War");
+    // permission to deposit into nation bank
+    public static final NationPermission DEPOSIT_INTO_BANK = new NationPermission("atherystowns.nation.deposit", "Deposit Currency");
 
-    public static final Permission ADD_ALLY = new NationPermission("add_ally", "Add Ally");
+    // permission to withdraw from town bank
+    public static final NationPermission WITHDRAW_FROM_BANK = new NationPermission("atherystowns.nation.withdraw", "Withdraw Currency");
 
-    public static final Permission ADD_NEUTRAL = new NationPermission("add_neutral", "Add Neutral");
+    // permission to change the permissions of other residents in the nation
+    public static final NationPermission SET_PERMISSION = new NationPermission("atherystowns.nation.permission", "Revoke Permission");
 
-    public static final Permission ADD_ENEMY = new NationPermission("add_enemy", "Add Enemy");
-
-    public static final Permission SET_FREELY_JOINABLE = new NationPermission("set_freely_joinable", "Set Freely Joinable");
-
-    public static final Permission SET_DESCRIPTION = new NationPermission("set_description", "Set Description");
-
-    public static final Permission SET_NAME = new NationPermission("set_name", "Set Name");
-
-    public static final Permission DEPOSIT_INTO_BANK = new NationPermission("deposit", "Deposit Currency");
-
-    public static final Permission WITHDRAW_FROM_BANK = new NationPermission("withdraw", "Withdraw Currency");
-
-    public static final Permission REVOKE_PERMISSION = new NationPermission("revoke_permission", "Revoke Permission");
-
-    public static final Permission ADD_PERMISSION = new NationPermission("add_permission", "Add Permission");
-
-    public static final Permission KICK_TOWN = new NationPermission("kick_town", "Kick Town");
-
-    public static final Permission INVITE_TOWN = new NationPermission("invite_town", "Invite Town");
-
-    public static final Permission SET_CAPITAL = new NationPermission("set_capital", "Set Capital");
+    // permission to change the roles of other residents in the nation
+    public static final NationPermission SET_ROLE = new NationPermission("atherystowns.nation.role", "Revoke Permission");
 }

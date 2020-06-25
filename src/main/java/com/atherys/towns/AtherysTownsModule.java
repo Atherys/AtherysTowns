@@ -1,14 +1,13 @@
 package com.atherys.towns;
 
-import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
-import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.service.user.UserStorageService;
 
 public class AtherysTownsModule extends AbstractModule {
@@ -21,11 +20,9 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownsCache.class);
 
         // Repositories
-        bind(NationRepository.class);
         bind(TownRepository.class);
         bind(PlotRepository.class);
         bind(ResidentRepository.class);
-        bind(PermissionRepository.class);
 
         // Sponge Services
         bind(UserStorageService.class).toProvider(() -> {
@@ -38,8 +35,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownSpawnFacade.class);
         bind(PlotService.class);
         bind(ResidentService.class);
-        bind(PermissionService.class);
-        bind(TownsChatService.class).to(SimpleTownsChatService.class);
+        bind(TownsPermissionService.class);
 
         // Facades
         bind(NationFacade.class);

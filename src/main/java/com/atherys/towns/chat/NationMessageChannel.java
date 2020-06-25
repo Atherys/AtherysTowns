@@ -1,7 +1,8 @@
 package com.atherys.towns.chat;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.entity.Nation;
+import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.model.Nation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;

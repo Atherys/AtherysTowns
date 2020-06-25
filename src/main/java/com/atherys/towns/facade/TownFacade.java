@@ -6,14 +6,11 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
-import com.atherys.towns.service.PermissionService;
-import com.atherys.towns.service.PlotService;
-import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownService;
+import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -50,6 +47,9 @@ public class TownFacade implements EconomyFacade {
     private ResidentService residentService;
 
     @Inject
+    private RoleService roleService;
+
+    @Inject
     private TownsMessagingFacade townsMsg;
 
     @Inject
@@ -65,10 +65,7 @@ public class TownFacade implements EconomyFacade {
     private PermissionFacade permissionFacade;
 
     @Inject
-    private PermissionService permissionService;
-
-    @Inject
-    private TownsConfig townsConfig;
+    private TownsPermissionService townsPermissionService;
 
     TownFacade() {
     }
@@ -82,8 +79,8 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("A town with that name already exists.");
         }
 
-        if (name.length() > townsConfig.MAX_TOWN_NAME_LENGTH) {
-            throw new TownsCommandException("Your new name is longer than the maximum (", townsConfig.MAX_TOWN_NAME_LENGTH, ").");
+        if (name.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
+            throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
         if (hasPlayerTown(player)) {
@@ -109,14 +106,19 @@ public class TownFacade implements EconomyFacade {
                 throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
             }
 
+            Resident mayor = residentService.getOrCreate(player);
+
             // create the town
             Town town = townService.createTown(
                     player.getWorld(),
                     player.getTransform(),
-                    residentService.getOrCreate(player),
+                    player,
+                    mayor,
                     homePlot,
                     name
             );
+
+            townsPermissionService.updateContexts(player, mayor);
 
             sendTownInfo(town, player);
 
@@ -138,16 +140,12 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(source);
 
-        permissionFacade.checkPermitted(source, town, TownPermissions.SET_NAME, "change the town's name.");
-
         townService.setTownName(town, name);
         townsMsg.info(source, "Town name set.");
     }
 
     public void setPlayerTownDescription(Player player, Text description) throws TownsCommandException {
         Town town = getPlayerTown(player);
-
-        permissionFacade.checkPermitted(player, town, TownPermissions.SET_DESCRIPTION, "change the town's description.");
 
         townService.setTownDescription(town, description);
         townsMsg.info(player, "Town description set.");
@@ -156,7 +154,6 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownColor(Player player, TextColor color) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        permissionFacade.checkPermitted(player, town, TownPermissions.SET_COLOR, "change the town's color.");
         townService.setTownColor(town, color);
         townsMsg.info(player, "Town color set.");
     }
@@ -164,14 +161,12 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownMotd(Player player, Text motd) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        permissionFacade.checkPermitted(player, town, TownPermissions.SET_MOTD, "change the town's MOTD.");
         townService.setTownMotd(town, motd);
         townsMsg.info(player, "Town motd set.");
     }
 
     public void setPlayerTownPvp(Player player, boolean pvp) throws TownsCommandException {
         Town town = getPlayerTown(player);
-        permissionFacade.checkPermitted(player, town, TownPermissions.SET_PVP, "change the town's PvP status.");
 
         townService.setTownPvp(town, pvp);
         townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
@@ -179,7 +174,6 @@ public class TownFacade implements EconomyFacade {
 
     public void setPlayerTownJoinable(Player player, boolean joinable) throws TownsCommandException {
         Town town = getPlayerTown(player);
-        permissionFacade.checkPermitted(player, town, TownPermissions.SET_FREELY_JOINABLE, "change the town's joinable status.");
 
         townService.setTownJoinable(town, joinable);
         townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
@@ -194,7 +188,7 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Only the town leader may remove the town.");
         }
 
-        townService.removeTown(resident.getTown());
+        townService.removeTown(town);
         townsMsg.info(player, "Town ruined.");
     }
 
@@ -210,8 +204,6 @@ public class TownFacade implements EconomyFacade {
 
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
-
-        permissionFacade.checkPermitted(source, town, TownPermissions.UNCLAIM_PLOT, "unclaim plots.");
 
         Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() -> {
             return new TownsCommandException("You are not currently standing on a claim area.");
@@ -229,8 +221,6 @@ public class TownFacade implements EconomyFacade {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
         Town town = getPlayerTown(source);
-
-        permissionFacade.checkPermitted(source, town, TownPermissions.CLAIM_PLOT, "claim plots.");
 
         Plot plot = plotService.createPlotFromSelection(selection);
 
@@ -254,8 +244,6 @@ public class TownFacade implements EconomyFacade {
     public void inviteToTown(Player source, Player invitee) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        permissionFacade.checkPermitted(source, town, TownPermissions.INVITE_RESIDENT, "invite people to the town.");
-
         if (partOfSameTown(source, invitee)) {
             throw new TownsCommandException(invitee.getName(), " is already part of your town.");
         }
@@ -267,15 +255,13 @@ public class TownFacade implements EconomyFacade {
         Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(target);
 
-        permissionFacade.checkPermitted(player, town, TownPermissions.KICK_RESIDENT, "kick residents.");
-
         if (town.equals(resident.getTown())) {
 
             if (town.getLeader().equals(resident)) {
                 throw new TownsCommandException("You cannot kick the leader of the town.");
             }
 
-            townService.removeResidentFromTown(resident, town);
+            townService.removeResidentFromTown(player, resident, town);
             townsMsg.info(player, GOLD, target.getName(), DARK_GREEN, " was kicked from the town.");
         } else {
             throw new TownsCommandException(target.getName(), " is not part of your town.");
@@ -292,7 +278,7 @@ public class TownFacade implements EconomyFacade {
                 .addAnswer(Answer.of(
                         Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
                         player -> {
-                            townService.addResidentToTown(residentService.getOrCreate(player), town);
+                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
                             joinTownMessage(player, town);
                         }
                 ))
@@ -305,7 +291,7 @@ public class TownFacade implements EconomyFacade {
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
         if (town.isFreelyJoinable()) {
-            townService.addResidentToTown(residentService.getOrCreate(player), town);
+            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
             joinTownMessage(player, town);
         } else {
             townsMsg.error(player, town.getName(), " is not freely joinable.");
@@ -319,12 +305,14 @@ public class TownFacade implements EconomyFacade {
         if (town.getLeader().equals(resident)) {
             throw new TownsCommandException("The town leader cannot leave the town.");
         } else {
-            townService.removeResidentFromTown(resident, town);
+            townService.removeResidentFromTown(player, resident, town);
             townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
         }
     }
 
+
     public void addTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+        /*
         Town town = getPlayerTown(source);
 
         permissionFacade.checkPermitted(source, town, TownPermissions.ADD_PERMISSION, "grant permissions.");
@@ -335,9 +323,11 @@ public class TownFacade implements EconomyFacade {
         target.getPlayer().ifPresent(player -> {
             townsMsg.info(player, "You were given the permission ", GOLD, permission.getId(), ".");
         });
+         */
     }
 
     public void removeTownPermission(Player source, User target, TownPermission permission) throws TownsCommandException {
+        /*
         Town town = getPlayerTown(source);
 
         permissionFacade.checkPermitted(source, town, TownPermissions.REVOKE_PERMISSION, "revoke permissions");
@@ -347,6 +337,29 @@ public class TownFacade implements EconomyFacade {
         target.getPlayer().ifPresent(player -> {
             townsMsg.info(player, "The permission ", GOLD, permission.getId(), DARK_GREEN, " was taken from you.");
         });
+         */
+    }
+
+    public void addTownRole(Player source, User target, String role) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+
+        if (partOfSameTown(source, target)) {
+            roleService.addTownRole(target, town, role);
+            townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " was granted the role ", GOLD, role, ".");
+        } else {
+            throw new TownsCommandException("");
+        }
+    }
+
+    public void removeTownRole(Player source, User target, String role) throws TownsCommandException {
+        Town town = getPlayerTown(source);
+
+        if (partOfSameTown(source, target)) {
+            roleService.removeTownRole(target, town, role);
+            townsMsg.info(source, GOLD, target.getName(), DARK_GREEN, " had the role ", GOLD, role, DARK_GREEN, " revoked.");
+        } else {
+            throw new TownsCommandException("");
+        }
     }
 
     private boolean partOfSameTown(User user, User other) {
@@ -360,16 +373,14 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(player);
 
-        permissionFacade.checkPermitted(player, town, TownPermissions.DEPOSIT_INTO_BANK, "deposit to the town.");
-
-        if (townsConfig.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
+        if (config.TOWN.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
         Optional<TransferResult> result = Economy.transferCurrency(
                 player.getUniqueId(),
                 town.getBank().toString(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -377,7 +388,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Deposited", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                    Text.of("Deposited", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
                     Text.of("You do not have enough to deposit."),
                     Text.of("Depositing failed.")
             );
@@ -390,16 +401,14 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(player);
 
-        permissionFacade.checkPermitted(player, town, TownPermissions.WITHDRAW_FROM_BANK, "withdraw from the town.");
-
-        if (townsConfig.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
+        if (config.TOWN.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
         Optional<TransferResult> result = Economy.transferCurrency(
                 town.getBank().toString(),
                 player.getUniqueId(),
-                config.CURRENCY,
+                config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
         );
@@ -407,7 +416,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Withdrew ", GOLD, config.CURRENCY.format(amount), DARK_GREEN, " from the town."),
+                    Text.of("Withdrew ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " from the town."),
                     Text.of("The town does not have enough to withdraw."),
                     Text.of("Withdrawing failed.")
             );
@@ -418,7 +427,6 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownSpawn(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        permissionFacade.checkPermitted(source, town, TownPermissions.SET_SPAWN, "set the town spawn.");
         townsMsg.info(source, "Town spawn set.");
         townService.setTownSpawn(town, source.getTransform());
     }

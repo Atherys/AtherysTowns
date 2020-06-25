@@ -3,25 +3,27 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
-import com.atherys.towns.persistence.NationRepository;
+import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Singleton
 public class TownService {
@@ -46,9 +48,9 @@ public class TownService {
 
     private ResidentRepository residentRepository;
 
-    private PermissionService permissionService;
+    private TownsPermissionService townsPermissionService;
 
-    private NationRepository nationRepository;
+    private RoleService roleService;
 
     @Inject
     TownService(
@@ -57,19 +59,19 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
-            PermissionService permissionService,
-            NationRepository nationRepository
+            TownsPermissionService townsPermissionService,
+            RoleService roleService
     ) {
         this.config = config;
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
-        this.permissionService = permissionService;
-        this.nationRepository = nationRepository;
+        this.townsPermissionService = townsPermissionService;
+        this.roleService = roleService;
     }
 
-    public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, String name) {
+    public Town createTown(World world, Transform<World> spawn, User leaderUser, Resident leader, Plot homePlot, String name) {
         Town town = new Town();
 
         town.setLeader(leader);
@@ -77,7 +79,7 @@ public class TownService {
         town.setDescription(DEFAULT_TOWN_DESCRIPTION);
         town.setMotd(DEFAULT_TOWN_MOTD);
         town.setColor(DEFAULT_TOWN_COLOR);
-        town.setMaxSize(config.DEFAULT_TOWN_MAX_SIZE);
+        town.setMaxSize(config.TOWN.DEFAULT_TOWN_MAX_SIZE);
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(world.getUniqueId());
@@ -87,20 +89,20 @@ public class TownService {
         }
         town.setSpawn(spawn);
 
-        townRepository.saveOne(town);
-
         homePlot.setTown(town);
         town.addPlot(homePlot);
 
-        plotRepository.saveOne(homePlot);
 
         leader.setTown(town);
         town.addResident(leader);
 
+        townRepository.saveOne(town);
+        plotRepository.saveOne(homePlot);
+
         residentRepository.saveOne(leader);
 
-        permissionService.permit(leader, town, config.DEFAULT_TOWN_LEADER_PERMISSIONS);
-        permissionService.permit(town, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_LEADER_ROLE);
+        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         return town;
     }
@@ -135,23 +137,25 @@ public class TownService {
     }
 
     public void setTownNation(Town town, Nation nation) {
+        Set<String> ids = town.getResidents().stream()
+                .map(resident -> resident.getId().toString())
+                .collect(Collectors.toSet());
 
-        // if town is already part of another nation, remove it
-        if (town.getNation() != null) {
-            town.getNation().removeTown(town);
-            town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
-            nationRepository.saveOne(town.getNation());
-        }
+        AtherysTowns.getInstance().getLogger().info(ids.toString());
 
-        town.getResidents().forEach(resident -> {
-            permissionService.permit(resident, nation, config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
-        });
+        Set<Context> nationContext = town.getNation() == null ? null : townsPermissionService.getContextForNation(town.getNation());
+
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> {
+                    if (town.getNation() != null) {
+                        townsPermissionService.clearPermissions(subject, nationContext);
+                    }
+                    roleService.addNationRole(subject, nation, config.DEFAULT_ROLE);
+                }, ids);
 
         town.setNation(nation);
-        nation.addTown(town);
-
         townRepository.saveOne(town);
-        nationRepository.saveOne(nation);
     }
 
     public void setTownJoinable(Town town, boolean joinable) {
@@ -200,41 +204,40 @@ public class TownService {
     }
 
     public void removeTown(Town town) {
-        CompletableFuture<Void> complete = permissionService.removeAll(town);
+        Set<Context> townContext = townsPermissionService.getContextsForTown(town);
+        Set<String> ids = new HashSet<>();
 
-        complete.thenAccept(__ -> {
-            town.getResidents().forEach(resident -> {
-                permissionService.removeAll(resident, town);
-                resident.setTown(null);
-                residentRepository.saveOne(resident);
-            });
+        town.getResidents().forEach(resident -> {
+            resident.setTown(null);
+            ids.add(resident.getId().toString());
         });
 
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
+
+        residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
 
-    public void addResidentToTown(Resident resident, Town town) {
+    public void addResidentToTown(User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        permissionService.permit(resident, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         if (town.getNation() != null) {
-            permissionService.permit(resident, town.getNation(), config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+            roleService.addNationRole(user, town.getNation(), config.DEFAULT_ROLE);
         }
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }
 
-    public void removeResidentFromTown(Resident resident, Town town) {
+    public void removeResidentFromTown(User user, Resident resident, Town town) {
         town.removeResident(resident);
         resident.setTown(null);
-        permissionService.removeAll(resident, town);
-
-        if (town.getNation() != null) {
-            permissionService.removeAll(resident, town.getNation());
-        }
+        townsPermissionService.clearPermissions(user, town);
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);

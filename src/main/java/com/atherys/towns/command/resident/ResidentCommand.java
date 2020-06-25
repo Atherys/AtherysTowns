@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
         RemoveFriendCommand.class,
         ResidentInfoCommand.class
 })
-@Permission("atherystowns.resident")
+@Permission("atherystowns.resident.base")
 public class ResidentCommand implements PlayerCommand {
     @Nonnull
     @Override

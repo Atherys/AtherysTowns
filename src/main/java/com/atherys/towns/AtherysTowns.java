@@ -8,13 +8,18 @@ import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.PermissionRegistryModule;
+import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.entity.*;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
+import com.atherys.towns.permission.TownsContextCalculator;
 import com.atherys.towns.persistence.*;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
@@ -23,6 +28,7 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
@@ -71,10 +77,13 @@ public class AtherysTowns {
 
         // Register Permission Catalogue registry module
         Sponge.getRegistry().registerModule(Permission.class, new PermissionRegistryModule());
+        Sponge.getRegistry().registerModule(WorldPermission.class, new WorldPermissionRegistryModule());
 
         components = new Components();
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
         townsInjector.injectMembers(components);
+
+        getConfig().init();
 
         init = true;
     }
@@ -86,6 +95,13 @@ public class AtherysTowns {
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
+        Sponge.getServiceManager()
+                .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
+                .registerContextCalculator(new TownsContextCalculator());
+
+        getRoleService().init();
+        getNationService().init();
+
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
             AtherysCore.getCommandService().register(new PlotCommand(), this);
@@ -95,13 +111,13 @@ public class AtherysTowns {
             e.printStackTrace();
         }
 
-        if (components.config.TOWN_WARMUP < 0) {
+        if (components.config.TOWN.TOWN_WARMUP < 0) {
             logger.warn("Town spawn warmup is negative. Will default to zero.");
-            components.config.TOWN_WARMUP = 0;
+            components.config.TOWN.TOWN_WARMUP = 0;
         }
 
-        if (components.config.TOWN_COOLDOWN < 0) {
-            components.config.TOWN_COOLDOWN = 0;
+        if (components.config.TOWN.TOWN_COOLDOWN < 0) {
+            components.config.TOWN.TOWN_COOLDOWN = 0;
             logger.warn("Town spawn cooldown is negative. Will default to zero.");
         }
     }
@@ -117,11 +133,9 @@ public class AtherysTowns {
 
     @Listener
     public void onHibernateConfiguration(AtherysHibernateConfigurationEvent event) {
-        event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-        event.registerEntity(PermissionNode.class);
     }
 
     @Listener
@@ -132,6 +146,12 @@ public class AtherysTowns {
     @Listener
     public void onStop(GameStoppingServerEvent event) {
         if (init) stop();
+    }
+
+    @Listener
+    public void onReload(GameReloadEvent event) {
+        getConfig().init();
+        getNationService().init();
     }
 
     public static boolean economyIsEnabled() {
@@ -146,10 +166,6 @@ public class AtherysTowns {
         return logger;
     }
 
-    public NationRepository getNationRepository() {
-        return components.nationRepository;
-    }
-
     public TownRepository getTownRepository() {
         return components.townRepository;
     }
@@ -160,10 +176,6 @@ public class AtherysTowns {
 
     public ResidentRepository getResidentRepository() {
         return components.residentRepository;
-    }
-
-    public PermissionRepository getPermissionRepository() {
-        return components.permissionRepository;
     }
 
     public NationService getNationService() {
@@ -182,8 +194,12 @@ public class AtherysTowns {
         return components.residentService;
     }
 
-    public PermissionService getPermissionService() {
-        return components.permissionService;
+    public RoleService getRoleService() {
+        return components.roleService;
+    }
+
+    public TownsPermissionService getPermissionService() {
+        return components.townsPermissionService;
     }
 
     public TownsMessagingFacade getTownsMessagingService() {
@@ -222,10 +238,6 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    public TownsChatService getChatService() {
-        return components.chatService;
-    }
-
     protected TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -239,9 +251,6 @@ public class AtherysTowns {
         private TownsCache townsCache;
 
         @Inject
-        private NationRepository nationRepository;
-
-        @Inject
         private TownRepository townRepository;
 
         @Inject
@@ -249,9 +258,6 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
-
-        @Inject
-        private PermissionRepository permissionRepository;
 
         @Inject
         private NationService nationService;
@@ -266,10 +272,10 @@ public class AtherysTowns {
         private ResidentService residentService;
 
         @Inject
-        private PermissionService permissionService;
+        private RoleService roleService;
 
         @Inject
-        private TownsChatService chatService;
+        private TownsPermissionService townsPermissionService;
 
         @Inject
         private TownsMessagingFacade townsMessagingFacade;

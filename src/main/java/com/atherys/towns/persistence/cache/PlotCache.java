@@ -1,7 +1,7 @@
 package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.SimpleCache;
-import com.atherys.towns.entity.Plot;
+import com.atherys.towns.model.entity.Plot;
 import com.flowpowered.math.vector.Vector2i;
 
 import java.util.HashMap;

@@ -11,6 +11,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 @Singleton
 public class PlayerListener {
@@ -22,10 +23,10 @@ public class PlayerListener {
     private TownSpawnFacade townSpawnFacade;
 
     @Inject
-    private ResidentFacade residentFacade;
+    private TownsConfig config;
 
     @Inject
-    private TownsConfig config;
+    private ResidentFacade residentFacade;
 
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
@@ -41,5 +42,10 @@ public class PlayerListener {
         if (config.SPAWN_IN_TOWN) {
             residentFacade.onPlayerSpawn(event);
         }
+    }
+
+    @Listener
+    public void onPlayerLogin(ClientConnectionEvent.Join event, @Root Player player) {
+        residentFacade.onLogin(player);
     }
 }

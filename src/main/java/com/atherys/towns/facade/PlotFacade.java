@@ -2,7 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
-import com.atherys.towns.entity.Plot;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
@@ -40,7 +40,7 @@ public class PlotFacade {
     public void renamePlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
 
-        if (permissionFacade.isPermitted(player, plot.getTown(), TownPermissions.RENAME_PLOT) ||
+        if (permissionFacade.isPermitted(player, TownPermissions.RENAME_PLOT) ||
             residentService.getOrCreate(player).equals(plot.getOwner())) {
 
             plotService.setPlotName(plot, newName);
@@ -67,7 +67,6 @@ public class PlotFacade {
 
     public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
-        permissionFacade.checkPermitted(player, plot.getTown(), TownPermissions.GRANT_PLOT, "grant plots.");
 
         plotService.setPlotOwner(plot, residentService.getOrCreate(target));
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");

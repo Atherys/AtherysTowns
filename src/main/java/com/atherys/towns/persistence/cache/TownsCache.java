@@ -2,9 +2,8 @@ package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -23,19 +22,11 @@ public class TownsCache {
     @Inject
     private TownRepository townRepository;
 
-    @Inject
-    private NationRepository nationRepository;
-
-    @Inject
-    private PermissionRepository permissionRepository;
-
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
     private PlotCache plotCache = new PlotCache();
 
     private Cache<Town, Long> townCache = new SimpleCache<>();
-
-    private Cache<Nation, Long> nationCache = new SimpleCache<>();
 
     public TownsCache() {
     }
@@ -45,21 +36,12 @@ public class TownsCache {
 
         townRepository.initCache();
         plotRepository.initCache();
-        nationRepository.initCache();
-
-        permissionRepository.initCache();
     }
 
     public void flushCache() {
         residentRepository.flushCache();
         plotRepository.flushCache();
         townRepository.flushCache();
-        nationRepository.flushCache();
-        permissionRepository.flushCache();
-    }
-
-    public Cache<Nation, Long> getNationCache() {
-        return nationCache;
     }
 
     public Cache<Resident, UUID> getResidentCache() {
