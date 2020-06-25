@@ -17,6 +17,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -495,6 +496,13 @@ public class TownFacade implements EconomyFacade {
         }
 
         return townsText.build();
+    }
+
+    public void onPlayerDamage(DamageEntityEvent event, Player player) {
+        plotService.getPlotByLocation(player.getLocation()).ifPresent(plot -> {
+            Town townAtPlot = plot.getTown();
+            event.setCancelled(!townAtPlot.isPvpEnabled());
+        });
     }
 
     private void joinTownMessage(Player player, Town town) {

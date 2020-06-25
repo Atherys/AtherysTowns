@@ -6,6 +6,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.facade.ResidentFacade;
+import com.atherys.towns.facade.TownFacade;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -17,7 +19,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("pvp")
-@Description("")
+@Description("Enables/Disables PvP Protection in your Town.")
 @Permission("atherystowns.town.pvp")
 public class SetTownPvpCommand implements PlayerCommand, ParameterizedCommand {
     @Override
@@ -30,7 +32,7 @@ public class SetTownPvpCommand implements PlayerCommand, ParameterizedCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source, args.<Boolean>getOne("pvp").get());
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source, args.<Boolean>getOne("pvp").orElse(false));
         return CommandResult.success();
     }
 }
