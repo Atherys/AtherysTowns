@@ -15,6 +15,7 @@ import com.flowpowered.noise.module.modifier.ScalePoint;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
@@ -52,8 +53,7 @@ public class NationService {
         ImmutableMap.Builder<String, Nation> nationBuilder = ImmutableMap.builder();
 
         for (NationConfig nationConfig : config.NATIONS) {
-            Resident leader = residentRepository.findById(nationConfig.getLeaderUuid()).orElse(null);
-            Town capital = townRepository.findByName(nationConfig.getCapitalName()).orElse(null);
+
 
             Account account = null;
             if (AtherysTowns.economyIsEnabled()) {
@@ -64,20 +64,32 @@ public class NationService {
                 nationConfig.getId(),
                 nationConfig.getName(),
                 nationConfig.getDescription(),
-                leader,
-                capital,
+                null,
+                null,
                 nationConfig.isFreelyJoinable(),
                 nationConfig.getTax(),
                 account
             );
 
-            if (capital != null) {
-                townService.setTownNation(capital, newNation);
-            }
-
             nationBuilder.put(nationConfig.getId(), newNation);
         }
         this.nations = nationBuilder.build();
+    }
+
+    public void initTowns() {
+        for (NationConfig nationConfig : config.NATIONS) {
+            Resident leader = residentRepository.findById(nationConfig.getLeaderUuid()).orElse(null);
+            Town capital = townRepository.findByName(nationConfig.getCapitalName()).orElse(null);
+
+            Nation nation = nations.get(nationConfig.getId());
+
+            nation.setCapital(capital);
+            nation.setLeader(leader);
+
+            if (capital != null) {
+                townService.setTownNation(capital, nation);
+            }
+        }
     }
 
     public Optional<Nation> getNationFromId(String nationName) {
