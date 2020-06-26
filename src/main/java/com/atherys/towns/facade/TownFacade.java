@@ -28,6 +28,10 @@ import org.spongepowered.api.text.format.TextStyles;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -436,6 +440,14 @@ public class TownFacade implements EconomyFacade {
         return plotService.getPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
+    }
+
+    public Set<Player> getOnlineTownMembers(Town town) {
+        Stream<UUID> uuidStream = town.getResidents().stream().map(Resident::getId);
+        return uuidStream.map(uuid -> Sponge.getServer().getPlayer(uuid))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
     }
 
     public void sendTownInfo(Town town, MessageReceiver receiver) {
