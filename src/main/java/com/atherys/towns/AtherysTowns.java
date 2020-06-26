@@ -1,15 +1,17 @@
 package com.atherys.towns;
 
+import com.atherys.chat.AtherysChat;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
-import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.PermissionRegistryModule;
 import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
 import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.chat.NationChannel;
+import com.atherys.towns.chat.TownChannel;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
@@ -89,18 +91,19 @@ public class AtherysTowns {
     }
 
     private void start() {
+        getRoleService().init();
+        getNationService().init();
         getTownsCache().initCache();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
+        AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
+        AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
-
-        getRoleService().init();
-        getNationService().init();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
