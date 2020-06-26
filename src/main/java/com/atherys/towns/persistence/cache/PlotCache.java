@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class PlotCache extends SimpleCache<Plot, Long> {
 
-    private Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
+    private final Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
 
     public Set<Plot> getPlotsOverlappingChunk(Vector2i chunkCoordinate) {
         return performanceCache.getOrDefault(chunkCoordinate, new HashSet<>());
@@ -46,7 +46,7 @@ public class PlotCache extends SimpleCache<Plot, Long> {
         Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getY() >> 4); // North East Corner Chunk
 
         for (int x = southWestChunk.getX(); x <= northEastChunk.getX(); x++) {
-            for (int y = southWestChunk.getY(); y <= northEastChunk.getY(); y++) {
+            for (int y = northEastChunk.getY(); y <= southWestChunk.getY(); y++) {
                 chunkCoordinates.add(Vector2i.from(x, y));
             }
         }

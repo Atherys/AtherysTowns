@@ -1,15 +1,20 @@
 package com.atherys.towns.listener;
 
+import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.facade.PlotFacade;
 import com.atherys.towns.facade.ResidentFacade;
+import com.atherys.towns.facade.TownFacade;
 import com.atherys.towns.facade.TownSpawnFacade;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -21,6 +26,9 @@ public class PlayerListener {
 
     @Inject
     private TownSpawnFacade townSpawnFacade;
+
+    @Inject
+    private TownFacade townFacade;
 
     @Inject
     private TownsConfig config;
@@ -47,5 +55,12 @@ public class PlayerListener {
     @Listener
     public void onPlayerLogin(ClientConnectionEvent.Join event, @Root Player player) {
         residentFacade.onLogin(player);
+    }
+
+    @Listener
+    public void onPlayerDamage(DamageEntityEvent event, @Root EntityDamageSource source, @Getter("getTargetEntity") Player target) {
+        EntityUtils.playerAttackedEntity(source).ifPresent(player -> {
+            townFacade.onPlayerDamage(event, player);
+        });
     }
 }

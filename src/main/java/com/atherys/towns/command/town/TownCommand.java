@@ -30,6 +30,7 @@ import org.spongepowered.api.entity.living.player.Player;
         SetTownMotdCommand.class,
         SetTownNameCommand.class,
         SetTownJoinableCommand.class,
+        SetTownPvpCommand.class,
         InviteToTownCommand.class,
         TownKickCommand.class,
         JoinTownCommand.class,
