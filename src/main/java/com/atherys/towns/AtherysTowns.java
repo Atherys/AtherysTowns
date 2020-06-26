@@ -94,6 +94,7 @@ public class AtherysTowns {
         getRoleService().init();
         getNationService().init();
         getTownsCache().initCache();
+        getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
