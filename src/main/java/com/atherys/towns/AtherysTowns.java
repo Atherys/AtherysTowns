@@ -128,6 +128,7 @@ public class AtherysTowns {
 
     private void stop() {
         getTownsCache().flushCache();
+        getPollCache().flushCache();
     }
 
     @Listener
