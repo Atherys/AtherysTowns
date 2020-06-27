@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermission;
@@ -7,18 +8,28 @@ import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
+import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleOptions;
+import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -114,6 +125,47 @@ public class PlotFacade {
                 event.setCancelled(true);
             }
         });
+    }
+
+    private int getRight(Vector2i pointA, Vector2i pointB) {
+        return pointA.getX() - pointB.getX();
+    }
+
+    private int getDown(Vector2i pointA, Vector2i pointB) {
+        return pointB.getY() - pointA.getY();
+    }
+
+    public void showPlotBorders(Player player, boolean view) throws TownsCommandException {
+        Logger logger = AtherysTowns.getInstance().getLogger();
+        logger.info("showPlotBorders executed");
+
+        residentService.getOrCreate(player).setIsViewingTownBorders(view);
+
+        Plot playerPlot = getPlotAtPlayer(player);
+        Vector2i northEastCorner = playerPlot.getNorthEastCorner();
+        Vector2i southWestCorner = playerPlot.getSouthWestCorner();
+        int right = getRight(northEastCorner, southWestCorner);
+        int down = getDown(northEastCorner, southWestCorner);
+        ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.BLUE)
+                .quantity(5).offset(new Vector3d(0,2,0)).build();
+        Vector3d particleLocationNE = new Vector3d(northEastCorner.getX() + .5, player.getPosition().getFloorY() + 2, northEastCorner.getY() + .5);
+        Vector3d particleLocationSW = new Vector3d(southWestCorner.getX() + .5, player.getPosition().getFloorY() + 2, southWestCorner.getY() + .5);
+
+        Task.Builder taskBuilder = Task.builder();
+
+        taskBuilder.execute(task -> {
+            for (int i = 0; i < down; i++) {
+                player.spawnParticles(effect, particleLocationNE.add(0,0,i));
+                player.spawnParticles(effect, particleLocationSW.add(i,0,0));
+            }
+            for (int i = 0; i < right; i++) {
+                player.spawnParticles(effect, particleLocationNE.sub(i,0,0));
+                player.spawnParticles(effect, particleLocationSW.sub(0,0,i));
+            }
+
+            if(!residentService.getOrCreate(player).getIsViewingTownBorders()) { logger.info("Cancelling Task..."); task.cancel(); }
+        }).intervalTicks(10).submit(AtherysTowns.getInstance());
+
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
