@@ -2,10 +2,10 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -18,6 +18,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -26,10 +27,8 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -292,6 +291,40 @@ public class TownFacade implements EconomyFacade {
                         player -> {}
                 ))
                 .build();
+    }
+
+    public boolean generateCreateTownPoll(String townName, Set<Player> players) {
+        Set<UUID> results = new HashSet<>();
+
+        Text townText = Text.of(GOLD, townName, DARK_GREEN, ".");
+        Text invitationText = townsMsg.formatInfo(
+                "You have been invited to the town ", townText
+        );
+
+        Text msg = Question.of(invitationText)
+                    .addAnswer(Answer.of(
+                            Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
+                            player -> {
+                                results.add(player.getUniqueId());
+                            }
+                    ))
+                    .addAnswer(Answer.of(
+                            Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
+                            player -> {}
+                    ))
+                    .build().asText();
+
+        AtherysTowns.getInstance().getTownsMessagingService().broadcastInfo(msg);
+
+        Task.Builder taskBuilder = Task.builder();
+        AtomicBoolean allAccepted = new AtomicBoolean(false);
+
+        taskBuilder.execute(task -> {
+            allAccepted.set(players.size() == results.size());
+                }).delayTicks(20 * 60).submit(AtherysTowns.getInstance());
+
+        return allAccepted.get();
+
     }
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
