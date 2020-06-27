@@ -16,13 +16,12 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.permission.TownsContextCalculator;
 import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.cache.PollCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -94,6 +93,7 @@ public class AtherysTowns {
         getRoleService().init();
         getNationService().init();
         getTownsCache().initCache();
+        getPollCache().initCache();
         getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
@@ -140,6 +140,8 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
+        event.registerEntity(Vote.class);
+        event.registerEntity(Poll.class);
     }
 
     @Listener
@@ -174,6 +176,8 @@ public class AtherysTowns {
         return components.townRepository;
     }
 
+    public PollRepository getPollRepository() { return components.pollRepository; }
+
     public PlotRepository getPlotRepository() {
         return components.plotRepository;
     }
@@ -181,6 +185,8 @@ public class AtherysTowns {
     public ResidentRepository getResidentRepository() {
         return components.residentRepository;
     }
+
+    public PollService getPollService() { return components.pollService; }
 
     public NationService getNationService() {
         return components.nationService;
@@ -242,14 +248,20 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    protected TownsCache getTownsCache() {
+    public TownsCache getTownsCache() {
         return components.townsCache;
     }
+
+    public PollCache getPollCache() { return components.pollCache; }
+
 
     private static class Components {
 
         @Inject
         private TownsConfig config;
+
+        @Inject
+        private PollCache pollCache;
 
         @Inject
         private TownsCache townsCache;
@@ -262,6 +274,12 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
+
+        @Inject
+        private PollRepository pollRepository;
+
+        @Inject
+        private PollService pollService;
 
         @Inject
         private NationService nationService;
