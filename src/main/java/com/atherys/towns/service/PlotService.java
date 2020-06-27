@@ -87,7 +87,7 @@ public class PlotService {
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
-        return MathUtils.vectorXZFitsInRange(location.getPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
+        return MathUtils.vectorXZFitsInRange(location.getBlockPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {
