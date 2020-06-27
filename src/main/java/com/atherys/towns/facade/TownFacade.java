@@ -11,7 +11,6 @@ import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
@@ -28,7 +27,7 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -130,7 +129,7 @@ public class TownFacade implements EconomyFacade {
             sendTownInfo(town, player);
 
             townsMsg.broadcastInfo(
-                    player.getName(), " has created the town of ",
+                    GOLD, player.getName(), DARK_GREEN, " has created the town of ",
                     GOLD, town.getName(), DARK_GREEN, "."
             );
         }
@@ -299,9 +298,7 @@ public class TownFacade implements EconomyFacade {
     private Question generateTownPoll(String townName, String mayorName, Poll poll) {
         Text townText = Text.of(GOLD, townName, DARK_GREEN, "?");
         Text mayorText = Text.of(GOLD, mayorName, DARK_GREEN);
-        Text invitationText = townsMsg.formatInfo(
-                "Do you wish to found the town of ", townText, " with ",mayorText," as your mayor?"
-        );
+        Text invitationText = townsMsg.formatInfo("Do you wish to help ", mayorText, " create the town of ", townText);
 
         Vote vote = new Vote();
 
@@ -325,7 +322,7 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    private void sendPartyMessage(Set<Player> party, Text msg){
+    public void sendPollPartyMessage(Set<Player> party, Text msg){
         party.forEach(player -> {
             townsMsg.info(player, msg);
         });
@@ -334,37 +331,47 @@ public class TownFacade implements EconomyFacade {
     public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
         Poll poll = pollService.createPoll(mayor, "CreateTownOf" + townName, voters.size());
         voters.remove(mayor);
-        voters.forEach(player -> {
-            generateTownPoll(townName, mayor.getName(), poll).pollChat(player);
-        });
-        Task.Builder taskBuilder = Task.builder();
-        taskBuilder.execute(task -> {
-            boolean voteStatus = true;
-            Set<Vote> votes = pollService.getPollVotes(poll);
-            for (Vote vote : votes) {
-                if(!vote.hasVotedYes()) { voteStatus = false; }
-            }
-            if(voteStatus) {
-                if(votes.size() == voters.size()) {
-                    try {
-                        createTown(mayor, townName);
-                        Town town = townService.getTownFromName(townName).get();
-                        voters.forEach(player -> {
-                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                            townsMsg.info(player, "You have been added as a resident to the town of " + townName);
-                        });
-                    } catch (CommandException e) {
-                        townsMsg.info(mayor, e.getMessage());
+
+        Question pollQuestion = generateTownPoll(townName, mayor.getName(), poll);
+        Text startPollMsg = Text.of("A vote to found the town of ",GOLD, townName, DARK_GREEN, " has begun!");
+        sendPollPartyMessage(voters, startPollMsg);
+        voters.forEach(pollQuestion::pollChat);
+        townsMsg.info(mayor, startPollMsg);
+
+        AtomicInteger count = new AtomicInteger();
+
+        Task.builder().execute(task -> {
+            if(count.get() >= 60) {
+                task.cancel();
+            } else {
+                boolean voteStatus = true;
+                Set<Vote> votes = pollService.getPollVotes(poll);
+                for (Vote vote : votes) {
+                    if(!vote.hasVotedYes()) { voteStatus = false; }
+                }
+                if(voteStatus) {
+                    if(votes.size() == voters.size()) {
+                        try {
+                            createTown(mayor, townName);
+                            Town town = townService.getTownFromName(townName).get();
+                            voters.forEach(player -> {
+                                townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+                                townsMsg.info(player, "You have been added as a resident to the town of ", GOLD , townName, ".");
+                            });
+                        } catch (CommandException e) {
+                            mayor.sendMessage(Objects.requireNonNull(e.getText()));
+                        }
+                        task.cancel();
                     }
+                } else {
+                    Text pollCancelled = Text.of("Town creation vote cancelled! Someone did not wish to join.");
+                    sendPollPartyMessage(voters, pollCancelled);
+                    townsMsg.info(mayor, pollCancelled);
                     task.cancel();
                 }
-            } else {
-                sendPartyMessage(voters, Text.of("Town creation vote cancelled! Someone did not wish to join."));
-                task.cancel();
+                count.getAndIncrement();
             }
-
         }).intervalTicks(20).submit(AtherysTowns.getInstance());
-
     }
 
     public void createTownFromVote(String townName, Set<Player> voters, Player mayor) throws TownsCommandException {
