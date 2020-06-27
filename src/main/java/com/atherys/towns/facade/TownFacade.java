@@ -6,13 +6,13 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
@@ -46,6 +46,9 @@ public class TownFacade implements EconomyFacade {
 
     @Inject
     private TownService townService;
+
+    @Inject
+    private PollService pollService;
 
     @Inject
     private ResidentService residentService;
@@ -293,38 +296,87 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    public boolean generateCreateTownPoll(String townName, Set<Player> players) {
-        Set<UUID> results = new HashSet<>();
-
-        Text townText = Text.of(GOLD, townName, DARK_GREEN, ".");
+    private Question generateTownPoll(String townName, String mayorName, Poll poll) {
+        Text townText = Text.of(GOLD, townName, DARK_GREEN, "?");
+        Text mayorText = Text.of(GOLD, mayorName, DARK_GREEN);
         Text invitationText = townsMsg.formatInfo(
-                "You have been invited to the town ", townText
+                "Do you wish to found the town of ", townText, " with ",mayorText," as your mayor?"
         );
 
-        Text msg = Question.of(invitationText)
-                    .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
-                            player -> {
-                                results.add(player.getUniqueId());
-                            }
-                    ))
-                    .addAnswer(Answer.of(
-                            Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
-                            player -> {}
-                    ))
-                    .build().asText();
+        Vote vote = new Vote();
 
-        AtherysTowns.getInstance().getTownsMessagingService().broadcastInfo(msg);
+        return Question.of(invitationText)
+                .addAnswer(Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_GREEN, "Yes"),
+                        player -> {
+                            vote.setVotedYes(true);
+                            vote.setVoter(player.getUniqueId());
+                            pollService.addVoteToPoll(vote, poll);
+                        }
+                ))
+                .addAnswer(Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_RED, "No"),
+                        player -> {
+                            vote.setVotedYes(false);
+                            vote.setVoter(player.getUniqueId());
+                            pollService.addVoteToPoll(vote, poll);
+                        }
+                ))
+                .build();
+    }
 
+    private void sendPartyMessage(Set<Player> party, Text msg){
+        party.forEach(player -> {
+            townsMsg.info(player, msg);
+        });
+    }
+
+    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
+        Poll poll = pollService.createPoll(mayor, "CreateTownOf" + townName, voters.size());
+        voters.remove(mayor);
+        voters.forEach(player -> {
+            generateTownPoll(townName, mayor.getName(), poll).pollChat(player);
+        });
         Task.Builder taskBuilder = Task.builder();
-        AtomicBoolean allAccepted = new AtomicBoolean(false);
-
         taskBuilder.execute(task -> {
-            allAccepted.set(players.size() == results.size());
-                }).delayTicks(20 * 60).submit(AtherysTowns.getInstance());
+            boolean voteStatus = true;
+            Set<Vote> votes = pollService.getPollVotes(poll);
+            for (Vote vote : votes) {
+                if(!vote.hasVotedYes()) { voteStatus = false; }
+            }
+            if(voteStatus) {
+                if(votes.size() == voters.size()) {
+                    try {
+                        createTown(mayor, townName);
+                        Town town = townService.getTownFromName(townName).get();
+                        voters.forEach(player -> {
+                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+                            townsMsg.info(player, "You have been added as a resident to the town of " + townName);
+                        });
+                    } catch (CommandException e) {
+                        townsMsg.info(mayor, e.getMessage());
+                    }
+                    task.cancel();
+                }
+            } else {
+                sendPartyMessage(voters, Text.of("Town creation vote cancelled! Someone did not wish to join."));
+                task.cancel();
+            }
 
-        return allAccepted.get();
+        }).intervalTicks(20).submit(AtherysTowns.getInstance());
 
+    }
+
+    public void createTownFromVote(String townName, Set<Player> voters, Player mayor) throws TownsCommandException {
+        try {
+            createTown(mayor, townName);
+            Town town = getPlayerTown(mayor);
+            voters.forEach(player -> {
+                townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+            });
+        } catch (Exception ignored) {
+
+        }
     }
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
