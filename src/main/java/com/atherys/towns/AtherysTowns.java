@@ -16,6 +16,7 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
+import com.atherys.towns.listener.ProtectionListener;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
@@ -97,6 +98,7 @@ public class AtherysTowns {
         getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
+        Sponge.getEventManager().registerListeners(this, components.protectionListener);
         AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
@@ -329,5 +331,8 @@ public class AtherysTowns {
 
         @Inject
         private PlayerListener playerListener;
+
+        @Inject
+        private ProtectionListener protectionListener;
     }
 }
