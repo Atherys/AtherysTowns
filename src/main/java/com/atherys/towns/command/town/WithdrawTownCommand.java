@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 public class WithdrawTownCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[]{
+        return new CommandElement[] {
                 GenericArguments.bigDecimal(Text.of("amount"))
         };
     }

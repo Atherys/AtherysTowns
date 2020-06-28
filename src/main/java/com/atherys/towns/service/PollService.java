@@ -6,10 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
 
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Singleton
 public class PollService {
@@ -17,10 +14,7 @@ public class PollService {
     private HashMap<UUID, Poll> pollCache = new HashMap<>();
 
     @Inject
-    PollService() {
-    }
-
-    ;
+    PollService(){ };
 
     public UUID createPoll(Player pollCreator, String pollName, int votesNeededToPass) {
         Poll poll = new Poll();
@@ -32,7 +26,7 @@ public class PollService {
 
         UUID pollUUID = UUID.randomUUID();
 
-        while (pollCache.containsKey(pollUUID)) {
+        while(pollCache.containsKey(pollUUID)) {
             pollUUID = UUID.randomUUID();
         }
 

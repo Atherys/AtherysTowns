@@ -1,23 +1,27 @@
 package com.atherys.towns.service;
 
+import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.NationRoleConfig;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
+import com.flowpowered.noise.module.modifier.ScalePoint;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -57,14 +61,14 @@ public class NationService {
             }
 
             Nation newNation = new Nation(
-                    nationConfig.getId(),
-                    nationConfig.getName(),
-                    nationConfig.getDescription(),
-                    null,
-                    null,
-                    nationConfig.isFreelyJoinable(),
-                    nationConfig.getTax(),
-                    account
+                nationConfig.getId(),
+                nationConfig.getName(),
+                nationConfig.getDescription(),
+                null,
+                null,
+                nationConfig.isFreelyJoinable(),
+                nationConfig.getTax(),
+                account
             );
 
             nationBuilder.put(nationConfig.getId(), newNation);

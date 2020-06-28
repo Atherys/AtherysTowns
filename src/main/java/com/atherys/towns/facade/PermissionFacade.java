@@ -5,33 +5,40 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
+import com.atherys.towns.config.NationRoleConfig;
+import com.atherys.towns.config.TownRoleConfig;
+import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.TownsPermissionService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.permission.SubjectReference;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
 public class PermissionFacade {
 
-    static final String NOT_PERMITTED = "You are not permitted to ";
-    public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
-    public final Map<String, NationPermission> NATION_PERMISSIONS = getNationPermissions();
     @Inject
     TownsConfig config;
+
     @Inject
     ResidentService residentService;
+
     @Inject
     TownsPermissionService townsPermissionService;
+
     @Inject
     PlotService plotService;
+
+    static final String NOT_PERMITTED = "You are not permitted to ";
+
+    public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
+
+    public final Map<String, NationPermission> NATION_PERMISSIONS = getNationPermissions();
 
     PermissionFacade() {
     }

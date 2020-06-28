@@ -40,15 +40,15 @@ public class ProtectionListener {
     @Listener
     public void onBlockInteract(InteractBlockEvent event, @Root Player player) {
         BlockType blockType = event.getTargetBlock().getState().getType();
-        if (blockType == BlockTypes.TNT) {
+        if(blockType == BlockTypes.TNT) {
             plotFacade.plotAccessCheck(event, player, true);
         }
     }
 
     @Listener
     public void onEntityInteract(InteractEntityEvent event, @Root Player player) {
-        if (!(event.getTargetEntity() instanceof Player)) {
-            if (event instanceof InteractEntityEvent.Primary.MainHand || event instanceof InteractEntityEvent.Secondary.MainHand) {
+        if(!(event.getTargetEntity() instanceof Player)){
+            if(event instanceof InteractEntityEvent.Primary.MainHand || event instanceof  InteractEntityEvent.Secondary.MainHand) {
                 plotFacade.plotAccessCheck(event, player, false);
             }
         }

@@ -82,7 +82,6 @@ public class Plot implements Identifiable<Long> {
     public Resident getOwner() {
         return owner;
     }
-
     public void setOwner(Resident owner) {
         this.owner = owner;
     }

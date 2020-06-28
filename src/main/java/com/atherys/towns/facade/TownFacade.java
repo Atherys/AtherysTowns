@@ -6,10 +6,9 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
+import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -292,8 +291,7 @@ public class TownFacade implements EconomyFacade {
                 ))
                 .addAnswer(Answer.of(
                         Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
-                        player -> {
-                        }
+                        player -> {}
                 ))
                 .build();
     }
@@ -325,7 +323,7 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    public void sendPollPartyMessage(Set<Player> party, Text msg) {
+    public void sendPollPartyMessage(Set<Player> party, Text msg){
         party.forEach(player -> {
             townsMsg.info(player, msg);
         });
@@ -336,7 +334,7 @@ public class TownFacade implements EconomyFacade {
         voters.remove(mayor);
 
         Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
-        Text startPollMsg = Text.of("A vote to found the town of ", GOLD, townName, DARK_GREEN, " has begun!");
+        Text startPollMsg = Text.of("A vote to found the town of ",GOLD, townName, DARK_GREEN, " has begun!");
         sendPollPartyMessage(voters, startPollMsg);
         voters.forEach(pollQuestion::pollChat);
         townsMsg.info(mayor, startPollMsg);
@@ -344,7 +342,7 @@ public class TownFacade implements EconomyFacade {
         AtomicInteger count = new AtomicInteger();
 
         Task.builder().execute(task -> {
-            if (count.get() >= 60) {
+            if(count.get() >= 60) {
                 Text pollExpired = Text.of("Not all party members answered fast enough, poll cancelled.");
                 sendPollPartyMessage(voters, pollExpired);
                 townsMsg.info(mayor, pollExpired);
@@ -353,18 +351,16 @@ public class TownFacade implements EconomyFacade {
                 boolean voteStatus = true;
                 Set<Vote> votes = pollService.getPollVotes(pollId);
                 for (Vote vote : votes) {
-                    if (!vote.hasVotedYes()) {
-                        voteStatus = false;
-                    }
+                    if(!vote.hasVotedYes()) { voteStatus = false; }
                 }
-                if (voteStatus) {
-                    if (votes.size() == voters.size()) {
+                if(voteStatus) {
+                    if(votes.size() == voters.size()) {
                         try {
                             createTown(mayor, townName);
                             Town town = townService.getTownFromName(townName).get();
                             voters.forEach(player -> {
                                 townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                                townsMsg.info(player, "You have been added as a resident to the town of ", GOLD, townName, ".");
+                                townsMsg.info(player, "You have been added as a resident to the town of ", GOLD , townName, ".");
                             });
                         } catch (CommandException e) {
                             mayor.sendMessage(Objects.requireNonNull(e.getText()));

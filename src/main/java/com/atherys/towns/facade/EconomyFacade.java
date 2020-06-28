@@ -8,9 +8,7 @@ import org.spongepowered.api.text.Text;
 public interface EconomyFacade {
     default Text getResultFeedback(ResultType resultType, Text success, Text notEnough, Text failure) throws TownsCommandException {
         switch (resultType) {
-            case FAILED:
-            case ACCOUNT_NO_SPACE:
-            case CONTEXT_MISMATCH:
+            case FAILED: case ACCOUNT_NO_SPACE: case CONTEXT_MISMATCH:
                 throw new TownsCommandException(failure);
             case ACCOUNT_NO_FUNDS:
                 throw new TownsCommandException(notEnough);

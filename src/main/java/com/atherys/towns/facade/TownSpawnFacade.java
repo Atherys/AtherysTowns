@@ -43,7 +43,7 @@ public class TownSpawnFacade {
                 Map<Player, Resident> residents = Sponge.getServer().getOnlinePlayers().stream()
                         .collect(Collectors.toMap(p -> p, residentService::getOrCreate));
 
-                residents.forEach((player, resident) -> {
+                residents.forEach((player, resident)-> {
                     if (resident.getWarmupSecondsLeft() > 0) {
                         resident.setWarmupSecondsLeft(resident.getWarmupSecondsLeft() - 1);
                         if (resident.getWarmupSecondsLeft() == 0) {
@@ -58,12 +58,12 @@ public class TownSpawnFacade {
 
     /**
      * Teleports a player to their town spawn.
-     * <p>
+     *
      * First, check if they have any cooldown left.
-     * <p>
+     *
      * Second, check if there is any warmup time. If there is none, we don't need to bother setting it. If there
      * is, set the warmup time.
-     * <p>
+     *
      * Third, teleport the player. If there is no cooldown, don't set their last town spawn.
      */
     public void spawnPlayerTown(Player source) throws TownsCommandException {

@@ -16,18 +16,14 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.facade.*;
-import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
+import com.atherys.towns.facade.*;
+import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.permission.TownsContextCalculator;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.persistence.*;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -60,8 +56,11 @@ public class AtherysTowns {
     final static String VERSION = "%PLUGIN_VERSION%";
 
     private static AtherysTowns instance;
-    private static boolean init = false;
+
     private boolean economyEnabled;
+
+    private static boolean init = false;
+
     @Inject
     private Logger logger;
 
@@ -74,10 +73,6 @@ public class AtherysTowns {
 
     public static AtherysTowns getInstance() {
         return instance;
-    }
-
-    public static boolean economyIsEnabled() {
-        return getInstance().economyEnabled;
     }
 
     private void init() {
@@ -167,6 +162,10 @@ public class AtherysTowns {
         getNationService().init();
     }
 
+    public static boolean economyIsEnabled() {
+        return getInstance().economyEnabled;
+    }
+
     public TownsConfig getConfig() {
         return components.config;
     }
@@ -187,9 +186,7 @@ public class AtherysTowns {
         return components.residentRepository;
     }
 
-    public PollService getPollService() {
-        return components.pollService;
-    }
+    public PollService getPollService() { return components.pollService; }
 
     public NationService getNationService() {
         return components.nationService;

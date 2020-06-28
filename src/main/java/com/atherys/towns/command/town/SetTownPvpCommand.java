@@ -6,6 +6,8 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.facade.ResidentFacade;
+import com.atherys.towns.facade.TownFacade;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -22,7 +24,7 @@ import javax.annotation.Nonnull;
 public class SetTownPvpCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[]{
+        return new CommandElement[] {
                 GenericArguments.bool(Text.of("pvp"))
         };
     }

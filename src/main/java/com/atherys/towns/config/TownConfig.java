@@ -6,8 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @ConfigSerializable
 public class TownConfig {
@@ -41,7 +40,6 @@ public class TownConfig {
 
     @Setting("roles")
     public Map<String, TownRoleConfig> ROLES = new HashMap<>();
-
     {
         TownRoleConfig townLeader = new TownRoleConfig();
         townLeader.setName("Mayor");

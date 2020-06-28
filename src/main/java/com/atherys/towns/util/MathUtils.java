@@ -47,9 +47,9 @@ public class MathUtils {
 
     public static boolean overlaps(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
         return !(rectBNorthEast.getY() > rectASouthWest.getY() ||
-                rectBSouthWest.getX() > rectANorthEast.getX() ||
-                rectANorthEast.getY() > rectBSouthWest.getY() ||
-                rectASouthWest.getX() > rectBNorthEast.getX());
+                 rectBSouthWest.getX() > rectANorthEast.getX() ||
+                 rectANorthEast.getY() > rectBSouthWest.getY() ||
+                 rectASouthWest.getX() > rectBNorthEast.getX());
     }
 
     public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
