@@ -251,9 +251,7 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    public PollFacade getPollFacade() {
-        return components.pollFacade;
-    }
+    public PollFacade getPollFacade() { return components.pollFacade; }
 
     public TownsCache getTownsCache() {
         return components.townsCache;

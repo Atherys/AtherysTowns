@@ -5,6 +5,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class Poll {
     private Long id;
@@ -72,12 +73,12 @@ public class Poll {
         this.votesNeeded = votesNeeded;
     }
 
-    public boolean getPassed() {
-        return this.passed;
-    }
-
     public void setPassed(boolean passed) {
         this.passed = passed;
+    }
+
+    public boolean getPassed() {
+        return this.passed;
     }
 
     public boolean equals(Object o) {
