@@ -6,14 +6,18 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.Nation;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.channel.MessageReceiver;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NationChannel extends AtherysChannel {
     public static final String PERMISSION = "atherysparties.chat";
 
     public NationChannel() {
         super("nation");
-        Set<String> aliases= new HashSet<>();
+        Set<String> aliases = new HashSet<>();
         aliases.add("nc");
         this.setAliases(aliases);
         this.setPermission(PERMISSION);
@@ -26,7 +30,7 @@ public class NationChannel extends AtherysChannel {
 
     @Override
     public Collection<MessageReceiver> getMembers(Object sender) {
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             Nation playerNation;
             try {
                 playerNation = AtherysTowns.getInstance().getNationFacade().getPlayerNation((Player) sender);

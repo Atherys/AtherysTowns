@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 public class TownRemoveActorPermissionCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 new UserElement(Text.of("player")),
                 GenericArguments.choices(
                         Text.of("permission"),

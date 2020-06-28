@@ -1,7 +1,6 @@
 package com.atherys.towns.config;
 
 import com.atherys.towns.api.permission.Permission;
-import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;

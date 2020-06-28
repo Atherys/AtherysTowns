@@ -53,7 +53,8 @@ public class TownsPermissionService {
     /**
      * This method should ideally be called every time a player's town or nation changes.
      * Additionally, it should also be called when the player joins the server.
-     * @param player The player whose town or nation has changed
+     *
+     * @param player   The player whose town or nation has changed
      * @param resident The resident object for that player
      */
     public void updateContexts(@Nonnull Player player, @Nullable Resident resident) {
@@ -96,8 +97,9 @@ public class TownsPermissionService {
     /**
      * This method should ideally be called every time a player enters or exits a town.
      * Additionally, it should also be called when the player joins the server.
+     *
      * @param player The player who has exited or entered a town
-     * @param town The town ( if null, will remove town and nation contexts )
+     * @param town   The town ( if null, will remove town and nation contexts )
      */
     public void updateWorldContexts(@Nonnull Player player, @Nullable Town town) {
         if (town != null) {
@@ -123,7 +125,8 @@ public class TownsPermissionService {
     /**
      * Collect the contexts applicable for this player.
      * This includes normal as well as world contexts.
-     * @param calculable The player
+     *
+     * @param calculable  The player
      * @param accumulator The set to accumulate the contexts
      */
     public void accumulateContexts(Subject calculable, Set<Context> accumulator) {

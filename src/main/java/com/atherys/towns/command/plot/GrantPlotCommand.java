@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 public class GrantPlotCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 new UserElement(Text.of("player"))
         };
     }

@@ -1,7 +1,9 @@
 package com.atherys.towns;
 
 import com.atherys.towns.facade.*;
-import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.AbstractModule;

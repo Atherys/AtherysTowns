@@ -11,19 +11,37 @@ public class Vote {
     private boolean votedYes;
     private int version;
 
-    public Long getId() { return this.id; }
+    public Long getId() {
+        return this.id;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Poll getPoll() { return this.poll; }
-    public void setPoll(Poll poll) { this.poll = poll; }
+    public Poll getPoll() {
+        return this.poll;
+    }
 
-    public UUID getVoter() { return this.voter; }
-    public void setVoter(UUID voter) { this.voter = voter;}
+    public void setPoll(Poll poll) {
+        this.poll = poll;
+    }
 
-    public boolean hasVotedYes() { return this.votedYes; }
-    public void setVotedYes(boolean votedYes) { this.votedYes = votedYes; }
+    public UUID getVoter() {
+        return this.voter;
+    }
+
+    public void setVoter(UUID voter) {
+        this.voter = voter;
+    }
+
+    public boolean hasVotedYes() {
+        return this.votedYes;
+    }
+
+    public void setVotedYes(boolean votedYes) {
+        this.votedYes = votedYes;
+    }
 
     public boolean equals(Object o) {
         if (this == o) return true;
