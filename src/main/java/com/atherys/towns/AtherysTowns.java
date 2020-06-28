@@ -16,13 +16,13 @@ import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.listener.ProtectionListener;
+import com.atherys.towns.model.Poll;
+import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.permission.TownsContextCalculator;
 import com.atherys.towns.persistence.*;
-import com.atherys.towns.persistence.cache.PollCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -94,11 +94,9 @@ public class AtherysTowns {
         getRoleService().init();
         getNationService().init();
         getTownsCache().initCache();
-        getPollCache().initCache();
         getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
-        Sponge.getEventManager().registerListeners(this, components.protectionListener);
         AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
@@ -130,7 +128,6 @@ public class AtherysTowns {
 
     private void stop() {
         getTownsCache().flushCache();
-        getPollCache().flushCache();
     }
 
     @Listener
@@ -178,8 +175,6 @@ public class AtherysTowns {
     public TownRepository getTownRepository() {
         return components.townRepository;
     }
-
-    public PollRepository getPollRepository() { return components.pollRepository; }
 
     public PlotRepository getPlotRepository() {
         return components.plotRepository;
@@ -255,16 +250,11 @@ public class AtherysTowns {
         return components.townsCache;
     }
 
-    public PollCache getPollCache() { return components.pollCache; }
-
 
     private static class Components {
 
         @Inject
         private TownsConfig config;
-
-        @Inject
-        private PollCache pollCache;
 
         @Inject
         private TownsCache townsCache;
@@ -277,9 +267,6 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
-
-        @Inject
-        private PollRepository pollRepository;
 
         @Inject
         private PollService pollService;
@@ -331,8 +318,5 @@ public class AtherysTowns {
 
         @Inject
         private PlayerListener playerListener;
-
-        @Inject
-        private ProtectionListener protectionListener;
     }
 }
