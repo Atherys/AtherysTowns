@@ -33,6 +33,7 @@ public class TownsCache {
 
     public void initCache() {
         residentRepository.initCache();
+
         townRepository.initCache();
         plotRepository.initCache();
     }

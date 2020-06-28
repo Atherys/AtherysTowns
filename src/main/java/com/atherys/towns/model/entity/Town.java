@@ -2,6 +2,7 @@ package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
+import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.persistence.converter.NationConverter;
 import com.atherys.towns.persistence.converter.TextColorConverter;
@@ -53,6 +54,9 @@ public class Town implements Identifiable<Long> {
 
     @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
     private Set<Plot> plots = new HashSet<>();
+
+    @Transient
+    private TownMessageChannel messageChannel;
 
     private int maxSize;
 
@@ -195,6 +199,15 @@ public class Town implements Identifiable<Long> {
         this.color = color;
     }
 
+
+    public TownMessageChannel getMessageChannel() {
+        return messageChannel;
+    }
+
+    public void setMessageChannel(TownMessageChannel messageChannel) {
+        this.messageChannel = messageChannel;
+    }
+
     protected int getVersion() {
         return version;
     }
@@ -231,11 +244,12 @@ public class Town implements Identifiable<Long> {
                 Objects.equals(spawn, town.spawn) &&
                 Objects.equals(residents, town.residents) &&
                 Objects.equals(plots, town.plots) &&
+                Objects.equals(messageChannel, town.messageChannel) &&
                 Objects.equals(bank, town.bank);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, motd, color, leader, nation, world, spawn, residents, plots, maxSize, freelyJoinable, pvpEnabled, bank, version);
+        return Objects.hash(id, name, description, motd, color, leader, nation, world, spawn, residents, plots, messageChannel, maxSize, freelyJoinable, pvpEnabled, bank, version);
     }
 }

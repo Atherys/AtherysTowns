@@ -9,6 +9,4 @@ version '1.2.0'
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    shadow 'com.github.Atherys-Horizons:AtherysChat:master-SNAPSHOT'
-    shadow 'com.github.Atherys-Horizons:AtherysParties:master-SNAPSHOT'
 }

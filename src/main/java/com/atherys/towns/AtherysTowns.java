@@ -1,25 +1,22 @@
 package com.atherys.towns;
 
-import com.atherys.chat.AtherysChat;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
+import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.PermissionRegistryModule;
 import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.chat.NationChannel;
-import com.atherys.towns.chat.TownChannel;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
-import com.atherys.towns.listener.ProtectionListener;
-import com.atherys.towns.model.Poll;
-import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.*;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.permission.TownsContextCalculator;
@@ -92,21 +89,18 @@ public class AtherysTowns {
     }
 
     private void start() {
-        getRoleService().init();
-        getNationService().init();
         getTownsCache().initCache();
-        getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
-        Sponge.getEventManager().registerListeners(this, components.protectionListener);
-        AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
-        AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
+
+        getRoleService().init();
+        getNationService().init();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -142,8 +136,6 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-        event.registerEntity(Vote.class);
-        event.registerEntity(Poll.class);
     }
 
     @Listener
@@ -185,8 +177,6 @@ public class AtherysTowns {
     public ResidentRepository getResidentRepository() {
         return components.residentRepository;
     }
-
-    public PollService getPollService() { return components.pollService; }
 
     public NationService getNationService() {
         return components.nationService;
@@ -248,10 +238,9 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    public TownsCache getTownsCache() {
+    protected TownsCache getTownsCache() {
         return components.townsCache;
     }
-
 
     private static class Components {
 
@@ -269,9 +258,6 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
-
-        @Inject
-        private PollService pollService;
 
         @Inject
         private NationService nationService;
@@ -320,8 +306,5 @@ public class AtherysTowns {
 
         @Inject
         private PlayerListener playerListener;
-
-        @Inject
-        private ProtectionListener protectionListener;
     }
 }

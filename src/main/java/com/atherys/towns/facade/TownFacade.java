@@ -2,13 +2,13 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.model.Poll;
-import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.*;
+import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -18,7 +18,6 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -27,10 +26,8 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Optional;
 
 import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -46,9 +43,6 @@ public class TownFacade implements EconomyFacade {
 
     @Inject
     private TownService townService;
-
-    @Inject
-    private PollService pollService;
 
     @Inject
     private ResidentService residentService;
@@ -130,7 +124,7 @@ public class TownFacade implements EconomyFacade {
             sendTownInfo(town, player);
 
             townsMsg.broadcastInfo(
-                    GOLD, player.getName(), DARK_GREEN, " has created the town of ",
+                    player.getName(), " has created the town of ",
                     GOLD, town.getName(), DARK_GREEN, "."
             );
         }
@@ -296,88 +290,6 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    private Question generateTownPoll(String townName, String mayorName, UUID id) {
-        Text townText = Text.of(GOLD, townName, DARK_GREEN, "?");
-        Text mayorText = Text.of(GOLD, mayorName, DARK_GREEN);
-        Text invitationText = townsMsg.formatInfo("Do you wish to help ", mayorText, " create the town of ", townText);
-
-        Vote vote = new Vote();
-
-        return Question.of(invitationText)
-                .addAnswer(Answer.of(
-                        Text.of(TextStyles.BOLD, DARK_GREEN, "Yes"),
-                        player -> {
-                            vote.setVotedYes(true);
-                            vote.setVoter(player.getUniqueId());
-                            pollService.addVoteToPoll(vote, id);
-                        }
-                ))
-                .addAnswer(Answer.of(
-                        Text.of(TextStyles.BOLD, DARK_RED, "No"),
-                        player -> {
-                            vote.setVotedYes(false);
-                            vote.setVoter(player.getUniqueId());
-                            pollService.addVoteToPoll(vote, id);
-                        }
-                ))
-                .build();
-    }
-
-    public void sendPollPartyMessage(Set<Player> party, Text msg){
-        party.forEach(player -> {
-            townsMsg.info(player, msg);
-        });
-    }
-
-    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
-        UUID pollId = pollService.createPoll(mayor, "CreateTownOf" + townName, voters.size());
-        voters.remove(mayor);
-
-        Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
-        Text startPollMsg = Text.of("A vote to found the town of ",GOLD, townName, DARK_GREEN, " has begun!");
-        sendPollPartyMessage(voters, startPollMsg);
-        voters.forEach(pollQuestion::pollChat);
-        townsMsg.info(mayor, startPollMsg);
-
-        AtomicInteger count = new AtomicInteger();
-
-        Task.builder().execute(task -> {
-            if(count.get() >= 60) {
-                Text pollExpired = Text.of("Not all party members answered fast enough, poll cancelled.");
-                sendPollPartyMessage(voters, pollExpired);
-                townsMsg.info(mayor, pollExpired);
-                task.cancel();
-            } else {
-                boolean voteStatus = true;
-                Set<Vote> votes = pollService.getPollVotes(pollId);
-                for (Vote vote : votes) {
-                    if(!vote.hasVotedYes()) { voteStatus = false; }
-                }
-                if(voteStatus) {
-                    if(votes.size() == voters.size()) {
-                        try {
-                            createTown(mayor, townName);
-                            Town town = townService.getTownFromName(townName).get();
-                            voters.forEach(player -> {
-                                townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                                townsMsg.info(player, "You have been added as a resident to the town of ", GOLD , townName, ".");
-                            });
-                        } catch (CommandException e) {
-                            mayor.sendMessage(Objects.requireNonNull(e.getText()));
-                        }
-                        task.cancel();
-                    }
-                } else {
-                    Text pollCancelled = Text.of("Town creation vote cancelled! Someone did not wish to join.");
-                    sendPollPartyMessage(voters, pollCancelled);
-                    townsMsg.info(mayor, pollCancelled);
-                    task.cancel();
-                }
-                count.getAndIncrement();
-            }
-        }).intervalTicks(20).submit(AtherysTowns.getInstance());
-    }
-
     public void joinTown(Player player, Town town) throws TownsCommandException {
         if (town.isFreelyJoinable()) {
             townService.addResidentToTown(player, residentService.getOrCreate(player), town);
@@ -524,14 +436,6 @@ public class TownFacade implements EconomyFacade {
         return plotService.getPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
-    }
-
-    public Set<Player> getOnlineTownMembers(Town town) {
-        Stream<UUID> uuidStream = town.getResidents().stream().map(Resident::getId);
-        return uuidStream.map(uuid -> Sponge.getServer().getPlayer(uuid))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
     }
 
     public void sendTownInfo(Town town, MessageReceiver receiver) {

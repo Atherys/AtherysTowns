@@ -33,10 +33,10 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
     )
     private Set<Resident> friends = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     private Set<String> townRoleIds = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     private Set<String> nationRoleIds = new HashSet<>();
 
     private LocalDateTime registeredOn;
@@ -77,17 +77,13 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         this.town = town;
     }
 
-    public Set<Resident> getFriends() { return friends; }
+    public Set<Resident> getFriends() {
+        return friends;
+    }
 
     public void setFriends(Set<Resident> friends) {
         this.friends = friends;
     }
-
-    public void addFriend(Resident friend) {
-        this.friends.add(friend);
-    }
-
-    public void removeFriend(Resident friend) { this.friends.remove(friend); }
 
     public Set<String> getTownRoleIds() {
         return townRoleIds;

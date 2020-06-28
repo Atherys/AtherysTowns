@@ -24,7 +24,10 @@ public final class TownsElements {
         return GenericArguments.choices(
                 Text.of("town"),
                 () -> AtherysTowns.getInstance().getTownRepository().getAll().stream().map(Town::getName).collect(Collectors.toList()),
-                string -> AtherysTowns.getInstance().getTownService().getTownFromName(string).orElse(null)
+                string -> {
+                    if (string.isEmpty()) return null;
+                    return AtherysTowns.getInstance().getTownService().getTownFromName(string).get();
+                }
         );
     }
 
@@ -32,7 +35,10 @@ public final class TownsElements {
         return GenericArguments.choices(
                 Text.of("nation"),
                 () -> AtherysTowns.getInstance().getNationService().getNations().keySet(),
-                string -> AtherysTowns.getInstance().getNationService().getNationFromId(string).orElse(null)
+                string -> {
+                    if (string.isEmpty()) return null;
+                    return AtherysTowns.getInstance().getNationService().getNationFromId(string).get();
+                }
         );
     }
 
