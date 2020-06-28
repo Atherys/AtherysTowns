@@ -37,7 +37,7 @@ public class CreateTownCommand implements PlayerCommand, ParameterizedCommand {
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(src);
         if (party.isPresent()) {
-            AtherysTowns.getInstance().getTownFacade().sendCreateTownPoll(townName, partyFacade.getOnlinePartyMembers(party.get()), src);
+            AtherysTowns.getInstance().getPollFacade().sendCreateTownPoll(townName, partyFacade.getOnlinePartyMembers(party.get()), src);
         } else {
             AtherysTowns.getInstance().getTownFacade().createTown(src, townName);
         }

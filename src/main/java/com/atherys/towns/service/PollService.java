@@ -20,15 +20,18 @@ public class PollService {
     PollService() {
     }
 
-    ;
+    public Poll getPollById(UUID id) {
+        return pollCache.get(id);
+    }
 
-    public UUID createPoll(Player pollCreator, String pollName, int votesNeededToPass) {
+    public UUID createPoll(Player pollCreator, String pollName, Set<Player> voters) {
         Poll poll = new Poll();
         long id = new Random().nextLong();
         poll.setId(id);
-        poll.setCreator(pollCreator.getUniqueId());
+        poll.setVoters(voters);
+        poll.setCreator(pollCreator);
         poll.setPollName(pollName);
-        poll.setVotesNeeded(votesNeededToPass);
+        poll.setVotesNeeded(voters.size());
 
         UUID pollUUID = UUID.randomUUID();
 
