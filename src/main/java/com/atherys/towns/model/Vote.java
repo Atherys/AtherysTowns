@@ -1,33 +1,16 @@
-package com.atherys.towns.model.entity;
+package com.atherys.towns.model;
 
-import com.atherys.core.db.Identifiable;
-
-import javax.annotation.Nonnull;
-import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
-public class Vote implements Identifiable<Long> {
+public class Vote {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
-
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "poll_id")
     private Poll poll;
-
     private UUID voter;
-
     private boolean votedYes;
-
-    @Version
     private int version;
 
-    @Nonnull
-    @Override
     public Long getId() { return this.id; }
     public void setId(Long id) {
         this.id = id;
@@ -42,7 +25,6 @@ public class Vote implements Identifiable<Long> {
     public boolean hasVotedYes() { return this.votedYes; }
     public void setVotedYes(boolean votedYes) { this.votedYes = votedYes; }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -53,7 +35,6 @@ public class Vote implements Identifiable<Long> {
                 votedYes == vote.votedYes;
     }
 
-    @Override
     public int hashCode() {
         return Objects.hash(id, poll, voter, votedYes, version);
     }

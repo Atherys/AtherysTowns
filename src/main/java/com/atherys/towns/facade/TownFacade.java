@@ -6,12 +6,13 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
+import com.atherys.towns.model.Poll;
+import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
@@ -295,7 +296,7 @@ public class TownFacade implements EconomyFacade {
                 .build();
     }
 
-    private Question generateTownPoll(String townName, String mayorName, Poll poll) {
+    private Question generateTownPoll(String townName, String mayorName, UUID id) {
         Text townText = Text.of(GOLD, townName, DARK_GREEN, "?");
         Text mayorText = Text.of(GOLD, mayorName, DARK_GREEN);
         Text invitationText = townsMsg.formatInfo("Do you wish to help ", mayorText, " create the town of ", townText);
@@ -308,7 +309,7 @@ public class TownFacade implements EconomyFacade {
                         player -> {
                             vote.setVotedYes(true);
                             vote.setVoter(player.getUniqueId());
-                            pollService.addVoteToPoll(vote, poll);
+                            pollService.addVoteToPoll(vote, id);
                         }
                 ))
                 .addAnswer(Answer.of(
@@ -316,7 +317,7 @@ public class TownFacade implements EconomyFacade {
                         player -> {
                             vote.setVotedYes(false);
                             vote.setVoter(player.getUniqueId());
-                            pollService.addVoteToPoll(vote, poll);
+                            pollService.addVoteToPoll(vote, id);
                         }
                 ))
                 .build();
@@ -329,10 +330,10 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
-        Poll poll = pollService.createPoll(mayor, "CreateTownOf" + townName, voters.size());
+        UUID pollId = pollService.createPoll(mayor, "CreateTownOf" + townName, voters.size());
         voters.remove(mayor);
 
-        Question pollQuestion = generateTownPoll(townName, mayor.getName(), poll);
+        Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
         Text startPollMsg = Text.of("A vote to found the town of ",GOLD, townName, DARK_GREEN, " has begun!");
         sendPollPartyMessage(voters, startPollMsg);
         voters.forEach(pollQuestion::pollChat);
@@ -342,10 +343,13 @@ public class TownFacade implements EconomyFacade {
 
         Task.builder().execute(task -> {
             if(count.get() >= 60) {
+                Text pollExpired = Text.of("Not all party members answered fast enough, poll cancelled.");
+                sendPollPartyMessage(voters, pollExpired);
+                townsMsg.info(mayor, pollExpired);
                 task.cancel();
             } else {
                 boolean voteStatus = true;
-                Set<Vote> votes = pollService.getPollVotes(poll);
+                Set<Vote> votes = pollService.getPollVotes(pollId);
                 for (Vote vote : votes) {
                     if(!vote.hasVotedYes()) { voteStatus = false; }
                 }
@@ -372,18 +376,6 @@ public class TownFacade implements EconomyFacade {
                 count.getAndIncrement();
             }
         }).intervalTicks(20).submit(AtherysTowns.getInstance());
-    }
-
-    public void createTownFromVote(String townName, Set<Player> voters, Player mayor) throws TownsCommandException {
-        try {
-            createTown(mayor, townName);
-            Town town = getPlayerTown(mayor);
-            voters.forEach(player -> {
-                townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-            });
-        } catch (Exception ignored) {
-
-        }
     }
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
