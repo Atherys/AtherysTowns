@@ -1,56 +1,49 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.model.entity.Poll;
-import com.atherys.towns.model.entity.Vote;
-import com.atherys.towns.persistence.PollRepository;
+import com.atherys.towns.model.Poll;
+import com.atherys.towns.model.Vote;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Singleton
 public class PollService {
 
-    private PollRepository pollRepository;
+    private HashMap<UUID, Poll> pollCache = new HashMap<>();
 
     @Inject
-    PollService(PollRepository pollRepository){ this.pollRepository = pollRepository; };
+    PollService(){ };
 
-    public Poll createPoll(Player pollCreator, String pollName, int votesNeededToPass) {
+    public UUID createPoll(Player pollCreator, String pollName, int votesNeededToPass) {
         Poll poll = new Poll();
-
+        long id = new Random().nextLong();
+        poll.setId(id);
         poll.setCreator(pollCreator.getUniqueId());
         poll.setPollName(pollName);
         poll.setVotesNeeded(votesNeededToPass);
 
-        pollRepository.saveOne(poll);
-        return poll;
+        UUID pollUUID = UUID.randomUUID();
+
+        while(pollCache.containsKey(pollUUID)) {
+            pollUUID = UUID.randomUUID();
+        }
+
+        pollCache.put(pollUUID, poll);
+        return pollUUID;
     }
 
-    public void deletePoll(Poll poll) {
-        pollRepository.deleteOne(poll);
+    public void deletePoll(UUID id) {
+        pollCache.remove(id);
     }
 
-    public Set<Vote> getPollVotes(Poll poll) {
-        Set<Vote> votes = new HashSet<>();
-        pollRepository.findById(poll.getId()).ifPresent(poll1 -> {
-            votes.addAll(poll1.getVotes());
-        });
-        return votes;
+    public Set<Vote> getPollVotes(UUID id) {
+        return pollCache.get(id).getVotes();
     }
 
-    public void addVoteToPollByName(Vote vote, String pollName) {
-        pollRepository.findByName(pollName).ifPresent(poll1 -> {
-            poll1.addVote(vote);
-            pollRepository.saveOne(poll1);
-        });
-    }
-
-    public void addVoteToPoll(Vote vote, Poll poll) {
-        poll.addVote(vote);
-        pollRepository.saveOne(poll);
+    public void addVoteToPoll(Vote vote, UUID id) {
+        pollCache.get(id).addVote(vote);
     }
 
 }
