@@ -1,7 +1,5 @@
 package com.atherys.towns.model;
 
-import org.spongepowered.api.entity.living.player.Player;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -10,12 +8,10 @@ import java.util.UUID;
 public class Poll {
     private Long id;
     private Set<Vote> votes = new HashSet<>();
-    private Set<Player> voters = new HashSet<>();
-    private Player creator;
+    private UUID creator;
     private String pollName;
     private int votesNeeded;
     private int version;
-    private boolean passed = true;
 
     public Long getId() {
         return this.id;
@@ -33,14 +29,6 @@ public class Poll {
         this.votes = votes;
     }
 
-    public Set<Player> getVoters() {
-        return this.voters;
-    }
-
-    public void setVoters(Set<Player> votes) {
-        this.voters = votes;
-    }
-
     public void addVote(Vote vote) {
         this.votes.add(vote);
     }
@@ -49,11 +37,11 @@ public class Poll {
         this.votes.remove(vote);
     }
 
-    public Player getCreator() {
+    public UUID getCreator() {
         return this.creator;
     }
 
-    public void setCreator(Player creator) {
+    public void setCreator(UUID creator) {
         this.creator = creator;
     }
 
@@ -71,14 +59,6 @@ public class Poll {
 
     public void setVotesNeeded(int votesNeeded) {
         this.votesNeeded = votesNeeded;
-    }
-
-    public void setPassed(boolean passed) {
-        this.passed = passed;
-    }
-
-    public boolean getPassed() {
-        return this.passed;
     }
 
     public boolean equals(Object o) {
