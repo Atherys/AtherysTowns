@@ -53,6 +53,8 @@ public class PlotFacade {
 
     public void sendInfoOnPlotAtPlayerLocation(Player player) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
+        Resident plotOwner = (plot.getOwner() != null) ? plot.getOwner() : new Resident();
+        String ownerName = (plotOwner.getName() != null) ? plotOwner.getName() : "None";
         Text.Builder plotText = Text.builder();
 
         plotText
@@ -65,7 +67,7 @@ public class PlotFacade {
         ));
 
         plotText
-                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, plot.getOwner().getName(), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, plotService.getPlotArea(plot), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
@@ -92,7 +94,7 @@ public class PlotFacade {
 
     public boolean hasPlotAccess(Player player, Plot plot) {
         Resident resPlayer = residentService.getOrCreate(player);
-        Resident plotOwner = plot.getOwner();
+        Resident plotOwner = (plot.getOwner() != null) ? plot.getOwner() : new Resident();
         return (resPlayer == plotOwner) || (plotOwner.getFriends().contains(resPlayer));
     }
 

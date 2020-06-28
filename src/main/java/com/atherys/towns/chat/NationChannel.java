@@ -2,15 +2,11 @@ package com.atherys.towns.chat;
 
 import com.atherys.chat.model.AtherysChannel;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.Nation;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class NationChannel extends AtherysChannel {
     public static final String PERMISSION = "atherysparties.chat";
@@ -27,18 +23,16 @@ public class NationChannel extends AtherysChannel {
         this.setName("&bNation");
     }
 
-
     @Override
     public Collection<MessageReceiver> getMembers(Object sender) {
+
         if (sender instanceof Player) {
-            Nation playerNation;
-            try {
-                playerNation = AtherysTowns.getInstance().getNationFacade().getPlayerNation((Player) sender);
-            } catch (TownsCommandException e) {
-                return Collections.emptySet();
+            Optional<Nation> playerNation = AtherysTowns.getInstance().getResidentFacade().getPlayerNation((Player) sender);
+            if (playerNation.isPresent()) {
+                return new HashSet<>(AtherysTowns.getInstance().getNationFacade().getOnlineNationMembers((Player) sender));
             }
-            return new HashSet<>(AtherysTowns.getInstance().getNationFacade().getOnlineNationMembers(playerNation));
         }
+
         return Collections.emptySet();
     }
 }

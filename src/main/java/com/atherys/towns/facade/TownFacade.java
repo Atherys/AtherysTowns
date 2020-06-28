@@ -31,7 +31,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -531,10 +530,8 @@ public class TownFacade implements EconomyFacade {
     }
 
     public Set<Player> getOnlineTownMembers(Town town) {
-        Stream<UUID> uuidStream = town.getResidents().stream().map(Resident::getId);
-        return uuidStream.map(uuid -> Sponge.getServer().getPlayer(uuid))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        return Sponge.getServer().getOnlinePlayers().stream()
+                .filter(onlinePlayer -> residentFacade.isPlayerInTown(onlinePlayer, town))
                 .collect(Collectors.toSet());
     }
 

@@ -19,11 +19,9 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.api.util.Identifiable;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -249,7 +247,7 @@ public class NationFacade implements EconomyFacade {
         //receiver.sendMessage(nations.build());
     }
 
-    public Nation getPlayerNation(Player player) throws TownsCommandException {
+    private Nation getPlayerNation(Player player) throws TownsCommandException {
         Nation nation = residentService.getOrCreate(player).getTown().getNation();
 
         if (nation == null) {
@@ -259,17 +257,9 @@ public class NationFacade implements EconomyFacade {
         return nation;
     }
 
-    public Set<Player> getOnlineNationMembers(Nation playerNation) {
-        Set<Town> nationTowns = nationService.getTownsInNation(playerNation);
-        Set<Player> playersInNation = new HashSet<>();
-        for (Town town : nationTowns) {
-            playersInNation.addAll(townFacade.getOnlineTownMembers(town));
-        }
-        return playersInNation.stream()
-                .map(Identifiable::getUniqueId)
-                .map(uuid -> Sponge.getServer().getPlayer(uuid))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+    public Set<Player> getOnlineNationMembers(Player player) {
+        return Sponge.getServer().getOnlinePlayers().stream()
+                .filter(onlinePlayer -> partOfSameNation(onlinePlayer, player))
                 .collect(Collectors.toSet());
     }
 
@@ -277,9 +267,12 @@ public class NationFacade implements EconomyFacade {
         Town town = residentService.getOrCreate(user).getTown();
         Town otherTown = residentService.getOrCreate(other).getTown();
 
-        if (town.getNation() != null) {
-            return town.getNation().equals(otherTown.getNation());
+        if (town != null && otherTown != null) {
+            if ((town.getNation() != null) && (otherTown.getNation() != null)) {
+                return town.getNation().equals(otherTown.getNation());
+            }
         }
+
 
         return false;
     }
