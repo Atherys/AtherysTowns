@@ -2,8 +2,6 @@ package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.config.NationConfig;
-import com.atherys.towns.config.NationRoleConfig;
-import com.atherys.towns.config.TownRoleConfig;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
@@ -77,12 +75,12 @@ public class ResidentService {
     }
 
     public void addResidentFriend(Resident resident, Resident friend) {
-        //resident.getFriends().add(friend);
+        resident.addFriend(friend);
         residentRepository.saveOne(resident);
     }
 
     public void removeResidentFriend(Resident resident, Resident friend) {
-        //resident.getFriends().remove(friend);
+        resident.removeFriend(friend);
         residentRepository.saveOne(resident);
     }
 
