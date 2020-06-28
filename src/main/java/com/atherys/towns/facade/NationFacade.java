@@ -7,6 +7,7 @@ import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.RoleService;
@@ -21,10 +22,12 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.util.Identifiable;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -248,14 +251,27 @@ public class NationFacade implements EconomyFacade {
     }
 
     public Nation getPlayerNation(Player player) throws TownsCommandException {
-        Town town = townFacade.getPlayerTown(player);
-        Nation nation = town.getNation();
+        Nation nation = residentService.getOrCreate(player).getTown().getNation();
 
         if (nation == null) {
             throw new TownsCommandException("Your town is not part of a nation!");
         }
 
         return nation;
+    }
+
+    public Set<Player> getOnlineNationMembers(Nation playerNation) {
+        Set<Town> nationTowns = nationService.getTownsInNation(playerNation);
+        Set<Player> playersInNation = new HashSet<>();
+        for (Town town : nationTowns) {
+            playersInNation.addAll(townFacade.getOnlineTownMembers(town));
+        }
+        return playersInNation.stream()
+                .map(Identifiable::getUniqueId)
+                .map(uuid -> Sponge.getServer().getPlayer(uuid))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
     }
 
     public boolean partOfSameNation(User user, User other) {

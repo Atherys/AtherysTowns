@@ -7,7 +7,6 @@ import com.atherys.towns.service.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.service.user.UserStorageService;
 
 public class AtherysTownsModule extends AbstractModule {
@@ -35,6 +34,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownSpawnFacade.class);
         bind(PlotService.class);
         bind(ResidentService.class);
+        bind(PollService.class);
         bind(TownsPermissionService.class);
 
         // Facades
