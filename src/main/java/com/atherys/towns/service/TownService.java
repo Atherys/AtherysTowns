@@ -22,7 +22,10 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -85,7 +88,7 @@ public class TownService {
         town.setWorld(world.getUniqueId());
         town.setBank(UUID.randomUUID());
         if (AtherysTowns.economyIsEnabled()) {
-           AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
+            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
         }
         town.setSpawn(spawn);
 
@@ -197,7 +200,7 @@ public class TownService {
         town.setMaxSize(town.getMaxSize() + amount);
         townRepository.saveOne(town);
     }
-    
+
     public void decreaseTownSize(Town town, int amount) {
         town.setMaxSize(town.getMaxSize() - amount);
         townRepository.saveOne(town);

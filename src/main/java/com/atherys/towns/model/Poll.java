@@ -13,25 +13,53 @@ public class Poll {
     private int votesNeeded;
     private int version;
 
-    public Long getId() { return this.id; }
+    public Long getId() {
+        return this.id;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Set<Vote> getVotes() { return this.votes; }
-    public void setVotes(Set<Vote> votes) { this.votes = votes; }
+    public Set<Vote> getVotes() {
+        return this.votes;
+    }
 
-    public void addVote(Vote vote) { this.votes.add(vote); }
-    public void removeVote(Vote vote) { this.votes.remove(vote); }
+    public void setVotes(Set<Vote> votes) {
+        this.votes = votes;
+    }
 
-    public UUID getCreator() { return this.creator; }
-    public void setCreator(UUID creator) { this.creator = creator; }
+    public void addVote(Vote vote) {
+        this.votes.add(vote);
+    }
 
-    public String getPollName() { return this.pollName; }
-    public void setPollName(String pollName) { this.pollName = pollName;}
+    public void removeVote(Vote vote) {
+        this.votes.remove(vote);
+    }
 
-    public int getVotesNeeded() { return this.votesNeeded; }
-    public void setVotesNeeded(int votesNeeded) { this.votesNeeded = votesNeeded; }
+    public UUID getCreator() {
+        return this.creator;
+    }
+
+    public void setCreator(UUID creator) {
+        this.creator = creator;
+    }
+
+    public String getPollName() {
+        return this.pollName;
+    }
+
+    public void setPollName(String pollName) {
+        this.pollName = pollName;
+    }
+
+    public int getVotesNeeded() {
+        return this.votesNeeded;
+    }
+
+    public void setVotesNeeded(int votesNeeded) {
+        this.votesNeeded = votesNeeded;
+    }
 
     public boolean equals(Object o) {
         if (this == o) return true;

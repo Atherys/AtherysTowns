@@ -44,7 +44,7 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
 
     public int getPadding(int length) {
         if (length < 10) {
-            return  18;
+            return 18;
         } else if (length < 20) {
             return 14;
         } else if (length < 30) {
@@ -92,7 +92,7 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
     }
 
     public Text renderBank(Account account) {
-        if(AtherysTowns.economyIsEnabled()) {
+        if (AtherysTowns.economyIsEnabled()) {
             return Text.of(DARK_GREEN, "Bank: ", GOLD, config.DEFAULT_CURRENCY.format(account.getBalance(config.DEFAULT_CURRENCY)));
         }
         return Text.EMPTY;

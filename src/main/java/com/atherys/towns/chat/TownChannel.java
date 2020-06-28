@@ -2,17 +2,10 @@ package com.atherys.towns.chat;
 
 import com.atherys.chat.model.AtherysChannel;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.api.text.chat.ChatType;
-import org.spongepowered.api.text.format.TextColors;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class TownChannel extends AtherysChannel {
@@ -20,7 +13,7 @@ public class TownChannel extends AtherysChannel {
 
     public TownChannel() {
         super("town");
-        Set<String> aliases= new HashSet<>();
+        Set<String> aliases = new HashSet<>();
         aliases.add("tc");
         this.setAliases(aliases);
         this.setPermission(PERMISSION);
@@ -33,9 +26,9 @@ public class TownChannel extends AtherysChannel {
 
     @Override
     public Collection<MessageReceiver> getMembers(Object sender) {
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             Optional<Town> playerTown = AtherysTowns.getInstance().getResidentFacade().getPlayerTown((Player) sender);
-            if(playerTown.isPresent()) {
+            if (playerTown.isPresent()) {
                 return new HashSet<>(AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(playerTown.get()));
             }
         }

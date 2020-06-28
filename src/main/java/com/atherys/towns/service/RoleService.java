@@ -4,8 +4,6 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.config.NationRoleConfig;
-import com.atherys.towns.config.TownRoleConfig;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -18,8 +16,6 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.service.permission.SubjectReference;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tristate;
 
 import java.util.Collections;
@@ -28,19 +24,15 @@ import java.util.Set;
 @Singleton
 public class RoleService {
 
-    @Inject
-    TownsPermissionService townsPermissionService;
-
-    @Inject
-    ResidentService residentService;
-
-    @Inject
-    TownsConfig config;
-
-    PermissionService permissionService;
-
     private static final String TOWN_PREFIX = "role.town.";
     private static final String NATION_PREFIX = "role.nation.";
+    @Inject
+    TownsPermissionService townsPermissionService;
+    @Inject
+    ResidentService residentService;
+    @Inject
+    TownsConfig config;
+    PermissionService permissionService;
 
     public void init() {
         config.NATION_ROLES.forEach((id, roleConfig) -> {

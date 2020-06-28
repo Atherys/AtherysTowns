@@ -6,7 +6,6 @@ import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 
 import java.util.Objects;
-import java.util.Set;
 
 public class Nation {
 
@@ -61,13 +60,17 @@ public class Nation {
         return leader;
     }
 
-    public void setLeader(Resident resident) { this.leader = resident; }
+    public void setLeader(Resident resident) {
+        this.leader = resident;
+    }
 
     public Town getCapital() {
         return capital;
     }
 
-    public void setCapital(Town town) { this.capital = town; }
+    public void setCapital(Town town) {
+        this.capital = town;
+    }
 
     public boolean isJoinable() {
         return joinable;

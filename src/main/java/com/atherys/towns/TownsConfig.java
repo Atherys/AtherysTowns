@@ -30,24 +30,23 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("nations")
     public Set<NationConfig> NATIONS = new HashSet<>();
+    @Setting("respawn-in-town")
+    public boolean SPAWN_IN_TOWN = true;
+    @Setting("currency")
+    public Currency CURRENCY;
+    @Setting("nation-leader-role")
+    public String LEADER_ROLE = "leader";
+    @Setting("nation-default-role")
+    public String DEFAULT_ROLE = "citizen";
+    @Setting("nation-roles")
+    public Map<String, NationRoleConfig> NATION_ROLES = new HashMap<>();
+    @Setting("town")
+    public TownConfig TOWN = new TownConfig();
+
     {
         NATIONS.add(new NationConfig());
     }
 
-    @Setting("respawn-in-town")
-    public boolean SPAWN_IN_TOWN = true;
-
-    @Setting("currency")
-    public Currency CURRENCY;
-
-    @Setting("nation-leader-role")
-    public String LEADER_ROLE = "leader";
-
-    @Setting("nation-default-role")
-    public String DEFAULT_ROLE = "citizen";
-
-    @Setting("nation-roles")
-    public Map<String, NationRoleConfig> NATION_ROLES = new HashMap<>();
     {
         NationRoleConfig nationLeader = new NationRoleConfig();
         nationLeader.setName("Leader");
@@ -71,9 +70,6 @@ public class TownsConfig extends PluginConfig {
         NATION_ROLES.put("leader", nationLeader);
         NATION_ROLES.put("citizen", nationMember);
     }
-
-    @Setting("town")
-    public TownConfig TOWN = new TownConfig();
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");

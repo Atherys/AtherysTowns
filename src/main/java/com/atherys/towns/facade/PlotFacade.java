@@ -4,7 +4,6 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
@@ -14,7 +13,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
@@ -44,7 +42,7 @@ public class PlotFacade {
         Plot plot = getPlotAtPlayer(player);
 
         if (permissionFacade.isPermitted(player, TownPermissions.RENAME_PLOT) ||
-            residentService.getOrCreate(player).equals(plot.getOwner())) {
+                residentService.getOrCreate(player).equals(plot.getOwner())) {
 
             plotService.setPlotName(plot, newName);
             townsMsg.info(player, "Plot renamed.");
@@ -69,7 +67,7 @@ public class PlotFacade {
         plotText
                 .append(Text.of(DARK_GREEN, "Owner: ", GOLD, plot.getOwner().getName(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, plotService.getPlotArea(plot), Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY() , Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
 
         player.sendMessage(plotText.build());
@@ -98,10 +96,10 @@ public class PlotFacade {
         return (resPlayer == plotOwner) || (plotOwner.getFriends().contains(resPlayer));
     }
 
-    public void plotAccessCheck(Cancellable event, Player player, boolean messageUser){
+    public void plotAccessCheck(Cancellable event, Player player, boolean messageUser) {
         getPlotAtPlayerOptional(player).ifPresent(plot -> {
-            if(!hasPlotAccess(player, plot)){
-                if(messageUser) {
+            if (!hasPlotAccess(player, plot)) {
+                if (messageUser) {
                     townsMsg.error(player, "You do not have permission to do that!");
                 }
                 event.setCancelled(true);

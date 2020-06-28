@@ -4,15 +4,12 @@ import com.atherys.core.economy.Economy;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
-import com.atherys.towns.api.permission.nation.NationPermissions;
-import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.Nation;
-import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
+import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.RoleService;
 import com.atherys.towns.service.TownsPermissionService;
-import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -25,9 +22,11 @@ import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.util.Identifiable;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -165,7 +164,7 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void sendPlayerNationInfo(Player player) throws TownsCommandException {
-       sendNationInfo(player, getPlayerNation(player));
+        sendNationInfo(player, getPlayerNation(player));
     }
 
     public void sendNationInfo(MessageReceiver receiver, Nation nation) {
@@ -219,7 +218,7 @@ public class NationFacade implements EconomyFacade {
     public Text renderNations(Collection<Nation> nations) {
         Text.Builder nationsText = Text.builder();
         int i = 0;
-        for (Nation nation: nations) {
+        for (Nation nation : nations) {
             i++;
             nationsText.append(
                     Text.of(renderNation(nation), i == nations.size() ? "" : ", ")
