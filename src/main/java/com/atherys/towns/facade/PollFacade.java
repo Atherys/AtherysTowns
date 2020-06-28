@@ -1,12 +1,13 @@
 package com.atherys.towns.facade;
 
 import com.atherys.core.utils.Question;
-import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.service.*;
+import com.atherys.towns.service.PollService;
+import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -112,12 +113,12 @@ public class PollFacade {
         Vote vote = event.getVote();
         Poll poll = pollService.getPollById(vote.getPollId());
 
-        if(!vote.hasVotedYes()) {
+        if (!vote.hasVotedYes()) {
             poll.setPassed(false);
             Text pollFailedmsg = Text.of(RED, "Someone responded No! The town of ", GOLD, poll.getPollName(), RED, " will not be founded!");
             sendPollPartyMessage(poll.getVoters(), pollFailedmsg);
             townsMsg.error(poll.getCreator(), pollFailedmsg);
-        } else if(poll.getPassed() && poll.getVotes().size() == poll.getVotesNeeded()) {
+        } else if (poll.getPassed() && poll.getVotes().size() == poll.getVotesNeeded()) {
             createTownFromPoll(poll);
         }
     }

@@ -4,9 +4,6 @@ import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.facade.*;
-import com.atherys.towns.model.Poll;
-import com.atherys.towns.model.Vote;
-import com.atherys.towns.service.PollService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
@@ -18,9 +15,6 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.text.Text;
-
-import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class PlayerListener {
