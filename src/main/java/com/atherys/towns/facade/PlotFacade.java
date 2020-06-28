@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.entity.Plot;
@@ -8,15 +9,21 @@ import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
@@ -84,18 +91,34 @@ public class PlotFacade {
         return plotService.getPlotByLocation(player.getLocation());
     }
 
-    public boolean hasPlotAccess(Player player, Plot plot) {
-        Resident resPlayer = residentService.getOrCreate(player);
-        Resident plotOwner = plot.getOwner();
-        return (resPlayer == plotOwner) || (plotOwner.getFriends().contains(resPlayer));
+    private boolean hasPlotAccess(Player player, Plot plot) {
+        Resident resident = residentService.getOrCreate(player);
+        return (resident == plot.getOwner()) || (resident == plot.getTown().getLeader());
     }
 
-    public void plotAccessCheck(Cancellable event, Player player, boolean messageUser){
+    private boolean interactItemShield(Player player) {
+        AtomicBoolean shield = new AtomicBoolean(false);
+        player.getItemInHand(HandTypes.OFF_HAND).ifPresent(itemStack -> {
+            shield.set(itemStack.getType() == ItemTypes.SHIELD);
+        });
+        return shield.get();
+    }
+
+    public void onBlockInteract(Player player, InteractBlockEvent event) {
         getPlotAtPlayerOptional(player).ifPresent(plot -> {
             if(!hasPlotAccess(player, plot)){
-                if(messageUser) {
-                    townsMsg.error(player, "You do not have permission to do that!");
+                if(!interactItemShield(player) && event instanceof InteractBlockEvent.Primary.MainHand) {
+                    townsMsg.error(player, "You do not have permission to build in this plot!");
                 }
+                event.setCancelled(true);
+            }
+        });
+    }
+
+    public void onEntityInteract(Player player, InteractEntityEvent event) {
+        getPlotAtPlayerOptional(player).ifPresent(plot -> {
+            if(!hasPlotAccess(player, plot)){
+                townsMsg.error(player, "You do not have permission to do that!");
                 event.setCancelled(true);
             }
         });
