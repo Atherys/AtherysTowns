@@ -5,6 +5,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -15,6 +16,7 @@ import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
@@ -78,25 +80,19 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void createTownOrPoll(Player player, String townName) throws CommandException {
-        PartyFacade partiesFacade = AtherysParties.getInstance().getPartyFacade();
-        Optional<Party> party = partiesFacade.getPlayerParty(player);
-        if (party.isPresent()) {
-            pollFacade.sendCreateTownPoll(townName, partiesFacade.getOnlinePartyMembers(party.get()), player);
-        } else {
-            createTown(player, townName);
-        }
-    }
+        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
+        Optional<Party> party = partyFacade.getPlayerParty(player);
 
-    public void createTown(Player player, String name) throws CommandException {
-        if (name == null || name.isEmpty()) {
+        if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
         }
 
-        if (townService.getTownFromName(name).isPresent()) {
+        if (townService.getTownFromName(townName).isPresent()) {
             throw new TownsCommandException("A town with that name already exists.");
         }
 
-        if (name.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
+        if (townName.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
             throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
@@ -104,12 +100,7 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already in a town!");
         }
 
-        // get player's plot selection
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
-
-        // Validate the plot selection
         if (plotSelectionFacade.validatePlotSelection(selection)) {
-
             // Create a plot from the selection
             Plot homePlot = plotService.createPlotFromSelection(selection);
 
@@ -122,28 +113,46 @@ public class TownFacade implements EconomyFacade {
             if (!plotService.isLocationWithinPlot(player.getLocation(), homePlot)) {
                 throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
             }
+            if (party.isPresent()) {
+                Set<Player> partyMembers = AtherysParties.getInstance().getPartyFacade().getOnlinePartyMembers(party.get());
+                boolean noPlayersHaveATown = partyMembers.stream().noneMatch(this::hasPlayerTown);
+                if (!noPlayersHaveATown) {
+                    throw new TownsCommandException("Your party contains members that are already part of a town.");
+                }
 
-            Resident mayor = residentService.getOrCreate(player);
-
-            // create the town
-            Town town = townService.createTown(
-                    player.getWorld(),
-                    player.getTransform(),
-                    player,
-                    mayor,
-                    homePlot,
-                    name
-            );
-
-            townsPermissionService.updateContexts(player, mayor);
-
-            sendTownInfo(town, player);
-
-            townsMsg.broadcastInfo(
-                    GOLD, player.getName(), DARK_GREEN, " has created the town of ",
-                    GOLD, town.getName(), DARK_GREEN, "."
-            );
+                if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                    Logger logger = AtherysTowns.getInstance().getLogger();
+                    logger.info(String.valueOf(partyMembers.size()));
+                    throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
+                }
+                pollFacade.sendCreateTownPoll(townName, partyFacade.getOnlinePartyMembers(party.get()), player, homePlot);
+            } else {
+                createTown(player, townName, homePlot);
+            }
         }
+    }
+
+    public void createTown(Player player, String name, Plot homePlot) throws CommandException {
+        Resident mayor = residentService.getOrCreate(player);
+
+        // create the town
+        Town town = townService.createTown(
+                player.getWorld(),
+                player.getTransform(),
+                player,
+                mayor,
+                homePlot,
+                name
+        );
+
+        townsPermissionService.updateContexts(player, mayor);
+
+        sendTownInfo(town, player);
+
+        townsMsg.broadcastInfo(
+                GOLD, player.getName(), DARK_GREEN, " has created the town of ",
+                GOLD, town.getName(), DARK_GREEN, "."
+        );
     }
 
     public void sendTownInfo(Player player) throws TownsCommandException {

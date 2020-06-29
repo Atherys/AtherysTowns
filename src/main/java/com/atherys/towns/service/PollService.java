@@ -2,6 +2,7 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
+import com.atherys.towns.model.entity.Plot;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -22,7 +23,7 @@ public class PollService {
         return pollCache.get(id);
     }
 
-    public UUID createPoll(UUID pollCreator, String pollName, Set<UUID> voters) {
+    public UUID createPoll(UUID pollCreator, String pollName, Set<UUID> voters, Plot homePlot) {
         UUID pollUUID = UUID.randomUUID();
 
         while (pollCache.containsKey(pollUUID)) {
@@ -32,6 +33,7 @@ public class PollService {
         Poll poll = new Poll();
 
         poll.setId(pollUUID);
+        poll.setHomePlot(homePlot);
         poll.setVoters(voters);
         poll.setCreator(pollCreator);
         poll.setPollName(pollName);

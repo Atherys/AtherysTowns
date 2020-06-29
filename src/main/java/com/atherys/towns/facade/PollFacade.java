@@ -4,6 +4,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PollService;
 import com.atherys.towns.service.ResidentService;
@@ -93,13 +94,13 @@ public class PollFacade {
                 .build();
     }
 
-    public void createTownFromPoll(Poll poll) {
+    public void createTownFromPoll(Poll poll, Plot homePlot) {
         Player mayor = Sponge.getServer().getPlayer(poll.getCreator()).get();
         String townName = poll.getPollName();
         Set<Player> voters = getPlayersByUUID(poll.getVoters());
 
         try {
-            townFacade.createTown(mayor, poll.getPollName());
+            townFacade.createTown(mayor, poll.getPollName(), homePlot);
             Town town = townService.getTownFromName(townName).get();
             voters.forEach(player -> {
                 townService.addResidentToTown(player, residentService.getOrCreate(player), town);
@@ -110,9 +111,9 @@ public class PollFacade {
         }
     }
 
-    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
+    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
         voters.remove(mayor);
-        UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters));
+        UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters), homePlot);
 
         Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
 
@@ -136,7 +137,7 @@ public class PollFacade {
             sendPollPartyMessage(voters, pollFailedmsg);
             townsMsg.error(mayor, pollFailedmsg);
         } else if (poll.getPassed() && poll.getVotes().size() == poll.getVotesNeeded()) {
-            createTownFromPoll(poll);
+            createTownFromPoll(poll, poll.getHomePlot());
         }
     }
 }

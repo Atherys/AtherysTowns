@@ -28,6 +28,9 @@ public class TownsConfig extends PluginConfig {
     @Setting("default-currency")
     public Currency DEFAULT_CURRENCY;
 
+    @Setting("min-residents-to-create-town")
+    public int MIN_RESIDENTS_TOWN_CREATE = 3;
+
     @Setting("nations")
     public Set<NationConfig> NATIONS = new HashSet<>();
     @Setting("respawn-in-town")

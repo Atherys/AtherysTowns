@@ -1,5 +1,7 @@
 package com.atherys.towns.model;
 
+import com.atherys.towns.model.entity.Plot;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -11,6 +13,7 @@ public class Poll {
     private Set<UUID> voters = new HashSet<>();
     private UUID creator;
     private String pollName;
+    private Plot homePlot;
     private int votesNeeded;
     private int version;
     private boolean passed = true;
@@ -61,6 +64,14 @@ public class Poll {
 
     public void setPollName(String pollName) {
         this.pollName = pollName;
+    }
+
+    public Plot getHomePlot() {
+        return this.homePlot;
+    }
+
+    public void setHomePlot(Plot plot) {
+        this.homePlot = plot;
     }
 
     public int getVotesNeeded() {
