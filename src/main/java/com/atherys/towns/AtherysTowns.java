@@ -1,26 +1,33 @@
 package com.atherys.towns;
 
+import com.atherys.chat.AtherysChat;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
-import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.PermissionRegistryModule;
 import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
 import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.chat.NationChannel;
+import com.atherys.towns.chat.TownChannel;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
+import com.atherys.towns.facade.*;
+import com.atherys.towns.listener.PlayerListener;
+import com.atherys.towns.listener.ProtectionListener;
+import com.atherys.towns.model.Poll;
+import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.facade.*;
-import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.permission.TownsContextCalculator;
-import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -53,11 +60,8 @@ public class AtherysTowns {
     final static String VERSION = "%PLUGIN_VERSION%";
 
     private static AtherysTowns instance;
-
-    private boolean economyEnabled;
-
     private static boolean init = false;
-
+    private boolean economyEnabled;
     @Inject
     private Logger logger;
 
@@ -70,6 +74,10 @@ public class AtherysTowns {
 
     public static AtherysTowns getInstance() {
         return instance;
+    }
+
+    public static boolean economyIsEnabled() {
+        return getInstance().economyEnabled;
     }
 
     private void init() {
@@ -89,18 +97,21 @@ public class AtherysTowns {
     }
 
     private void start() {
+        getRoleService().init();
+        getNationService().init();
         getTownsCache().initCache();
+        getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
+        Sponge.getEventManager().registerListeners(this, components.protectionListener);
+        AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
+        AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
-
-        getRoleService().init();
-        getNationService().init();
 
         try {
             AtherysCore.getCommandService().register(new ResidentCommand(), this);
@@ -136,6 +147,8 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
+        event.registerEntity(Vote.class);
+        event.registerEntity(Poll.class);
     }
 
     @Listener
@@ -152,10 +165,6 @@ public class AtherysTowns {
     public void onReload(GameReloadEvent event) {
         getConfig().init();
         getNationService().init();
-    }
-
-    public static boolean economyIsEnabled() {
-        return getInstance().economyEnabled;
     }
 
     public TownsConfig getConfig() {
@@ -176,6 +185,10 @@ public class AtherysTowns {
 
     public ResidentRepository getResidentRepository() {
         return components.residentRepository;
+    }
+
+    public PollService getPollService() {
+        return components.pollService;
     }
 
     public NationService getNationService() {
@@ -238,9 +251,14 @@ public class AtherysTowns {
         return components.plotSelectionFacade;
     }
 
-    protected TownsCache getTownsCache() {
+    public PollFacade getPollFacade() {
+        return components.pollFacade;
+    }
+
+    public TownsCache getTownsCache() {
         return components.townsCache;
     }
+
 
     private static class Components {
 
@@ -258,6 +276,9 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
+
+        @Inject
+        private PollService pollService;
 
         @Inject
         private NationService nationService;
@@ -305,6 +326,12 @@ public class AtherysTowns {
         private PlotSelectionFacade plotSelectionFacade;
 
         @Inject
+        private PollFacade pollFacade;
+
+        @Inject
         private PlayerListener playerListener;
+
+        @Inject
+        private ProtectionListener protectionListener;
     }
 }

@@ -2,8 +2,6 @@ package com.atherys.towns.permission;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.service.TownsPermissionService;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.Subject;

@@ -2,10 +2,8 @@ package com.atherys.towns.listener;
 
 import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.facade.PlotFacade;
-import com.atherys.towns.facade.ResidentFacade;
-import com.atherys.towns.facade.TownFacade;
-import com.atherys.towns.facade.TownSpawnFacade;
+import com.atherys.towns.api.event.PlayerVoteEvent;
+import com.atherys.towns.facade.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
@@ -36,6 +34,12 @@ public class PlayerListener {
     @Inject
     private ResidentFacade residentFacade;
 
+    @Inject
+    private PollFacade pollFacade;
+
+    @Inject
+    private TownsMessagingFacade townsMsg;
+
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
         // And the move event was triggered due to a change in block position
@@ -62,5 +66,10 @@ public class PlayerListener {
         EntityUtils.playerAttackedEntity(source).ifPresent(player -> {
             townFacade.onPlayerDamage(event, player);
         });
+    }
+
+    @Listener
+    public void onPlayerVote(PlayerVoteEvent event) {
+        pollFacade.onPlayerVote(event);
     }
 }

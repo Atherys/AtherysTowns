@@ -4,7 +4,7 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.text.Text;
 
-import java.util.*;
+import java.util.UUID;
 
 @ConfigSerializable
 public class NationConfig {

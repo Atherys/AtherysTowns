@@ -4,7 +4,9 @@ import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -33,7 +35,6 @@ public class TownsCache {
 
     public void initCache() {
         residentRepository.initCache();
-
         townRepository.initCache();
         plotRepository.initCache();
     }

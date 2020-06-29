@@ -1,7 +1,5 @@
 package com.atherys.towns.api.permission.world;
 
-import com.atherys.towns.api.permission.Permission;
-
 public final class WorldPermissions {
 
     // permission for the player to place blocks in plots belonging to the town the player is currently standing in

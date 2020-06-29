@@ -1,7 +1,5 @@
 package com.atherys.towns.api.permission.town;
 
-import com.atherys.towns.api.permission.Permission;
-
 public final class TownPermissions {
     // permission to use town chat
     public static final TownPermission CHAT = new TownPermission("atherystowns.town.chat", "Use Town Chat");

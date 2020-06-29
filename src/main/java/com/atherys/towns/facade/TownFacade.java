@@ -5,7 +5,6 @@ import com.atherys.core.utils.Question;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -28,8 +27,9 @@ import org.spongepowered.api.text.format.TextStyles;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.atherys.core.utils.Question.Answer;
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
@@ -43,6 +43,9 @@ public class TownFacade implements EconomyFacade {
 
     @Inject
     private TownService townService;
+
+    @Inject
+    private PollService pollService;
 
     @Inject
     private ResidentService residentService;
@@ -124,7 +127,7 @@ public class TownFacade implements EconomyFacade {
             sendTownInfo(town, player);
 
             townsMsg.broadcastInfo(
-                    player.getName(), " has created the town of ",
+                    GOLD, player.getName(), DARK_GREEN, " has created the town of ",
                     GOLD, town.getName(), DARK_GREEN, "."
             );
         }
@@ -252,6 +255,28 @@ public class TownFacade implements EconomyFacade {
         generateTownInvite(town).pollChat(invitee);
     }
 
+    private Question generateTownInvite(Town town) {
+        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
+        Text invitationText = townsMsg.formatInfo(
+                "You have been invited to the town ", townText
+        );
+
+        return Question.of(invitationText)
+                .addAnswer(Question.Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
+                        player -> {
+                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+                            joinTownMessage(player, town);
+                        }
+                ))
+                .addAnswer(Question.Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
+                        player -> {
+                        }
+                ))
+                .build();
+    }
+
     public void kickFromTown(Player player, User target) throws TownsCommandException {
         Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(target);
@@ -269,26 +294,8 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
-    private Question generateTownInvite(Town town) {
-        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
-        Text invitationText = townsMsg.formatInfo(
-                "You have been invited to the town ", townText
-        );
+    //Util for voting, may move to different facade in future
 
-        return Question.of(invitationText)
-                .addAnswer(Answer.of(
-                        Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
-                        player -> {
-                            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                            joinTownMessage(player, town);
-                        }
-                ))
-                .addAnswer(Answer.of(
-                        Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
-                        player -> {}
-                ))
-                .build();
-    }
 
     public void joinTown(Player player, Town town) throws TownsCommandException {
         if (town.isFreelyJoinable()) {
@@ -436,6 +443,12 @@ public class TownFacade implements EconomyFacade {
         return plotService.getPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
+    }
+
+    public Set<Player> getOnlineTownMembers(Town town) {
+        return Sponge.getServer().getOnlinePlayers().stream()
+                .filter(onlinePlayer -> residentFacade.isPlayerInTown(onlinePlayer, town))
+                .collect(Collectors.toSet());
     }
 
     public void sendTownInfo(Town town, MessageReceiver receiver) {

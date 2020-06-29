@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 public class AddTownRoleCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 new UserElement(Text.of("resident")),
                 TownsElements.townRole()
         };
