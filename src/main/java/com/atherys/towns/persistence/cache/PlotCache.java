@@ -35,6 +35,16 @@ public class PlotCache extends SimpleCache<Plot, Long> {
         });
     }
 
+    @Override
+    public void remove(Plot plot) {
+        super.remove(plot);
+        getChunksOverlappedByPlot(plot).forEach(chunkCoordinate -> {
+            Set<Plot> plots = performanceCache.get(chunkCoordinate);
+            if (plots != null)
+                plots.remove(plot);
+        });
+    }
+
     private Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
         Vector2i southWestCorner = plot.getSouthWestCorner();
         Vector2i northEastCorner = plot.getNorthEastCorner();
@@ -52,4 +62,5 @@ public class PlotCache extends SimpleCache<Plot, Long> {
         }
         return chunkCoordinates;
     }
+
 }

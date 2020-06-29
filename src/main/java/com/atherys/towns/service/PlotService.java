@@ -116,12 +116,11 @@ public class PlotService {
 
     public boolean plotBordersTown(Town town, Plot plot) {
         for (Plot townPlot : town.getPlots()) {
-            if (!plotsBorder(plot, townPlot)) {
-                return false;
+            if (plotsBorder(plot, townPlot)) {
+                return true;
             }
         }
-
-        return true;
+        return false;
     }
 
     public boolean plotIntersectsTown(Town town, Plot plot) {
