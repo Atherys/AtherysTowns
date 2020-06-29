@@ -147,8 +147,6 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-        event.registerEntity(Vote.class);
-        event.registerEntity(Poll.class);
     }
 
     @Listener

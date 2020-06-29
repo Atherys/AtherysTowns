@@ -18,6 +18,7 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 @Aliases("create")
@@ -31,17 +32,10 @@ public class CreateTownCommand implements PlayerCommand, ParameterizedCommand {
         };
     }
 
+    @Nonnull
     @Override
-    public CommandResult execute(Player src, CommandContext args) throws CommandException {
-        String townName = args.<String>getOne("name").orElse("");
-        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
-        Optional<Party> party = partyFacade.getPlayerParty(src);
-        if (party.isPresent()) {
-            AtherysTowns.getInstance().getPollFacade().sendCreateTownPoll(townName, partyFacade.getOnlinePartyMembers(party.get()), src);
-        } else {
-            AtherysTowns.getInstance().getTownFacade().createTown(src, townName);
-        }
-
+    public CommandResult execute(@Nonnull Player src, CommandContext args) throws CommandException {
+        AtherysTowns.getInstance().getTownFacade().createTownOrPoll(src, args.<String>getOne("name").orElse(""));
         return CommandResult.success();
     }
 }

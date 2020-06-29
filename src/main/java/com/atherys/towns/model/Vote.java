@@ -1,5 +1,7 @@
 package com.atherys.towns.model;
 
+import com.atherys.towns.AtherysTowns;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.Objects;
@@ -7,19 +9,10 @@ import java.util.UUID;
 
 public class Vote {
 
-    private Long id;
     private UUID pollId;
-    private Player voter;
+    private UUID voter;
     private boolean votedYes;
     private int version;
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public UUID getPollId() {
         return this.pollId;
@@ -29,11 +22,11 @@ public class Vote {
         this.pollId = pollId;
     }
 
-    public Player getVoter() {
+    public UUID getVoter() {
         return this.voter;
     }
 
-    public void setVoter(Player voter) {
+    public void setVoter(UUID voter) {
         this.voter = voter;
     }
 
@@ -49,14 +42,13 @@ public class Vote {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Vote vote = (Vote) o;
-        return id.equals(vote.id) &&
-                pollId.equals(vote.pollId) &&
+        return pollId.equals(vote.pollId) &&
                 voter.equals(vote.voter) &&
                 votedYes == vote.votedYes;
     }
 
     public int hashCode() {
-        return Objects.hash(id, pollId, voter, votedYes, version);
+        return Objects.hash(pollId, voter, votedYes, version);
     }
 
     protected int getVersion() {

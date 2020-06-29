@@ -2,6 +2,10 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
+import com.atherys.party.AtherysParties;
+import com.atherys.party.entity.Party;
+import com.atherys.party.facade.PartyFacade;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -45,7 +49,7 @@ public class TownFacade implements EconomyFacade {
     private TownService townService;
 
     @Inject
-    private PollService pollService;
+    private PollFacade pollFacade;
 
     @Inject
     private ResidentService residentService;
@@ -72,6 +76,16 @@ public class TownFacade implements EconomyFacade {
     private TownsPermissionService townsPermissionService;
 
     TownFacade() {
+    }
+
+    public void createTownOrPoll(Player player, String townName) throws CommandException {
+        PartyFacade partiesFacade = AtherysParties.getInstance().getPartyFacade();
+        Optional<Party> party = partiesFacade.getPlayerParty(player);
+        if (party.isPresent()) {
+            pollFacade.sendCreateTownPoll(townName, partiesFacade.getOnlinePartyMembers(party.get()), player);
+        } else {
+            createTown(player, townName);
+        }
     }
 
     public void createTown(Player player, String name) throws CommandException {

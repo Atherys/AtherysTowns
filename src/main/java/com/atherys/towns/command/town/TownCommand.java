@@ -1,5 +1,6 @@
 package com.atherys.towns.command.town;
 
+import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.command.town.admin.DecreaseTownSizeCommand;
@@ -10,6 +11,8 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
+
+import javax.annotation.Nonnull;
 
 @Aliases({"town", "t"})
 @Description("Base town command")
@@ -45,12 +48,11 @@ import org.spongepowered.api.entity.living.player.Player;
         title = "Town Help",
         command = "help"
 )
-public class TownCommand implements CommandExecutor {
+public class TownCommand implements PlayerCommand {
+    @Nonnull
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if (src instanceof Player) {
-            AtherysTowns.getInstance().getTownFacade().sendTownInfo((Player) src);
-        }
+    public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
+        AtherysTowns.getInstance().getTownFacade().sendTownInfo(source);
         return CommandResult.success();
     }
 }
