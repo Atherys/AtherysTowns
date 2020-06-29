@@ -94,14 +94,13 @@ public class Plot implements Identifiable<Long> {
         Plot plot = (Plot) o;
         return id.equals(plot.id) &&
                 town.equals(plot.town) &&
-                name.equals(plot.name) &&
                 swCorner.equals(plot.swCorner) &&
                 neCorner.equals(plot.neCorner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, swCorner, neCorner);
+        return Objects.hash(id, swCorner, neCorner);
     }
 
     protected int getVersion() {

@@ -217,6 +217,10 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You cannot unclaim your last remaining plot.");
         }
 
+        if (townService.checkPlotRemovalCreatesOrphans(town, plot)) {
+            throw new TownsCommandException("You cannot unclaim a plot that would result in orphaned plots.");
+        }
+
         townService.removePlotFromTown(town, plot);
         townsMsg.info(source, "Plot abandoned.");
     }
