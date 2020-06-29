@@ -5,7 +5,6 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -16,7 +15,6 @@ import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
@@ -100,35 +98,21 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already in a town!");
         }
 
-        if (plotSelectionFacade.validatePlotSelection(selection)) {
-            // Create a plot from the selection
-            Plot homePlot = plotService.createPlotFromSelection(selection);
+        plotSelectionFacade.validatePlotSelection(selection, player);
+        Plot homePlot = plotService.createPlotFromSelection(selection);
 
-            // If it intersects any other plots, stop
-            if (plotService.plotIntersectsAnyOthers(homePlot)) {
-                throw new TownsCommandException("The plot you've selected intersects with another.");
+        if (party.isPresent()) {
+            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
+            if (partyMembers.stream().anyMatch(this::hasPlayerTown)) {
+                throw new TownsCommandException("Your party contains members that are already part of a town.");
             }
 
-            // If the player is not within the plot selection, stop
-            if (!plotService.isLocationWithinPlot(player.getLocation(), homePlot)) {
-                throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
+            if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
             }
-            if (party.isPresent()) {
-                Set<Player> partyMembers = AtherysParties.getInstance().getPartyFacade().getOnlinePartyMembers(party.get());
-                boolean noPlayersHaveATown = partyMembers.stream().noneMatch(this::hasPlayerTown);
-                if (!noPlayersHaveATown) {
-                    throw new TownsCommandException("Your party contains members that are already part of a town.");
-                }
-
-                if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
-                    Logger logger = AtherysTowns.getInstance().getLogger();
-                    logger.info(String.valueOf(partyMembers.size()));
-                    throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
-                }
-                pollFacade.sendCreateTownPoll(townName, partyFacade.getOnlinePartyMembers(party.get()), player, homePlot);
-            } else {
-                createTown(player, townName, homePlot);
-            }
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+        } else {
+            createTown(player, townName, homePlot);
         }
     }
 
@@ -255,10 +239,6 @@ public class TownFacade implements EconomyFacade {
 
         if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
             throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-        }
-
-        if (plotService.plotIntersectsAnyOthers(plot)) {
-            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
         }
 
         if (!plotService.plotBordersTown(town, plot)) {

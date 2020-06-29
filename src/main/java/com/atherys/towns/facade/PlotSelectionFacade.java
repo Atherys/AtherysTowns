@@ -2,7 +2,9 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.service.PlotService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandException;
@@ -18,13 +20,13 @@ import java.util.UUID;
 @Singleton
 public class PlotSelectionFacade {
 
+    private final Map<UUID, PlotSelection> selections = new HashMap<>();
     @Inject
     TownsConfig config;
-
     @Inject
     TownsMessagingFacade townMsg;
-
-    private Map<UUID, PlotSelection> selections = new HashMap<>();
+    @Inject
+    PlotService plotService;
 
     private PlotSelection getOrCreateSelection(Player player) {
         if (selections.containsKey(player.getUniqueId())) {
@@ -71,11 +73,7 @@ public class PlotSelectionFacade {
 
         int sideX = Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX());
         int sideZ = Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
-        if (sideX < sideZ) {
-            return sideX;
-        } else {
-            return sideZ;
-        }
+        return Math.min(sideX, sideZ);
     }
 
     public void selectPointAFromPlayerLocation(Player player) {
@@ -102,7 +100,8 @@ public class PlotSelectionFacade {
      * @throws CommandException if the plot selection is null, is incomplete ( either point A or point B is null ),
      *                          it's area is greater than the maximum configured, or it's smallest side is smaller than the minimum configured
      */
-    public boolean validatePlotSelection(PlotSelection selection) throws CommandException {
+    public void validatePlotSelection(PlotSelection selection, Player player) throws CommandException {
+
         if (selection == null) {
             throw new TownsCommandException("Plot selection is null.");
         }
@@ -121,19 +120,23 @@ public class PlotSelectionFacade {
             throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
         }
 
-        return true;
+        Plot plot = plotService.createPlotFromSelection(selection);
+        if (plotService.plotIntersectsAnyOthers(plot)) {
+            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+        }
+
+        if (!plotService.isLocationWithinPlot(player.getLocation(), plot)) {
+            throw new TownsCommandException("You must be within your plot selection!");
+        }
     }
 
-    public PlotSelection getCurrentPlotSelection(Player player) throws CommandException {
+    public PlotSelection getCurrentPlotSelection(Player player) {
         return getOrCreateSelection(player);
     }
 
     public PlotSelection getValidPlayerPlotSelection(Player source) throws CommandException {
         PlotSelection selection = getOrCreateSelection(source);
-        if (validatePlotSelection(selection)) {
-            return selection;
-        } else {
-            throw new TownsCommandException("Invalid Plot Selection.");
-        }
+        validatePlotSelection(selection, source);
+        return selection;
     }
 }
