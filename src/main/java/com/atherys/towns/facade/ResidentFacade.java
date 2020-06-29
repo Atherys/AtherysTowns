@@ -17,6 +17,7 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -63,13 +64,12 @@ public class ResidentFacade {
         roleService.validateRoles(player, resident);
     }
 
-    public void onPlayerSpawn(SpawnEntityEvent event) {
-        List<? extends Entity> players = event.filterEntities(entity -> !(entity instanceof Player));
-        players.forEach(player -> {
-            getPlayerTown((Player) player).ifPresent(town -> {
-                player.setTransformSafely(town.getSpawn());
-            });
-        });
+    public void onPlayerSpawn(RespawnPlayerEvent event) {
+        Town town = residentService.getOrCreate(event.getOriginalPlayer()).getTown();
+
+        if (town != null) {
+            event.setToTransform(town.getSpawn());
+        }
     }
 
     public void sendResidentInfo(Player player) {

@@ -12,6 +12,7 @@ import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -50,7 +51,7 @@ public class PlayerListener {
     }
 
     @Listener
-    public void onPlayerSpawn(SpawnEntityEvent event) {
+    public void onPlayerSpawn(RespawnPlayerEvent event) {
         if (config.SPAWN_IN_TOWN) {
             residentFacade.onPlayerSpawn(event);
         }
