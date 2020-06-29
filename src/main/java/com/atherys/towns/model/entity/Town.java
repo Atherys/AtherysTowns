@@ -52,7 +52,7 @@ public class Town implements Identifiable<Long> {
     private Set<Plot> plots = new HashSet<>();
 
     /**
-     * This is the Adjacency list for the
+     * This is the graph of all plots within a town formatted as an adjacency list
      */
     @Transient
     private Map<Plot, Set<Plot>> plotGraphAdjList;
