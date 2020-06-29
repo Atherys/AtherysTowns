@@ -225,7 +225,6 @@ public class TownFacade implements EconomyFacade {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
         Town town = getPlayerTown(source);
-
         Plot plot = plotService.createPlotFromSelection(selection);
 
         if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
