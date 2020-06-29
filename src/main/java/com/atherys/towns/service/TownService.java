@@ -20,6 +20,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
 import java.util.*;
@@ -191,7 +192,6 @@ public class TownService {
         Map<Plot, Set<Plot>> adjList = new HashMap<>();
         for (Plot plota : town.getPlots()) {
             for (Plot plotb : town.getPlots()) {
-
                 // Plots can't be adjacent to themselves
                 if (plota == plotb) continue;
 
@@ -199,8 +199,7 @@ public class TownService {
                 Set<Plot> plotbNeighbours = adjList.computeIfAbsent(plotb, k -> new HashSet<>());
 
                 // If we have already determined this is a neighbour in a previous iteration
-                if (plotaNeighbours.contains(plotb))
-                    continue;
+                if (plotaNeighbours.contains(plotb)) continue;
 
                 // Other check if we have neighbours
                 if (plotService.plotsBorder(plota, plotb)) {
@@ -214,10 +213,13 @@ public class TownService {
 
     public void addPlotToGraph(Town town, Plot newPlot) {
         Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
-        if (adjList == null)
-            return;
+        if (adjList == null) return;
 
         for (Plot existingPlot : town.getPlots()) {
+
+            // Plots can't be adjacent to themselves
+            if (newPlot == existingPlot) continue;
+
             Set<Plot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
             Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
             if (plotService.plotsBorder(newPlot, existingPlot)) {
@@ -229,8 +231,7 @@ public class TownService {
 
     public void removePlotFromGraph(Town town, Plot removedPlot) {
         Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
-        if (adjList == null)
-            return;
+        if (adjList == null) return;
 
         for (Plot existingPlot : town.getPlots()) {
             Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
@@ -268,34 +269,32 @@ public class TownService {
 
         // Stack of possible edges to visit, edges of defined as an array of [parent, child]
         // We keep track of parent so that we can can count the children of root
-        Stack<Plot[]> stack = new Stack<>();
+        Stack<Tuple<Plot, Plot>> stack = new Stack<>();
 
         visited.put(targetPlot, true);
 
         Set<Plot> test = adjList.get(targetPlot);
 
-        for (Plot child : adjList.get(targetPlot))
-            stack.push(new Plot[]{targetPlot, child});
+        for (Plot child : adjList.get(targetPlot)) {
+            stack.push(Tuple.of(targetPlot, child));
+        }
 
         while(!stack.empty()) {
-            Plot parent = stack.peek()[0];
-            Plot plot = stack.peek()[1];
-            stack.pop();
+            Tuple<Plot, Plot> t = stack.pop();
+            Plot parent = t.getFirst();
+            Plot plot = t.getSecond();
 
             if(!visited.getOrDefault(plot, false)) {
                 // If we are choosing to use this edge, mark the node as visited
                 visited.put(plot, true);
-
-                if (parent == targetPlot)
-                    rootChildren++;
-
-                if (rootChildren >= 2)
-                    return true;
+                if (parent == targetPlot) rootChildren++;
+                if (rootChildren >= 2) return true;
             }
 
             for (Plot child : adjList.get(plot)) {
-                if (!visited.getOrDefault(child, false))
-                    stack.push(new Plot[]{plot, child});
+                if (!visited.getOrDefault(child, false)) {
+                    stack.push(Tuple.of(plot, child));
+                }
             }
         }
 
