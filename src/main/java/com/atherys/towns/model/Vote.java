@@ -1,9 +1,5 @@
 package com.atherys.towns.model;
 
-import com.atherys.towns.AtherysTowns;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
-
 import java.util.Objects;
 import java.util.UUID;
 

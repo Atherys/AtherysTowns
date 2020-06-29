@@ -19,8 +19,6 @@ import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
-import com.atherys.towns.model.Poll;
-import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;

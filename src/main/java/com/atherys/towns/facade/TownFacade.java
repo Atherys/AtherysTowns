@@ -5,7 +5,6 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;

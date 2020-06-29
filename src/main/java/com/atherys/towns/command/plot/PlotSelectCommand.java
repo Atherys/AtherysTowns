@@ -14,7 +14,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         PlotSelectPointBCommand.class,
         PlotClearSelectionCommand.class
 })
-public class PlotSelectCommand implements CommandExecutor{
+public class PlotSelectCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         return null;

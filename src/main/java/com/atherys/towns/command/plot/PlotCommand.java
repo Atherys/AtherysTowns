@@ -5,9 +5,7 @@ import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 
 import javax.annotation.Nonnull;

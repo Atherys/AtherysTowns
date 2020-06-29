@@ -17,7 +17,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.Identifiable;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.format.TextColors.*;

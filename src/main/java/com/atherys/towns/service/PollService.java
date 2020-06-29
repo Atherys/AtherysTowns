@@ -4,10 +4,8 @@ import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 

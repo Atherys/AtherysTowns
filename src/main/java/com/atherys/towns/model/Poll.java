@@ -1,7 +1,5 @@
 package com.atherys.towns.model;
 
-import org.spongepowered.api.entity.living.player.Player;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
