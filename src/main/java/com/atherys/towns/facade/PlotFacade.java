@@ -97,7 +97,7 @@ public class PlotFacade {
 
         if (plot.getOwner() != null) {
             Resident plotOwner = plot.getOwner();
-            if((plotOwner == resPlayer) || plotOwner.getFriends().contains(resPlayer)) {
+            if ((plotOwner == resPlayer) || plotOwner.getFriends().contains(resPlayer)) {
                 return player.hasPermission(permission.getId());
             }
         }
