@@ -98,10 +98,10 @@ public class PlotFacade {
         if (plot.getOwner() != null) {
             Resident plotOwner = plot.getOwner();
             if ((plotOwner == resPlayer) || plotOwner.getFriends().contains(resPlayer)) {
-                return player.hasPermission(permission.getId());
+                return true;
             }
         }
-        return false;
+        return player.hasPermission(permission.getId());
     }
 
     public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, boolean messageUser) {
