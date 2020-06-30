@@ -13,10 +13,7 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 public class Town implements Identifiable<Long> {
@@ -53,6 +50,12 @@ public class Town implements Identifiable<Long> {
 
     @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
     private Set<Plot> plots = new HashSet<>();
+
+    /**
+     * This is the graph of all plots within a town formatted as an adjacency list
+     */
+    @Transient
+    private Map<Plot, Set<Plot>> plotGraphAdjList;
 
     private int maxSize;
 
@@ -193,6 +196,14 @@ public class Town implements Identifiable<Long> {
 
     public void setColor(TextColor color) {
         this.color = color;
+    }
+
+    public Map<Plot, Set<Plot>> getPlotGraphAdjList() {
+        return plotGraphAdjList;
+    }
+
+    public void setPlotGraphAdjList(Map<Plot, Set<Plot>> plotGraphAdjList) {
+        this.plotGraphAdjList = plotGraphAdjList;
     }
 
     protected int getVersion() {

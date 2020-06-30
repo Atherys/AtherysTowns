@@ -20,12 +20,10 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -174,6 +172,8 @@ public class TownService {
     public void removePlotFromTown(Town town, Plot plot) {
         town.removePlot(plot);
 
+        removePlotFromGraph(town, plot);
+
         townRepository.saveOne(town);
         plotRepository.deleteOne(plot);
     }
@@ -184,6 +184,121 @@ public class TownService {
 
         plotRepository.saveOne(plot);
         townRepository.saveOne(town);
+
+        addPlotToGraph(town, plot);
+    }
+
+    public void generatePlotGraph(Town town) {
+        Map<Plot, Set<Plot>> adjList = new HashMap<>();
+        for (Plot plota : town.getPlots()) {
+            for (Plot plotb : town.getPlots()) {
+                // Plots can't be adjacent to themselves
+                if (plota == plotb) continue;
+
+                Set<Plot> plotaNeighbours = adjList.computeIfAbsent(plota, k -> new HashSet<>());
+                Set<Plot> plotbNeighbours = adjList.computeIfAbsent(plotb, k -> new HashSet<>());
+
+                // If we have already determined this is a neighbour in a previous iteration
+                if (plotaNeighbours.contains(plotb)) continue;
+
+                // Other check if we have neighbours
+                if (plotService.plotsBorder(plota, plotb)) {
+                    plotaNeighbours.add(plotb);
+                    plotbNeighbours.add(plota);
+                }
+            }
+        }
+        town.setPlotGraphAdjList(adjList);
+    }
+
+    public void addPlotToGraph(Town town, Plot newPlot) {
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+        if (adjList == null) return;
+
+        for (Plot existingPlot : town.getPlots()) {
+
+            // Plots can't be adjacent to themselves
+            if (newPlot == existingPlot) continue;
+
+            Set<Plot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
+            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+            if (plotService.plotsBorder(newPlot, existingPlot)) {
+                newPlotNeighbours.add(existingPlot);
+                existingPlotNeighbours.add(newPlot);
+            }
+        }
+    }
+
+    public void removePlotFromGraph(Town town, Plot removedPlot) {
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+        if (adjList == null) return;
+
+        for (Plot existingPlot : town.getPlots()) {
+            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+            existingPlotNeighbours.remove(removedPlot);
+        }
+        adjList.remove(removedPlot);
+    }
+
+    /**
+     * Checks if the removal of a plot would result in orphaned plots
+     *
+     * This is done by doing a Depth First Search starting with the node to be
+     * removed. Counting the number of children the root node has in the DFS we can
+     * determine if it is a articulation point.
+     *
+     * @param town The Town to check
+     * @param targetPlot The plot to be removed
+     * @return true if removal of plot results in orphaned plots otherwise false
+     */
+    public boolean checkPlotRemovalCreatesOrphans(Town town, Plot targetPlot) {
+        // We need to do a full DFS, and work out if the root node > 1 children
+
+        Map<Plot, Boolean> visited = new HashMap<>();
+
+        // As we only care about whether or not the root node is an AP (articulation point)
+        // Only need to track the number of children the root node has
+        int rootChildren = 0;
+
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+
+        if (adjList == null) {
+            generatePlotGraph(town);
+            adjList = town.getPlotGraphAdjList();
+        }
+
+        // Stack of possible edges to visit, edges of defined as an array of [parent, child]
+        // We keep track of parent so that we can can count the children of root
+        Stack<Tuple<Plot, Plot>> stack = new Stack<>();
+
+        visited.put(targetPlot, true);
+
+        Set<Plot> test = adjList.get(targetPlot);
+
+        for (Plot child : adjList.get(targetPlot)) {
+            stack.push(Tuple.of(targetPlot, child));
+        }
+
+        while(!stack.empty()) {
+            Tuple<Plot, Plot> t = stack.pop();
+            Plot parent = t.getFirst();
+            Plot plot = t.getSecond();
+
+            if(!visited.getOrDefault(plot, false)) {
+                // If we are choosing to use this edge, mark the node as visited
+                visited.put(plot, true);
+                if (parent == targetPlot) rootChildren++;
+                if (rootChildren >= 2) return true;
+            }
+
+            for (Plot child : adjList.get(plot)) {
+                if (!visited.getOrDefault(child, false)) {
+                    stack.push(Tuple.of(plot, child));
+                }
+            }
+        }
+
+        return false;
     }
 
     public int getTownSize(Town town) {
