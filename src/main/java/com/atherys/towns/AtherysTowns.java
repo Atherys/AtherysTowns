@@ -251,6 +251,10 @@ public class AtherysTowns {
         return components.pollFacade;
     }
 
+    public ProtectionFacade getBlockFacade() {
+        return components.protectionFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -323,6 +327,9 @@ public class AtherysTowns {
 
         @Inject
         private PollFacade pollFacade;
+
+        @Inject
+        private ProtectionFacade protectionFacade;
 
         @Inject
         private PlayerListener playerListener;

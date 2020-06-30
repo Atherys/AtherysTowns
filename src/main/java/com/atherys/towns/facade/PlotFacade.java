@@ -2,6 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.service.PlotService;
@@ -83,24 +84,28 @@ public class PlotFacade {
     }
 
     private Plot getPlotAtPlayer(Player player) throws TownsCommandException {
-        return plotService.getPlotByLocation(player.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("No plot found at your position");
-        });
+        return plotService.getPlotByLocation(player.getLocation()).orElseThrow(() ->
+                new TownsCommandException("No plot found at your position"));
     }
 
     private Optional<Plot> getPlotAtPlayerOptional(Player player) {
         return plotService.getPlotByLocation(player.getLocation());
     }
 
-    public boolean hasPlotAccess(Player player, Plot plot) {
+    public boolean hasPlotAccess(Player player, Plot plot, WorldPermission permission) {
         Resident resPlayer = residentService.getOrCreate(player);
-        Resident plotOwner = (plot.getOwner() != null) ? plot.getOwner() : new Resident();
-        return (resPlayer == plotOwner) || (plotOwner.getFriends().contains(resPlayer));
+
+        if (plot.getOwner() != null) {
+            Player plotOwner = residentService.getPlayerFromResident(plot.getOwner()).get();
+            boolean playerIsFriend = plot.getOwner().getFriends().contains(resPlayer);
+            return player.hasPermission(permission.getId()) && (playerIsFriend || plotOwner == player);
+        }
+        return false;
     }
 
-    public void plotAccessCheck(Cancellable event, Player player, boolean messageUser) {
+    public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, boolean messageUser) {
         getPlotAtPlayerOptional(player).ifPresent(plot -> {
-            if (!hasPlotAccess(player, plot)) {
+            if (!hasPlotAccess(player, plot, permission)) {
                 if (messageUser) {
                     townsMsg.error(player, "You do not have permission to do that!");
                 }

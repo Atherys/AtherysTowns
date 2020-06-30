@@ -9,7 +9,7 @@ import org.spongepowered.api.text.channel.MessageReceiver;
 import java.util.*;
 
 public class TownChannel extends AtherysChannel {
-    public static final String PERMISSION = "atherystowns.chat.town";
+    public static final String PERMISSION = "atherystowns.town.chat";
 
     public TownChannel() {
         super("town");
