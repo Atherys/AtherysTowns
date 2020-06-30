@@ -3,11 +3,14 @@ package com.atherys.towns.facade;
 import com.google.inject.Singleton;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.projectile.arrow.Arrow;
+import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,32 +54,40 @@ public class ProtectionFacade {
             BlockTypes.DISPENSER
     );
 
-    private final List<ItemType> useItems = Arrays.asList(
-            ItemTypes.WATER_BUCKET,
-            ItemTypes.LAVA_BUCKET,
-            ItemTypes.FLINT_AND_STEEL,
-            ItemTypes.BOAT,
-            ItemTypes.MINECART,
-            ItemTypes.CHEST_MINECART,
-            ItemTypes.COMMAND_BLOCK_MINECART,
-            ItemTypes.FURNACE_MINECART,
-            ItemTypes.HOPPER_MINECART,
-            ItemTypes.TNT_MINECART,
-            ItemTypes.BUCKET,
-            ItemTypes.DYE,
-            ItemTypes.FISHING_ROD,
-            ItemTypes.LEAD,
-            ItemTypes.SHEARS,
-            ItemTypes.SNOWBALL,
-            ItemTypes.ENDER_PEARL,
-            ItemTypes.ENDER_EYE,
-            ItemTypes.FIRE_CHARGE,
-            ItemTypes.FIREWORK_CHARGE
+    private final List<ItemType> combatItems = Arrays.asList(
+            ItemTypes.BOW,
+            ItemTypes.SHIELD
     );
 
-    public boolean isUseItem(Player player) {
-        ItemType itemType = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getType).orElse(ItemTypes.AIR);
-        return useItems.contains(itemType);
+    private final List<EntityType> placeableEntities = Arrays.asList(
+            EntityTypes.ARMOR_STAND,
+            EntityTypes.BOAT,
+            EntityTypes.CHESTED_MINECART,
+            EntityTypes.COMMANDBLOCK_MINECART,
+            EntityTypes.FURNACE_MINECART,
+            EntityTypes.HOPPER_MINECART,
+            EntityTypes.MOB_SPAWNER_MINECART,
+            EntityTypes.RIDEABLE_MINECART,
+            EntityTypes.TNT_MINECART,
+            EntityTypes.ITEM_FRAME
+    );
+
+    private String getBlockString(BlockType blockType) {
+        return blockType.getName().split(":")[1];
+    }
+
+    public boolean isCombatItem(ItemType itemType) {
+        return combatItems.contains(itemType);
+    }
+
+    public boolean isPlaceableEntity(EntityType entityType) {
+        return placeableEntities.contains(entityType);
+    }
+
+    public boolean isNonPlayerTarget(DamageEntityEvent event, IndirectEntityDamageSource src) {
+        return (src.getSource() instanceof Arrow)
+                && (src.getIndirectSource() instanceof Player)
+                && !(event.getTargetEntity() instanceof Player);
     }
 
     public boolean isRedstone(BlockType blockType) {
@@ -84,8 +95,7 @@ public class ProtectionFacade {
         if (redstoneItems.contains(blockType)) {
             return true;
         }
-        String blockName = blockType.getName().split(":")[1];
-        return conquestBlocks.contains(blockName) && blockType.getTrait("powered").isPresent();
+        return conquestBlocks.contains(getBlockString(blockType)) && blockType.getTrait("powered").isPresent();
     }
 
     public boolean isChest(BlockType blockType) {
@@ -97,7 +107,6 @@ public class ProtectionFacade {
         if (doors.contains(blockType)) {
             return true;
         }
-        String blockName = blockType.getName().split(":")[1];
-        return conquestBlocks.stream().anyMatch(blockName::contains) && blockType.getTrait("open").isPresent();
+        return conquestBlocks.stream().anyMatch(getBlockString(blockType)::contains) && blockType.getTrait("open").isPresent();
     }
 }
