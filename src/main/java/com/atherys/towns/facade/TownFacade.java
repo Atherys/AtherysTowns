@@ -81,6 +81,7 @@ public class TownFacade implements EconomyFacade {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(player);
+        Resident resident = residentService.getOrCreate(player);
 
         if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
@@ -94,8 +95,8 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
-        if (hasPlayerTown(player)) {
-            throw new TownsCommandException("You are already in a town!");
+        if (hasPlayerTown(player) && residentService.isResidentTownLeader(resident, resident.getTown())) {
+            throw new TownsCommandException("You are already a town leader!");
         }
 
         plotSelectionFacade.validatePlotSelection(selection, player);
@@ -103,9 +104,7 @@ public class TownFacade implements EconomyFacade {
 
         if (party.isPresent()) {
             Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
-            if (partyMembers.stream().anyMatch(this::hasPlayerTown)) {
-                throw new TownsCommandException("Your party contains members that are already part of a town.");
-            }
+            partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
 
             if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
                 throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
@@ -116,7 +115,7 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
-    public void createTown(Player player, String name, Plot homePlot) throws CommandException {
+    public Town createTown(Player player, String name, Plot homePlot) throws CommandException {
         Resident mayor = residentService.getOrCreate(player);
 
         // create the town
@@ -137,6 +136,8 @@ public class TownFacade implements EconomyFacade {
                 GOLD, player.getName(), DARK_GREEN, " has created the town of ",
                 GOLD, town.getName(), DARK_GREEN, "."
         );
+
+        return town;
     }
 
     public void sendTownInfo(Player player) throws TownsCommandException {
@@ -527,6 +528,14 @@ public class TownFacade implements EconomyFacade {
         //TODO: Send message to whole town
         Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
         townsMsg.info(player, "You have joined the town of ", townText);
+    }
+
+    private boolean isLeaderOfPlayerTown(Player player) {
+        Resident resident = residentService.getOrCreate(player);
+        if (resident.getTown() != null) {
+            return resident == resident.getTown().getLeader();
+        }
+        return false;
     }
 
     private boolean hasPlayerTown(Player player) {

@@ -14,7 +14,6 @@ public class Poll {
     private UUID creator;
     private String pollName;
     private Plot homePlot;
-    private int votesNeeded;
     private int version;
     private boolean passed = true;
 
@@ -74,14 +73,6 @@ public class Poll {
         this.homePlot = plot;
     }
 
-    public int getVotesNeeded() {
-        return this.votesNeeded;
-    }
-
-    public void setVotesNeeded(int votesNeeded) {
-        this.votesNeeded = votesNeeded;
-    }
-
     public boolean getPassed() {
         return this.passed;
     }
@@ -96,12 +87,11 @@ public class Poll {
         Poll poll = (Poll) o;
         return id.equals(poll.id) &&
                 votes.equals(poll.votes) &&
-                creator.equals(poll.creator) &&
-                votesNeeded == poll.votesNeeded;
+                creator.equals(poll.creator);
     }
 
     public int hashCode() {
-        return Objects.hash(id, creator, pollName, votesNeeded, version);
+        return Objects.hash(id, creator, pollName, version);
     }
 
     protected int getVersion() {
