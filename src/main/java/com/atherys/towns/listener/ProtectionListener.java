@@ -5,7 +5,6 @@ import com.atherys.towns.facade.PlotFacade;
 import com.atherys.towns.facade.ProtectionFacade;
 import com.google.inject.Inject;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.tileentity.TileEntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.FishingEvent;
