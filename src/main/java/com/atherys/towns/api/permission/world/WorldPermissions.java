@@ -20,8 +20,8 @@ public final class WorldPermissions {
     // permission to interact with redstone within plots belonging to the town the player is currently standing in
     public static final WorldPermission INTERACT_REDSTONE = new WorldPermission("atherystowns.world.interact.redstone", "Interact with Redstone");
 
-    // permission to interact with chests within plots belonging to the town the player is currently standing in
-    public static final WorldPermission INTERACT_CHESTS = new WorldPermission("atherystowns.world.interact.chests", "Interact with Chests");
+    // permission to interact with any tile entity within plots belonging to the town the player is currently standing in
+    public static final WorldPermission INTERACT_TILE_ENTITIES = new WorldPermission("atherystowns.world.interact.tile", "Interact with Tile Entities");
 
     // permission to interact with entities within plots belonging to the town the player is currently standing in
     public static final WorldPermission INTERACT_ENTITIES = new WorldPermission("atherystowns.world.interact.entities", "Interact with Entities");

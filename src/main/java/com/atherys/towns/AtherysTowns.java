@@ -251,7 +251,7 @@ public class AtherysTowns {
         return components.pollFacade;
     }
 
-    public ProtectionFacade getBlockFacade() {
+    public ProtectionFacade getProtectionFacade() {
         return components.protectionFacade;
     }
 

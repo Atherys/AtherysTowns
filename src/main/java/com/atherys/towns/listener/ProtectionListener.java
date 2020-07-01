@@ -5,6 +5,7 @@ import com.atherys.towns.facade.PlotFacade;
 import com.atherys.towns.facade.ProtectionFacade;
 import com.google.inject.Inject;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.tileentity.TileEntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.FishingEvent;
@@ -46,16 +47,16 @@ public class ProtectionListener {
     @Listener
     public void onBlockInteract(InteractBlockEvent event, @Root Player player) {
         BlockType blockType = event.getTargetBlock().getState().getType();
-        if (protectionFacade.isChest(blockType)) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_CHESTS, true);
+        if (protectionFacade.isTileEntity(event)) {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, true);
         }
         if (protectionFacade.isDoor(blockType)) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS, true);
         }
-        if (protectionFacade.isRedstone(blockType)) {
+        if (protectionFacade.isRedstone(blockType) && !protectionFacade.isDoor(blockType)) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, true);
         }
-        if (blockType.getTrait("explode").isPresent()) {
+        if (blockType.getTrait("EXPLODE").isPresent()) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
         }
     }
@@ -69,7 +70,7 @@ public class ProtectionListener {
 
     @Listener
     public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
-        if (event.getEntities().stream().anyMatch(entity -> protectionFacade.isPlaceableEntity(entity.getType()))) {
+        if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, true);
         }
     }
