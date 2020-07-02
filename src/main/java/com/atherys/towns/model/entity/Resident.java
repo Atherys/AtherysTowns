@@ -149,18 +149,4 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         this.version = version;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Resident resident = (Resident) o;
-        return id.equals(resident.id) &&
-                name.equals(resident.name) &&
-                town.equals(resident.town);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
 }
