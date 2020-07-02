@@ -26,6 +26,9 @@ public class TownsConfig extends PluginConfig {
     @Setting("min-residents-to-create-town")
     public int MIN_RESIDENTS_TOWN_CREATE = 3;
 
+    @Setting("tax-collection-interval-minutes")
+    public int TAX_COLLECTION_INTERVAL = 60;
+
     @Setting("nation-chat-prefix")
     public String NATION_CHAT_PREFIX = "&f[&eN&f]&r";
 

@@ -7,6 +7,7 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
+import com.atherys.towns.util.TaxTimer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
@@ -53,6 +54,10 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownAdminFacade.class);
         bind(TownRaidFacade.class);
         bind(PollFacade.class);
+        bind(ProtectionFacade.class);
+
+        // Timers
+        bind(TaxTimer.class);
         bind(PlotBorderFacade.class);
     }
 }

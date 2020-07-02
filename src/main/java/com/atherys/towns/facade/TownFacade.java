@@ -84,6 +84,13 @@ public class TownFacade implements EconomyFacade {
     TownFacade() {
     }
 
+    public void sendTownTaxMessage(Town town, double taxAmount) {
+        getOnlineTownMembers(town).forEach( player -> {
+            townsMsg.info(player, Text.of("The amount of ", GOLD, taxAmount, DARK_GREEN, "has been paid to ", GOLD,
+                    town.getNation().getName(), DARK_GREEN, " in taxes."));
+        });
+    }
+
     public void createTownOrPoll(Player player, String townName) throws CommandException {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
