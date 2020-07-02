@@ -1,24 +1,32 @@
 package com.atherys.towns.listener;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.atherys.towns.facade.ProtectionFacade;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.action.CollideEvent;
 import org.spongepowered.api.event.action.FishingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.CollideBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.entity.*;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import sun.rmi.runtime.Log;
+
+import java.util.Optional;
 
 public class ProtectionListener {
 
@@ -36,6 +44,11 @@ public class ProtectionListener {
     @Listener
     public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
         plotFacade.plotAccessCheck(event, player, WorldPermissions.DESTROY, true);
+    }
+
+    @Listener
+    public void onBlockChange(ChangeBlockEvent.Modify event, @Root Player player) {
+        plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, true);
     }
 
     @Listener
@@ -57,13 +70,6 @@ public class ProtectionListener {
         }
         if (blockType.getTrait("EXPLODE").isPresent()) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
-        }
-    }
-
-    @Listener
-    public void onDamageNonPlayer(DamageEntityEvent event, @First IndirectEntityDamageSource src) {
-        if (protectionFacade.isNonPlayerTarget(event, src)) {
-            plotFacade.plotAccessCheck(event, (Player) src.getIndirectSource(), WorldPermissions.DAMAGE_NONPLAYERS, true);
         }
     }
 
@@ -99,8 +105,13 @@ public class ProtectionListener {
     }
 
     @Listener
-    public void onFish(FishingEvent.Start event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
+    public void onEntityDamage(CollideEntityEvent.Impact event) {
+        event.getContext().get(EventContextKeys.OWNER).filter(user -> user.getPlayer().isPresent())
+                .map(User::getPlayer).ifPresent(player -> {
+            if(event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
+                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.DAMAGE_NONPLAYERS, true);
+            }
+        });
     }
 
 }
