@@ -55,7 +55,9 @@ public class PollFacade {
 
     private Set<Player> getPlayersByUUID(Set<UUID> uuidSet) {
         return uuidSet.stream()
-                .map(uuid -> Sponge.getServer().getPlayer(uuid).get())
+                .map(uuid -> Sponge.getServer().getPlayer(uuid))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toSet());
     }
 
@@ -209,21 +211,20 @@ public class PollFacade {
         Poll poll = pollService.getPollById(vote.getPollId());
         Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
         boolean hasEnoughResidents = poll.getVotes().stream().filter(Vote::hasVotedYes).count() + 1 >= config.MIN_RESIDENTS_TOWN_CREATE;
+        boolean isVoteOver = poll.getVoters().size() == poll.getVotes().size();
+        boolean townAlreadyCreated = townService.getTownFromName(poll.getPollName()).isPresent();
 
-        if (hasEnoughResidents && !poll.getPassed() && mayor.isPresent()) {
+        if (hasEnoughResidents && !poll.getPassed()) {
             poll.setPassed(true);
-            generateMayorQuestion(poll).pollChat(mayor.get());
+            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
         }
 
-        if (poll.getVoters().size() == poll.getVotes().size()
-                && !townService.getTownFromName(poll.getPollName()).isPresent()
-                && mayor.isPresent()
-                && hasEnoughResidents) {
-            generateMayorQuestion(poll).pollChat(mayor.get());
-        } else {
-            Text notEnough = Text.of(RED, "Not enough residents voted yes. Town creation has failed!");
-            sendPollPartyMessage(getPlayersByUUID(poll.getVoters()), notEnough);
-            mayor.ifPresent(player -> townsMsg.info(player, notEnough));
+        if (isVoteOver && hasEnoughResidents && !townAlreadyCreated) {
+            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
+        } else if (isVoteOver) {
+            Text notEnoughText = Text.of(RED, "Not enough residents voted yes. Town creation has failed!");
+            sendPollPartyMessage(getPlayersByUUID(poll.getVoters()), notEnoughText);
+            mayor.ifPresent(player -> townsMsg.info(player, notEnoughText));
             pollService.deletePoll(poll.getId());
         }
     }
