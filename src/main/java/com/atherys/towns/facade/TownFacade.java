@@ -2,6 +2,9 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
+import com.atherys.party.AtherysParties;
+import com.atherys.party.entity.Party;
+import com.atherys.party.facade.PartyFacade;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -45,7 +48,7 @@ public class TownFacade implements EconomyFacade {
     private TownService townService;
 
     @Inject
-    private PollService pollService;
+    private PollFacade pollFacade;
 
     @Inject
     private ResidentService residentService;
@@ -74,16 +77,20 @@ public class TownFacade implements EconomyFacade {
     TownFacade() {
     }
 
-    public void createTown(Player player, String name) throws CommandException {
-        if (name == null || name.isEmpty()) {
+    public void createTownOrPoll(Player player, String townName) throws CommandException {
+        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
+        Optional<Party> party = partyFacade.getPlayerParty(player);
+
+        if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
         }
 
-        if (townService.getTownFromName(name).isPresent()) {
+        if (townService.getTownFromName(townName).isPresent()) {
             throw new TownsCommandException("A town with that name already exists.");
         }
 
-        if (name.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
+        if (townName.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
             throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
@@ -91,46 +98,45 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already in a town!");
         }
 
-        // get player's plot selection
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+        plotSelectionFacade.validatePlotSelection(selection, player);
+        Plot homePlot = plotService.createPlotFromSelection(selection);
 
-        // Validate the plot selection
-        if (plotSelectionFacade.validatePlotSelection(selection)) {
-
-            // Create a plot from the selection
-            Plot homePlot = plotService.createPlotFromSelection(selection);
-
-            // If it intersects any other plots, stop
-            if (plotService.plotIntersectsAnyOthers(homePlot)) {
-                throw new TownsCommandException("The plot you've selected intersects with another.");
+        if (party.isPresent()) {
+            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
+            if (partyMembers.stream().anyMatch(this::hasPlayerTown)) {
+                throw new TownsCommandException("Your party contains members that are already part of a town.");
             }
 
-            // If the player is not within the plot selection, stop
-            if (!plotService.isLocationWithinPlot(player.getLocation(), homePlot)) {
-                throw new TownsCommandException("You must be within your plot selection in order to create a new town.");
+            if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
             }
-
-            Resident mayor = residentService.getOrCreate(player);
-
-            // create the town
-            Town town = townService.createTown(
-                    player.getWorld(),
-                    player.getTransform(),
-                    player,
-                    mayor,
-                    homePlot,
-                    name
-            );
-
-            townsPermissionService.updateContexts(player, mayor);
-
-            sendTownInfo(town, player);
-
-            townsMsg.broadcastInfo(
-                    GOLD, player.getName(), DARK_GREEN, " has created the town of ",
-                    GOLD, town.getName(), DARK_GREEN, "."
-            );
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+        } else {
+            createTown(player, townName, homePlot);
         }
+    }
+
+    public void createTown(Player player, String name, Plot homePlot) throws CommandException {
+        Resident mayor = residentService.getOrCreate(player);
+
+        // create the town
+        Town town = townService.createTown(
+                player.getWorld(),
+                player.getTransform(),
+                player,
+                mayor,
+                homePlot,
+                name
+        );
+
+        townsPermissionService.updateContexts(player, mayor);
+
+        sendTownInfo(town, player);
+
+        townsMsg.broadcastInfo(
+                GOLD, player.getName(), DARK_GREEN, " has created the town of ",
+                GOLD, town.getName(), DARK_GREEN, "."
+        );
     }
 
     public void sendTownInfo(Player player) throws TownsCommandException {
@@ -233,10 +239,6 @@ public class TownFacade implements EconomyFacade {
 
         if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
             throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-        }
-
-        if (plotService.plotIntersectsAnyOthers(plot)) {
-            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
         }
 
         if (!plotService.plotBordersTown(town, plot)) {

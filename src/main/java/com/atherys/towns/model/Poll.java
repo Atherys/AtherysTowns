@@ -1,26 +1,28 @@
 package com.atherys.towns.model;
 
-import org.spongepowered.api.entity.living.player.Player;
+import com.atherys.towns.model.entity.Plot;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 public class Poll {
-    private Long id;
+    private UUID id;
     private Set<Vote> votes = new HashSet<>();
-    private Set<Player> voters = new HashSet<>();
-    private Player creator;
+    private Set<UUID> voters = new HashSet<>();
+    private UUID creator;
     private String pollName;
+    private Plot homePlot;
     private int votesNeeded;
     private int version;
     private boolean passed = true;
 
-    public Long getId() {
+    public UUID getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -32,11 +34,11 @@ public class Poll {
         this.votes = votes;
     }
 
-    public Set<Player> getVoters() {
+    public Set<UUID> getVoters() {
         return this.voters;
     }
 
-    public void setVoters(Set<Player> votes) {
+    public void setVoters(Set<UUID> votes) {
         this.voters = votes;
     }
 
@@ -48,11 +50,11 @@ public class Poll {
         this.votes.remove(vote);
     }
 
-    public Player getCreator() {
+    public UUID getCreator() {
         return this.creator;
     }
 
-    public void setCreator(Player creator) {
+    public void setCreator(UUID creator) {
         this.creator = creator;
     }
 
@@ -62,6 +64,14 @@ public class Poll {
 
     public void setPollName(String pollName) {
         this.pollName = pollName;
+    }
+
+    public Plot getHomePlot() {
+        return this.homePlot;
+    }
+
+    public void setHomePlot(Plot plot) {
+        this.homePlot = plot;
     }
 
     public int getVotesNeeded() {

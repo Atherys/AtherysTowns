@@ -73,10 +73,11 @@ public class TownConfig {
                 WorldPermissions.DESTROY,
                 WorldPermissions.DAMAGE_NONPLAYERS,
                 WorldPermissions.DAMAGE_PLAYERS,
-                WorldPermissions.INTERACT_CHESTS,
+                WorldPermissions.INTERACT_TILE_ENTITIES,
                 WorldPermissions.INTERACT_DOORS,
                 WorldPermissions.INTERACT_REDSTONE,
-                WorldPermissions.INTERACT_ENTITIES
+                WorldPermissions.INTERACT_ENTITIES,
+                WorldPermissions.USE_ITEMS
         ));
 
         TownRoleConfig townMember = new TownRoleConfig();
@@ -91,10 +92,11 @@ public class TownConfig {
                 WorldPermissions.DESTROY,
                 WorldPermissions.DAMAGE_NONPLAYERS,
                 WorldPermissions.DAMAGE_PLAYERS,
-                WorldPermissions.INTERACT_CHESTS,
+                WorldPermissions.INTERACT_TILE_ENTITIES,
                 WorldPermissions.INTERACT_DOORS,
                 WorldPermissions.INTERACT_REDSTONE,
-                WorldPermissions.INTERACT_ENTITIES
+                WorldPermissions.INTERACT_ENTITIES,
+                WorldPermissions.USE_ITEMS
         ));
 
         ROLES.put("mayor", townLeader);

@@ -4,6 +4,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PollService;
 import com.atherys.towns.service.ResidentService;
@@ -15,6 +16,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.Identifiable;
 
 import java.util.Objects;
 import java.util.Set;
@@ -44,6 +46,18 @@ public class PollFacade {
     PollFacade() {
     }
 
+    private Set<Player> getPlayersByUUID(Set<UUID> uuidSet) {
+        return uuidSet.stream()
+                .map(uuid -> Sponge.getServer().getPlayer(uuid).get())
+                .collect(Collectors.toSet());
+    }
+
+    private Set<UUID> getUUIDsByPlayer(Set<Player> playerSet) {
+        return playerSet.stream()
+                .map(Identifiable::getUniqueId)
+                .collect(Collectors.toSet());
+    }
+
     public void sendPollPartyMessage(Set<Player> party, Text msg) {
         party.forEach(player -> {
             townsMsg.info(player, msg);
@@ -53,7 +67,7 @@ public class PollFacade {
     private void postVoteEvent(Player player, boolean voteResult, UUID pollId) {
         Vote vote = new Vote();
         vote.setVotedYes(voteResult);
-        vote.setVoter(player);
+        vote.setVoter(player.getUniqueId());
         vote.setPollId(pollId);
         pollService.addVoteToPoll(vote, pollId);
         Sponge.getEventManager().post(new PlayerVoteEvent(player, vote));
@@ -80,12 +94,13 @@ public class PollFacade {
                 .build();
     }
 
-    public void createTownFromPoll(Poll poll) {
-        Player mayor = poll.getCreator();
+    public void createTownFromPoll(Poll poll, Plot homePlot) {
+        Player mayor = Sponge.getServer().getPlayer(poll.getCreator()).get();
         String townName = poll.getPollName();
-        Set<Player> voters = poll.getVotes().stream().map(Vote::getVoter).collect(Collectors.toSet());
+        Set<Player> voters = getPlayersByUUID(poll.getVoters());
+
         try {
-            townFacade.createTown(mayor, poll.getPollName());
+            townFacade.createTown(mayor, poll.getPollName(), homePlot);
             Town town = townService.getTownFromName(townName).get();
             voters.forEach(player -> {
                 townService.addResidentToTown(player, residentService.getOrCreate(player), town);
@@ -96,9 +111,9 @@ public class PollFacade {
         }
     }
 
-    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor) {
+    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
         voters.remove(mayor);
-        UUID pollId = pollService.createPoll(mayor, townName, voters);
+        UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters), homePlot);
 
         Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
 
@@ -112,14 +127,17 @@ public class PollFacade {
     public void onPlayerVote(PlayerVoteEvent event) {
         Vote vote = event.getVote();
         Poll poll = pollService.getPollById(vote.getPollId());
+        Player mayor = Sponge.getServer().getPlayer(poll.getCreator()).orElse(null);
+
+        Set<Player> voters = getPlayersByUUID(poll.getVoters());
 
         if (!vote.hasVotedYes()) {
             poll.setPassed(false);
             Text pollFailedmsg = Text.of(RED, "Someone responded No! The town of ", GOLD, poll.getPollName(), RED, " will not be founded!");
-            sendPollPartyMessage(poll.getVoters(), pollFailedmsg);
-            townsMsg.error(poll.getCreator(), pollFailedmsg);
+            sendPollPartyMessage(voters, pollFailedmsg);
+            townsMsg.error(mayor, pollFailedmsg);
         } else if (poll.getPassed() && poll.getVotes().size() == poll.getVotesNeeded()) {
-            createTownFromPoll(poll);
+            createTownFromPoll(poll, poll.getHomePlot());
         }
     }
 }

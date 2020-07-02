@@ -19,8 +19,6 @@ import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
-import com.atherys.towns.model.Poll;
-import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -147,8 +145,6 @@ public class AtherysTowns {
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
-        event.registerEntity(Vote.class);
-        event.registerEntity(Poll.class);
     }
 
     @Listener
@@ -255,6 +251,10 @@ public class AtherysTowns {
         return components.pollFacade;
     }
 
+    public ProtectionFacade getProtectionFacade() {
+        return components.protectionFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -327,6 +327,9 @@ public class AtherysTowns {
 
         @Inject
         private PollFacade pollFacade;
+
+        @Inject
+        private ProtectionFacade protectionFacade;
 
         @Inject
         private PlayerListener playerListener;

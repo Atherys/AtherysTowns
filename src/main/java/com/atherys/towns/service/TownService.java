@@ -242,12 +242,12 @@ public class TownService {
 
     /**
      * Checks if the removal of a plot would result in orphaned plots
-     *
+     * <p>
      * This is done by doing a Depth First Search starting with the node to be
      * removed. Counting the number of children the root node has in the DFS we can
      * determine if it is a articulation point.
      *
-     * @param town The Town to check
+     * @param town       The Town to check
      * @param targetPlot The plot to be removed
      * @return true if removal of plot results in orphaned plots otherwise false
      */
@@ -279,12 +279,12 @@ public class TownService {
             stack.push(Tuple.of(targetPlot, child));
         }
 
-        while(!stack.empty()) {
+        while (!stack.empty()) {
             Tuple<Plot, Plot> t = stack.pop();
             Plot parent = t.getFirst();
             Plot plot = t.getSecond();
 
-            if(!visited.getOrDefault(plot, false)) {
+            if (!visited.getOrDefault(plot, false)) {
                 // If we are choosing to use this edge, mark the node as visited
                 visited.put(plot, true);
                 if (parent == targetPlot) rootChildren++;

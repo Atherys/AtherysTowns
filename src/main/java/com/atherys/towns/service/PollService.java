@@ -2,19 +2,18 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
+import com.atherys.towns.model.entity.Plot;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 @Singleton
 public class PollService {
 
-    private HashMap<UUID, Poll> pollCache = new HashMap<>();
+    private final HashMap<UUID, Poll> pollCache = new HashMap<>();
 
     @Inject
     PollService() {
@@ -24,20 +23,21 @@ public class PollService {
         return pollCache.get(id);
     }
 
-    public UUID createPoll(Player pollCreator, String pollName, Set<Player> voters) {
-        Poll poll = new Poll();
-        long id = new Random().nextLong();
-        poll.setId(id);
-        poll.setVoters(voters);
-        poll.setCreator(pollCreator);
-        poll.setPollName(pollName);
-        poll.setVotesNeeded(voters.size());
-
+    public UUID createPoll(UUID pollCreator, String pollName, Set<UUID> voters, Plot homePlot) {
         UUID pollUUID = UUID.randomUUID();
 
         while (pollCache.containsKey(pollUUID)) {
             pollUUID = UUID.randomUUID();
         }
+
+        Poll poll = new Poll();
+
+        poll.setId(pollUUID);
+        poll.setHomePlot(homePlot);
+        poll.setVoters(voters);
+        poll.setCreator(pollCreator);
+        poll.setPollName(pollName);
+        poll.setVotesNeeded(voters.size());
 
         pollCache.put(pollUUID, poll);
         return pollUUID;
