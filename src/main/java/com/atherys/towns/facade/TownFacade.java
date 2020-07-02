@@ -85,8 +85,8 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void sendTownTaxMessage(Town town, double taxAmount) {
-        getOnlineTownMembers(town).forEach( player -> {
-            townsMsg.info(player, Text.of("The amount of ", GOLD, taxAmount, DARK_GREEN, "has been paid to ", GOLD,
+        getOnlineTownMembers(town).forEach(player -> {
+            townsMsg.info(player, Text.of("Paid ", GOLD, config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxAmount)), DARK_GREEN, " to ", GOLD,
                     town.getNation().getName(), DARK_GREEN, " in taxes."));
         });
     }
@@ -417,7 +417,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Deposited", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                    Text.of("Deposited ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
                     Text.of("You do not have enough to deposit."),
                     Text.of("Depositing failed.")
             );

@@ -111,7 +111,7 @@ public class AtherysTowns {
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
-        //getTaxTimer().init();
+        getTaxTimer().init();
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)

@@ -8,7 +8,6 @@ import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.account.Account;
 
@@ -29,7 +28,7 @@ public class TaxTimer {
     TownRepository townRepository;
 
     public void init() {
-        if(AtherysTowns.economyIsEnabled()) {
+        if (AtherysTowns.economyIsEnabled()) {
             Task.Builder taxTimer = Task.builder();
             taxTimer.delay(config.TAX_COLLECTION_INTERVAL, TimeUnit.MINUTES)
                     .interval(config.TAX_COLLECTION_INTERVAL, TimeUnit.MINUTES)
@@ -41,16 +40,16 @@ public class TaxTimer {
     private class TaxTimerTask implements Consumer<Task> {
         @Override
         public void accept(Task task) {
-            townRepository.getAll().stream().filter(town -> town.getNation() != null).forEach(town ->  {
-                Account nationBank = town.getNation().getBankAccount();
-                Economy.getAccount(town.getBank()).ifPresent(townBank -> {
-                    double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
-                    Cause cause = Cause.builder().build(Sponge.getCauseStackManager().getCurrentContext());
-                    townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), cause);
-                    nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), cause);
+            townRepository.getAll().stream().filter(town -> town.getNation().getBank() != null).forEach(town -> {
+                Account nationBank = Economy.getAccount(town.getNation().getBank()).get();
+                Account townBank = Economy.getAccount(town.getBank().toString()).get();
 
+                double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
+                townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                if (taxPaymentAmount > 0) {
                     townFacade.sendTownTaxMessage(town, taxPaymentAmount);
-                });
+                }
             });
         }
     }
