@@ -64,6 +64,8 @@ public class Town implements Identifiable<Long> {
 
     private UUID bank;
 
+    private LocalDateTime lastTaxDate;
+
     private LocalDateTime lastRaidCreationDate;
 
     @Version
@@ -231,4 +233,11 @@ public class Town implements Identifiable<Long> {
         this.lastRaidCreationDate = lastRaidCreationDate;
     }
 
+    public LocalDateTime getLastTaxDate() {
+        return lastTaxDate;
+    }
+
+    public void setLastTaxDate(LocalDateTime lastTaxDate) {
+        this.lastTaxDate = lastTaxDate;
+    }
 }

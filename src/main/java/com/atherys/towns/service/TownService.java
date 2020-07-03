@@ -98,6 +98,7 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(leader.getWorld().getUniqueId());
+        town.setLastTaxDate(LocalDateTime.now());
         town.setBank(UUID.randomUUID());
         town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {

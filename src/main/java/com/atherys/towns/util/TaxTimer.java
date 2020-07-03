@@ -7,13 +7,15 @@ import com.atherys.towns.facade.TownFacade;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.account.Account;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Singleton
 public class TaxTimer {
@@ -28,29 +30,32 @@ public class TaxTimer {
     TownRepository townRepository;
 
     public void init() {
+        Logger logger = AtherysTowns.getInstance().getLogger();
+        logger.info(config.TAX_COLLECTION_DURATION.toString());
         if (AtherysTowns.economyIsEnabled()) {
             Task.Builder taxTimer = Task.builder();
-            taxTimer.delay(config.TAX_COLLECTION_INTERVAL, TimeUnit.MINUTES)
-                    .interval(config.TAX_COLLECTION_INTERVAL, TimeUnit.MINUTES)
-                    .execute(new TaxTimerTask())
+            taxTimer.interval(15, TimeUnit.MINUTES)
+                    .execute(TaxTimerTask())
                     .submit(AtherysTowns.getInstance());
         }
     }
 
-    private class TaxTimerTask implements Consumer<Task> {
-        @Override
-        public void accept(Task task) {
-            townRepository.getAll().stream().filter(town -> town.getNation().getBank() != null).forEach(town -> {
-                Account nationBank = Economy.getAccount(town.getNation().getBank()).get();
-                Account townBank = Economy.getAccount(town.getBank().toString()).get();
+    private Runnable TaxTimerTask() {
+        return () -> townRepository.getAll().stream()
+                .filter(town -> town.getNation() != null)
+                .filter(town -> Duration.between(town.getLastTaxDate(), LocalDateTime.now())
+                        .compareTo(config.TAX_COLLECTION_DURATION) > 0)
+                .forEach(town -> {
+                    Account nationBank = Economy.getAccount(town.getNation().getBank()).get();
+                    Account townBank = Economy.getAccount(town.getBank().toString()).get();
 
-                double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
-                townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
-                nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
-                if (taxPaymentAmount > 0) {
-                    townFacade.sendTownTaxMessage(town, taxPaymentAmount);
-                }
-            });
-        }
+                    double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
+                    townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                    nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                    town.setLastTaxDate(LocalDateTime.now());
+                    if (taxPaymentAmount > 0) {
+                        townFacade.sendTownTaxMessage(town, taxPaymentAmount);
+                    }
+                });
     }
 }
