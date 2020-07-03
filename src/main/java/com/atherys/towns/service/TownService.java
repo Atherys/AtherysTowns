@@ -3,6 +3,7 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
@@ -14,6 +15,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -49,6 +51,8 @@ public class TownService {
 
     private ResidentRepository residentRepository;
 
+    private ResidentService residentService;
+
     private TownsPermissionService townsPermissionService;
 
     private RoleService roleService;
@@ -60,6 +64,7 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
+            ResidentService residentService,
             TownsPermissionService townsPermissionService,
             RoleService roleService
     ) {
@@ -68,14 +73,22 @@ public class TownService {
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
+        this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
         this.roleService = roleService;
     }
 
-    public Town createTown(World world, Transform<World> spawn, User leaderUser, Resident leader, Plot homePlot, String name) {
+    public Town createTown(Player leader, Plot homePlot, String name) {
         Town town = new Town();
+        Nation nation = null;
+        Resident resLeader = residentService.getOrCreate(leader);
 
-        town.setLeader(leader);
+        if(resLeader.getTown() != null){
+            nation = resLeader.getTown().getNation();
+            removeResidentFromTown(leader, resLeader, resLeader.getTown());
+        }
+
+        town.setLeader(resLeader);
         town.setName(name);
         town.setDescription(DEFAULT_TOWN_DESCRIPTION);
         town.setMotd(DEFAULT_TOWN_MOTD);
@@ -83,27 +96,28 @@ public class TownService {
         town.setMaxSize(config.TOWN.DEFAULT_TOWN_MAX_SIZE);
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
-        town.setWorld(world.getUniqueId());
+        town.setWorld(leader.getWorld().getUniqueId());
         town.setBank(UUID.randomUUID());
+        town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {
             AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
         }
-        town.setSpawn(spawn);
+        town.setSpawn(leader.getTransform());
 
         homePlot.setTown(town);
         town.addPlot(homePlot);
 
 
-        leader.setTown(town);
-        town.addResident(leader);
+        resLeader.setTown(town);
+        town.addResident(resLeader);
 
         townRepository.saveOne(town);
         plotRepository.saveOne(homePlot);
 
-        residentRepository.saveOne(leader);
+        residentRepository.saveOne(resLeader);
 
-        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_LEADER_ROLE);
-        roleService.addTownRole(leaderUser, town, config.TOWN.TOWN_DEFAULT_ROLE);
+        roleService.addTownRole(leader, town, config.TOWN.TOWN_LEADER_ROLE);
+        roleService.addTownRole(leader, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         return town;
     }

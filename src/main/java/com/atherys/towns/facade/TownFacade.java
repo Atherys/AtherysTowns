@@ -120,10 +120,7 @@ public class TownFacade implements EconomyFacade {
 
         // create the town
         Town town = townService.createTown(
-                player.getWorld(),
-                player.getTransform(),
                 player,
-                mayor,
                 homePlot,
                 name
         );
