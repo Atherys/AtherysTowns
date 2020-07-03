@@ -30,8 +30,6 @@ public class TaxTimer {
     TownRepository townRepository;
 
     public void init() {
-        Logger logger = AtherysTowns.getInstance().getLogger();
-        logger.info(config.TAX_COLLECTION_DURATION.toString());
         if (AtherysTowns.economyIsEnabled()) {
             Task.Builder taxTimer = Task.builder();
             taxTimer.interval(15, TimeUnit.MINUTES)
