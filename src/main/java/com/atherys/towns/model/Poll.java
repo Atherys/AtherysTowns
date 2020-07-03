@@ -3,7 +3,6 @@ package com.atherys.towns.model;
 import com.atherys.towns.model.entity.Plot;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,7 +13,6 @@ public class Poll {
     private UUID creator;
     private String pollName;
     private Plot homePlot;
-    private int version;
     private boolean passed = true;
 
     public UUID getId() {
@@ -79,26 +77,5 @@ public class Poll {
 
     public void setPassed(boolean passed) {
         this.passed = passed;
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Poll poll = (Poll) o;
-        return id.equals(poll.id) &&
-                votes.equals(poll.votes) &&
-                creator.equals(poll.creator);
-    }
-
-    public int hashCode() {
-        return Objects.hash(id, creator, pollName, version);
-    }
-
-    protected int getVersion() {
-        return version;
-    }
-
-    protected void setVersion(int version) {
-        this.version = version;
     }
 }
