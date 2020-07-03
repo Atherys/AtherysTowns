@@ -6,7 +6,6 @@ import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
 import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PollService;
 import com.atherys.towns.service.ResidentService;
@@ -114,8 +113,9 @@ public class PollFacade {
     }
 
     private Text getPollInfo(Poll poll) {
-        Set<Player> voters = getPlayersByUUID(poll.getVoters());
-        String voterList = String.join(",", voters.stream().map(User::getName).collect(Collectors.toSet()));
+        String voterList = String.join(",", getPlayersByUUID(poll.getVoters()).stream()
+                .map(User::getName)
+                .collect(Collectors.toSet()));
 
         Text.Builder pollText = Text.builder();
         Text townText = Text.of(GOLD, poll.getPollName(), DARK_GREEN);
@@ -173,18 +173,14 @@ public class PollFacade {
     public void createTownFromPoll(Poll poll) {
         Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
         if (mayor.isPresent()) {
-            String townName = poll.getPollName();
-            Set<Player> voters = getPlayersByUUID(poll.getVoters());
-
             try {
                 Town town = townFacade.createTown(mayor.get(), poll.getPollName(), poll.getHomePlot());
-                for (Player player : voters) {
-                    Resident resident = residentService.getOrCreate(player);
-                    if (resident.getTown() != null) {
+                for (Player player : getPlayersByUUID(poll.getVoters())) {
+                    if (residentService.getOrCreate(player).getTown() != null) {
                         townFacade.leaveTown(player);
                     }
                     townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                    townsMsg.info(player, "You have been added as a resident to the town of ", GOLD, townName, ".");
+                    townsMsg.info(player, "You have been added as a resident to the town of ", GOLD, poll.getPollName(), ".");
                 }
             } catch (CommandException e) {
                 mayor.get().sendMessage(Objects.requireNonNull(e.getText()));
@@ -207,8 +203,7 @@ public class PollFacade {
     }
 
     public void onPlayerVote(PlayerVoteEvent event) {
-        Vote vote = event.getVote();
-        Poll poll = pollService.getPollById(vote.getPollId());
+        Poll poll = pollService.getPollById(event.getVote().getPollId());
         Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
         boolean hasEnoughResidents = poll.getVotes().stream().filter(Vote::hasVotedYes).count() + 1 >= config.MIN_RESIDENTS_TOWN_CREATE;
         boolean isVoteOver = poll.getVoters().size() == poll.getVotes().size();
