@@ -3,7 +3,6 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
@@ -83,7 +82,7 @@ public class TownService {
         Nation nation = null;
         Resident resLeader = residentService.getOrCreate(leader);
 
-        if(resLeader.getTown() != null){
+        if (resLeader.getTown() != null) {
             nation = resLeader.getTown().getNation();
             removeResidentFromTown(leader, resLeader, resLeader.getTown());
         }

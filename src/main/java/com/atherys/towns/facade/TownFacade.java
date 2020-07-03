@@ -95,7 +95,7 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
-        if (hasPlayerTown(player) && residentService.isResidentTownLeader(resident, resident.getTown())) {
+        if (residentService.isResidentTownLeader(resident, resident.getTown())) {
             throw new TownsCommandException("You are already a town leader!");
         }
 
