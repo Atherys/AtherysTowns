@@ -222,31 +222,4 @@ public class Town implements Identifiable<Long> {
         this.bank = bank;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Town town = (Town) o;
-        return maxSize == town.maxSize &&
-                freelyJoinable == town.freelyJoinable &&
-                pvpEnabled == town.pvpEnabled &&
-                version == town.version &&
-                Objects.equals(id, town.id) &&
-                Objects.equals(name, town.name) &&
-                Objects.equals(description, town.description) &&
-                Objects.equals(motd, town.motd) &&
-                Objects.equals(color, town.color) &&
-                Objects.equals(leader, town.leader) &&
-                Objects.equals(nation, town.nation) &&
-                Objects.equals(world, town.world) &&
-                Objects.equals(spawn, town.spawn) &&
-                Objects.equals(residents, town.residents) &&
-                Objects.equals(plots, town.plots) &&
-                Objects.equals(bank, town.bank);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, motd, color, leader, nation, world, spawn, residents, plots, maxSize, freelyJoinable, pvpEnabled, bank, version);
-    }
 }

@@ -87,22 +87,6 @@ public class Plot implements Identifiable<Long> {
         this.owner = owner;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Plot plot = (Plot) o;
-        return id.equals(plot.id) &&
-                town.equals(plot.town) &&
-                swCorner.equals(plot.swCorner) &&
-                neCorner.equals(plot.neCorner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, swCorner, neCorner);
-    }
-
     protected int getVersion() {
         return version;
     }
