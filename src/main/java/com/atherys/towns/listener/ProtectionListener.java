@@ -1,32 +1,22 @@
 package com.atherys.towns.listener;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.atherys.towns.facade.ProtectionFacade;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.action.CollideEvent;
-import org.spongepowered.api.event.action.FishingEvent;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.CollideBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
 import org.spongepowered.api.event.entity.*;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
-import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
-import sun.rmi.runtime.Log;
 
-import java.util.Optional;
 
 public class ProtectionListener {
 
