@@ -1,70 +1,50 @@
 package com.atherys.towns.config;
 
+import com.atherys.towns.api.permission.nation.NationPermissions;
+import com.google.common.collect.ImmutableSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
-import org.spongepowered.api.text.Text;
 
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 @ConfigSerializable
 public class NationConfig {
 
-    @Setting("id")
-    private String id = "nation-id";
+    @Setting("max-nation-name-size")
+    public int MAX_NATION_NAME_LENGTH = 25;
 
-    @Setting("name")
-    private Text name = Text.of("Nation Name");
+    @Setting("nation-leader-role")
+    public String LEADER_ROLE = "leader";
 
-    @Setting("description")
-    private Text description = Text.of("Example Description");
+    @Setting("nation-default-role")
+    public String DEFAULT_ROLE = "citizen";
 
-    @Setting("leader-uuid")
-    private UUID leaderUuid = null;
+    @Setting("roles")
+    public Map<String, NationRoleConfig> ROLES = new HashMap<>();
 
-    @Setting("capital-name")
-    private String capitalName = "";
+    {
+        NationRoleConfig nationLeader = new NationRoleConfig();
+        nationLeader.setName("Leader");
+        nationLeader.setTownPermissions(ImmutableSet.of(
+                NationPermissions.INVITE_TOWN,
+                NationPermissions.KICK_TOWN,
+                NationPermissions.SET_PERMISSION,
+                NationPermissions.SET_ROLE,
+                NationPermissions.WITHDRAW_FROM_BANK,
+                NationPermissions.DEPOSIT_INTO_BANK,
+                NationPermissions.CHAT
+        ));
 
-    @Setting("freely-joinable")
-    private boolean freelyJoinable = true;
+        NationRoleConfig nationMember = new NationRoleConfig();
+        nationMember.setName("Citizen");
+        nationMember.setTownPermissions(ImmutableSet.of(
+                NationPermissions.DEPOSIT_INTO_BANK,
+                NationPermissions.CHAT
+        ));
 
-    @Setting("tax")
-    private double tax = 0.2;
-
-    @Setting("bank")
-    private UUID bank = UUID.randomUUID();
-
-    public NationConfig() {
+        ROLES.put("leader", nationLeader);
+        ROLES.put("citizen", nationMember);
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public Text getName() {
-        return name;
-    }
-
-    public Text getDescription() {
-        return description;
-    }
-
-    public UUID getLeaderUuid() {
-        return leaderUuid;
-    }
-
-    public String getCapitalName() {
-        return capitalName;
-    }
-
-    public boolean isFreelyJoinable() {
-        return freelyJoinable;
-    }
-
-    public double getTax() {
-        return tax;
-    }
-
-    public UUID getBank() {
-        return bank;
-    }
 }

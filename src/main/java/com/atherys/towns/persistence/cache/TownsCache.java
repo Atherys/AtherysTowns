@@ -2,8 +2,10 @@ package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -24,11 +26,16 @@ public class TownsCache {
     @Inject
     private TownRepository townRepository;
 
+    @Inject
+    private NationRepository nationRepository;
+
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
     private PlotCache plotCache = new PlotCache();
 
     private Cache<Town, Long> townCache = new SimpleCache<>();
+
+    private Cache<Nation, Long> nationCache = new SimpleCache<>();
 
     public TownsCache() {
     }
@@ -37,12 +44,14 @@ public class TownsCache {
         residentRepository.initCache();
         townRepository.initCache();
         plotRepository.initCache();
+        nationRepository.initCache();
     }
 
     public void flushCache() {
         residentRepository.flushCache();
         plotRepository.flushCache();
         townRepository.flushCache();
+        nationRepository.flushCache();
     }
 
     public Cache<Resident, UUID> getResidentCache() {
@@ -55,5 +64,9 @@ public class TownsCache {
 
     public Cache<Town, Long> getTownCache() {
         return townCache;
+    }
+
+    public Cache<Nation, Long> getNationCache() {
+        return nationCache;
     }
 }

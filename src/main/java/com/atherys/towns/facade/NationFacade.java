@@ -4,7 +4,8 @@ import com.atherys.core.economy.Economy;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.api.permission.nation.NationPermissions;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.ResidentService;
@@ -13,6 +14,7 @@ import com.atherys.towns.service.TownsPermissionService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
@@ -57,7 +59,66 @@ public class NationFacade implements EconomyFacade {
     @Inject
     private ResidentService residentService;
 
-    NationFacade() {
+    NationFacade() {}
+
+    public void createNation(String nationName, Town capital) throws TownsCommandException {
+        if (nationName.length() > config.NATION.MAX_NATION_NAME_LENGTH) {
+            throw new TownsCommandException("Your name is longer than the maximum (", config.NATION.MAX_NATION_NAME_LENGTH, ").");
+        }
+
+        if (nationService.getNationFromName(nationName).isPresent()) {
+            throw new TownsCommandException("A nation with that name already exists.");
+        }
+
+        nationService.createNation(nationName, capital);
+        townsMsg.broadcastInfo("The nation of ", GOLD, nationName, DARK_GREEN, " was created.");
+    }
+
+    public void disbandNation(CommandSource source, Nation nation) {
+        nationService.disbandNation(nation);
+    }
+
+    public void setNationName(Player source, String nationName) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.SET_NAME, "change the nation's name");
+
+        nationService.setNationName(nation, nationName);
+        townsMsg.info(source, "Nation name set.");
+    }
+
+    public void setNationDescription(Player source, Text nationDescription) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.SET_DESCRIPTION, "change the nation's description");
+
+        nationService.setNationDescription(nation, nationDescription);
+        townsMsg.info(source, "Nation description set.");
+    }
+
+
+    public void setNationCapital(Player source, Town town) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.SET_CAPITAL, "change the nation's capital");
+
+        // If the town doesn't have a nation, or the town's nation isn't the nation
+        if (town.getNation() == null || town.getNation() != nation) {
+            throw new TownsCommandException("Town ", town.getName(), " is not part of your nation.");
+        }
+
+        nationService.addTown(nation, town);
+        nationService.setCapital(nation, town);
+        townsMsg.info(source, "Nation capital set.");
+    }
+
+    public void setNationTax(Player source, double tax) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.SET_TAX, "change the nation's tax");
+
+        nationService.setTax(nation, tax);
+        townsMsg.info(source, "Nation tax changed to: " + tax + ".");
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {
@@ -120,7 +181,7 @@ public class NationFacade implements EconomyFacade {
 
         Optional<TransferResult> result = Economy.transferCurrency(
                 source.getUniqueId(),
-                nation.getBankAccount().getIdentifier(),
+                nation.getBank().toString(),
                 config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
@@ -143,7 +204,7 @@ public class NationFacade implements EconomyFacade {
         Nation nation = getPlayerNation(source);
 
         Optional<TransferResult> result = Economy.transferCurrency(
-                nation.getBankAccount().getIdentifier(),
+                nation.getBank().toString(),
                 source.getUniqueId(),
                 config.DEFAULT_CURRENCY,
                 amount,
@@ -168,13 +229,11 @@ public class NationFacade implements EconomyFacade {
     public void sendNationInfo(MessageReceiver receiver, Nation nation) {
         Text.Builder nationInfo = Text.builder();
 
-        nationInfo.append(townsMsg.createTownsHeader(nation.getName().toPlain()));
+        nationInfo.append(townsMsg.createTownsHeader(nation.getName()));
 
         if (!nation.getDescription().equals(NationService.DEFAULT_NATION_DESCRIPTION)) {
             nationInfo.append(nation.getDescription(), Text.NEW_LINE);
         }
-
-        Collection<Town> nationTowns = nationService.getTownsInNation(nation);
 
         Text leader = nation.getLeader() == null ? Text.of("No Leader") : residentFacade.renderResident(nation.getLeader());
         Text capital = nation.getCapital() == null ? Text.of("No Capital") : townFacade.renderTown(nation.getCapital());
@@ -182,11 +241,11 @@ public class NationFacade implements EconomyFacade {
         nationInfo
                 .append(Text.of(DARK_GREEN, "Capital: ", GOLD, capital), Text.NEW_LINE)
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, leader), Text.NEW_LINE)
-                .append(townsMsg.renderBank(nation.getBankAccount()), Text.NEW_LINE)
+                .append(townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE)
                 .append(Text.of(DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation)), Text.NEW_LINE)
                 .append(Text.of(
-                        DARK_GREEN, "Towns [", GREEN, nationTowns.size(), DARK_GREEN, "]: ",
-                        GOLD, townFacade.renderTowns(nationTowns)
+                        DARK_GREEN, "Towns [", GREEN, nation.getTowns().size(), DARK_GREEN, "]: ",
+                        GOLD, townFacade.renderTowns(nation.getTowns())
                 ));
 
         receiver.sendMessage(nationInfo.build());
@@ -204,9 +263,9 @@ public class NationFacade implements EconomyFacade {
                 .onHover(TextActions.showText(Text.of(
                         GOLD, nation.getName(), Text.NEW_LINE,
                         DARK_GREEN, "Leader: ", GOLD, leader, Text.NEW_LINE,
-                        DARK_GREEN, "Towns: ", GOLD, nationService.getTownsInNation(nation).size(), Text.NEW_LINE,
+                        DARK_GREEN, "Towns: ", GOLD, nation.getTowns().size(), Text.NEW_LINE,
                         DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation), Text.NEW_LINE,
-                        townsMsg.renderBank(nation.getBankAccount()), Text.NEW_LINE,
+                        townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE,
                         DARK_GRAY, "Click to view"
                 )))
                 .onClick(TextActions.executeCallback(source -> sendNationInfo(source, nation)))
@@ -231,7 +290,7 @@ public class NationFacade implements EconomyFacade {
                 .append(Text.of(DARK_GRAY, "[]====[ ", GOLD, "Nations", DARK_GRAY, " ]====[]", Text.NEW_LINE));
 
         int i = 1;
-        Collection<Nation> allNations = nationService.getNations().values();
+        Collection<Nation> allNations = nationService.getAllNations();
         for (Nation nation : allNations) {
             nationList.append(Text.of(DARK_GREEN, "- ", renderNation(nation)));
             if (i < allNations.size()) {
@@ -272,7 +331,6 @@ public class NationFacade implements EconomyFacade {
                 return town.getNation().equals(otherTown.getNation());
             }
         }
-
 
         return false;
     }

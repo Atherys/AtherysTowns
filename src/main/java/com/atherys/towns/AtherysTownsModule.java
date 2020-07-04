@@ -1,6 +1,7 @@
 package com.atherys.towns;
 
 import com.atherys.towns.facade.*;
+import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -21,6 +22,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownsCache.class);
 
         // Repositories
+        bind(NationRepository.class);
         bind(TownRepository.class);
         bind(PlotRepository.class);
         bind(ResidentRepository.class);

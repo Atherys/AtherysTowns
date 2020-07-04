@@ -3,6 +3,7 @@ package com.atherys.towns.command.nation;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.command.nation.admin.DisbandNationCommand;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -14,12 +15,17 @@ import javax.annotation.Nonnull;
 @Description("Base nation command.")
 @Permission("atherystowns.nation.base")
 @Children({
+        CreateNationCommand.class,
+        DisbandNationCommand.class,
         NationAddActorPermissionCommand.class,
         NationInfoCommand.class,
         NationRemoveActorPermissionCommand.class,
         NationListCommand.class,
         DepositNationCommand.class,
         WithdrawNationCommand.class,
+        SetNationCapitalCommand.class,
+        SetNationNameCommand.class,
+        SetNationDescriptionCommand.class,
         NationRoleCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")

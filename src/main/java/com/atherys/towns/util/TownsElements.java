@@ -1,6 +1,7 @@
 package com.atherys.towns.util;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -20,8 +21,8 @@ public final class TownsElements {
     public static CommandElement nation() {
         return GenericArguments.choices(
                 Text.of("nation"),
-                () -> AtherysTowns.getInstance().getNationService().getNations().keySet(),
-                string -> AtherysTowns.getInstance().getNationService().getNationFromId(string).orElse(null)
+                () -> AtherysTowns.getInstance().getNationRepository().getAll().stream().map(Nation::getName).collect(Collectors.toList()),
+                string -> AtherysTowns.getInstance().getNationService().getNationFromName(string).orElse(null)
         );
     }
 
@@ -36,7 +37,7 @@ public final class TownsElements {
     public static CommandElement nationRole() {
         return GenericArguments.choices(
                 Text.of("role"),
-                AtherysTowns.getInstance().getConfig().NATION_ROLES.keySet().stream()
+                AtherysTowns.getInstance().getConfig().NATION.ROLES.keySet().stream()
                         .collect(Collectors.toMap(s -> s, s -> s))
         );
     }

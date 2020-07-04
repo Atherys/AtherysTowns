@@ -3,7 +3,7 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -152,7 +152,7 @@ public class TownService {
                     if (town.getNation() != null) {
                         townsPermissionService.clearPermissions(subject, nationContext);
                     }
-                    roleService.addNationRole(subject, nation, config.DEFAULT_ROLE);
+                    roleService.addNationRole(subject, nation, config.NATION.DEFAULT_ROLE);
                 }, ids);
 
         town.setNation(nation);
@@ -345,7 +345,7 @@ public class TownService {
         roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         if (town.getNation() != null) {
-            roleService.addNationRole(user, town.getNation(), config.DEFAULT_ROLE);
+            roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
         }
 
         townRepository.saveOne(town);

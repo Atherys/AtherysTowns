@@ -19,10 +19,12 @@ import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.permission.TownsContextCalculator;
+import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -96,9 +98,7 @@ public class AtherysTowns {
 
     private void start() {
         getRoleService().init();
-        getNationService().init();
         getTownsCache().initCache();
-        getNationService().initTowns();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
@@ -142,6 +142,7 @@ public class AtherysTowns {
 
     @Listener
     public void onHibernateConfiguration(AtherysHibernateConfigurationEvent event) {
+        event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(Plot.class);
         event.registerEntity(Resident.class);
@@ -160,7 +161,6 @@ public class AtherysTowns {
     @Listener
     public void onReload(GameReloadEvent event) {
         getConfig().init();
-        getNationService().init();
     }
 
     public TownsConfig getConfig() {
@@ -173,6 +173,10 @@ public class AtherysTowns {
 
     public TownRepository getTownRepository() {
         return components.townRepository;
+    }
+
+    public NationRepository getNationRepository() {
+        return components.nationRepository;
     }
 
     public PlotRepository getPlotRepository() {
@@ -267,6 +271,9 @@ public class AtherysTowns {
 
         @Inject
         private TownsCache townsCache;
+
+        @Inject
+        private NationRepository nationRepository;
 
         @Inject
         private TownRepository townRepository;

@@ -2,8 +2,6 @@ package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
-import com.atherys.towns.model.Nation;
-import com.atherys.towns.persistence.converter.NationConverter;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.entity.Transform;
@@ -37,7 +35,7 @@ public class Town implements Identifiable<Long> {
     @OneToOne
     private Resident leader;
 
-    @Convert(converter = NationConverter.class)
+    @OneToOne
     private Nation nation;
 
     private UUID world;
