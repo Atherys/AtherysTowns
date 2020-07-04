@@ -1,6 +1,5 @@
 package com.atherys.towns.facade;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermission;
@@ -8,20 +7,12 @@ import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
-import com.flowpowered.math.vector.Vector2i;
-import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleOptions;
-import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
@@ -47,6 +38,12 @@ public class PlotFacade {
 
     @Inject
     ResidentService residentService;
+
+    @Inject
+    PlotBorderFacade plotBorderFacade;
+
+    @Inject
+    PlotSelectionFacade plotSelectionFacade;
 
     PlotFacade() {
     }
@@ -127,64 +124,12 @@ public class PlotFacade {
         });
     }
 
-    private int getXLength(Vector2i pointA, Vector2i pointB) {
-        return pointA.getX() - pointB.getX();
-    }
-
-    private int getZLength(Vector2i pointA, Vector2i pointB) {
-        return pointB.getY() - pointA.getY();
-    }
-
-    public void showPlotBorders(Player player, boolean view, Location<World> newLocation) {
-        Sponge.getScheduler().getTasksByName(player.getUniqueId() + "ShowBorders").forEach(Task::cancel);
-
-        residentService.getOrCreate(player).setIsViewingTownBorders(view);
-
-        plotService.getPlotByLocation(newLocation).ifPresent(plot -> {
-            Vector2i northEastCorner = plot.getNorthEastCorner();
-            Vector2i southWestCorner = plot.getSouthWestCorner();
-            int xLength = getXLength(northEastCorner, southWestCorner);
-            int zLength = getZLength(northEastCorner, southWestCorner);
-
-            ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.BLUE)
-                    .quantity(8).offset(new Vector3d(0, 4, 0)).build();
-            Vector3d particleLocationNE = new Vector3d(northEastCorner.getX(), player.getPosition().getFloorY(), northEastCorner.getY());
-            Vector3d particleLocationSW = new Vector3d(southWestCorner.getX(), player.getPosition().getFloorY(), southWestCorner.getY());
-
-            Task.Builder taskBuilder = Task.builder();
-
-            taskBuilder.execute(task -> {
-                player.spawnParticles(effect, particleLocationNE.add(1, 0, 0));
-                player.spawnParticles(effect, particleLocationSW.add(0, 0, 1));
-                for (int i = 0; i <= zLength; i++) {
-                    player.spawnParticles(effect, particleLocationNE.add(1, 0, i + 1));
-                    player.spawnParticles(effect, particleLocationSW.sub(0, 0, i));
-                }
-                for (int i = 0; i <= xLength; i++) {
-                    player.spawnParticles(effect, particleLocationNE.sub(i, 0, 0));
-                    player.spawnParticles(effect, particleLocationSW.add(i + 1, 0, 1));
-                }
-
-                if (!residentService.getOrCreate(player).getIsViewingTownBorders()) {
-                    task.cancel();
-                }
-            }).intervalTicks(10).name(player.getUniqueId() + "ShowBorders").submit(AtherysTowns.getInstance());
-        });
-    }
-
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
         Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
-        Plot plotFrom = plotService.getPlotByLocation(from.getLocation()).orElse(new Plot());
-        Resident res = residentService.getOrCreate(player);
-
-        if (res.getIsViewingTownBorders() && plotTo.isPresent()) {
-            if (( plotFrom != plotTo.get()) || (from.getLocation().getY() != to.getLocation().getY())) {
-                showPlotBorders(player, true, to.getLocation());
-            }
-        }
+        Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
 
         if (!plotTo.isPresent()) return;
-        if (plotFrom.getNorthEastCorner() != null ) return;
+        if (plotFrom.isPresent()) return;
 
         player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getName())).build());
     }

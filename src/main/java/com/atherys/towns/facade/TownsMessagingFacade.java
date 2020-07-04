@@ -97,4 +97,5 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
         }
         return Text.EMPTY;
     }
+
 }

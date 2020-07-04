@@ -24,6 +24,9 @@ public class PlotService {
     @Inject
     PlotRepository plotRepository;
 
+    @Inject
+    ResidentService residentService;
+
     PlotService() {
     }
 

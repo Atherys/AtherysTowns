@@ -10,6 +10,14 @@ public class MathUtils {
         return Vector2i.from(vector3i.getX(), vector3i.getZ());
     }
 
+    public static int getXLength(Vector2i pointA, Vector2i pointB) {
+        return pointA.getX() - pointB.getX();
+    }
+
+    public static int getZLength(Vector2i pointA, Vector2i pointB) {
+        return pointB.getY() - pointA.getY();
+    }
+
     public static boolean vectorFitsInRange(Vector3d vec, Vector3i lower, Vector3i upper) {
         return fitsInRange(vec.getX(), lower.getX(), upper.getX()) &&
                 fitsInRange(vec.getY(), lower.getY(), upper.getY()) &&

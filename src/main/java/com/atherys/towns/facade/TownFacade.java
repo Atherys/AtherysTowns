@@ -72,6 +72,12 @@ public class TownFacade implements EconomyFacade {
     private PermissionFacade permissionFacade;
 
     @Inject
+    private PlotFacade plotFacade;
+
+    @Inject
+    private PlotBorderFacade plotBorderFacade;
+
+    @Inject
     private TownsPermissionService townsPermissionService;
 
     TownFacade() {
@@ -99,19 +105,19 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        plotSelectionFacade.validatePlotSelection(selection, player);
-        Plot homePlot = plotService.createPlotFromSelection(selection);
+        if(plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())){
+            Plot homePlot = plotService.createPlotFromSelection(selection);
+            if (party.isPresent()) {
+                Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
+                partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
 
-        if (party.isPresent()) {
-            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
-            partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
-
-            if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
-                throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
+                if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                    throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
+                }
+                pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+            } else {
+                createTown(player, townName, homePlot);
             }
-            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
-        } else {
-            createTown(player, townName, homePlot);
         }
     }
 
@@ -226,26 +232,30 @@ public class TownFacade implements EconomyFacade {
         }
 
         townService.removePlotFromTown(town, plot);
+        plotBorderFacade.removeSelectionBorder(source.getUniqueId() + "ShowBorders");
         townsMsg.info(source, "Plot abandoned.");
     }
 
     public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
-        PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
+        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(source);
+        if (plotSelectionFacade.validatePlotSelection(selection, source, true, source.getLocation())) {
+            Town town = getPlayerTown(source);
+            Plot plot = plotService.createPlotFromSelection(selection);
 
-        Town town = getPlayerTown(source);
-        Plot plot = plotService.createPlotFromSelection(selection);
+            if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+            }
 
-        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
-            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+            if (!plotService.plotBordersTown(town, plot)) {
+                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+            }
+
+            townService.claimPlotForTown(plot, town);
+            plotSelectionFacade.clearSelection(source);
+            plotBorderFacade.showPlotBorders(source, source.getLocation());
+
+            townsMsg.info(source, "Plot claimed.");
         }
-
-        if (!plotService.plotBordersTown(town, plot)) {
-            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
-        }
-
-        townService.claimPlotForTown(plot, town);
-
-        townsMsg.info(source, "Plot claimed.");
     }
 
     public void inviteToTown(Player source, Player invitee) throws TownsCommandException {

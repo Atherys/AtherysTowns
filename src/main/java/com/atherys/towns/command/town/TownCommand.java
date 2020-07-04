@@ -17,7 +17,6 @@ import javax.annotation.Nonnull;
 @Children({
         CreateTownCommand.class,
         RuinTownCommand.class,
-        BordersCommand.class,
         JoinTownCommand.class,
         LeaveTownCommand.class,
         DecreaseTownSizeCommand.class,

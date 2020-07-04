@@ -41,8 +41,6 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     private LocalDateTime registeredOn;
 
-    private boolean isViewingTownBorders;
-
     private LocalDateTime lastLogin;
 
     private LocalDateTime lastTownSpawn;
@@ -149,14 +147,6 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     public void setVersion(int version) {
         this.version = version;
-    }
-
-    public boolean getIsViewingTownBorders() {
-        return isViewingTownBorders;
-    }
-
-    public void setIsViewingTownBorders(boolean isViewing) {
-        this.isViewingTownBorders = isViewing;
     }
 
     @Override

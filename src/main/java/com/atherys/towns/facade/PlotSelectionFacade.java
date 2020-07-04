@@ -1,13 +1,11 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.PlotService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -27,6 +25,8 @@ public class PlotSelectionFacade {
     TownsMessagingFacade townMsg;
     @Inject
     PlotService plotService;
+    @Inject
+    PlotBorderFacade plotBorderFacade;
 
     private PlotSelection getOrCreateSelection(Player player) {
         if (selections.containsKey(player.getUniqueId())) {
@@ -38,16 +38,22 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointA(location);
-    }
-
-    private void selectPointBAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointB(location);
+    private void selectPointAtLocation(Player player, Location<World> location, String point) {
+        switch (point) {
+            case "A":
+                getOrCreateSelection(player).setPointA(location);
+                break;
+            case "B":
+                getOrCreateSelection(player).setPointB(location);
+                break;
+            default:
+                break;
+        }
     }
 
     public void clearSelection(Player player) {
         selections.remove(player.getUniqueId());
+        plotBorderFacade.removeSelectionBorder(player.getUniqueId() + "Selection");
         townMsg.info(player, "You have cleared your selection.");
     }
 
@@ -76,14 +82,14 @@ public class PlotSelectionFacade {
         return Math.min(sideX, sideZ);
     }
 
-    public void selectPointAFromPlayerLocation(Player player) {
-        selectPointAAtLocation(player, player.getLocation());
-        sendPointSelectionMessage(player, "A");
-    }
-
-    public void selectPointBFromPlayerLocation(Player player) {
-        selectPointBAtLocation(player, player.getLocation());
-        sendPointSelectionMessage(player, "B");
+    public void selectPointFromPlayerLocation(Player player, String point) {
+        selectPointAtLocation(player, player.getLocation(), point);
+        sendPointSelectionMessage(player, point);
+        PlotSelection selection = getOrCreateSelection(player);
+        if (selection.isComplete()) {
+            validatePlotSelection(selection, player, true, player.getLocation());
+            plotBorderFacade.showNewPlotSelectionBorders(player, player.getLocation());
+        }
     }
 
     private void sendPointSelectionMessage(Player player, String point) {
@@ -99,43 +105,46 @@ public class PlotSelectionFacade {
      * @throws CommandException if the plot selection is null, is incomplete ( either point A or point B is null ),
      *                          it's area is greater than the maximum configured, or it's smallest side is smaller than the minimum configured
      */
-    public void validatePlotSelection(PlotSelection selection, Player player) throws CommandException {
+    public boolean validatePlotSelection(PlotSelection selection, Player player, boolean messageUser, Location<World> location) {
 
         if (selection == null) {
-            throw new TownsCommandException("Plot selection is null.");
+            if (messageUser) townMsg.error(player, "Plot selection is null.");
+            return false;
         }
 
         if (!selection.isComplete()) {
-            throw new TownsCommandException("Plot selection is incomplete.");
+            if (messageUser) townMsg.error(player, "Plot selection is incomplete.");
+            return false;
         }
 
         int selectionArea = getPlotSelectionArea(selection);
         if (selectionArea > config.TOWN.MAX_PLOT_AREA) {
-            throw new TownsCommandException("Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
+            if (messageUser)
+                townMsg.error(player, "Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
+            return false;
         }
 
         int smallestSide = getSmallestPlotSelectionSideSize(selection);
         if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
-            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+            if (messageUser)
+                townMsg.error(player, "Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+            return false;
         }
 
         Plot plot = plotService.createPlotFromSelection(selection);
         if (plotService.plotIntersectsAnyOthers(plot)) {
-            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+            if (messageUser) townMsg.error(player, "The plot selection intersects with an already-existing plot.");
+            return false;
         }
 
-        if (!plotService.isLocationWithinPlot(player.getLocation(), plot)) {
-            throw new TownsCommandException("You must be within your plot selection!");
+        if (!plotService.isLocationWithinPlot(location, plot)) {
+            if (messageUser) townMsg.error(player, "You must be within your plot selection!");
+            return false;
         }
+        return true;
     }
 
     public PlotSelection getCurrentPlotSelection(Player player) {
         return getOrCreateSelection(player);
-    }
-
-    public PlotSelection getValidPlayerPlotSelection(Player source) throws CommandException {
-        PlotSelection selection = getOrCreateSelection(source);
-        validatePlotSelection(selection, source);
-        return selection;
     }
 }
