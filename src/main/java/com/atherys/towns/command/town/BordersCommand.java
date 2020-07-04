@@ -6,12 +6,9 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.util.TownsElements;
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -27,7 +24,7 @@ public class BordersCommand implements PlayerCommand, ParameterizedCommand {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.bool(Text.of("border"))
         };
     }
@@ -37,7 +34,7 @@ public class BordersCommand implements PlayerCommand, ParameterizedCommand {
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         Logger logger = AtherysTowns.getInstance().getLogger();
         logger.info("Executed command BordersCommand: " + args.getOne("border").orElse(false).toString());
-        AtherysTowns.getInstance().getPlotFacade().showPlotBorders(source, args.<Boolean>getOne("border").orElse(false));
+        AtherysTowns.getInstance().getPlotFacade().showPlotBorders(source, args.<Boolean>getOne("border").orElse(false), source.getLocation());
         return CommandResult.success();
     }
 }

@@ -13,7 +13,7 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.slf4j.Logger;
-import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -26,10 +26,10 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.util.Color;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -127,54 +127,65 @@ public class PlotFacade {
         });
     }
 
-    private int getRight(Vector2i pointA, Vector2i pointB) {
+    private int getXLength(Vector2i pointA, Vector2i pointB) {
         return pointA.getX() - pointB.getX();
     }
 
-    private int getDown(Vector2i pointA, Vector2i pointB) {
+    private int getZLength(Vector2i pointA, Vector2i pointB) {
         return pointB.getY() - pointA.getY();
     }
 
-    public void showPlotBorders(Player player, boolean view) throws TownsCommandException {
-        Logger logger = AtherysTowns.getInstance().getLogger();
-        logger.info("showPlotBorders executed");
+    public void showPlotBorders(Player player, boolean view, Location<World> newLocation) {
+        Sponge.getScheduler().getTasksByName(player.getUniqueId() + "ShowBorders").forEach(Task::cancel);
 
         residentService.getOrCreate(player).setIsViewingTownBorders(view);
 
-        Plot playerPlot = getPlotAtPlayer(player);
-        Vector2i northEastCorner = playerPlot.getNorthEastCorner();
-        Vector2i southWestCorner = playerPlot.getSouthWestCorner();
-        int right = getRight(northEastCorner, southWestCorner);
-        int down = getDown(northEastCorner, southWestCorner);
-        ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.BLUE)
-                .quantity(5).offset(new Vector3d(0,2,0)).build();
-        Vector3d particleLocationNE = new Vector3d(northEastCorner.getX() + .5, player.getPosition().getFloorY() + 2, northEastCorner.getY() + .5);
-        Vector3d particleLocationSW = new Vector3d(southWestCorner.getX() + .5, player.getPosition().getFloorY() + 2, southWestCorner.getY() + .5);
+        plotService.getPlotByLocation(newLocation).ifPresent(plot -> {
+            Vector2i northEastCorner = plot.getNorthEastCorner();
+            Vector2i southWestCorner = plot.getSouthWestCorner();
+            int xLength = getXLength(northEastCorner, southWestCorner);
+            int zLength = getZLength(northEastCorner, southWestCorner);
 
-        Task.Builder taskBuilder = Task.builder();
+            ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.BLUE)
+                    .quantity(8).offset(new Vector3d(0, 4, 0)).build();
+            Vector3d particleLocationNE = new Vector3d(northEastCorner.getX(), player.getPosition().getFloorY(), northEastCorner.getY());
+            Vector3d particleLocationSW = new Vector3d(southWestCorner.getX(), player.getPosition().getFloorY(), southWestCorner.getY());
 
-        taskBuilder.execute(task -> {
-            for (int i = 0; i < down; i++) {
-                player.spawnParticles(effect, particleLocationNE.add(0,0,i));
-                player.spawnParticles(effect, particleLocationSW.add(i,0,0));
-            }
-            for (int i = 0; i < right; i++) {
-                player.spawnParticles(effect, particleLocationNE.sub(i,0,0));
-                player.spawnParticles(effect, particleLocationSW.sub(0,0,i));
-            }
+            Task.Builder taskBuilder = Task.builder();
 
-            if(!residentService.getOrCreate(player).getIsViewingTownBorders()) { logger.info("Cancelling Task..."); task.cancel(); }
-        }).intervalTicks(10).submit(AtherysTowns.getInstance());
+            taskBuilder.execute(task -> {
+                player.spawnParticles(effect, particleLocationNE.add(1, 0, 0));
+                player.spawnParticles(effect, particleLocationSW.add(0, 0, 1));
+                for (int i = 0; i <= zLength; i++) {
+                    player.spawnParticles(effect, particleLocationNE.add(1, 0, i + 1));
+                    player.spawnParticles(effect, particleLocationSW.sub(0, 0, i));
+                }
+                for (int i = 0; i <= xLength; i++) {
+                    player.spawnParticles(effect, particleLocationNE.sub(i, 0, 0));
+                    player.spawnParticles(effect, particleLocationSW.add(i + 1, 0, 1));
+                }
 
+                if (!residentService.getOrCreate(player).getIsViewingTownBorders()) {
+                    task.cancel();
+                }
+            }).intervalTicks(10).name(player.getUniqueId() + "ShowBorders").submit(AtherysTowns.getInstance());
+        });
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        Optional<Plot> plot = plotService.getPlotByLocation(to.getLocation());
-        if (!plot.isPresent()) return;
+        Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
+        Plot plotFrom = plotService.getPlotByLocation(from.getLocation()).orElse(new Plot());
+        Resident res = residentService.getOrCreate(player);
 
-        Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
-        if (plotFrom.isPresent()) return;
+        if (res.getIsViewingTownBorders() && plotTo.isPresent()) {
+            if (( plotFrom != plotTo.get()) || (from.getLocation().getY() != to.getLocation().getY())) {
+                showPlotBorders(player, true, to.getLocation());
+            }
+        }
 
-        player.sendTitle(Title.builder().stay(20).title(Text.of(plot.get().getTown().getName())).build());
+        if (!plotTo.isPresent()) return;
+        if (plotFrom.getNorthEastCorner() != null ) return;
+
+        player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getName())).build());
     }
 }
