@@ -273,58 +273,82 @@ public class AtherysTowns {
 
         @Inject
         PlotBorderFacade plotBorderFacade;
+
         @Inject
         private TownsConfig config;
+
         @Inject
         private TownsCache townsCache;
+
         @Inject
         private NationRepository nationRepository;
 
         @Inject
         private TownRepository townRepository;
+
         @Inject
         private PlotRepository plotRepository;
+
         @Inject
         private ResidentRepository residentRepository;
+
         @Inject
         private PollService pollService;
+
         @Inject
         private NationService nationService;
+
         @Inject
         private TownService townService;
+
         @Inject
         private PlotService plotService;
+
         @Inject
         private ResidentService residentService;
+
         @Inject
         private RoleService roleService;
+
         @Inject
         private TownsPermissionService townsPermissionService;
+
         @Inject
         private TownsMessagingFacade townsMessagingFacade;
+
         @Inject
         private NationFacade nationFacade;
+
         @Inject
         private TownFacade townFacade;
+
         @Inject
         private TownSpawnFacade townSpawnFacade;
+
         @Inject
         private TownAdminFacade townAdminFacade;
+
         @Inject
         private PlotFacade plotFacade;
+
         @Inject
         private ResidentFacade residentFacade;
+
         @Inject
         private PermissionFacade permissionFacade;
+
         @Inject
         private PlotSelectionFacade plotSelectionFacade;
+
         @Inject
         private PollFacade pollFacade;
 
         @Inject
         private ProtectionFacade protectionFacade;
+
         @Inject
         private PlayerListener playerListener;
+
         @Inject
         private ProtectionListener protectionListener;
     }
