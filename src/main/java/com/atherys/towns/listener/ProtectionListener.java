@@ -15,9 +15,8 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
-import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 
 public class ProtectionListener {
 
@@ -50,8 +49,10 @@ public class ProtectionListener {
     }
 
     @Listener
-    public void onProjectileLaunch(LaunchProjectileEvent event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
+    public void onItemUse(InteractItemEvent event, @Root Player player) {
+        if (!protectionFacade.isExemptItem(event.getItemStack())) {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
+        }
     }
 
     @Listener
@@ -93,13 +94,6 @@ public class ProtectionListener {
     }
 
     @Listener
-    public void onItemUse(UseItemStackEvent.Start event, @Root Player player) {
-        if (!protectionFacade.isExemptItem(event.getItemStackInUse())) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
-        }
-    }
-
-    @Listener
     public void onCollideBlock(CollideBlockEvent event, @Root Player player) {
         if (protectionFacade.isRedstone(event.getTargetBlock().getType())) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
@@ -114,18 +108,6 @@ public class ProtectionListener {
                 event.getEntities().forEach(entity -> {
                     plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.USE_ITEMS, entity.getLocation(), true);
                 });
-            }
-        });
-    }
-
-    @Listener
-    public void onCollideBlock(CollideBlockEvent event) {
-        event.getContext().get(EventContextKeys.OWNER).filter(user -> user.getPlayer().isPresent())
-                .map(User::getPlayer).ifPresent(player -> {
-            if (protectionFacade.isRedstone(event.getTargetBlock().getType())) {
-                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
-            } else if (!(event.getSource() instanceof Player)) {
-                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.DAMAGE_NONPLAYERS, event.getTargetLocation(), true);
             }
         });
     }
