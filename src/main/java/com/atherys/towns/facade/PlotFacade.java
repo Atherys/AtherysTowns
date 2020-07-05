@@ -15,6 +15,7 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
@@ -104,8 +105,8 @@ public class PlotFacade {
         return player.hasPermission(permission.getId());
     }
 
-    public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, boolean messageUser) {
-        getPlotAtPlayerOptional(player).ifPresent(plot -> {
+    public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, Location<World> location, boolean messageUser) {
+        plotService.getPlotByLocation(location).ifPresent(plot -> {
             if (!hasPlotAccess(player, plot, permission)) {
                 if (messageUser) {
                     townsMsg.error(player, "You do not have permission to do that!");

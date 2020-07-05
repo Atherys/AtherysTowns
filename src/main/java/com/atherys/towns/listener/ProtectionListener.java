@@ -12,11 +12,12 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.CollideBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.entity.*;
+import org.spongepowered.api.event.entity.CollideEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
-
 
 public class ProtectionListener {
 
@@ -28,45 +29,56 @@ public class ProtectionListener {
 
     @Listener
     public void onBlockPlace(ChangeBlockEvent.Place event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, true);
+        event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
+        }));
+
     }
 
     @Listener
     public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.DESTROY, true);
+        event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.DESTROY, location, true);
+        }));
     }
 
     @Listener
     public void onBlockChange(ChangeBlockEvent.Modify event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, true);
+        event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
+        }));
     }
 
     @Listener
     public void onProjectileLaunch(LaunchProjectileEvent event, @Root Player player) {
-        plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
+        plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
     }
 
     @Listener
     public void onBlockInteract(InteractBlockEvent event, @Root Player player) {
-        BlockType blockType = event.getTargetBlock().getState().getType();
-        if (protectionFacade.isTileEntity(event)) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, true);
-        }
-        if (protectionFacade.isDoor(blockType)) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS, true);
-        }
-        if (protectionFacade.isRedstone(blockType) && !protectionFacade.isDoor(blockType)) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, true);
-        }
-        if (blockType.getTrait("EXPLODE").isPresent()) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
-        }
+        event.getTargetBlock().getLocation().ifPresent(location -> {
+            BlockType blockType = event.getTargetBlock().getState().getType();
+            if (protectionFacade.isTileEntity(event)) {
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, location, true);
+            }
+            if (protectionFacade.isDoor(blockType)) {
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS, location, true);
+            }
+            if (protectionFacade.isRedstone(blockType) && !protectionFacade.isDoor(blockType)) {
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, location, true);
+            }
+            if (blockType.getTrait("EXPLODE").isPresent()) {
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, location, true);
+            }
+        });
     }
 
     @Listener
     public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
         if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, true);
+            event.getEntities().forEach(entity -> {
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, entity.getLocation(), true);
+            });
         }
     }
 
@@ -75,22 +87,22 @@ public class ProtectionListener {
         if (!(event.getTargetEntity() instanceof Player)) {
             //This prevents it from firing twice.
             if (event instanceof InteractEntityEvent.Primary.MainHand || event instanceof InteractEntityEvent.Secondary.MainHand) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, false);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, event.getTargetEntity().getLocation(), false);
             }
         }
     }
 
     @Listener
     public void onItemUse(UseItemStackEvent.Start event, @Root Player player) {
-        if (!protectionFacade.isCombatItem(event.getItemStackInUse().getType())) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, true);
+        if (!protectionFacade.isExemptItem(event.getItemStackInUse())) {
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
         }
     }
 
     @Listener
     public void onCollideBlock(CollideBlockEvent event, @Root Player player) {
         if (protectionFacade.isRedstone(event.getTargetBlock().getType())) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, false);
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
         }
     }
 
@@ -98,8 +110,22 @@ public class ProtectionListener {
     public void onEntityDamage(CollideEntityEvent.Impact event) {
         event.getContext().get(EventContextKeys.OWNER).filter(user -> user.getPlayer().isPresent())
                 .map(User::getPlayer).ifPresent(player -> {
-            if(event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
-                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.DAMAGE_NONPLAYERS, true);
+            if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
+                event.getEntities().forEach(entity -> {
+                    plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.USE_ITEMS, entity.getLocation(), true);
+                });
+            }
+        });
+    }
+
+    @Listener
+    public void onCollideBlock(CollideBlockEvent event) {
+        event.getContext().get(EventContextKeys.OWNER).filter(user -> user.getPlayer().isPresent())
+                .map(User::getPlayer).ifPresent(player -> {
+            if (protectionFacade.isRedstone(event.getTargetBlock().getType())) {
+                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
+            } else if (!(event.getSource() instanceof Player)) {
+                plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.DAMAGE_NONPLAYERS, event.getTargetLocation(), true);
             }
         });
     }

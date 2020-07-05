@@ -2,12 +2,14 @@ package com.atherys.towns.facade;
 
 import com.google.inject.Singleton;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.property.item.FoodRestorationProperty;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +22,16 @@ public class ProtectionFacade {
             ItemTypes.SHIELD
     );
 
-    public boolean isCombatItem(ItemType itemType) {
-        return combatItems.contains(itemType);
+    public boolean isCombatItem(ItemStackSnapshot itemStackSnapshot) {
+        return combatItems.contains(itemStackSnapshot.getType());
+    }
+
+    public boolean isFoodItem(ItemStackSnapshot itemStackSnapshot) {
+        return itemStackSnapshot.getProperty(FoodRestorationProperty.class).isPresent();
+    }
+
+    public boolean isExemptItem(ItemStackSnapshot itemStackSnapshot) {
+        return isCombatItem(itemStackSnapshot) || isFoodItem(itemStackSnapshot);
     }
 
     public boolean isNonPlayerTarget(DamageEntityEvent event, IndirectEntityDamageSource src) {
