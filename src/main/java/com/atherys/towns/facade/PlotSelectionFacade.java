@@ -73,8 +73,7 @@ public class PlotSelectionFacade {
         PlotSelection selection = getOrCreateSelection(player);
         if (selection.isComplete()) {
             validatePlotSelection(selection, player, true, player.getLocation());
-            plotBorderFacade.clearBorders(player);
-            plotBorderFacade.showNewPlotSelectionBorders(player, player.getLocation());
+            plotBorderFacade.refreshBorders(player, player.getLocation());
         }
     }
 

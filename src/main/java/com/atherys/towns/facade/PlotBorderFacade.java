@@ -10,7 +10,6 @@ import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
@@ -159,16 +158,16 @@ public class PlotBorderFacade {
             if ((plotTo.isPresent() && plotFrom.isPresent()) && !plotFrom.equals(plotTo)) {
                 refreshBorders(player, to.getLocation());
             }
-            if(selection.isComplete()) {
+            if (selection.isComplete()) {
                 Plot selectionPlot = plotService.createPlotFromSelection(selection);
                 boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
                 boolean toInSelection = plotService.isLocationWithinPlot(to.getLocation(), selectionPlot);
 
-                if((fromInSelection && !toInSelection) || (!fromInSelection && toInSelection)) {
+                if ((fromInSelection && !toInSelection) || (!fromInSelection && toInSelection)) {
                     refreshBorders(player, to.getLocation());
                 }
             }
-            if(!plotFrom.isPresent() && plotTo.isPresent()) {
+            if (!plotFrom.isPresent() && plotTo.isPresent()) {
                 refreshBorders(player, to.getLocation());
             }
             if (plotFrom.isPresent() && !plotTo.isPresent()) {

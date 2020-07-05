@@ -253,7 +253,6 @@ public class TownFacade implements EconomyFacade {
 
             townService.claimPlotForTown(plot, town);
             plotSelectionFacade.clearSelection(source);
-            plotBorderFacade.showPlotBorders(source, source.getLocation());
 
             townsMsg.info(source, "Plot claimed.");
         }
