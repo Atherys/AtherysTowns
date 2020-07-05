@@ -39,8 +39,8 @@ public class PlotSelectionFacade {
     }
 
     public void clearSelection(Player player) {
-        plotBorderFacade.clearBorders(player);
         selections.remove(player.getUniqueId());
+        plotBorderFacade.refreshBorders(player, player.getLocation());
         townMsg.info(player, "You have cleared your selection.");
     }
 

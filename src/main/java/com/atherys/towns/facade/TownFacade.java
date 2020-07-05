@@ -139,7 +139,7 @@ public class TownFacade implements EconomyFacade {
                 GOLD, player.getName(), DARK_GREEN, " has created the town of ",
                 GOLD, town.getName(), DARK_GREEN, "."
         );
-
+        plotSelectionFacade.clearSelection(player);
         return town;
     }
 
@@ -203,6 +203,7 @@ public class TownFacade implements EconomyFacade {
         }
 
         townService.removeTown(town);
+        plotBorderFacade.refreshBorders(player, player.getLocation());
         townsMsg.info(player, "Town ruined.");
     }
 

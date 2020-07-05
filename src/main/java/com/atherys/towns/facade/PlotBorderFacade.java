@@ -10,6 +10,7 @@ import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
@@ -33,8 +34,10 @@ public class PlotBorderFacade {
 
     @Inject
     PlotService plotService;
+
     @Inject
     PlotSelectionFacade plotSelectionFacade;
+
     @Inject
     TownsMessagingFacade townMsg;
 
@@ -55,25 +58,31 @@ public class PlotBorderFacade {
         activeTasks.remove(player.getUniqueId());
     }
 
+    public void refreshBorders(Player player, Location<World> location) {
+        clearBorders(player);
+        showAllBorders(player, location);
+    }
+
     public void removeSelectionBorder(Player player, Plot plot) {
-        if (activeTasks.get(player.getUniqueId()) != null) {
-            activeTasks.get(player.getUniqueId()).forEach(borderInfo -> {
+        Set<BorderInfo> playerBorders = activeTasks.get(player.getUniqueId());
+        if (playerBorders != null && playerBorders.size() > 0) {
+            playerBorders.forEach(borderInfo -> {
                 if (borderInfo.getNECorner() == plot.getNorthEastCorner()) {
-                    activeTasks.get(player.getUniqueId()).remove(borderInfo);
+                    playerBorders.remove(borderInfo);
                 }
             });
         }
     }
 
     public void addSelectionBorder(Player player, BorderInfo borderInfo) {
-        Set<BorderInfo> borderSet = new HashSet<>();
-        borderSet.add(borderInfo);
         Set<BorderInfo> playerBorders = activeTasks.get(player.getUniqueId());
         if (playerBorders != null) {
             if (playerBorders.stream().noneMatch(borderInfo1 -> borderInfo.getNECorner() == borderInfo1.getNECorner())) {
                 playerBorders.add(borderInfo);
             }
         } else {
+            Set<BorderInfo> borderSet = new HashSet<>();
+            borderSet.add(borderInfo);
             activeTasks.put(player.getUniqueId(), borderSet);
         }
     }
@@ -104,36 +113,30 @@ public class PlotBorderFacade {
     }
 
     public void initBorderTask() {
-        Task.builder().execute(task -> {
-            activeTasks.forEach((uuid, borderInfoSet) -> {
-                Sponge.getServer().getPlayer(uuid).ifPresent(player -> {
-                    borderInfoSet.forEach(borderInfo -> {
-                        int xLength = MathUtils.getXLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
-                        int zLength = MathUtils.getZLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
-                        Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
-                        Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
+        Task.builder().execute(task -> activeTasks.forEach((uuid, borderInfoSet) -> Sponge.getServer().getPlayer(uuid).ifPresent(player -> borderInfoSet.forEach(borderInfo -> {
+            int xLength = MathUtils.getXLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
+            int zLength = MathUtils.getZLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
+            Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
+            Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
 
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, 0));
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(0, 0, 1));
-                        for (int i = 0; i <= zLength; i++) {
-                            player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, i + 1));
-                            player.spawnParticles(borderInfo.getEffect(), particleLocationSW.sub(0, 0, i));
-                        }
-                        for (int i = 0; i <= xLength; i++) {
-                            player.spawnParticles(borderInfo.getEffect(), particleLocationNE.sub(i, 0, 0));
-                            player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i + 1, 0, 1));
-                        }
-                    });
-                });
-            });
-        }).intervalTicks(10).submit(AtherysTowns.getInstance());
+            player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, 0));
+            player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(0, 0, 1));
+            for (int i = 0; i <= zLength; i++) {
+                player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, i + 1));
+                player.spawnParticles(borderInfo.getEffect(), particleLocationSW.sub(0, 0, i));
+            }
+            for (int i = 0; i <= xLength; i++) {
+                player.spawnParticles(borderInfo.getEffect(), particleLocationNE.sub(i, 0, 0));
+                player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i + 1, 0, 1));
+            }
+        })))).intervalTicks(10).submit(AtherysTowns.getInstance());
     }
 
     public void plotBorderCommand(Player player, boolean state) throws TownsCommandException {
         Text.Builder statusText = Text.builder();
         Text status = state ? Text.of(TextColors.GREEN, "Enabled") : Text.of(TextColors.RED, "Disabled");
         statusText.append(Text.of("Plot border viewing has been ", status));
-        statusText.append();
+
         if (state == isPlayerViewingBorders(player)) {
             throw new TownsCommandException("Plot border viewing is already ", status);
         }
@@ -148,18 +151,29 @@ public class PlotBorderFacade {
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        Plot plotTo = plotService.getPlotByLocation(to.getLocation()).orElse(new Plot());
-        Plot plotFrom = plotService.getPlotByLocation(from.getLocation()).orElse(new Plot());
+        Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
+        Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
 
         if (isPlayerViewingBorders(player)) {
-            if (plotFrom != plotTo) {
-                clearBorders(player);
-                showAllBorders(player, to.getLocation());
+            if ((plotTo.isPresent() && plotFrom.isPresent()) && !plotFrom.equals(plotTo)) {
+                refreshBorders(player, to.getLocation());
             }
-            if (plotFrom.getNorthEastCorner() != null && plotTo.getNorthEastCorner() == null) {
-                removeSelectionBorder(player, plotFrom);
+            if(selection.isComplete()) {
+                Plot selectionPlot = plotService.createPlotFromSelection(selection);
+                boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
+                boolean toInSelection = plotService.isLocationWithinPlot(to.getLocation(), selectionPlot);
+
+                if((fromInSelection && !toInSelection) || (!fromInSelection && toInSelection)) {
+                    refreshBorders(player, to.getLocation());
+                }
+            }
+            if(!plotFrom.isPresent() && plotTo.isPresent()) {
+                refreshBorders(player, to.getLocation());
+            }
+            if (plotFrom.isPresent() && !plotTo.isPresent()) {
+                removeSelectionBorder(player, plotFrom.get());
             }
         }
     }
-
 }
