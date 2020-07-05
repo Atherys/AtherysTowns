@@ -1,6 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.core.utils.Question;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
@@ -14,11 +15,13 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.Identifiable;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,12 +46,17 @@ public class PollFacade {
     @Inject
     private TownFacade townFacade;
 
+    @Inject
+    private TownsConfig config;
+
     PollFacade() {
     }
 
     private Set<Player> getPlayersByUUID(Set<UUID> uuidSet) {
         return uuidSet.stream()
-                .map(uuid -> Sponge.getServer().getPlayer(uuid).get())
+                .map(uuid -> Sponge.getServer().getPlayer(uuid))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toSet());
     }
 
@@ -56,6 +64,14 @@ public class PollFacade {
         return playerSet.stream()
                 .map(Identifiable::getUniqueId)
                 .collect(Collectors.toSet());
+    }
+
+    private Set<Player> findNonVoters(Poll poll) {
+        Set<UUID> voted = poll.getVoters().stream()
+                .filter(uuid -> poll.getVotes().stream().anyMatch(vote -> vote.getVoter() == uuid))
+                .collect(Collectors.toSet());
+
+        return getPlayersByUUID(voted);
     }
 
     public void sendPollPartyMessage(Set<Player> party, Text msg) {
@@ -74,11 +90,13 @@ public class PollFacade {
     }
 
     private Question generateTownPoll(String townName, String mayorName, UUID id) {
+        Text.Builder invitationText = Text.builder();
         Text townText = Text.of(GOLD, townName, DARK_GREEN, "?");
         Text mayorText = Text.of(GOLD, mayorName, DARK_GREEN);
-        Text invitationText = townsMsg.formatInfo("Do you wish to help ", mayorText, " create the town of ", townText);
+        invitationText.append(Text.of(DARK_GREEN, "Do you wish to help ", mayorText, DARK_GREEN, " create the town of ", townText, Text.NEW_LINE));
+        invitationText.append(Text.of(GOLD, "Warning! ", RED, "If you are currently in a town, you will be removed."));
 
-        return Question.of(invitationText)
+        return Question.of(invitationText.build())
                 .addAnswer(Question.Answer.of(
                         Text.of(TextStyles.BOLD, DARK_GREEN, "Yes"),
                         player -> {
@@ -94,21 +112,81 @@ public class PollFacade {
                 .build();
     }
 
-    public void createTownFromPoll(Poll poll, Plot homePlot) {
-        Player mayor = Sponge.getServer().getPlayer(poll.getCreator()).get();
-        String townName = poll.getPollName();
-        Set<Player> voters = getPlayersByUUID(poll.getVoters());
+    private Text getPollInfo(Poll poll) {
+        String voterList = String.join(",", getPlayersByUUID(poll.getVoters()).stream()
+                .map(User::getName)
+                .collect(Collectors.toSet()));
 
-        try {
-            townFacade.createTown(mayor, poll.getPollName(), homePlot);
-            Town town = townService.getTownFromName(townName).get();
-            voters.forEach(player -> {
-                townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-                townsMsg.info(player, "You have been added as a resident to the town of ", GOLD, townName, ".");
-            });
-        } catch (CommandException e) {
-            mayor.sendMessage(Objects.requireNonNull(e.getText()));
+        Text.Builder pollText = Text.builder();
+        Text townText = Text.of(GOLD, poll.getPollName(), DARK_GREEN);
+        pollText.append(Text.of(DARK_GREEN, "Vote has met minimum required residents that voted yes. Would you like to create ", townText, " now?", Text.NEW_LINE));
+
+        pollText
+                .append(townsMsg.createTownsHeader(poll.getPollName()))
+                .append(Text.of(DARK_GREEN, "Votes Collected: ", GOLD, poll.getVotes().size(), " of ", poll.getVoters().size(), Text.NEW_LINE
+                ));
+
+        pollText.append(Text.of(
+                DARK_GREEN, "Voters: ",
+                GOLD, voterList,
+                Text.NEW_LINE
+        ));
+        return pollText.build();
+    }
+
+    private Question generateMayorQuestion(Poll poll) {
+        Question.Builder mayorQuestion = Question.of(getPollInfo(poll))
+                .addAnswer(Question.Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_GREEN, "Yes"),
+                        player -> {
+                            createTownFromPoll(poll);
+                        }
+                ))
+                .addAnswer(Question.Answer.of(
+                        Text.of(TextStyles.BOLD, DARK_RED, "No"),
+                        player -> {
+                            Text creationDenied = Text.of(RED, "Mayor has denied creation of the town, Poll cancelled.");
+                            sendPollPartyMessage(getPlayersByUUID(poll.getVoters()), creationDenied);
+                            Sponge.getServer().getPlayer(poll.getCreator()).ifPresent(mayor -> {
+                                townsMsg.info(mayor, creationDenied);
+                            });
+                            pollService.deletePoll(poll.getId());
+                        }
+                ));
+
+        if (poll.getVoters().size() > poll.getVotes().size()) {
+            mayorQuestion.addAnswer(Question.Answer.of(
+                    Text.of(TextStyles.BOLD, DARK_GREEN, "Wait for more"),
+                    player -> {
+                        poll.setPassed(false);
+                        Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
+                        if (mayor.isPresent()) {
+                            Question remainder = generateTownPoll(poll.getPollName(), mayor.get().getName(), poll.getId());
+                            findNonVoters(poll).forEach(remainder::pollChat);
+                        }
+                    }
+            ));
         }
+        return mayorQuestion.build();
+    }
+
+    public void createTownFromPoll(Poll poll) {
+        Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
+        if (mayor.isPresent()) {
+            try {
+                Town town = townFacade.createTown(mayor.get(), poll.getPollName(), poll.getHomePlot());
+                for (Player player : getPlayersByUUID(poll.getVoters())) {
+                    if (residentService.getOrCreate(player).getTown() != null) {
+                        townFacade.leaveTown(player);
+                    }
+                    townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+                    townsMsg.info(player, "You have been added as a resident to the town of ", GOLD, poll.getPollName(), ".");
+                }
+            } catch (CommandException e) {
+                mayor.get().sendMessage(Objects.requireNonNull(e.getText()));
+            }
+        }
+        pollService.deletePoll(poll.getId());
     }
 
     public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
@@ -125,19 +203,24 @@ public class PollFacade {
     }
 
     public void onPlayerVote(PlayerVoteEvent event) {
-        Vote vote = event.getVote();
-        Poll poll = pollService.getPollById(vote.getPollId());
-        Player mayor = Sponge.getServer().getPlayer(poll.getCreator()).orElse(null);
+        Poll poll = pollService.getPollById(event.getVote().getPollId());
+        Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
+        boolean hasEnoughResidents = poll.getVotes().stream().filter(Vote::hasVotedYes).count() + 1 >= config.MIN_RESIDENTS_TOWN_CREATE;
+        boolean isVoteOver = poll.getVoters().size() == poll.getVotes().size();
+        boolean townAlreadyCreated = townService.getTownFromName(poll.getPollName()).isPresent();
 
-        Set<Player> voters = getPlayersByUUID(poll.getVoters());
+        if (hasEnoughResidents && !poll.getPassed()) {
+            poll.setPassed(true);
+            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
+        }
 
-        if (!vote.hasVotedYes()) {
-            poll.setPassed(false);
-            Text pollFailedmsg = Text.of(RED, "Someone responded No! The town of ", GOLD, poll.getPollName(), RED, " will not be founded!");
-            sendPollPartyMessage(voters, pollFailedmsg);
-            townsMsg.error(mayor, pollFailedmsg);
-        } else if (poll.getPassed() && poll.getVotes().size() == poll.getVotesNeeded()) {
-            createTownFromPoll(poll, poll.getHomePlot());
+        if (isVoteOver && hasEnoughResidents && !townAlreadyCreated) {
+            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
+        } else if (isVoteOver) {
+            Text notEnoughText = Text.of(RED, "Not enough residents voted yes. Town creation has failed!");
+            sendPollPartyMessage(getPlayersByUUID(poll.getVoters()), notEnoughText);
+            mayor.ifPresent(player -> townsMsg.info(player, notEnoughText));
+            pollService.deletePoll(poll.getId());
         }
     }
 }

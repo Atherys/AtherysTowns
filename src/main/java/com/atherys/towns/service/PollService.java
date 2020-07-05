@@ -37,7 +37,6 @@ public class PollService {
         poll.setVoters(voters);
         poll.setCreator(pollCreator);
         poll.setPollName(pollName);
-        poll.setVotesNeeded(voters.size());
 
         pollCache.put(pollUUID, poll);
         return pollUUID;

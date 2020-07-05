@@ -1,6 +1,5 @@
 package com.atherys.towns.model;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class Vote {
@@ -8,7 +7,6 @@ public class Vote {
     private UUID pollId;
     private UUID voter;
     private boolean votedYes;
-    private int version;
 
     public UUID getPollId() {
         return this.pollId;
@@ -32,26 +30,5 @@ public class Vote {
 
     public void setVotedYes(boolean votedYes) {
         this.votedYes = votedYes;
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vote vote = (Vote) o;
-        return pollId.equals(vote.pollId) &&
-                voter.equals(vote.voter) &&
-                votedYes == vote.votedYes;
-    }
-
-    public int hashCode() {
-        return Objects.hash(pollId, voter, votedYes, version);
-    }
-
-    protected int getVersion() {
-        return version;
-    }
-
-    protected void setVersion(int version) {
-        this.version = version;
     }
 }
