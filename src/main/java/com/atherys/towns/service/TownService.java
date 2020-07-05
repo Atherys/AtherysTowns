@@ -1,9 +1,11 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.AtherysCore;
+import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.facade.TownFacade;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -17,7 +19,9 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -25,8 +29,11 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -58,6 +65,8 @@ public class TownService {
 
     private RoleService roleService;
 
+    private TownFacade townFacade;
+
     @Inject
     TownService(
             TownsConfig config,
@@ -67,7 +76,8 @@ public class TownService {
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
-            RoleService roleService
+            RoleService roleService,
+            TownFacade townFacade
     ) {
         this.config = config;
         this.plotService = plotService;
@@ -77,6 +87,7 @@ public class TownService {
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
         this.roleService = roleService;
+        this.townFacade = townFacade;
     }
 
     public Town createTown(Player leader, Plot homePlot, String name) {
@@ -382,5 +393,33 @@ public class TownService {
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
+    }
+
+    public void initTaxTimer() {
+        if (AtherysTowns.economyIsEnabled()) {
+            Task.Builder taxTimer = Task.builder();
+            taxTimer.interval(15, TimeUnit.MINUTES)
+                    .execute(TaxTimerTask())
+                    .submit(AtherysTowns.getInstance());
+        }
+    }
+
+    private Runnable TaxTimerTask() {
+        return () -> townRepository.getAll().stream()
+                .filter(town -> town.getNation() != null)
+                .filter(town -> Duration.between(town.getLastTaxDate(), LocalDateTime.now())
+                        .compareTo(config.TAX_COLLECTION_DURATION) > 0)
+                .forEach(town -> {
+                    Account nationBank = Economy.getAccount(town.getNation().getBank()).get();
+                    Account townBank = Economy.getAccount(town.getBank().toString()).get();
+
+                    double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
+                    townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                    nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
+                    town.setLastTaxDate(LocalDateTime.now());
+                    if (taxPaymentAmount > 0) {
+                        townFacade.sendTownTaxMessage(town, taxPaymentAmount);
+                    }
+                });
     }
 }

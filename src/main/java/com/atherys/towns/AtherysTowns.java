@@ -31,7 +31,6 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
-import com.atherys.towns.util.TaxTimer;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
@@ -111,7 +110,8 @@ public class AtherysTowns {
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
-        getTaxTimer().init();
+
+        getTownService().initTaxTimer();
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
@@ -276,11 +276,6 @@ public class AtherysTowns {
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
-
-    public TaxTimer getTaxTimer() {
-        return components.taxTimer;
-    }
-
 
     private static class Components {
 

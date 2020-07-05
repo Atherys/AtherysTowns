@@ -7,7 +7,6 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
-import com.atherys.towns.util.TaxTimer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
