@@ -530,7 +530,7 @@ public class TownFacade implements EconomyFacade {
     private boolean isLeaderOfPlayerTown(Player player) {
         Resident resident = residentService.getOrCreate(player);
         if (resident.getTown() != null) {
-            return resident == resident.getTown().getLeader();
+            return resident.equals(resident.getTown().getLeader());
         }
         return false;
     }
