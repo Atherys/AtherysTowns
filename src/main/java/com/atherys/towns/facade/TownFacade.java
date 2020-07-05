@@ -232,7 +232,7 @@ public class TownFacade implements EconomyFacade {
         }
 
         townService.removePlotFromTown(town, plot);
-        plotBorderFacade.removeSelectionBorder(source.getUniqueId() + "ShowBorders");
+        plotBorderFacade.removeSelectionBorder(source, plot);
         townsMsg.info(source, "Plot abandoned.");
     }
 

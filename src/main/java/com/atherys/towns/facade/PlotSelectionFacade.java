@@ -38,22 +38,9 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAtLocation(Player player, Location<World> location, String point) {
-        switch (point) {
-            case "A":
-                getOrCreateSelection(player).setPointA(location);
-                break;
-            case "B":
-                getOrCreateSelection(player).setPointB(location);
-                break;
-            default:
-                break;
-        }
-    }
-
     public void clearSelection(Player player) {
+        plotBorderFacade.clearBorders(player);
         selections.remove(player.getUniqueId());
-        plotBorderFacade.removeSelectionBorder(player.getUniqueId() + "Selection");
         townMsg.info(player, "You have cleared your selection.");
     }
 
@@ -82,14 +69,33 @@ public class PlotSelectionFacade {
         return Math.min(sideX, sideZ);
     }
 
-    public void selectPointFromPlayerLocation(Player player, String point) {
-        selectPointAtLocation(player, player.getLocation(), point);
-        sendPointSelectionMessage(player, point);
+    public void checkBorders(Player player) {
         PlotSelection selection = getOrCreateSelection(player);
         if (selection.isComplete()) {
             validatePlotSelection(selection, player, true, player.getLocation());
+            plotBorderFacade.clearBorders(player);
             plotBorderFacade.showNewPlotSelectionBorders(player, player.getLocation());
         }
+    }
+
+    private void selectPointAAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointA(location);
+        checkBorders(player);
+    }
+
+    private void selectPointBAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointB(location);
+        checkBorders(player);
+    }
+
+    public void selectPointAFromPlayerLocation(Player player) {
+        selectPointAAtLocation(player, player.getLocation());
+        sendPointSelectionMessage(player, "A");
+    }
+
+    public void selectPointBFromPlayerLocation(Player player) {
+        selectPointBAtLocation(player, player.getLocation());
+        sendPointSelectionMessage(player, "B");
     }
 
     private void sendPointSelectionMessage(Player player, String point) {
