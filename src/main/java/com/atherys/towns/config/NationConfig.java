@@ -33,7 +33,10 @@ public class NationConfig {
                 NationPermissions.SET_ROLE,
                 NationPermissions.WITHDRAW_FROM_BANK,
                 NationPermissions.DEPOSIT_INTO_BANK,
-                NationPermissions.CHAT
+                NationPermissions.CHAT,
+                NationPermissions.ADD_ALLY,
+                NationPermissions.ADD_ENEMY,
+                NationPermissions.ADD_NEUTRAL
         ));
 
         NationRoleConfig nationMember = new NationRoleConfig();

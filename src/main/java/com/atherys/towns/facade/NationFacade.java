@@ -70,12 +70,17 @@ public class NationFacade implements EconomyFacade {
             throw new TownsCommandException("A nation with that name already exists.");
         }
 
+        if (capital.getNation() != null) {
+            throw new TownsCommandException("Town ", capital.getName(), " is already in a nation.");
+        }
+
         nationService.createNation(nationName, capital);
         townsMsg.broadcastInfo("The nation of ", GOLD, nationName, DARK_GREEN, " was created.");
     }
 
     public void disbandNation(CommandSource source, Nation nation) {
         nationService.disbandNation(nation);
+        townsMsg.info(source, "The nation of ", GOLD, nation.getName(), DARK_GREEN, " was disbaned.");
     }
 
     public void setNationName(Player source, String nationName) throws TownsCommandException {
@@ -111,6 +116,38 @@ public class NationFacade implements EconomyFacade {
         nationService.setCapital(nation, town);
         townsMsg.info(source, "Nation capital set.");
     }
+
+    public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.ADD_ALLY, "add allies.");
+
+        if (nation.equals(ally)) {
+            throw new TownsCommandException("Cannot add your own nation as an ally.");
+        }
+
+        nationService.addNationAlly(nation, ally);
+        townsMsg.info(source, "Your nation is now allied with ", GOLD, ally.getName(), DARK_GREEN, ".");
+    }
+
+    public void addNationNeutral(Player source, Nation neutral) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
+
+        nationService.addNationNeutral(nation, neutral);
+        townsMsg.info(source, "Your nation is now neutral with ", GOLD, neutral.getName(), DARK_GREEN, ".");
+    }
+
+    public void addNationEnemy(Player source, Nation enemy) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        permissionFacade.checkPermitted(source, NationPermissions.ADD_ENEMY, "add enemies.");
+
+        nationService.addNationEnemy(nation, enemy);
+        townsMsg.info(source, "Your nation is now enemies with ", GOLD, enemy.getName(), DARK_GREEN, ".");
+    }
+
 
     public void setNationTax(Player source, double tax) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
@@ -248,6 +285,14 @@ public class NationFacade implements EconomyFacade {
                         GOLD, townFacade.renderTowns(nation.getTowns())
                 ));
 
+        if (!nation.getAllies().isEmpty()) {
+            nationInfo.append(Text.of(Text.NEW_LINE, DARK_GREEN, "Allies: ", renderNations(nation.getAllies())));
+        }
+
+        if (!nation.getEnemies().isEmpty()) {
+            nationInfo.append(Text.of(Text.NEW_LINE, DARK_GREEN, "Enemies: ", renderNations(nation.getEnemies())));
+        }
+
         receiver.sendMessage(nationInfo.build());
     }
 
@@ -307,12 +352,14 @@ public class NationFacade implements EconomyFacade {
     }
 
     private Nation getPlayerNation(Player player) throws TownsCommandException {
-        Nation nation = residentService.getOrCreate(player).getTown().getNation();
-
+        Town town = residentService.getOrCreate(player).getTown();
+        if (town == null) {
+            throw new TownsCommandException("You are not part of a town!");
+        }
+        Nation nation = town.getNation();
         if (nation == null) {
             throw new TownsCommandException("Your town is not part of a nation!");
         }
-
         return nation;
     }
 

@@ -17,6 +17,9 @@ import javax.annotation.Nonnull;
 @Children({
         CreateNationCommand.class,
         DisbandNationCommand.class,
+        AddNationAllyCommand.class,
+        AddNationEnemyCommand.class,
+        AddNationNeutralCommand.class,
         NationAddActorPermissionCommand.class,
         NationInfoCommand.class,
         NationRemoveActorPermissionCommand.class,

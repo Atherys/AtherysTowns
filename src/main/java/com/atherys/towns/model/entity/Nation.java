@@ -32,6 +32,28 @@ public class Nation implements Identifiable<Long> {
     @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
     private Set<Town> towns = new HashSet<>();
 
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER
+    )
+    @JoinTable(
+            name = "nation_allies",
+            joinColumns = @JoinColumn(name = "nation_id"),
+            inverseJoinColumns = @JoinColumn(name = "ally_nation_id")
+    )
+    private Set<Nation> allies = new HashSet<>();
+
+    @ManyToMany(
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER
+    )
+    @JoinTable(
+            name = "nation_enemies",
+            joinColumns = @JoinColumn(name = "nation_id"),
+            inverseJoinColumns = @JoinColumn(name = "enemy_nation_id")
+    )
+    private Set<Nation> enemies = new HashSet<>();
+
     private boolean joinable;
 
     private double tax;
@@ -97,6 +119,38 @@ public class Nation implements Identifiable<Long> {
 
     public void setCapital(Town town) {
         this.capital = town;
+    }
+
+    public Set<Nation> getAllies() {
+        return allies;
+    }
+
+    public void setAllies(Set<Nation> allies) {
+        this.allies = allies;
+    }
+
+    public void addAlly(Nation nation) {
+        allies.add(nation);
+    }
+
+    public void removeAlly(Nation nation) {
+        allies.remove(nation);
+    }
+
+    public Set<Nation> getEnemies() {
+        return enemies;
+    }
+
+    public void setEnemies(Set<Nation> enemies) {
+        this.enemies = enemies;
+    }
+
+    public void addEnemy(Nation nation) {
+        enemies.add(nation);
+    }
+
+    public void removeEnemy(Nation nation) {
+        enemies.remove(nation);
     }
 
     public boolean isJoinable() {

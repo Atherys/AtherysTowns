@@ -10,6 +10,12 @@ public final class NationPermissions {
     // permission to set the nation to joinable
     public static final NationPermission SET_JOINABLE = new NationPermission("atherystowns.nation.joinable", "Set Joinable");
 
+    public static final NationPermission ADD_ALLY = new NationPermission("atherystowns.nation.add_ally", "Add Ally");
+
+    public static final NationPermission ADD_NEUTRAL = new NationPermission("atherystowns.nation.add_neutral", "Add Neutral");
+
+    public static final NationPermission ADD_ENEMY = new NationPermission("atherystowns.nation.add_enemy", "Add Enemy");
+
     // permission to set the nation description
     public static final NationPermission SET_DESCRIPTION = new NationPermission("atherystowns.nation.description", "Set Description");
 

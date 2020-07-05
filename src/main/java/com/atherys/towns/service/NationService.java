@@ -131,6 +131,25 @@ public class NationService {
         nationRepository.saveOne(nation);
     }
 
+    public void addNationAlly(Nation nation, Nation ally) {
+        nation.removeEnemy(ally);
+        nation.addAlly(ally);
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationNeutral(Nation nation, Nation neutral) {
+        nation.removeAlly(neutral);
+        nation.removeEnemy(neutral);
+
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationEnemy(Nation nation, Nation enemy) {
+        nation.removeAlly(enemy);
+        nation.addEnemy(enemy);
+        nationRepository.saveOne(nation);
+    }
+
     public Collection<Nation> getAllNations() {
         return nationRepository.getAll();
     }
