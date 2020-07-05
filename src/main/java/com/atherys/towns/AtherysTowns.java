@@ -272,9 +272,6 @@ public class AtherysTowns {
     private static class Components {
 
         @Inject
-        PlotBorderFacade plotBorderFacade;
-
-        @Inject
         private TownsConfig config;
 
         @Inject
@@ -345,6 +342,9 @@ public class AtherysTowns {
 
         @Inject
         private ProtectionFacade protectionFacade;
+
+        @Inject
+        private PlotBorderFacade plotBorderFacade;
 
         @Inject
         private PlayerListener playerListener;
