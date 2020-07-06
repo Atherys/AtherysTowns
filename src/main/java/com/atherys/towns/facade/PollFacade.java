@@ -207,7 +207,7 @@ public class PollFacade {
 
         Sponge.getServer().getPlayer(vote.getVoter()).ifPresent(voterPlayer -> {
             Text.Builder voteText = Text.builder();
-            voteText.append(Text.of(GOLD,voterPlayer.getName(), " has voted "));
+            voteText.append(Text.of(GOLD, voterPlayer.getName(), " has voted "));
             voteText.append(vote.hasVotedYes() ? Text.of(GREEN, "Yes") : Text.of(RED, "No"));
             townsMsg.info(voterPlayer, voteText);
             mayor.ifPresent(mayorPlayer -> townsMsg.info(mayorPlayer, voteText));
