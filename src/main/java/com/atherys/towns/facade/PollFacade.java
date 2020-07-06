@@ -187,6 +187,7 @@ public class PollFacade {
     }
 
     public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
+        voters.remove(mayor);
         UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters), homePlot);
 
         Text startPollMsg = Text.of("A vote to found the town of ", GOLD, townName, DARK_GREEN, " has begun!");
@@ -197,16 +198,20 @@ public class PollFacade {
     }
 
     public void onPlayerVote(PlayerVoteEvent event) {
-        Poll poll = pollService.getPollById(event.getVote().getPollId());
+        Vote vote = event.getVote();
+        Poll poll = pollService.getPollById(vote.getPollId());
         Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
         boolean hasEnoughResidents = poll.getVotes().stream().filter(Vote::hasVotedYes).count() + 1 >= config.MIN_RESIDENTS_TOWN_CREATE;
         boolean isVoteOver = poll.getVoters().size() == poll.getVotes().size();
         boolean townAlreadyCreated = townService.getTownFromName(poll.getPollName()).isPresent();
 
-        if (hasEnoughResidents && !poll.getPassed()) {
-            poll.setPassed(true);
-            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
-        }
+        Sponge.getServer().getPlayer(vote.getVoter()).ifPresent(voterPlayer -> {
+            Text.Builder voteText = Text.builder();
+            voteText.append(Text.of(GOLD,voterPlayer.getName(), " has voted "));
+            voteText.append(vote.hasVotedYes() ? Text.of(GREEN, "Yes") : Text.of(RED, "No"));
+            townsMsg.info(voterPlayer, voteText);
+            mayor.ifPresent(mayorPlayer -> townsMsg.info(mayorPlayer, voteText));
+        });
 
         if (isVoteOver && hasEnoughResidents && !townAlreadyCreated) {
             mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
@@ -215,6 +220,9 @@ public class PollFacade {
             sendPollPartyMessage(getPlayersByUUID(poll.getVoters()), notEnoughText);
             mayor.ifPresent(player -> townsMsg.info(player, notEnoughText));
             pollService.deletePoll(poll.getId());
+        } else if (hasEnoughResidents && !poll.getPassed() && vote.hasVotedYes()) {
+            poll.setPassed(true);
+            mayor.ifPresent(player -> generateMayorQuestion(poll).pollChat(mayor.get()));
         }
     }
 }
