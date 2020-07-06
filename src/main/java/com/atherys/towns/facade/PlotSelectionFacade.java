@@ -96,7 +96,6 @@ public class PlotSelectionFacade {
      * Validate a plot selection.
      *
      * @param selection the selection to be validated
-     * @return true if no exception was thrown
      * @throws CommandException if the plot selection is null, is incomplete ( either point A or point B is null ),
      *                          it's area is greater than the maximum configured, or it's smallest side is smaller than the minimum configured
      */
