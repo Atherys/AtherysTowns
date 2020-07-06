@@ -1,10 +1,12 @@
 package com.atherys.towns.listener;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
-import com.atherys.towns.facade.ProtectionFacade;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
@@ -16,15 +18,23 @@ import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 
 public class ProtectionListener {
 
     @Inject
     PlotFacade plotFacade;
 
-    @Inject
-    ProtectionFacade protectionFacade;
+    public boolean isRedstone(BlockType blockType) {
+        return blockType.getTrait("POWERED").isPresent();
+    }
+
+    public boolean isTileEntity(InteractBlockEvent event) {
+        return event.getTargetBlock().getLocation().map(location -> location.getTileEntity().isPresent()).orElse(false);
+    }
+
+    public boolean isDoor(BlockType blockType) {
+        return blockType.getTrait("OPEN").isPresent();
+    }
 
     @Listener
     public void onBlockPlace(ChangeBlockEvent.Place event, @Root Player player) {
@@ -49,27 +59,20 @@ public class ProtectionListener {
     }
 
     @Listener
-    public void onItemUse(InteractItemEvent event, @Root Player player) {
-        if (!protectionFacade.isExemptItem(event.getItemStack())) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, player.getLocation(), true);
-        }
-    }
-
-    @Listener
     public void onBlockInteract(InteractBlockEvent event, @Root Player player) {
         event.getTargetBlock().getLocation().ifPresent(location -> {
             BlockType blockType = event.getTargetBlock().getState().getType();
-            if (protectionFacade.isTileEntity(event)) {
+            if (isTileEntity(event)) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, location, true);
             }
-            if (protectionFacade.isDoor(blockType)) {
+            if (isDoor(blockType)) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS, location, true);
             }
-            if (protectionFacade.isRedstone(blockType) && !protectionFacade.isDoor(blockType)) {
+            if (isRedstone(blockType) && !isDoor(blockType)) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, location, true);
             }
             if (blockType.getTrait("EXPLODE").isPresent()) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.USE_ITEMS, location, true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, location, true);
             }
         });
     }
@@ -95,7 +98,7 @@ public class ProtectionListener {
 
     @Listener
     public void onCollideBlock(CollideBlockEvent event, @Root Player player) {
-        if (protectionFacade.isRedstone(event.getTargetBlock().getType())) {
+        if (isRedstone(event.getTargetBlock().getType())) {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
         }
     }
@@ -106,7 +109,7 @@ public class ProtectionListener {
                 .map(User::getPlayer).ifPresent(player -> {
             if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
                 event.getEntities().forEach(entity -> {
-                    plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.USE_ITEMS, entity.getLocation(), true);
+                    plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.INTERACT_ENTITIES, entity.getLocation(), true);
                 });
             }
         });

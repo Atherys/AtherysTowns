@@ -76,8 +76,7 @@ public class TownConfig {
                 WorldPermissions.INTERACT_TILE_ENTITIES,
                 WorldPermissions.INTERACT_DOORS,
                 WorldPermissions.INTERACT_REDSTONE,
-                WorldPermissions.INTERACT_ENTITIES,
-                WorldPermissions.USE_ITEMS
+                WorldPermissions.INTERACT_ENTITIES
         ));
 
         TownRoleConfig townMember = new TownRoleConfig();
@@ -95,8 +94,7 @@ public class TownConfig {
                 WorldPermissions.INTERACT_TILE_ENTITIES,
                 WorldPermissions.INTERACT_DOORS,
                 WorldPermissions.INTERACT_REDSTONE,
-                WorldPermissions.INTERACT_ENTITIES,
-                WorldPermissions.USE_ITEMS
+                WorldPermissions.INTERACT_ENTITIES
         ));
 
         ROLES.put("mayor", townLeader);

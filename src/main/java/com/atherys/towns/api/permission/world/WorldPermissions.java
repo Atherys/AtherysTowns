@@ -26,7 +26,4 @@ public final class WorldPermissions {
     // permission to interact with entities within plots belonging to the town the player is currently standing in
     public static final WorldPermission INTERACT_ENTITIES = new WorldPermission("atherystowns.world.interact.entities", "Interact with Entities");
 
-    // permission to use items within plots belonging to the town the player is currently standing in
-    public static final WorldPermission USE_ITEMS = new WorldPermission("atherystowns.world.use.items", "Use Items");
-
 }
