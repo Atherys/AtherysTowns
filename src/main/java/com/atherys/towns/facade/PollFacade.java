@@ -160,10 +160,7 @@ public class PollFacade {
                     player -> {
                         poll.setPassed(false);
                         Optional<Player> mayor = Sponge.getServer().getPlayer(poll.getCreator());
-                        if (mayor.isPresent()) {
-                            Question remainder = generateTownPoll(poll.getPollName(), mayor.get().getName(), poll.getId());
-                            findNonVoters(poll).forEach(remainder::pollChat);
-                        }
+                        mayor.ifPresent(value -> findNonVoters(poll).forEach(player1 -> generateTownPoll(poll.getPollName(), value.getName(), poll.getId()).pollChat(player1)));
                     }
             ));
         }
@@ -190,16 +187,13 @@ public class PollFacade {
     }
 
     public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
-        voters.remove(mayor);
         UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters), homePlot);
-
-        Question pollQuestion = generateTownPoll(townName, mayor.getName(), pollId);
 
         Text startPollMsg = Text.of("A vote to found the town of ", GOLD, townName, DARK_GREEN, " has begun!");
         sendPollPartyMessage(voters, startPollMsg);
         townsMsg.info(mayor, startPollMsg);
 
-        voters.forEach(pollQuestion::pollChat);
+        voters.forEach(player -> generateTownPoll(townName, mayor.getName(), pollId).pollChat(player));
     }
 
     public void onPlayerVote(PlayerVoteEvent event) {
