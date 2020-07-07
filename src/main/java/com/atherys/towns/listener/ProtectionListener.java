@@ -1,12 +1,9 @@
 package com.atherys.towns.listener;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
@@ -81,7 +78,7 @@ public class ProtectionListener {
     public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
         if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
             event.getEntities().forEach(entity -> {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, entity.getLocation(), true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.SPAWN_ENTITIES, entity.getLocation(), true);
             });
         }
     }
