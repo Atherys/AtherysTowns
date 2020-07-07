@@ -17,7 +17,7 @@ public class NationChannel extends AtherysChannel {
         aliases.add("nc");
         this.setAliases(aliases);
         this.setPermission(PERMISSION);
-        this.setPrefix("&6[&eNation&6]&r");
+        this.setPrefix("&f[&eN&f]&r");
         this.setSuffix("");
         this.setFormat("%cprefix %player: %message %csuffix");
         this.setName("&bNation");

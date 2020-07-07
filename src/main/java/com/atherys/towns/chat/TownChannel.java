@@ -17,7 +17,7 @@ public class TownChannel extends AtherysChannel {
         aliases.add("tc");
         this.setAliases(aliases);
         this.setPermission(PERMISSION);
-        this.setPrefix("&2[&bTown&2]&r");
+        this.setPrefix("&f[&bT&f]&r");
         this.setSuffix("");
         this.setFormat("%cprefix %player: %message %csuffix");
         this.setName("&bTown");
