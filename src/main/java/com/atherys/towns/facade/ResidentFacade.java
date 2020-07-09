@@ -3,7 +3,7 @@ package com.atherys.towns.facade;
 import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.ResidentService;

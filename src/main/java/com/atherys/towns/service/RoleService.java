@@ -4,7 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.google.inject.Inject;
@@ -35,7 +35,7 @@ public class RoleService {
     PermissionService permissionService;
 
     public void init() {
-        config.NATION_ROLES.forEach((id, roleConfig) -> {
+        config.NATION.ROLES.forEach((id, roleConfig) -> {
             createRole(NATION_PREFIX + id, roleConfig.getNationPermissions(), Collections.emptySet());
         });
 
@@ -103,7 +103,7 @@ public class RoleService {
         }
 
         for (String role : resident.getNationRoleIds()) {
-            if (!config.NATION_ROLES.containsKey(role)) {
+            if (!config.NATION.ROLES.containsKey(role)) {
                 residentService.removeNationRole(resident, role);
             }
         }

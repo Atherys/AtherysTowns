@@ -4,7 +4,7 @@ import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.google.common.collect.ImmutableSet;
@@ -71,7 +71,7 @@ public class TownsPermissionService {
             if (nation != null) {
                 playerNationContexts.put(
                         player.getUniqueId(),
-                        new Context(NATION_CONTEXT_KEY, nation.getId())
+                        new Context(NATION_CONTEXT_KEY, nation.getId().toString())
                 );
             }
         } else {
@@ -82,7 +82,7 @@ public class TownsPermissionService {
 
     public Set<Context> getContextsForTown(Town town) {
         Context townContext = new Context(TOWN_CONTEXT_KEY, town.getId().toString());
-        Context nationContext = town.getNation() == null ? null : new Context(NATION_CONTEXT_KEY, town.getNation().getId());
+        Context nationContext = town.getNation() == null ? null : new Context(NATION_CONTEXT_KEY, town.getNation().getId().toString());
 
         if (nationContext != null) {
             return ImmutableSet.of(townContext, nationContext);
@@ -91,7 +91,7 @@ public class TownsPermissionService {
     }
 
     public Set<Context> getContextForNation(Nation nation) {
-        return Collections.singleton(new Context(NATION_CONTEXT_KEY, nation.getId()));
+        return Collections.singleton(new Context(NATION_CONTEXT_KEY, nation.getId().toString()));
     }
 
     /**
@@ -113,7 +113,7 @@ public class TownsPermissionService {
             if (nation != null) {
                 playerWorldNationContexts.put(
                         player.getUniqueId(),
-                        new Context(NATION_WORLD_CONTEXT_KEY, nation.getId())
+                        new Context(NATION_WORLD_CONTEXT_KEY, nation.getId().toString())
                 );
             }
         } else {
@@ -192,6 +192,10 @@ public class TownsPermissionService {
 
     public void clearPermissions(User user, Town town) {
         clearPermissions(user, getContextsForTown(town));
+    }
+
+    public void clearPermissions(User user, Nation nation) {
+        clearPermissions(user, getContextForNation(nation));
     }
 
     public void clearPermissions(Subject subject, Set<Context> contexts) {

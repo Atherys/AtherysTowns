@@ -1,6 +1,7 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
@@ -10,33 +11,32 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Singleton
-public class TownRepository extends CachedHibernateRepository<Town, Long> {
+public class NationRepository extends CachedHibernateRepository<Nation, Long> {
 
-    @Inject
     private TownsCache townsCache;
 
     @Inject
-    protected TownRepository(TownsCache townsCache) {
-        super(Town.class);
-        super.cache = townsCache.getTownCache();
+    protected NationRepository(TownsCache townsCache) {
+        super(Nation.class);
+        super.cache = townsCache.getNationCache();
         this.townsCache = townsCache;
-    }
-
-    public Optional<Town> findByName(String townName) {
-        return cache.findOne(t -> t.getName().equalsIgnoreCase(townName));
     }
 
     @Override
     public void initCache() {
         townsCache.getResidentCache().getAll().forEach(resident -> {
             Town town = resident.getTown();
-            if (town != null) {
-                cache.add(town);
+            if (town != null && town.getNation() != null) {
+                super.cache.add(town.getNation());
             }
         });
     }
 
-    public Collection<Town> getAll() {
-        return townsCache.getTownCache().getAll();
+    public Collection<Nation> getAll() {
+        return cache.getAll();
+    }
+
+    public Optional<Nation> findByName(String nationName) {
+        return cache.findOne(n -> n.getName().equalsIgnoreCase(nationName));
     }
 }

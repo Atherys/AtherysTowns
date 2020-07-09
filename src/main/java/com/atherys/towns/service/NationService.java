@@ -1,24 +1,19 @@
 package com.atherys.towns.service;
 
-import com.atherys.core.economy.Economy;
+import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.config.NationConfig;
-import com.atherys.towns.model.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Singleton
 public class NationService {
@@ -35,77 +30,127 @@ public class NationService {
     private ResidentService residentService;
 
     @Inject
+    private RoleService roleService;
+
+    @Inject
     private ResidentRepository residentRepository;
 
     @Inject
     private TownRepository townRepository;
 
     @Inject
+    private NationRepository nationRepository;
+
+    @Inject
     private TownsConfig config;
 
-    private Map<String, Nation> nations;
+    public Optional<Nation> getNationFromName(String nationName) {
+        return nationRepository.findByName(nationName);
+    }
 
-    public void init() {
-        ImmutableMap.Builder<String, Nation> nationBuilder = ImmutableMap.builder();
+    public Nation createNation(String name, Town capital) {
+        Nation nation = new Nation();
 
-        for (NationConfig nationConfig : config.NATIONS) {
+        nation.setName(name);
+        nation.setDescription(DEFAULT_NATION_DESCRIPTION);
 
+        nationRepository.saveOne(nation);
 
-            Account account = null;
-            if (AtherysTowns.economyIsEnabled()) {
-                account = Economy.getAccount(nationConfig.getBank().toString()).orElse(null);
-            }
+        townService.setTownNation(capital, nation);
+        nation.addTown(capital);
+        nation.setCapital(capital);
+        nation.setLeader(capital.getLeader());
 
-            Nation newNation = new Nation(
-                    nationConfig.getId(),
-                    nationConfig.getName(),
-                    nationConfig.getDescription(),
-                    null,
-                    null,
-                    nationConfig.isFreelyJoinable(),
-                    nationConfig.getTax(),
-                    account
-            );
+        residentService.getUserFromResident(capital.getLeader()).ifPresent(user -> {
+            roleService.addNationRole(user, nation, config.NATION.LEADER_ROLE);
+            roleService.addNationRole(user, nation, config.NATION.DEFAULT_ROLE);
+        });
 
-            nationBuilder.put(nationConfig.getId(), newNation);
+        nation.setBank(UUID.randomUUID());
+        if (AtherysTowns.economyIsEnabled()) {
+            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank().toString());
         }
-        this.nations = nationBuilder.build();
+
+        nationRepository.saveOne(nation);
+
+        return nation;
     }
 
-    public void initTowns() {
-        for (NationConfig nationConfig : config.NATIONS) {
-            Resident leader = residentRepository.findById(nationConfig.getLeaderUuid()).orElse(null);
-            Town capital = townRepository.findByName(nationConfig.getCapitalName()).orElse(null);
-
-            Nation nation = nations.get(nationConfig.getId());
-
-            nation.setCapital(capital);
-            nation.setLeader(leader);
-
-            if (capital != null) {
-                townService.setTownNation(capital, nation);
-            }
+    public void disbandNation(Nation nation) {
+        for (Town town : nation.getTowns()) {
+            removeTown(nation, town);
         }
-    }
 
-    public Optional<Nation> getNationFromId(String nationName) {
-        return Optional.ofNullable(nations.get(nationName));
-    }
-
-    public Map<String, Nation> getNations() {
-        return nations;
-    }
-
-    public Set<Town> getTownsInNation(Nation nation) {
-        return townRepository.getAll().stream()
-                .filter(town -> nation.equals(town.getNation()))
-                .collect(Collectors.toSet());
+        nationRepository.deleteOne(nation);
     }
 
     public int getNationPopulation(Nation nation) {
-        return townRepository.getAll().stream()
-                .filter(town -> nation.equals(town.getNation()))
-                .mapToInt(town -> town.getResidents().size())
-                .sum();
+        return nation.getTowns().stream().mapToInt(town -> town.getResidents().size()).sum();
+    }
+
+    public void setNationName(Nation nation, String name) {
+        nation.setName(name);
+        nationRepository.saveOne(nation);
+    }
+
+    public void setNationDescription(Nation nation, Text description) {
+        nation.setDescription(description);
+        nationRepository.saveOne(nation);
+    }
+
+    public void addTown(Nation nation, Town town) {
+        town.setNation(nation);
+        nation.addTown(town);
+
+        townRepository.saveOne(town);
+        nationRepository.saveOne(nation);
+    }
+
+    public void removeTown(Nation nation, Town town) {
+        // Remove permissions from the residents of the town been removed
+        for (Resident resident : town.getResidents()) {
+            residentService.getUserFromResident(resident).ifPresent(user -> {
+                townsPermissionService.clearPermissions(user, nation);
+            });
+        }
+
+        town.setNation(null);
+        nation.removeTown(town);
+
+        townRepository.saveOne(town);
+        nationRepository.saveOne(nation);
+    }
+
+    public void setCapital(Nation nation, Town town) {
+        nation.setCapital(town);
+        nationRepository.saveOne(nation);
+    }
+
+    public void setTax(Nation nation, double tax) {
+        nation.setTax(tax);
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationAlly(Nation nation, Nation ally) {
+        nation.removeEnemy(ally);
+        nation.addAlly(ally);
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationNeutral(Nation nation, Nation neutral) {
+        nation.removeAlly(neutral);
+        nation.removeEnemy(neutral);
+
+        nationRepository.saveOne(nation);
+    }
+
+    public void addNationEnemy(Nation nation, Nation enemy) {
+        nation.removeAlly(enemy);
+        nation.addEnemy(enemy);
+        nationRepository.saveOne(nation);
+    }
+
+    public Collection<Nation> getAllNations() {
+        return nationRepository.getAll();
     }
 }
