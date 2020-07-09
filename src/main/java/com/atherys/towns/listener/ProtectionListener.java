@@ -4,6 +4,8 @@ import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.google.inject.Inject;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
@@ -22,7 +24,7 @@ public class ProtectionListener {
     PlotFacade plotFacade;
 
     public boolean isRedstone(BlockType blockType) {
-        return blockType.getTrait("POWERED").isPresent();
+        return blockType.getTrait(Keys.POWERED.getName()).isPresent();
     }
 
     public boolean isTileEntity(InteractBlockEvent event) {
@@ -30,7 +32,7 @@ public class ProtectionListener {
     }
 
     public boolean isDoor(BlockType blockType) {
-        return blockType.getTrait("OPEN").isPresent();
+        return blockType.getTrait(Keys.OPEN.getName()).isPresent();
     }
 
     @Listener
@@ -68,7 +70,7 @@ public class ProtectionListener {
             if (isRedstone(blockType) && !isDoor(blockType)) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, location, true);
             }
-            if (blockType.getTrait("EXPLODE").isPresent()) {
+            if (blockType.equals(BlockTypes.TNT)) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, location, true);
             }
         });
