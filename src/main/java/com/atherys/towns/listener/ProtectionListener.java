@@ -24,7 +24,7 @@ public class ProtectionListener {
     PlotFacade plotFacade;
 
     public boolean isRedstone(BlockType blockType) {
-        return blockType.getTrait(Keys.POWERED.getName()).isPresent();
+        return blockType.getDefaultState().supports(Keys.POWERED);
     }
 
     public boolean isTileEntity(InteractBlockEvent event) {
@@ -32,7 +32,7 @@ public class ProtectionListener {
     }
 
     public boolean isDoor(BlockType blockType) {
-        return blockType.getTrait(Keys.OPEN.getName()).isPresent();
+        return blockType.getDefaultState().supports(Keys.OPEN);
     }
 
     @Listener
