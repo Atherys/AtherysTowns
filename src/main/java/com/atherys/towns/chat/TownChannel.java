@@ -17,7 +17,7 @@ public class TownChannel extends AtherysChannel {
         aliases.add("tc");
         this.setAliases(aliases);
         this.setPermission(PERMISSION);
-        this.setPrefix("&f[&bT&f]&r");
+        this.setPrefix(AtherysTowns.getInstance().getConfig().TOWN_CHAT_PREFIX);
         this.setSuffix("");
         this.setFormat("%cprefix %player: %message %csuffix");
         this.setName("&bTown");
