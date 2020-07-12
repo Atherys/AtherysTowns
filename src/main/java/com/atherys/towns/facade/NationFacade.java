@@ -59,7 +59,8 @@ public class NationFacade implements EconomyFacade {
     @Inject
     private ResidentService residentService;
 
-    NationFacade() {}
+    NationFacade() {
+    }
 
     public void createNation(String nationName, Town capital) throws TownsCommandException {
         if (nationName.length() > config.NATION.MAX_NATION_NAME_LENGTH) {
@@ -181,7 +182,7 @@ public class NationFacade implements EconomyFacade {
         double minMultiplier = config.TAXES.MIN_NATION_TAX_MULTIPLIER;
         double maxMultiplier = config.TAXES.MAX_NATION_TAX_MULTIPLIER;
 
-        if(tax > maxMultiplier || tax < minMultiplier) {
+        if (tax > maxMultiplier || tax < minMultiplier) {
             throw new TownsCommandException(Text.of("Tax amount does not meet requirements (", minMultiplier, " - ", maxMultiplier, ")"));
         }
 

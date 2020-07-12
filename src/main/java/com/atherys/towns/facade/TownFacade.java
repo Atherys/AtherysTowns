@@ -265,7 +265,8 @@ public class TownFacade implements EconomyFacade {
 
             townService.claimPlotForTown(plot, town);
             plotSelectionFacade.clearSelection(source);
-        if(town.isPlotClaimingDisabled()) {
+
+        if (town.isPlotClaimingDisabled()) {
             throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
         }
 

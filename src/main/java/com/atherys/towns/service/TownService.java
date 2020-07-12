@@ -5,6 +5,7 @@ import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.config.TaxConfig;
+import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
@@ -34,8 +35,6 @@ import org.spongepowered.api.world.World;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -452,7 +451,7 @@ public class TownService {
     private void setTaxesPaid(Town town, boolean paid) {
         setTownPvPToggleDisabled(town, !paid);
         setTownPlotClaimingDisabled(town, !paid);
-        if(!paid) {
+        if (!paid) {
             addFailedTaxOccurrence(town);
             setTownPvp(town, true);
         } else {
@@ -472,13 +471,14 @@ public class TownService {
                 .filter(town -> Duration.between(town.getLastTaxDate(), LocalDateTime.now())
                         .compareTo(config.TAXES.TAX_COLLECTION_DURATION) > 0)
                 .forEach(town -> {
+                    TownsMessagingFacade townMsg = AtherysTowns.getInstance().getTownsMessagingService();
                     double taxPaymentAmount = Math.floor(getTaxAmount(town));
                     Account townBank = Economy.getAccount(town.getBank().toString()).get();
 
                     if (taxPaymentAmount <= townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue()) {
-                        if(town.getTaxFailedCount() > 0) {
+                        if (town.getTaxFailedCount() > 0) {
                             residentService.getPlayerFromResident(town.getLeader())
-                                    .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().info(player, Text.of("You have paid what you owe, all town features have been restored.")));
+                                    .ifPresent(player -> townMsg.info(player, Text.of("You have paid what you owe, all town features have been restored.")));
                             setTaxesPaid(town, true);
                         }
                         payTaxes(town, taxPaymentAmount);
@@ -486,11 +486,11 @@ public class TownService {
                         AtherysTowns.getInstance().getTownFacade().sendTownTaxMessage(town, taxPaymentAmount);
                     } else if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
                         residentService.getPlayerFromResident(town.getLeader())
-                                .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().error(player, Text.of("Failure to pay taxes has resulted in your town being ruined!")));
+                                .ifPresent(player -> townMsg.error(player, Text.of("Failure to pay taxes has resulted in your town being ruined!")));
                         removeTown(town);
                     } else {
                         residentService.getPlayerFromResident(town.getLeader())
-                                .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().error(player, Text.of("You have failed to pay your taxes! If not paid by next tax cycle your town will be ruined! Town features have been limited until paid off.")));
+                                .ifPresent(player -> townMsg.error(player, Text.of("You have failed to pay your taxes! If not paid by next tax cycle your town will be ruined! Town features have been limited until paid off.")));
                         double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
                         payTaxes(town, townBalance);
                         addTownDebt(town, (taxPaymentAmount - townBalance));
