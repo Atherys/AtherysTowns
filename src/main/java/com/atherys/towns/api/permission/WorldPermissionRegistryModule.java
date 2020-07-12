@@ -23,7 +23,7 @@ public class WorldPermissionRegistryModule implements CatalogRegistryModule<Worl
                 WorldPermissions.INTERACT_DOORS,
                 WorldPermissions.INTERACT_REDSTONE,
                 WorldPermissions.INTERACT_ENTITIES,
-                WorldPermissions.USE_ITEMS
+                WorldPermissions.SPAWN_ENTITIES
         );
     }
 
