@@ -40,21 +40,21 @@ public class TownService {
 
     public static final boolean DEFAULT_TOWN_FREELY_JOINABLE = false;
 
-    private TownsConfig config;
+    private final TownsConfig config;
 
-    private PlotService plotService;
+    private final PlotService plotService;
 
-    private TownRepository townRepository;
+    private final TownRepository townRepository;
 
-    private PlotRepository plotRepository;
+    private final PlotRepository plotRepository;
 
-    private ResidentRepository residentRepository;
+    private final ResidentRepository residentRepository;
 
-    private ResidentService residentService;
+    private final ResidentService residentService;
 
-    private TownsPermissionService townsPermissionService;
+    private final TownsPermissionService townsPermissionService;
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
     @Inject
     TownService(
@@ -102,6 +102,7 @@ public class TownService {
             AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
         }
         town.setSpawn(leader.getTransform());
+        homePlot.setName(Text.of("HomePlot"));
 
         homePlot.setTown(town);
         town.addPlot(homePlot);
@@ -192,6 +193,7 @@ public class TownService {
     }
 
     public void claimPlotForTown(Plot plot, Town town) {
+        plot.setName(Text.of("Plot #", town.getPlots().size()));
         town.addPlot(plot);
         plot.setTown(town);
 
