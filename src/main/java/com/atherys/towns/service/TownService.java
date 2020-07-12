@@ -40,21 +40,21 @@ public class TownService {
 
     public static final boolean DEFAULT_TOWN_FREELY_JOINABLE = false;
 
-    private final TownsConfig config;
+    private TownsConfig config;
 
-    private final PlotService plotService;
+    private PlotService plotService;
 
-    private final TownRepository townRepository;
+    private TownRepository townRepository;
 
-    private final PlotRepository plotRepository;
+    private PlotRepository plotRepository;
 
-    private final ResidentRepository residentRepository;
+    private ResidentRepository residentRepository;
 
-    private final ResidentService residentService;
+    private ResidentService residentService;
 
-    private final TownsPermissionService townsPermissionService;
+    private TownsPermissionService townsPermissionService;
 
-    private final RoleService roleService;
+    private RoleService roleService;
 
     @Inject
     TownService(
