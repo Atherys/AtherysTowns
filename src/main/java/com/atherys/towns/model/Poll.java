@@ -13,7 +13,7 @@ public class Poll {
     private UUID creator;
     private String pollName;
     private Plot homePlot;
-    private boolean passed = true;
+    private boolean passed = false;
 
     public UUID getId() {
         return this.id;
