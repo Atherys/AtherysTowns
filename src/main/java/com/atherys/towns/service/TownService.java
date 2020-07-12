@@ -4,8 +4,8 @@ import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.config.TaxConfig;
 import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.facade.TownFacade;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -14,11 +14,13 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.economy.account.Account;
@@ -32,6 +34,8 @@ import org.spongepowered.api.world.World;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,8 +69,6 @@ public class TownService {
 
     private RoleService roleService;
 
-    private TownFacade townFacade;
-
     @Inject
     TownService(
             TownsConfig config,
@@ -76,8 +78,7 @@ public class TownService {
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
-            RoleService roleService,
-            TownFacade townFacade
+            RoleService roleService
     ) {
         this.config = config;
         this.plotService = plotService;
@@ -87,7 +88,6 @@ public class TownService {
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
         this.roleService = roleService;
-        this.townFacade = townFacade;
     }
 
     public Town createTown(Player leader, Plot homePlot, String name) {
@@ -109,11 +109,15 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(leader.getWorld().getUniqueId());
+        town.setPvpToggleDisabled(false);
+        town.setPlotClaimingDisabled(false);
         town.setLastTaxDate(LocalDateTime.now());
+        town.setTaxFailedCount(0);
+        town.setDebt(0);
         town.setBank(UUID.randomUUID());
         town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {
-            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
+            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank());
         }
         town.setSpawn(leader.getTransform());
         homePlot.setName(Text.of("HomePlot"));
@@ -150,6 +154,11 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
+    public void addFailedTaxOccurrence(Town town) {
+        town.setTaxFailedCount(town.getTaxFailedCount() + 1);
+        townRepository.saveOne(town);
+    }
+
     public void setTownColor(Town town, TextColor textColor) {
         town.setColor(textColor);
         townRepository.saveOne(town);
@@ -162,6 +171,31 @@ public class TownService {
 
     public void setTownPvp(Town town, boolean pvp) {
         town.setPvpEnabled(pvp);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownPvPToggleDisabled(Town town, boolean toggle) {
+        town.setPvpToggleDisabled(toggle);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownPlotClaimingDisabled(Town town, boolean claiming) {
+        town.setPlotClaimingDisabled(claiming);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownTaxFailCount(Town town, int count) {
+        town.setTaxFailedCount(count);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownDebt(Town town, double debt) {
+        town.setDebt(debt);
+        townRepository.saveOne(town);
+    }
+
+    public void addTownDebt(Town town, double debt) {
+        town.setDebt(town.getDebt() + debt);
         townRepository.saveOne(town);
     }
 
@@ -398,27 +432,69 @@ public class TownService {
     public void initTaxTimer() {
         if (AtherysTowns.economyIsEnabled()) {
             Task.Builder taxTimer = Task.builder();
-            taxTimer.interval(15, TimeUnit.MINUTES)
+            taxTimer.interval(config.TAXES.TAX_COLLECTION_TIMER_MINUTES, TimeUnit.MINUTES)
                     .execute(TaxTimerTask())
                     .submit(AtherysTowns.getInstance());
         }
+    }
+
+    private double getTaxAmount(Town town) {
+        long townSize = town.getResidents().stream()
+                .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(Duration.ofDays(14)) < 0)
+                .count();
+        int area = getTownSize(town);
+        int maxArea = Math.min(area, town.getMaxSize());
+        int oversizeArea = area > town.getMaxSize() ? area - town.getMaxSize() : 0;
+        TaxConfig taxConfig = config.TAXES;
+        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea) + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
+    }
+
+    private void setTaxesPaid(Town town, boolean paid) {
+        setTownPvPToggleDisabled(town, !paid);
+        setTownPlotClaimingDisabled(town, !paid);
+        if(!paid) {
+            addFailedTaxOccurrence(town);
+            setTownPvp(town, true);
+        } else {
+            setTownTaxFailCount(town, 0);
+            setTownDebt(town, 0);
+        }
+    }
+
+    private void payTaxes(Town town, double amount) {
+        Cause cause = Sponge.getCauseStackManager().getCurrentCause();
+        Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
     }
 
     private Runnable TaxTimerTask() {
         return () -> townRepository.getAll().stream()
                 .filter(town -> town.getNation() != null)
                 .filter(town -> Duration.between(town.getLastTaxDate(), LocalDateTime.now())
-                        .compareTo(config.TAX_COLLECTION_DURATION) > 0)
+                        .compareTo(config.TAXES.TAX_COLLECTION_DURATION) > 0)
                 .forEach(town -> {
-                    Account nationBank = Economy.getAccount(town.getNation().getBank()).get();
+                    double taxPaymentAmount = Math.floor(getTaxAmount(town));
                     Account townBank = Economy.getAccount(town.getBank().toString()).get();
 
-                    double taxPaymentAmount = Math.floor(townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue() * town.getNation().getTax());
-                    townBank.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
-                    nationBank.deposit(config.DEFAULT_CURRENCY, BigDecimal.valueOf(taxPaymentAmount), Sponge.getCauseStackManager().getCurrentCause());
-                    town.setLastTaxDate(LocalDateTime.now());
-                    if (taxPaymentAmount > 0) {
-                        townFacade.sendTownTaxMessage(town, taxPaymentAmount);
+                    if (taxPaymentAmount <= townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue()) {
+                        if(town.getTaxFailedCount() > 0) {
+                            residentService.getPlayerFromResident(town.getLeader())
+                                    .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().info(player, Text.of("You have paid what you owe, all town features have been restored.")));
+                            setTaxesPaid(town, true);
+                        }
+                        payTaxes(town, taxPaymentAmount);
+                        town.setLastTaxDate(LocalDateTime.now());
+                        AtherysTowns.getInstance().getTownFacade().sendTownTaxMessage(town, taxPaymentAmount);
+                    } else if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
+                        residentService.getPlayerFromResident(town.getLeader())
+                                .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().error(player, Text.of("Failure to pay taxes has resulted in your town being ruined!")));
+                        removeTown(town);
+                    } else {
+                        residentService.getPlayerFromResident(town.getLeader())
+                                .ifPresent(player -> AtherysTowns.getInstance().getTownsMessagingService().error(player, Text.of("You have failed to pay your taxes! If not paid by next tax cycle your town will be ruined! Town features have been limited until paid off.")));
+                        double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
+                        payTaxes(town, townBalance);
+                        addTownDebt(town, (taxPaymentAmount - townBalance));
+                        setTaxesPaid(town, false);
                     }
                 });
     }

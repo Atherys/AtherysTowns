@@ -70,7 +70,7 @@ public class NationService {
 
         nation.setBank(UUID.randomUUID());
         if (AtherysTowns.economyIsEnabled()) {
-            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank().toString());
+            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank());
         }
 
         nationRepository.saveOne(nation);
