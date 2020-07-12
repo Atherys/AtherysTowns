@@ -52,6 +52,5 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownAdminFacade.class);
         bind(PollFacade.class);
         bind(PlotBorderFacade.class);
-        bind(ProtectionFacade.class);
     }
 }

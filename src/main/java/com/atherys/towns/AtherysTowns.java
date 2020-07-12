@@ -256,10 +256,6 @@ public class AtherysTowns {
         return components.pollFacade;
     }
 
-    public ProtectionFacade getProtectionFacade() {
-        return components.protectionFacade;
-    }
-
     public PlotBorderFacade getPlotBorderFacade() {
         return components.plotBorderFacade;
     }
@@ -339,9 +335,6 @@ public class AtherysTowns {
 
         @Inject
         private PollFacade pollFacade;
-
-        @Inject
-        private ProtectionFacade protectionFacade;
 
         @Inject
         private PlotBorderFacade plotBorderFacade;
