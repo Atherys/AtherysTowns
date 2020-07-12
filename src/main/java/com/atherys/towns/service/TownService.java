@@ -102,6 +102,7 @@ public class TownService {
             AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
         }
         town.setSpawn(leader.getTransform());
+        homePlot.setName(Text.of("HomePlot"));
 
         homePlot.setTown(town);
         town.addPlot(homePlot);
@@ -192,6 +193,7 @@ public class TownService {
     }
 
     public void claimPlotForTown(Plot plot, Town town) {
+        plot.setName(Text.of("Plot #", town.getPlots().size()));
         town.addPlot(plot);
         plot.setTown(town);
 
