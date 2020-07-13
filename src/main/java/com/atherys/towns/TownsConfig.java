@@ -2,6 +2,7 @@ package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
 import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.RaidConfig;
 import com.atherys.towns.config.TownConfig;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -33,6 +34,9 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("town")
     public TownConfig TOWN = new TownConfig();
+
+    @Setting("raid")
+    public RaidConfig RAID = new RaidConfig();
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");

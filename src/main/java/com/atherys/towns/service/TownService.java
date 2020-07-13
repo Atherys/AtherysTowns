@@ -24,6 +24,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,6 +97,7 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(leader.getWorld().getUniqueId());
+        town.setLastRaidCreationDate(LocalDateTime.now());
         town.setBank(UUID.randomUUID());
         town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {

@@ -4,6 +4,7 @@ import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
+import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -11,6 +12,7 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -62,6 +64,8 @@ public class Town implements Identifiable<Long> {
     private boolean pvpEnabled;
 
     private UUID bank;
+
+    private LocalDateTime lastRaidCreationDate;
 
     @Version
     private int version;
@@ -218,6 +222,14 @@ public class Town implements Identifiable<Long> {
 
     public void setBank(UUID bank) {
         this.bank = bank;
+    }
+
+    public LocalDateTime getLastRaidCreationDate() {
+        return this.lastRaidCreationDate;
+    }
+
+    public void setLastRaidCreationDate(LocalDateTime lastRaidCreationDate) {
+        this.lastRaidCreationDate = lastRaidCreationDate;
     }
 
 }

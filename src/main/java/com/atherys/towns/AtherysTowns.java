@@ -260,6 +260,10 @@ public class AtherysTowns {
         return components.plotBorderFacade;
     }
 
+    public TownRaidFacade getTownRaidFacade() {
+        return components.townRaidFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -338,6 +342,9 @@ public class AtherysTowns {
 
         @Inject
         private PlotBorderFacade plotBorderFacade;
+
+        @Inject
+        private TownRaidFacade townRaidFacade;
 
         @Inject
         private PlayerListener playerListener;
