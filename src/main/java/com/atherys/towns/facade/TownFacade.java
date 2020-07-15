@@ -522,9 +522,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     private void joinTownMessage(Player player, Town town) {
-        //TODO: Send message to whole town
-        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
-        townsMsg.info(player, "You have joined the town of ", townText);
+        townsMsg.broadcastTownInfo(town, player.getName(), " has joined the town");
     }
 
     private boolean isLeaderOfPlayerTown(Player player) {

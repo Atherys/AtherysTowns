@@ -117,6 +117,20 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
+    public void addTownToNation(Nation nation, Town town) {
+        nationService.addTown(nation, town);
+        townsMsg.broadcastNationInfo(nation,"The town ", GOLD, town.getName(), DARK_GREEN,
+                " has joined the nation");
+    }
+
+    public void removeTownFromNation(Nation nation, Town town) {
+        nationService.removeTown(nation, town);
+        townsMsg.broadcastNationInfo(nation, "The town ", GOLD, town.getName(), DARK_GREEN,
+                " has left the nation");
+        townsMsg.broadcastTownInfo(town,"Your town ", GOLD, town.getName(), DARK_GREEN,
+                " has left the nation ", GOLD, nation.getName());
+    }
+
     public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
