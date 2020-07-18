@@ -36,6 +36,10 @@ public class TownRaidService {
         activeRaids.remove(id);
     }
 
+    public RaidPoint getRaidPoint(UUID id) {
+        return activeRaids.get(id);
+    }
+
     public boolean isIdRaidEntity(UUID entityId) {
         return activeRaids.values().stream().anyMatch(point -> point.getRaidPointUUID().equals(entityId));
     }
@@ -44,8 +48,8 @@ public class TownRaidService {
         return activeRaids.values().stream().filter(point -> point.getRaidingTown().equals(town)).findFirst();
     }
 
-    public void createRaidPointEntry(Transform<World> transform, Town town, UUID entityId) {
-        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town);
+    public void createRaidPointEntry(Transform<World> transform, Town town, UUID entityId, Set<UUID> particleEffects) {
+        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, particleEffects);
         townService.setTownLastRaidCreationDate(town, LocalDateTime.now());
         activeRaids.put(entityId, point);
     }
@@ -79,14 +83,18 @@ public class TownRaidService {
                 .submit(AtherysTowns.getInstance());
     }
 
+    public void removeEntity(World world, UUID uuid) {
+        Optional<Entity> entity = world.getEntity(uuid);
+        entity.ifPresent(Entity::remove);
+    }
+
     private Runnable RaidTimerTask() {
         return () -> {
             Set<UUID> pointsToRemove = new HashSet<>();
             activeRaids.forEach((uuid, point) -> {
                 if (hasDurationPassed(point.getRaidingTown())) {
-                    Optional<Entity> entity = point.getPointTransform().getExtent().getEntity(point.getRaidPointUUID());
-                    entity.ifPresent(Entity::remove);
-                    entity.ifPresent(raidPointEntity -> pointsToRemove.add(raidPointEntity.getUniqueId()));
+                    removeEntity(point.getPointTransform().getExtent(), uuid);
+                    pointsToRemove.add(uuid);
                     Text raidRemovedText = Text.of("Your raid point has expired!");
                     AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
                         AtherysTowns.getInstance().getTownsMessagingService().info(player, raidRemovedText);

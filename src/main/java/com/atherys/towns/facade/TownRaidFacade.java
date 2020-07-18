@@ -9,23 +9,32 @@ import com.atherys.towns.model.RaidPoint;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownRaidService;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.effect.particle.ParticleTypes;
+import org.spongepowered.api.entity.AreaEffectCloud;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -56,8 +65,8 @@ public class TownRaidFacade {
         return townRaidService.isIdRaidEntity(entity.getUniqueId());
     }
 
-    public void validateRaid(Player player, Town town) throws TownsCommandException {
-        Location<World> location = player.getLocation();
+    public void validateRaid(Town town, Transform<World> transform) throws TownsCommandException {
+        Location<World> location = transform.getLocation();
         RaidConfig raidConfig = config.RAID;
 
         if (AtherysTowns.economyIsEnabled()) {
@@ -80,13 +89,36 @@ public class TownRaidFacade {
         }
     }
 
-    public UUID spawnRaidPoint(Transform<World> location, Player player) {
-        Entity entity = player.getWorld().createEntity(EntityTypes.HUMAN, location.getPosition());
+    public Set<UUID> spawnPortalParticles(Transform<World> transform, Player player) {
+        AreaEffectCloud cloud = (AreaEffectCloud) player.getWorld().createEntity(EntityTypes.AREA_EFFECT_CLOUD, transform.getPosition().add(0, -0.1, 0));
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_RADIUS, 2.0);
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, ParticleTypes.CLOUD);
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_COLOR, Color.RED);
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_DURATION, (int) config.RAID.RAID_DURATION.getSeconds() * 20);
+
+        AreaEffectCloud cloud2 = (AreaEffectCloud) player.getWorld().createEntity(EntityTypes.AREA_EFFECT_CLOUD, transform.getPosition().add(0, 0.5, 0));
+        cloud2.offer(Keys.AREA_EFFECT_CLOUD_RADIUS, 2.0);
+        cloud2.offer(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, ParticleTypes.ENCHANTING_GLYPHS);
+        cloud2.offer(Keys.AREA_EFFECT_CLOUD_DURATION, (int) config.RAID.RAID_DURATION.getSeconds() * 20);
+
+        player.getWorld().spawnEntity(cloud);
+        player.getWorld().spawnEntity(cloud2);
+
+        Set<UUID> particleSet = new HashSet<>();
+        particleSet.add(cloud.getUniqueId());
+        particleSet.add(cloud2.getUniqueId());
+
+        return particleSet;
+    }
+
+    public UUID spawnRaidPoint(Transform<World> transform, Player player) {
+        Entity entity = player.getWorld().createEntity(EntityTypes.HUMAN, transform.getPosition().add(0, 1, -2));
 
         entity.offer(Keys.AI_ENABLED, false);
         entity.offer(Keys.DISPLAY_NAME, Text.of("Hired Mage"));
         entity.offer(Keys.MAX_HEALTH, config.RAID.RAID_HEALTH);
         entity.offer(Keys.HEALTH, config.RAID.RAID_HEALTH);
+        entity.offer(Keys.SKIN_UNIQUE_ID, UUID.fromString("b1759db2-3b7f-4d5d-9155-70aca6e94cba"));
 
         player.getWorld().spawnEntity(entity);
 
@@ -102,9 +134,9 @@ public class TownRaidFacade {
         Duration durationBetweenPresent = Duration.between(time, LocalDateTime.now());
         Duration durationLeft = duration.minus(durationBetweenPresent);
         if (durationLeft.toMinutes() >= 1) {
-            return Text.of(GOLD, durationLeft.toMinutes(), " minutes");
+            return Text.of(GOLD, durationLeft.toMinutes(), " minute(s)");
         }
-        return Text.of(GOLD, durationLeft.getSeconds(), " seconds");
+        return Text.of(GOLD, durationLeft.getSeconds(), " second(s)");
     }
 
     public double getRaidHealth(World world, RaidPoint point) {
@@ -141,23 +173,34 @@ public class TownRaidFacade {
     }
 
     public Transform<World> getRaidPointTransform(Player player) {
+        Vector3d playerVector = player.getTransform().getPosition();
         Location<World> highLocation = player.getLocation().asHighestLocation();
-        return player.getTransform().setLocation(highLocation);
+        Location<World> newLocation = new Location<>(player.getWorld(), playerVector.getX(), highLocation.getBlockY(), playerVector.getZ());
+        return player.getTransform().setLocation(newLocation);
     }
 
     public void createRaidPoint(Player player) throws TownsCommandException {
         Town town = townFacade.getPlayerTown(player);
-        validateRaid(player, town);
         Transform<World> transform = getRaidPointTransform(player);
+        validateRaid(town, transform);
 
         UUID entityId = spawnRaidPoint(transform, player);
-        townRaidService.createRaidPointEntry(getRaidPointTransform(player), town, entityId);
+        Set<UUID> particleEffects = spawnPortalParticles(transform, player);
+        if (AtherysTowns.economyIsEnabled()) {
+            Economy.getAccount(town.getBank().toString()).ifPresent(account -> {
+                Cause cause = Sponge.getCauseStackManager().getCurrentCause();
+                account.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(config.RAID.RAID_COST), cause);
+            });
+        }
+        townRaidService.createRaidPointEntry(transform, town, entityId, particleEffects);
 
         townFacade.getOnlineTownMembers(town).forEach(member -> townsMsg.info(member, "A town raid point has been spawned!"));
     }
 
     public void onRaidPointDeath(DestructEntityEvent.Death event) {
-        townRaidService.removeRaidPoint(event.getTargetEntity().getUniqueId());
+        RaidPoint point = townRaidService.getRaidPoint(event.getTargetEntity().getUniqueId());
+        point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
+        townRaidService.removeRaidPoint(point.getRaidPointUUID());
     }
 
     public boolean onPlayerSpawn(RespawnPlayerEvent event) {
@@ -167,7 +210,7 @@ public class TownRaidFacade {
             point.ifPresent(raidPoint -> {
                 event.setToTransform(raidPoint.getPointTransform());
                 event.getOriginalPlayer().getWorld().getEntity(raidPoint.getRaidPointUUID()).ifPresent(entity -> {
-                    double initialHealth = entity.get(Keys.HEALTH).get();
+                    double initialHealth = entity.get(Keys.HEALTH).orElse(0.0);
                     entity.offer(Keys.HEALTH, initialHealth - config.RAID.RAID_DAMAGE_PER_SPAWN);
                 });
             });
