@@ -29,14 +29,14 @@ public class TownsConfig extends PluginConfig {
     @Setting("respawn-in-town")
     public boolean SPAWN_IN_TOWN = true;
 
+    @Setting("raid")
+    public RaidConfig RAID = new RaidConfig();
+
     @Setting("nation")
     public NationConfig NATION = new NationConfig();
 
     @Setting("town")
     public TownConfig TOWN = new TownConfig();
-
-    @Setting("raid")
-    public RaidConfig RAID = new RaidConfig();
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");

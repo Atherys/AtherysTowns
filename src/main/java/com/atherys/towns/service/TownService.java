@@ -12,6 +12,7 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
@@ -97,7 +98,6 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(leader.getWorld().getUniqueId());
-        town.setLastRaidCreationDate(LocalDateTime.now());
         town.setBank(UUID.randomUUID());
         town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {
@@ -182,6 +182,11 @@ public class TownService {
 
     public void setTownSpawn(Town town, Transform<World> spawn) {
         town.setSpawn(spawn);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownLastRaidCreationDate(Town town, LocalDateTime dateTime) {
+        town.setLastRaidCreationDate(dateTime);
         townRepository.saveOne(town);
     }
 

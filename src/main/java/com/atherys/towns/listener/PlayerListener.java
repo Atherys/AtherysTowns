@@ -40,6 +40,9 @@ public class PlayerListener {
     @Inject
     private PlotBorderFacade plotBorderFacade;
 
+    @Inject
+    private TownRaidFacade townRaidFacade;
+
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
         // And the move event was triggered due to a change in block position
@@ -52,7 +55,7 @@ public class PlayerListener {
 
     @Listener
     public void onPlayerSpawn(RespawnPlayerEvent event) {
-        if (config.SPAWN_IN_TOWN) {
+        if (!townRaidFacade.onPlayerSpawn(event) && config.SPAWN_IN_TOWN) {
             residentFacade.onPlayerSpawn(event);
         }
     }
