@@ -15,14 +15,11 @@ public class RaidPoint {
 
     private UUID raidPointUUID;
 
-    private double health;
-
     private Town raidingTown;
 
-    public RaidPoint(LocalDateTime creationTime, Transform<World> location, double health, UUID entityId, Town town) {
+    public RaidPoint(LocalDateTime creationTime, Transform<World> location, UUID entityId, Town town) {
         this.pointTransform = location;
         this.creationTime = creationTime;
-        this.health = health;
         this.raidPointUUID = entityId;
         this.raidingTown = town;
     }
@@ -41,14 +38,6 @@ public class RaidPoint {
 
     public void setCreationTime(LocalDateTime creationTime) {
         this.creationTime = creationTime;
-    }
-
-    public double getHealth() {
-        return this.health;
-    }
-
-    public void setHealth(double health) {
-        this.health = health;
     }
 
     public UUID getRaidPointUUID() {

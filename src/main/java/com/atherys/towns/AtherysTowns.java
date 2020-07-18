@@ -100,6 +100,7 @@ public class AtherysTowns {
     private void start() {
         getRoleService().init();
         getTownsCache().initCache();
+        getTownRaidService().initRaidTimer();
         getPlotBorderFacade().initBorderTask();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
