@@ -117,13 +117,26 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
-    public void addTownToNation(Nation nation, Town town) {
+    public void addTownToNation(Nation nation, Town town) throws TownsCommandException{
+        if (town.getNation() != null) {
+            throw new TownsCommandException("Town ", town.getName(), " is already part of a nation.");
+        }
+
         nationService.addTown(nation, town);
         townsMsg.broadcastNationInfo(nation,"The town ", GOLD, town.getName(), DARK_GREEN,
                 " has joined the nation");
     }
 
-    public void removeTownFromNation(Nation nation, Town town) {
+    public void removeTownFromNation(Nation nation, Town town) throws TownsCommandException {
+        if (town.getNation() != nation) {
+            throw new TownsCommandException("Town ", town.getName(), " is not part of ", nation.getName(), ".");
+        }
+
+        if (nation.getCapital() == town) {
+            throw new TownsCommandException("Town ", town.getName(), " cannot be removed as it is the capital of ",
+                                            nation.getName(), ".");
+        }
+
         nationService.removeTown(nation, town);
         townsMsg.broadcastNationInfo(nation, "The town ", GOLD, town.getName(), DARK_GREEN,
                 " has left the nation");
