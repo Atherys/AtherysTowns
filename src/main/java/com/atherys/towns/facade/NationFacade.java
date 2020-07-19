@@ -377,10 +377,9 @@ public class NationFacade implements EconomyFacade {
         return nation;
     }
 
-    public Set<Player> getOnlineNationMembers(Player player) {
-        return Sponge.getServer().getOnlinePlayers().stream()
-                .filter(onlinePlayer -> partOfSameNation(onlinePlayer, player))
-                .collect(Collectors.toSet());
+    public Set<Player> getOnlineNationMembers(Nation nation) {
+        return nation.getTowns().stream().flatMap(
+                town -> townFacade.getOnlineTownMembers(town).stream()).collect(Collectors.toSet());
     }
 
     public boolean partOfSameNation(User user, User other) {

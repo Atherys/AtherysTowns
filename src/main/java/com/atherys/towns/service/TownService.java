@@ -336,12 +336,6 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
-    public Set<Player> getTownOnlinePlayers(Town town) {
-        Set<UUID> townResidents = town.getResidents().stream().map(Resident::getId).collect(Collectors.toSet());
-        return Sponge.getServer().getOnlinePlayers().stream().filter(
-                player -> townResidents.contains(player.getUniqueId())).collect(Collectors.toSet());
-    }
-
     public void removeTown(Town town) {
         Set<Context> townContext = townsPermissionService.getContextsForTown(town);
         Set<String> ids = new HashSet<>();

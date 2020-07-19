@@ -27,10 +27,10 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
     private TownsConfig config;
 
     @Inject
-    private NationService nationService;
+    private NationFacade nationFacade;
 
     @Inject
-    private TownService townService;
+    private TownFacade townFacade;
 
     public TownsMessagingFacade() {
         super("Towns");
@@ -46,14 +46,14 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
 
     public void broadcastNationInfo(Nation nation, Object... message) {
         Text formattedMessage = formatInfo(message);
-        nationService.getNationOnlinePlayers(nation).stream().forEach(
+        nationFacade.getOnlineNationMembers(nation).stream().forEach(
                 player -> player.sendMessage(formattedMessage)
         );
     }
 
     public void broadcastTownInfo(Town town, Object... message) {
         Text formattedMessage = formatInfo(message);
-        townService.getTownOnlinePlayers(town).stream().forEach(
+        townFacade.getOnlineTownMembers(town).stream().forEach(
                 player -> player.sendMessage(formattedMessage)
         );
     }

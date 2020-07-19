@@ -108,11 +108,6 @@ public class NationService {
         nationRepository.saveOne(nation);
     }
 
-    public Set<Player> getNationOnlinePlayers(Nation nation) {
-        return nation.getTowns().stream().flatMap(
-                town -> townService.getTownOnlinePlayers(town).stream()).collect(Collectors.toSet());
-    }
-
     public void removeTown(Nation nation, Town town) {
         // Remove permissions from the residents of the town been removed
         for (Resident resident : town.getResidents()) {

@@ -29,7 +29,7 @@ public class NationChannel extends AtherysChannel {
         if (sender instanceof Player) {
             Optional<Nation> playerNation = AtherysTowns.getInstance().getResidentFacade().getPlayerNation((Player) sender);
             if (playerNation.isPresent()) {
-                return new HashSet<>(AtherysTowns.getInstance().getNationFacade().getOnlineNationMembers((Player) sender));
+                return new HashSet<>(AtherysTowns.getInstance().getNationFacade().getOnlineNationMembers(playerNation.get()));
             }
         }
 
