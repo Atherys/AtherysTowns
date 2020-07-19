@@ -99,7 +99,7 @@ public class TownRaidFacade {
         }
 
         if (townRaidService.isLocationTaken(location)) {
-            throw new TownsCommandException("This location is already occupied by another town's raid point!");
+            throw new TownsCommandException("This location is too close to another town's raid point!");
         }
 
         if (!townRaidService.hasCooldownPeriodPassed(town)) {

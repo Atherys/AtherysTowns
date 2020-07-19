@@ -4,6 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.RaidPoint;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Entity;
@@ -59,7 +60,7 @@ public class TownRaidService {
     }
 
     public boolean isLocationTaken(Location<World> location) {
-        return activeRaids.values().stream().anyMatch(raidPoint -> raidPoint.getPointTransform().getLocation() == location);
+        return activeRaids.values().stream().anyMatch(point -> MathUtils.getDistanceBetweenPoints(location.getPosition(), point.getPointTransform().getPosition()) < config.RAID.RAID_DISTANCE_BETWEEN_POINTS);
     }
 
     public boolean hasCooldownPeriodPassed(Town town) {
