@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 public class RaidConfig {
 
     @Setting("town-raid-health")
-    public double RAID_HEALTH = 1024.00;
+    public double RAID_HEALTH = 500.00;
 
     @Setting("town-raid-duration")
     public Duration RAID_DURATION = Duration.of(1, ChronoUnit.MINUTES);
@@ -19,13 +19,13 @@ public class RaidConfig {
     public Duration RAID_COOLDOWN = Duration.of(1, ChronoUnit.MINUTES);
 
     @Setting("town-raid-cost")
-    public double RAID_COST;
+    public double RAID_COST = 500.00;
 
     @Setting("town-raid-spawn-radius")
-    public int RAID_SPAWN_RADIUS = 50;
+    public int RAID_SPAWN_RADIUS = 450;
 
     @Setting("town-raid-creation-distance")
-    public int RAID_CREATION_DISTANCE;
+    public int RAID_CREATION_DISTANCE = 180;
 
     @Setting("town-raid-damage-per-spawn")
     public int RAID_DAMAGE_PER_SPAWN = 50;
