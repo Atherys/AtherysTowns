@@ -34,10 +34,7 @@ import org.spongepowered.api.world.World;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -80,11 +77,10 @@ public class TownRaidFacade {
 
     public void validateRaid(Town town, Transform<World> transform, Town targetTown) throws TownsCommandException {
         Location<World> location = transform.getLocation();
-        RaidConfig raidConfig = config.RAID;
 
         if (AtherysTowns.economyIsEnabled()) {
             Optional<Account> townBank = Economy.getAccount(town.getBank().toString());
-            if (townBank.isPresent() && townBank.get().getBalance(config.DEFAULT_CURRENCY).doubleValue() < raidConfig.RAID_COST) {
+            if (townBank.isPresent() && townBank.get().getBalance(config.DEFAULT_CURRENCY).doubleValue() < config.RAID.RAID_COST) {
                 throw new TownsCommandException("Your town bank does not have enough money to create a raid point!");
             }
         }
@@ -125,10 +121,7 @@ public class TownRaidFacade {
         player.getWorld().spawnEntity(cloud1);
         player.getWorld().spawnEntity(cloud2);
 
-        Set<UUID> particleSet = new HashSet<>();
-        particleSet.add(cloud1.getUniqueId());
-        particleSet.add(cloud2.getUniqueId());
-        return particleSet;
+        return new HashSet<>(Arrays.asList(cloud1.getUniqueId(), cloud2.getUniqueId()));
     }
 
     public UUID spawnRaidPoint(Transform<World> transform, Player player) {
