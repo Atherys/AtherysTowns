@@ -22,12 +22,15 @@ public class RaidConfig {
     public double RAID_COST;
 
     @Setting("town-raid-spawn-radius")
-    public int RAID_SPAWN_RADIUS;
+    public int RAID_SPAWN_RADIUS = 50;
 
     @Setting("town-raid-creation-distance")
     public int RAID_CREATION_DISTANCE;
 
     @Setting("town-raid-damage-per-spawn")
     public int RAID_DAMAGE_PER_SPAWN = 50;
+
+    @Setting("town-raid-skin-uuid")
+    public String RAID_SKIN_UUID = "b1759db2-3b7f-4d5d-9155-70aca6e94cba";
 
 }

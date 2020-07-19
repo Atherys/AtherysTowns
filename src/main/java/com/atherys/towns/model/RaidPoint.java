@@ -20,11 +20,14 @@ public class RaidPoint {
 
     private Town raidingTown;
 
-    public RaidPoint(LocalDateTime creationTime, Transform<World> location, UUID entityId, Town town, Set<UUID> particleUUIDs) {
+    private Town targetTown;
+
+    public RaidPoint(LocalDateTime creationTime, Transform<World> location, UUID entityId, Town raidingTown, Town targetTown, Set<UUID> particleUUIDs) {
         this.pointTransform = location;
         this.creationTime = creationTime;
         this.raidPointUUID = entityId;
-        this.raidingTown = town;
+        this.raidingTown = raidingTown;
+        this.targetTown = targetTown;
         this.particleUUIDs = particleUUIDs;
     }
 
@@ -58,6 +61,14 @@ public class RaidPoint {
 
     public void setRaidingTown(Town town) {
         this.raidingTown = town;
+    }
+
+    public Town getTargetTown() {
+        return this.targetTown;
+    }
+
+    public void setTargetTown(Town targetTown) {
+        this.targetTown = targetTown;
     }
 
     public Set<UUID> getParticleUUIDs() {

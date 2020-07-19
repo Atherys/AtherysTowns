@@ -7,13 +7,16 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.config.RaidConfig;
 import com.atherys.towns.model.RaidPoint;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownRaidService;
+import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.AreaEffectCloud;
 import org.spongepowered.api.entity.Entity;
@@ -25,7 +28,6 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -57,6 +59,9 @@ public class TownRaidFacade {
     @Inject
     ResidentService residentService;
 
+    @Inject
+    PlotService plotService;
+
     public TownRaidFacade() {
 
     }
@@ -65,7 +70,15 @@ public class TownRaidFacade {
         return townRaidService.isIdRaidEntity(entity.getUniqueId());
     }
 
-    public void validateRaid(Town town, Transform<World> transform) throws TownsCommandException {
+    public boolean isTargetTownFarAway(Transform<World> targetSpawn, Location<World> spawnLocation) {
+        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) >= config.RAID.RAID_CREATION_DISTANCE;
+    }
+
+    public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
+        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) <= config.RAID.RAID_SPAWN_RADIUS;
+    }
+
+    public void validateRaid(Town town, Transform<World> transform, Town targetTown) throws TownsCommandException {
         Location<World> location = transform.getLocation();
         RaidConfig raidConfig = config.RAID;
 
@@ -87,27 +100,34 @@ public class TownRaidFacade {
         if (!townRaidService.hasCooldownPeriodPassed(town)) {
             throw new TownsCommandException("Raid Cooldown is still in effect!");
         }
+
+        if (!isTargetTownFarAway(targetTown.getSpawn(), location)) {
+            throw new TownsCommandException("Target town is too close to current location!");
+        }
+
+        if (plotService.getPlotByLocation(location).isPresent()) {
+            throw new TownsCommandException("You cannot create a raid point within the borders of a town!");
+        }
+    }
+
+    public AreaEffectCloud getEffectCloud(ParticleType type, double verticalAdjustment, Transform<World> transform) {
+        AreaEffectCloud cloud = (AreaEffectCloud) transform.getExtent().createEntity(EntityTypes.AREA_EFFECT_CLOUD, transform.getPosition().add(0, verticalAdjustment, 0));
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_RADIUS, 2.0);
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, type);
+        cloud.offer(Keys.AREA_EFFECT_CLOUD_DURATION, (int) config.RAID.RAID_DURATION.getSeconds() * 20);
+
+        return cloud;
     }
 
     public Set<UUID> spawnPortalParticles(Transform<World> transform, Player player) {
-        AreaEffectCloud cloud = (AreaEffectCloud) player.getWorld().createEntity(EntityTypes.AREA_EFFECT_CLOUD, transform.getPosition().add(0, -0.1, 0));
-        cloud.offer(Keys.AREA_EFFECT_CLOUD_RADIUS, 2.0);
-        cloud.offer(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, ParticleTypes.CLOUD);
-        cloud.offer(Keys.AREA_EFFECT_CLOUD_COLOR, Color.RED);
-        cloud.offer(Keys.AREA_EFFECT_CLOUD_DURATION, (int) config.RAID.RAID_DURATION.getSeconds() * 20);
-
-        AreaEffectCloud cloud2 = (AreaEffectCloud) player.getWorld().createEntity(EntityTypes.AREA_EFFECT_CLOUD, transform.getPosition().add(0, 0.5, 0));
-        cloud2.offer(Keys.AREA_EFFECT_CLOUD_RADIUS, 2.0);
-        cloud2.offer(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, ParticleTypes.ENCHANTING_GLYPHS);
-        cloud2.offer(Keys.AREA_EFFECT_CLOUD_DURATION, (int) config.RAID.RAID_DURATION.getSeconds() * 20);
-
-        player.getWorld().spawnEntity(cloud);
+        AreaEffectCloud cloud1 = getEffectCloud(ParticleTypes.CLOUD, -0.1, transform);
+        AreaEffectCloud cloud2 = getEffectCloud(ParticleTypes.ENCHANTING_GLYPHS, 0.5, transform);
+        player.getWorld().spawnEntity(cloud1);
         player.getWorld().spawnEntity(cloud2);
 
         Set<UUID> particleSet = new HashSet<>();
-        particleSet.add(cloud.getUniqueId());
+        particleSet.add(cloud1.getUniqueId());
         particleSet.add(cloud2.getUniqueId());
-
         return particleSet;
     }
 
@@ -118,7 +138,7 @@ public class TownRaidFacade {
         entity.offer(Keys.DISPLAY_NAME, Text.of("Hired Mage"));
         entity.offer(Keys.MAX_HEALTH, config.RAID.RAID_HEALTH);
         entity.offer(Keys.HEALTH, config.RAID.RAID_HEALTH);
-        entity.offer(Keys.SKIN_UNIQUE_ID, UUID.fromString("b1759db2-3b7f-4d5d-9155-70aca6e94cba"));
+        entity.offer(Keys.SKIN_UNIQUE_ID, UUID.fromString(config.RAID.RAID_SKIN_UUID));
 
         player.getWorld().spawnEntity(entity);
 
@@ -179,10 +199,10 @@ public class TownRaidFacade {
         return player.getTransform().setLocation(newLocation);
     }
 
-    public void createRaidPoint(Player player) throws TownsCommandException {
+    public void createRaidPoint(Player player, Town targetTown) throws TownsCommandException {
         Town town = townFacade.getPlayerTown(player);
         Transform<World> transform = getRaidPointTransform(player);
-        validateRaid(town, transform);
+        validateRaid(town, transform, targetTown);
 
         UUID entityId = spawnRaidPoint(transform, player);
         Set<UUID> particleEffects = spawnPortalParticles(transform, player);
@@ -190,11 +210,12 @@ public class TownRaidFacade {
             Economy.getAccount(town.getBank().toString()).ifPresent(account -> {
                 Cause cause = Sponge.getCauseStackManager().getCurrentCause();
                 account.withdraw(config.DEFAULT_CURRENCY, BigDecimal.valueOf(config.RAID.RAID_COST), cause);
+                townsMsg.info(player, Text.of("You've paid ", config.RAID.RAID_COST, " from the town bank to hire a mage!"));
             });
         }
-        townRaidService.createRaidPointEntry(transform, town, entityId, particleEffects);
+        townRaidService.createRaidPointEntry(transform, town, targetTown, entityId, particleEffects);
 
-        townFacade.getOnlineTownMembers(town).forEach(member -> townsMsg.info(member, "A town raid point has been spawned!"));
+        townFacade.getOnlineTownMembers(town).forEach(member -> townsMsg.info(member, "A mage has been deployed to assist you with your raid!"));
     }
 
     public void onRaidPointDeath(DestructEntityEvent.Death event) {
@@ -207,14 +228,14 @@ public class TownRaidFacade {
         Town town = residentService.getOrCreate(event.getOriginalPlayer()).getTown();
         if (townRaidService.isTownRaidActive(town)) {
             Optional<RaidPoint> point = townRaidService.getTownRaidPoint(town);
-            point.ifPresent(raidPoint -> {
-                event.setToTransform(raidPoint.getPointTransform());
-                event.getOriginalPlayer().getWorld().getEntity(raidPoint.getRaidPointUUID()).ifPresent(entity -> {
+            if (point.isPresent() && isPlayerCloseToRaid(event.getFromTransform(), point.get().getPointTransform())) {
+                event.setToTransform(point.get().getPointTransform());
+                event.getOriginalPlayer().getWorld().getEntity(point.get().getRaidPointUUID()).ifPresent(entity -> {
                     double initialHealth = entity.get(Keys.HEALTH).orElse(0.0);
                     entity.offer(Keys.HEALTH, initialHealth - config.RAID.RAID_DAMAGE_PER_SPAWN);
                 });
-            });
-            return true;
+                return true;
+            }
         }
         return false;
     }

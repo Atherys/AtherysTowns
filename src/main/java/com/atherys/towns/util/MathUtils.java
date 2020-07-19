@@ -10,6 +10,10 @@ public class MathUtils {
         return Vector2i.from(vector3i.getX(), vector3i.getZ());
     }
 
+    public static double getDistanceBetweenPoints(Vector3d point1, Vector3d point2) {
+        return Math.sqrt(Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2));
+    }
+
     public static int getXLength(Vector2i pointA, Vector2i pointB) {
         return pointA.getX() - pointB.getX();
     }

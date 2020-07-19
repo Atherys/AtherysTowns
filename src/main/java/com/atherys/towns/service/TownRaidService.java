@@ -48,8 +48,8 @@ public class TownRaidService {
         return activeRaids.values().stream().filter(point -> point.getRaidingTown().equals(town)).findFirst();
     }
 
-    public void createRaidPointEntry(Transform<World> transform, Town town, UUID entityId, Set<UUID> particleEffects) {
-        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, particleEffects);
+    public void createRaidPointEntry(Transform<World> transform, Town town, Town targetTown, UUID entityId, Set<UUID> particleEffects) {
+        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, targetTown, particleEffects);
         townService.setTownLastRaidCreationDate(town, LocalDateTime.now());
         activeRaids.put(entityId, point);
     }
