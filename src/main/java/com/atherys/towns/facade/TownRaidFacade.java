@@ -4,8 +4,8 @@ import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.config.RaidConfig;
 import com.atherys.towns.model.RaidPoint;
+import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
@@ -67,8 +67,12 @@ public class TownRaidFacade {
         return townRaidService.isIdRaidEntity(entity.getUniqueId());
     }
 
-    public boolean isTargetTownFarAway(Transform<World> targetSpawn, Location<World> spawnLocation) {
-        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) >= config.RAID.RAID_CREATION_DISTANCE;
+    public boolean isTownTooClose(Transform<World> targetSpawn, Location<World> spawnLocation) {
+        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) <= config.RAID.RAID_MIN_CREATION_DISTANCE;
+    }
+
+    public boolean isTownTooFarAway(Transform<World> targetSpawn, Location<World> spawnLocation) {
+        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) >= config.RAID.RAID_MAX_CREATION_DISTANCE;
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
@@ -85,6 +89,11 @@ public class TownRaidFacade {
             }
         }
 
+        if ((town.getNation() != null && targetTown.getNation() != null)
+                && !town.getNation().getEnemies().contains(targetTown.getNation())) {
+            throw new TownsCommandException("Target town is not an enemy of your nation!");
+        }
+
         if (townRaidService.isTownRaidActive(town)) {
             throw new TownsCommandException("Your town already has an active raid point!");
         }
@@ -97,8 +106,12 @@ public class TownRaidFacade {
             throw new TownsCommandException("Raid Cooldown is still in effect!");
         }
 
-        if (!isTargetTownFarAway(targetTown.getSpawn(), location)) {
+        if (isTownTooClose(targetTown.getSpawn(), location)) {
             throw new TownsCommandException("Target town is too close to current location!");
+        }
+
+        if (isTownTooFarAway(targetTown.getSpawn(), location)) {
+            throw new TownsCommandException("Target town is too far away from current location!");
         }
 
         if (plotService.getPlotByLocation(location).isPresent()) {
@@ -211,8 +224,25 @@ public class TownRaidFacade {
         townFacade.getOnlineTownMembers(town).forEach(member -> townsMsg.info(member, "A mage has been deployed to assist you with your raid!"));
     }
 
+    public void removeRaidPoint(Player player) throws TownsCommandException {
+        Resident resident = residentService.getOrCreate(player);
+        if (townRaidService.isTownRaidActive(resident.getTown())) {
+            Optional<RaidPoint> raidPoint = townRaidService.getTownRaidPoint(resident.getTown());
+            raidPoint.ifPresent(point -> {
+                townRaidService.removeEntity(player.getWorld(), point.getRaidPointUUID());
+                point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
+                townRaidService.removeRaidPoint(point.getRaidPointUUID());
+            });
+            townFacade.getOnlineTownMembers(resident.getTown()).forEach(member -> townsMsg.info(member, "Your mage has been relieved of duty!"));
+        } else {
+            throw new TownsCommandException("You do not have a town raid currently active!");
+        }
+
+    }
+
     public void onRaidPointDeath(DestructEntityEvent.Death event) {
         RaidPoint point = townRaidService.getRaidPoint(event.getTargetEntity().getUniqueId());
+        townFacade.getOnlineTownMembers(point.getRaidingTown()).forEach(member -> townsMsg.info(member, "Your mage has been killed!"));
         point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
         townRaidService.removeRaidPoint(point.getRaidPointUUID());
     }
