@@ -1,4 +1,4 @@
-package com.atherys.towns.plot;
+package com.atherys.towns.model;
 
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

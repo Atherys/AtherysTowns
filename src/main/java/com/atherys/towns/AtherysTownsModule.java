@@ -1,10 +1,8 @@
 package com.atherys.towns;
 
 import com.atherys.towns.facade.*;
-import com.atherys.towns.persistence.NationRepository;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.cache.TownPlotCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.AbstractModule;
@@ -24,7 +22,8 @@ public class AtherysTownsModule extends AbstractModule {
         // Repositories
         bind(NationRepository.class);
         bind(TownRepository.class);
-        bind(PlotRepository.class);
+        bind(TownPlotRepository.class);
+        bind(NationPlotRepository.class);
         bind(ResidentRepository.class);
 
         // Sponge Services

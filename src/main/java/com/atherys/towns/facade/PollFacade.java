@@ -5,7 +5,7 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PollService;
 import com.atherys.towns.service.ResidentService;
@@ -186,7 +186,7 @@ public class PollFacade {
         pollService.deletePoll(poll.getId());
     }
 
-    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, Plot homePlot) {
+    public void sendCreateTownPoll(String townName, Set<Player> voters, Player mayor, TownPlot homePlot) {
         voters.remove(mayor);
         UUID pollId = pollService.createPoll(mayor.getUniqueId(), townName, getUUIDsByPlayer(voters), homePlot);
 

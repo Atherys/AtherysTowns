@@ -48,13 +48,13 @@ public class Town implements Identifiable<Long> {
     private Set<Resident> residents = new HashSet<>();
 
     @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
-    private Set<Plot> plots = new HashSet<>();
+    private Set<TownPlot> plots = new HashSet<>();
 
     /**
      * This is the graph of all plots within a town formatted as an adjacency list
      */
     @Transient
-    private Map<Plot, Set<Plot>> plotGraphAdjList;
+    private Map<TownPlot, Set<TownPlot>> plotGraphAdjList;
 
     private int maxSize;
 
@@ -165,19 +165,19 @@ public class Town implements Identifiable<Long> {
         this.maxSize = maxSize;
     }
 
-    public Set<Plot> getPlots() {
+    public Set<TownPlot> getPlots() {
         return plots;
     }
 
-    public void setPlots(Set<Plot> plots) {
+    public void setPlots(Set<TownPlot> plots) {
         this.plots = plots;
     }
 
-    public void addPlot(Plot plot) {
+    public void addPlot(TownPlot plot) {
         plots.add(plot);
     }
 
-    public void removePlot(Plot plot) {
+    public void removePlot(TownPlot plot) {
         plots.remove(plot);
     }
 
@@ -205,11 +205,11 @@ public class Town implements Identifiable<Long> {
         this.color = color;
     }
 
-    public Map<Plot, Set<Plot>> getPlotGraphAdjList() {
+    public Map<TownPlot, Set<TownPlot>> getPlotGraphAdjList() {
         return plotGraphAdjList;
     }
 
-    public void setPlotGraphAdjList(Map<Plot, Set<Plot>> plotGraphAdjList) {
+    public void setPlotGraphAdjList(Map<TownPlot, Set<TownPlot>> plotGraphAdjList) {
         this.plotGraphAdjList = plotGraphAdjList;
     }
 

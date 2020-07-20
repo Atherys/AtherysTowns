@@ -20,15 +20,10 @@ import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
 import com.atherys.towns.listener.RaidListener;
-import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.permission.TownsContextCalculator;
-import com.atherys.towns.persistence.NationRepository;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.persistence.ResidentRepository;
-import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.cache.TownPlotCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
 import com.google.inject.Inject;
@@ -150,7 +145,8 @@ public class AtherysTowns {
     public void onHibernateConfiguration(AtherysHibernateConfigurationEvent event) {
         event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
-        event.registerEntity(Plot.class);
+        event.registerEntity(NationPlot.class);
+        event.registerEntity(TownPlot.class);
         event.registerEntity(Resident.class);
     }
 
@@ -185,8 +181,12 @@ public class AtherysTowns {
         return components.nationRepository;
     }
 
-    public PlotRepository getPlotRepository() {
-        return components.plotRepository;
+    public TownPlotRepository getTownPlotRepository() {
+        return components.townPlotRepository;
+    }
+
+    public NationPlotRepository getNationPlotRepository() {
+        return components.nationPlotRepository;
     }
 
     public ResidentRepository getResidentRepository() {
@@ -286,13 +286,19 @@ public class AtherysTowns {
         private TownsCache townsCache;
 
         @Inject
+        private TownPlotCache townPlotCache;
+
+        @Inject
         private NationRepository nationRepository;
 
         @Inject
         private TownRepository townRepository;
 
         @Inject
-        private PlotRepository plotRepository;
+        private TownPlotRepository townPlotRepository;
+
+        @Inject
+        private NationPlotRepository nationPlotRepository;
 
         @Inject
         private ResidentRepository residentRepository;

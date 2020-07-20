@@ -54,6 +54,9 @@ public class Nation implements Identifiable<Long> {
     )
     private Set<Nation> enemies = new HashSet<>();
 
+    @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
+    private Set<NationPlot> plots = new HashSet<>();
+
     private boolean joinable;
 
     private double tax;
@@ -175,6 +178,14 @@ public class Nation implements Identifiable<Long> {
 
     public void setBank(UUID bank) {
         this.bank = bank;
+    }
+
+    public Set<NationPlot> getPlots() {
+        return plots;
+    }
+
+    public void setPlots(Set<NationPlot> plots) {
+        this.plots = plots;
     }
 
     protected int getVersion() {

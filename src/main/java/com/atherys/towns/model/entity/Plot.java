@@ -1,16 +1,13 @@
 package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;
-import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Objects;
 
-@Entity
+@MappedSuperclass
 public class Plot implements Identifiable<Long> {
 
     @Id
@@ -18,21 +15,11 @@ public class Plot implements Identifiable<Long> {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "town_id")
-    private Town town;
-
-    @Convert(converter = TextConverter.class)
-    private Text name;
-
     @Convert(converter = Vector2iConverter.class)
     private Vector2i swCorner;
 
     @Convert(converter = Vector2iConverter.class)
     private Vector2i neCorner;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Resident owner;
 
     @Version
     private int version;
@@ -45,22 +32,6 @@ public class Plot implements Identifiable<Long> {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Town getTown() {
-        return town;
-    }
-
-    public void setTown(Town town) {
-        this.town = town;
-    }
-
-    public Text getName() {
-        return name;
-    }
-
-    public void setName(Text name) {
-        this.name = name;
     }
 
     public Vector2i getSouthWestCorner() {
@@ -79,19 +50,11 @@ public class Plot implements Identifiable<Long> {
         this.neCorner = neCorner;
     }
 
-    public Resident getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Resident owner) {
-        this.owner = owner;
-    }
-
-    protected int getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    protected void setVersion(int version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 }

@@ -33,7 +33,7 @@ public class SetPlotNameCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         Optional<Text> newName = args.getOne("name");
-        AtherysTowns.getInstance().getPlotFacade().renamePlotAtPlayerLocation(source, newName.orElse(Text.EMPTY));
+        AtherysTowns.getInstance().getPlotFacade().renameTownPlotAtPlayerLocation(source, newName.orElse(Text.EMPTY));
         return CommandResult.success();
     }
 }

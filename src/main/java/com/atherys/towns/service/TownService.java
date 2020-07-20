@@ -7,16 +7,14 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.config.TaxConfig;
 import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.TownPlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
@@ -61,7 +59,7 @@ public class TownService {
 
     private final TownRepository townRepository;
 
-    private final PlotRepository plotRepository;
+    private TownPlotRepository townPlotRepository;
 
     private final ResidentRepository residentRepository;
 
@@ -76,7 +74,7 @@ public class TownService {
             TownsConfig config,
             PlotService plotService,
             TownRepository townRepository,
-            PlotRepository plotRepository,
+            TownPlotRepository townPlotRepository,
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
@@ -85,14 +83,14 @@ public class TownService {
         this.config = config;
         this.plotService = plotService;
         this.townRepository = townRepository;
-        this.plotRepository = plotRepository;
+        this.townPlotRepository = townPlotRepository;
         this.residentRepository = residentRepository;
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
         this.roleService = roleService;
     }
 
-    public Town createTown(Player leader, Plot homePlot, String name) {
+    public Town createTown(Player leader, TownPlot homePlot, String name) {
         Town town = new Town();
         Nation nation = null;
         Resident resLeader = residentService.getOrCreate(leader);
@@ -130,7 +128,7 @@ public class TownService {
         town.addResident(resLeader);
 
         townRepository.saveOne(town);
-        plotRepository.saveOne(homePlot);
+        townPlotRepository.saveOne(homePlot);
 
         residentRepository.saveOne(resLeader);
 
@@ -226,35 +224,35 @@ public class TownService {
         townRepository.saveOne(town);
     }
 
-    public void removePlotFromTown(Town town, Plot plot) {
+    public void removePlotFromTown(Town town, TownPlot plot) {
         town.removePlot(plot);
 
         removePlotFromGraph(town, plot);
 
         townRepository.saveOne(town);
-        plotRepository.deleteOne(plot);
+        townPlotRepository.deleteOne(plot);
     }
 
-    public void claimPlotForTown(Plot plot, Town town) {
+    public void claimPlotForTown(TownPlot plot, Town town) {
         plot.setName(Text.of("Plot #", town.getPlots().size()));
         town.addPlot(plot);
         plot.setTown(town);
 
-        plotRepository.saveOne(plot);
+        townPlotRepository.saveOne(plot);
         townRepository.saveOne(town);
 
         addPlotToGraph(town, plot);
     }
 
     public void generatePlotGraph(Town town) {
-        Map<Plot, Set<Plot>> adjList = new HashMap<>();
-        for (Plot plota : town.getPlots()) {
-            for (Plot plotb : town.getPlots()) {
+        Map<TownPlot, Set<TownPlot>> adjList = new HashMap<>();
+        for (TownPlot plota : town.getPlots()) {
+            for (TownPlot plotb : town.getPlots()) {
                 // Plots can't be adjacent to themselves
                 if (plota == plotb) continue;
 
-                Set<Plot> plotaNeighbours = adjList.computeIfAbsent(plota, k -> new HashSet<>());
-                Set<Plot> plotbNeighbours = adjList.computeIfAbsent(plotb, k -> new HashSet<>());
+                Set<TownPlot> plotaNeighbours = adjList.computeIfAbsent(plota, k -> new HashSet<>());
+                Set<TownPlot> plotbNeighbours = adjList.computeIfAbsent(plotb, k -> new HashSet<>());
 
                 // If we have already determined this is a neighbour in a previous iteration
                 if (plotaNeighbours.contains(plotb)) continue;
@@ -269,17 +267,17 @@ public class TownService {
         town.setPlotGraphAdjList(adjList);
     }
 
-    public void addPlotToGraph(Town town, Plot newPlot) {
-        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+    public void addPlotToGraph(Town town, TownPlot newPlot) {
+        Map<TownPlot, Set<TownPlot>> adjList = town.getPlotGraphAdjList();
         if (adjList == null) return;
 
-        for (Plot existingPlot : town.getPlots()) {
+        for (TownPlot existingPlot : town.getPlots()) {
 
             // Plots can't be adjacent to themselves
             if (newPlot == existingPlot) continue;
 
-            Set<Plot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
-            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+            Set<TownPlot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
+            Set<TownPlot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
             if (plotService.plotsBorder(newPlot, existingPlot)) {
                 newPlotNeighbours.add(existingPlot);
                 existingPlotNeighbours.add(newPlot);
@@ -287,12 +285,12 @@ public class TownService {
         }
     }
 
-    public void removePlotFromGraph(Town town, Plot removedPlot) {
-        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+    public void removePlotFromGraph(Town town, TownPlot removedPlot) {
+        Map<TownPlot, Set<TownPlot>> adjList = town.getPlotGraphAdjList();
         if (adjList == null) return;
 
-        for (Plot existingPlot : town.getPlots()) {
-            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+        for (TownPlot existingPlot : town.getPlots()) {
+            Set<TownPlot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
             existingPlotNeighbours.remove(removedPlot);
         }
         adjList.remove(removedPlot);
@@ -309,16 +307,16 @@ public class TownService {
      * @param targetPlot The plot to be removed
      * @return true if removal of plot results in orphaned plots otherwise false
      */
-    public boolean checkPlotRemovalCreatesOrphans(Town town, Plot targetPlot) {
+    public boolean checkPlotRemovalCreatesOrphans(Town town, TownPlot targetPlot) {
         // We need to do a full DFS, and work out if the root node > 1 children
 
-        Map<Plot, Boolean> visited = new HashMap<>();
+        Map<TownPlot, Boolean> visited = new HashMap<>();
 
         // As we only care about whether or not the root node is an AP (articulation point)
         // Only need to track the number of children the root node has
         int rootChildren = 0;
 
-        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+        Map<TownPlot, Set<TownPlot>> adjList = town.getPlotGraphAdjList();
 
         if (adjList == null) {
             generatePlotGraph(town);
@@ -327,20 +325,20 @@ public class TownService {
 
         // Stack of possible edges to visit, edges of defined as an array of [parent, child]
         // We keep track of parent so that we can can count the children of root
-        Stack<Tuple<Plot, Plot>> stack = new Stack<>();
+        Stack<Tuple<TownPlot, TownPlot>> stack = new Stack<>();
 
         visited.put(targetPlot, true);
 
-        Set<Plot> test = adjList.get(targetPlot);
+        Set<TownPlot> test = adjList.get(targetPlot);
 
-        for (Plot child : adjList.get(targetPlot)) {
+        for (TownPlot child : adjList.get(targetPlot)) {
             stack.push(Tuple.of(targetPlot, child));
         }
 
         while (!stack.empty()) {
-            Tuple<Plot, Plot> t = stack.pop();
-            Plot parent = t.getFirst();
-            Plot plot = t.getSecond();
+            Tuple<TownPlot, TownPlot> t = stack.pop();
+            TownPlot parent = t.getFirst();
+            TownPlot plot = t.getSecond();
 
             if (!visited.getOrDefault(plot, false)) {
                 // If we are choosing to use this edge, mark the node as visited
@@ -349,7 +347,7 @@ public class TownService {
                 if (rootChildren >= 2) return true;
             }
 
-            for (Plot child : adjList.get(plot)) {
+            for (TownPlot child : adjList.get(plot)) {
                 if (!visited.getOrDefault(child, false)) {
                     stack.push(Tuple.of(plot, child));
                 }
@@ -362,7 +360,7 @@ public class TownService {
     public int getTownSize(Town town) {
         int size = 0;
 
-        for (Plot plot : town.getPlots()) {
+        for (TownPlot plot : town.getPlots()) {
             size += plotService.getPlotArea(plot);
         }
 
@@ -393,7 +391,7 @@ public class TownService {
                 .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
         residentRepository.saveAll(town.getResidents());
-        plotRepository.deleteAll(town.getPlots());
+        townPlotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
 

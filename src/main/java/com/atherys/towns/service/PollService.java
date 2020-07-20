@@ -2,7 +2,7 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.model.Poll;
 import com.atherys.towns.model.Vote;
-import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.TownPlot;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -23,7 +23,7 @@ public class PollService {
         return pollCache.get(id);
     }
 
-    public UUID createPoll(UUID pollCreator, String pollName, Set<UUID> voters, Plot homePlot) {
+    public UUID createPoll(UUID pollCreator, String pollName, Set<UUID> voters, TownPlot homePlot) {
         UUID pollUUID = UUID.randomUUID();
 
         while (pollCache.containsKey(pollUUID)) {

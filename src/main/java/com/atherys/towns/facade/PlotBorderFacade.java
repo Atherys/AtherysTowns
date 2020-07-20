@@ -4,7 +4,8 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.model.PlotSelection;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
@@ -55,6 +56,9 @@ public class PlotBorderFacade {
     PlotSelectionFacade plotSelectionFacade;
 
     @Inject
+    TownFacade townFacade;
+
+    @Inject
     TownsMessagingFacade townMsg;
 
     public boolean isPlayerViewingBorders(Player player) {
@@ -96,7 +100,7 @@ public class PlotBorderFacade {
     }
 
     public void showPlotBorders(Player player, Location<World> newLocation) {
-        Optional<Plot> plot = plotService.getPlotByLocation(newLocation);
+        Optional<TownPlot> plot = plotService.getTownPlotByLocation(newLocation);
         if (plot.isPresent() && isPlayerViewingBorders(player)) {
             BorderInfo borderInfo = new BorderInfo(blueWalls, player.getUniqueId(), plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner());
             addSelectionBorder(player, borderInfo);
@@ -106,8 +110,8 @@ public class PlotBorderFacade {
     public void showNewPlotSelectionBorders(Player player, Location<World> location) {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
         if (selection.isComplete() && isPlayerViewingBorders(player)) {
-            ParticleEffect effect = plotSelectionFacade.validatePlotSelection(selection, player, false, location) ? greenWalls : yellowWalls;
-            Plot plot = plotService.createPlotFromSelection(selection);
+            TownPlot plot = plotService.createTownPlotFromSelection(selection);
+            ParticleEffect effect = townFacade.isValidNewTownPlot(plot, location) ? greenWalls : yellowWalls;
             BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
             addSelectionBorder(player, borderInfo);
         }
@@ -156,8 +160,8 @@ public class PlotBorderFacade {
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
         if (isPlayerViewingBorders(player)) {
-            Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
-            Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+            Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
+            Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
             PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
 
             //If you're leaving a plot, then remove the border
@@ -177,7 +181,7 @@ public class PlotBorderFacade {
 
             //If you have a complete plot selection
             if (selection.isComplete()) {
-                Plot selectionPlot = plotService.createPlotFromSelection(selection);
+                TownPlot selectionPlot = plotService.createTownPlotFromSelection(selection);
                 boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
                 boolean toInSelection = plotService.isLocationWithinPlot(to.getLocation(), selectionPlot);
 
