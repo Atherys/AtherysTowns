@@ -128,11 +128,11 @@ public class NationFacade implements EconomyFacade {
     }
 
     public void removeTownFromNation(Nation nation, Town town) throws TownsCommandException {
-        if (town.getNation() != nation) {
+        if (!town.getNation().equals(nation)) {
             throw new TownsCommandException("Town ", town.getName(), " is not part of ", nation.getName(), ".");
         }
 
-        if (nation.getCapital() == town) {
+        if (nation.getCapital().equals(town)) {
             throw new TownsCommandException("Town ", town.getName(), " cannot be removed as it is the capital of ",
                                             nation.getName(), ".");
         }
