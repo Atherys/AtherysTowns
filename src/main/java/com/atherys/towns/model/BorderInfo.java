@@ -11,6 +11,7 @@ public class BorderInfo {
     private Vector2i neCorner;
     private Vector2i swCorner;
     private UUID playerUUID;
+
     public BorderInfo(ParticleEffect effect, UUID playerUUID, Vector2i neCorner, Vector2i swCorner) {
         this.effect = effect;
         this.playerUUID = playerUUID;

@@ -31,7 +31,7 @@ public class BordersCommand implements PlayerCommand, ParameterizedCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotBorderFacade().plotBorderCommand(source, args.<Boolean>getOne("border").orElse(false));
+        AtherysTowns.getInstance().getPlotBorderFacade().setPlayerViewBorderStatus(source, args.<Boolean>getOne("border").orElse(false));
         return CommandResult.success();
     }
 }
