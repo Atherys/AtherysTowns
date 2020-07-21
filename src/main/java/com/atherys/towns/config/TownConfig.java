@@ -47,6 +47,8 @@ public class TownConfig {
         townLeader.setName("Mayor");
         townLeader.setTownPermissions(ImmutableSet.of(
                 TownPermissions.RUIN_TOWN,
+                TownPermissions.START_RAID,
+                TownPermissions.CANCEL_RAID,
                 TownPermissions.INVITE_RESIDENT,
                 TownPermissions.KICK_RESIDENT,
                 TownPermissions.CLAIM_PLOT,

@@ -14,6 +14,7 @@ import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleType;
@@ -67,12 +68,15 @@ public class TownRaidFacade {
         return townRaidService.isIdRaidEntity(entity.getUniqueId());
     }
 
-    public boolean isTownTooClose(Transform<World> targetSpawn, Location<World> spawnLocation) {
-        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) <= config.RAID.RAID_MIN_CREATION_DISTANCE;
+    public boolean isTownTooClose(Town town, Location<World> spawnLocation) {
+        Logger logger = AtherysTowns.getInstance().getLogger();
+        double test = MathUtils.getSmallestDistanceToTown(town.getPlots(), MathUtils.vec3dToVec2i(spawnLocation.getPosition()));
+        logger.info(String.valueOf(test));
+        return test <= config.RAID.RAID_MIN_CREATION_DISTANCE;
     }
 
-    public boolean isTownTooFarAway(Transform<World> targetSpawn, Location<World> spawnLocation) {
-        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) >= config.RAID.RAID_MAX_CREATION_DISTANCE;
+    public boolean isTownTooFarAway(Town town, Location<World> spawnLocation) {
+        return MathUtils.getSmallestDistanceToTown(town.getPlots(), MathUtils.vec3dToVec2i(spawnLocation.getPosition())) >= config.RAID.RAID_MAX_CREATION_DISTANCE;
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
@@ -106,11 +110,11 @@ public class TownRaidFacade {
             throw new TownsCommandException("Raid Cooldown is still in effect!");
         }
 
-        if (isTownTooClose(targetTown.getSpawn(), location)) {
+        if (isTownTooClose(town, location)) {
             throw new TownsCommandException("Target town is too close to current location!");
         }
 
-        if (isTownTooFarAway(targetTown.getSpawn(), location)) {
+        if (isTownTooFarAway(town, location)) {
             throw new TownsCommandException("Target town is too far away from current location!");
         }
 

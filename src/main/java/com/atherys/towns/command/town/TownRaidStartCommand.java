@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("Create")
 @Description("Creates a town raid point at the current player location.")
-@Permission("atherystowns.town.raid.create")
+@Permission("atherystowns.town.raid.start")
 public class TownRaidStartCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
