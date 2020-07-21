@@ -33,7 +33,7 @@ public class PlotBorderFacade {
 
     private final ParticleEffect.Builder wallEffectBuilder = ParticleEffect.builder()
             .type(ParticleTypes.REDSTONE_DUST)
-            .offset(new Vector3d(0,4,0))
+            .offset(new Vector3d(0, 4, 0))
             .quantity(8);
 
     private final ParticleEffect blueWalls = wallEffectBuilder
@@ -155,28 +155,37 @@ public class PlotBorderFacade {
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
-        Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
-
         if (isPlayerViewingBorders(player)) {
+            Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
+            Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+            PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+
+            //If you're leaving a plot, then remove the border
+            if (plotFrom.isPresent() && !plotTo.isPresent()) {
+                removeSelectionBorder(player, plotFrom.get());
+            }
+
+            //If you're entering a plot, then draw a border
+            if (!plotFrom.isPresent() && plotTo.isPresent()) {
+                refreshBorders(player, to.getLocation());
+            }
+
+            //If your from and to locations are both plots, but not the same plot, then remove border and add new border
             if ((plotTo.isPresent() && plotFrom.isPresent()) && !plotFrom.equals(plotTo)) {
                 refreshBorders(player, to.getLocation());
             }
+
+            //If you have a complete plot selection
             if (selection.isComplete()) {
                 Plot selectionPlot = plotService.createPlotFromSelection(selection);
                 boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
                 boolean toInSelection = plotService.isLocationWithinPlot(to.getLocation(), selectionPlot);
 
+                //If moving from a selection to not a selection, or from not a selection to a selection, then refresh the selection.
+                //This will not fire if you are remaining within your selection
                 if ((fromInSelection && !toInSelection) || (!fromInSelection && toInSelection)) {
                     refreshBorders(player, to.getLocation());
                 }
-            }
-            if (!plotFrom.isPresent() && plotTo.isPresent()) {
-                refreshBorders(player, to.getLocation());
-            }
-            if (plotFrom.isPresent() && !plotTo.isPresent()) {
-                removeSelectionBorder(player, plotFrom.get());
             }
         }
     }
