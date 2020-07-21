@@ -7,6 +7,9 @@ import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.boss.BossBarColors;
+import org.spongepowered.api.boss.BossBarOverlays;
+import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.scheduler.Task;
@@ -33,6 +36,10 @@ public class TownRaidService {
 
     }
 
+    public double getRaidPercentage(double totalHealth, double currentHealth) {
+        return (currentHealth / totalHealth) * 100;
+    }
+
     public void removeRaidPoint(UUID id) {
         activeRaids.remove(id);
     }
@@ -50,7 +57,14 @@ public class TownRaidService {
     }
 
     public void createRaidPointEntry(Transform<World> transform, Town town, Town targetTown, UUID entityId, Set<UUID> particleEffects) {
-        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, targetTown, particleEffects);
+        ServerBossBar raidBar = ServerBossBar.builder()
+                .name(Text.of("Hired Mage"))
+                .overlay(BossBarOverlays.PROGRESS)
+                .color(BossBarColors.RED)
+                .percent(1f)
+                .build();
+
+        RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, targetTown, particleEffects, raidBar);
         townService.setTownLastRaidCreationDate(town, LocalDateTime.now());
         activeRaids.put(entityId, point);
     }

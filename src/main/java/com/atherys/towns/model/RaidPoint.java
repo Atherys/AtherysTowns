@@ -1,6 +1,7 @@
 package com.atherys.towns.model;
 
 import com.atherys.towns.model.entity.Town;
+import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.world.World;
 
@@ -22,13 +23,17 @@ public class RaidPoint {
 
     private Town targetTown;
 
-    public RaidPoint(LocalDateTime creationTime, Transform<World> location, UUID entityId, Town raidingTown, Town targetTown, Set<UUID> particleUUIDs) {
+    private ServerBossBar raidBossBar;
+
+    public RaidPoint(LocalDateTime creationTime, Transform<World> location, UUID entityId, Town raidingTown,
+                     Town targetTown, Set<UUID> particleUUIDs, ServerBossBar raidBossBar) {
         this.pointTransform = location;
         this.creationTime = creationTime;
         this.raidPointUUID = entityId;
         this.raidingTown = raidingTown;
         this.targetTown = targetTown;
         this.particleUUIDs = particleUUIDs;
+        this.raidBossBar = raidBossBar;
     }
 
     public Transform<World> getPointTransform() {
@@ -77,5 +82,13 @@ public class RaidPoint {
 
     public void setParticleUUIDs(Set<UUID> particleUUIDs) {
         this.particleUUIDs = particleUUIDs;
+    }
+
+    public ServerBossBar getRaidBossBar() {
+        return this.raidBossBar;
+    }
+
+    public void setRaidBossBar(ServerBossBar raidBossBar) {
+        this.raidBossBar = raidBossBar;
     }
 }
