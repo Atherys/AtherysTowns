@@ -77,8 +77,8 @@ public class TownRaidFacade {
             if (plotDistance < config.RAID.RAID_MAX_CREATION_DISTANCE) {
                 return;
             }
-            throw new TownsCommandException("Target town is too far away from current location!");
         }
+        throw new TownsCommandException("Target town is too far away from current location!");
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
