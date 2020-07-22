@@ -69,14 +69,14 @@ public class TownRaidFacade {
     }
 
     public void checkDistanceToTown(Town town, Vector3d targetPoint) throws TownsCommandException {
-        Set<Double> distances = new HashSet<>();
         for (Plot plot : town.getPlots()) {
-            distances.add(MathUtils.getDistanceToPlot(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner()));
-        }
-        if (distances.stream().anyMatch(aDouble -> aDouble < config.RAID.RAID_MIN_CREATION_DISTANCE)) {
-            throw new TownsCommandException("Target town is too close to current location!");
-        }
-        if (distances.stream().allMatch(aDouble -> aDouble > config.RAID.RAID_MAX_CREATION_DISTANCE)) {
+            double plotDistance = MathUtils.getDistanceToPlot(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+            if (plotDistance < config.RAID.RAID_MIN_CREATION_DISTANCE) {
+                throw new TownsCommandException("Target town is too close to current location!");
+            }
+            if (plotDistance < config.RAID.RAID_MAX_CREATION_DISTANCE) {
+                return;
+            }
             throw new TownsCommandException("Target town is too far away from current location!");
         }
     }
@@ -165,21 +165,13 @@ public class TownRaidFacade {
         return Text.of(GOLD, durationLeft.getSeconds(), " second(s)");
     }
 
-    public double getRaidHealth(World world, RaidPoint point) {
-        Optional<Entity> entity = world.getEntity(point.getRaidPointUUID());
-        if (entity.isPresent()) {
-            return entity.map(value -> Math.round(value.get(Keys.HEALTH).orElse(0.00))).get();
-        }
-        return 0;
-    }
-
     public void sendRaidPointInfo(Player player) throws TownsCommandException {
         Town town = townFacade.getPlayerTown(player);
         boolean raidExists = townRaidService.isTownRaidActive(town);
         Optional<RaidPoint> point = townRaidService.getTownRaidPoint(town);
         Text status = raidExists ? Text.of(GREEN, "True") : Text.of(RED, "False");
         Text pointLocation = raidExists ? formatRaidLocation(point.get().getPointTransform()) : Text.of(RED, "No Raid in Progress");
-        Text pointHealth = raidExists ? Text.of(GOLD, getRaidHealth(player.getWorld(), point.get())) : Text.of(RED, "No Raid in Progress");
+        Text pointHealth = raidExists ? Text.of(GOLD, townRaidService.getRaidHealth(player.getWorld(), point.get())) : Text.of(RED, "No Raid in Progress");
         Text durationLeft = raidExists ? formatDurationLeft(point.get().getCreationTime(), config.RAID.RAID_DURATION) : Text.of(RED, "No Raid in Progress");
         Text cooldown = townRaidService.hasCooldownPeriodPassed(town) ? Text.of(GREEN, "No Cooldown Remaining") : formatDurationLeft(town.getLastRaidCreationDate(), config.RAID.RAID_COOLDOWN);
 

@@ -10,6 +10,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.boss.BossBarColors;
 import org.spongepowered.api.boss.BossBarOverlays;
 import org.spongepowered.api.boss.ServerBossBar;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.scheduler.Task;
@@ -101,6 +102,19 @@ public class TownRaidService {
     public void removeEntity(World world, UUID uuid) {
         Optional<Entity> entity = world.getEntity(uuid);
         entity.ifPresent(Entity::remove);
+    }
+
+    public double getRaidHealth(World world, RaidPoint point) {
+        Optional<Entity> entity = world.getEntity(point.getRaidPointUUID());
+        if (entity.isPresent()) {
+            return entity.map(value -> Math.round(value.get(Keys.HEALTH).orElse(0.00))).get();
+        }
+        return 0;
+    }
+
+    private void updateBossBar(RaidPoint point) {
+        double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
+        double raidPercentage = getRaidPercentage(config.RAID.RAID_HEALTH, raidHealth);
     }
 
     private Runnable RaidTimerTask() {
