@@ -41,9 +41,25 @@ public class TownRaidService {
 
     }
 
+    private void removeEntityFromWorld(World world, UUID entityUUID) {
+        Optional<Entity> entity = world.getEntity(entityUUID);
+        entity.ifPresent(Entity::remove);
+    }
+
     public void removeRaidPoint(UUID id) {
-        ServerBossBar bossBar = activeRaids.get(id).getRaidBossBar();
+        RaidPoint point = activeRaids.get(id);
+        World world = point.getPointTransform().getExtent();
+
+        //First remove players from BossBar
+        ServerBossBar bossBar = point.getRaidBossBar();
         bossBar.removePlayers(bossBar.getPlayers());
+
+        //Next Remove RaidPoint Entity
+        removeEntityFromWorld(world, id);
+
+        //Finally, Remove Particles
+        point.getParticleUUIDs().forEach(uuid -> removeEntityFromWorld(world, uuid));
+
         activeRaids.remove(id);
     }
 
@@ -78,7 +94,9 @@ public class TownRaidService {
     }
 
     public boolean isLocationTaken(Location<World> location) {
-        return activeRaids.values().stream().anyMatch(point -> MathUtils.getDistanceBetweenPoints(location.getPosition(), point.getPointTransform().getPosition()) < config.RAID.RAID_DISTANCE_BETWEEN_POINTS);
+        double raidDistance = config.RAID.RAID_DISTANCE_BETWEEN_POINTS;
+        return activeRaids.values().stream()
+                .anyMatch(point -> MathUtils.getDistanceBetweenPoints(location.getPosition(), point.getPointTransform().getPosition()) < raidDistance);
     }
 
     public boolean hasCooldownPeriodPassed(Town town) {
@@ -102,26 +120,12 @@ public class TownRaidService {
                 .submit(AtherysTowns.getInstance());
     }
 
-    public void removeEntity(World world, UUID uuid) {
-        Optional<Entity> entity = world.getEntity(uuid);
-        entity.ifPresent(Entity::remove);
-    }
-
     public double getRaidHealth(World world, RaidPoint point) {
         Optional<Entity> entity = world.getEntity(point.getRaidPointUUID());
         if (entity.isPresent()) {
             return entity.map(value -> Math.round(value.get(Keys.HEALTH).orElse(0.00))).get();
         }
         return 0;
-    }
-
-    private void updateBossBar(UUID pointId) {
-        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
-        RaidPoint point = activeRaids.get(pointId);
-        double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
-        double raidPercentage = (raidHealth / config.RAID.RAID_HEALTH) * 100;
-        point.getRaidBossBar().setName(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(point.getCreationTime(), config.RAID.RAID_DURATION)));
-        point.getRaidBossBar().setPercent((float) (raidPercentage / 100));
     }
 
     private void updateBossBarPlayers(UUID pointId) {
@@ -143,15 +147,26 @@ public class TownRaidService {
         bossBar.addPlayers(addPlayers);
     }
 
+    private void updateBossBar(UUID pointId) {
+        //Update BossBar health with current entity health
+        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
+        RaidPoint point = activeRaids.get(pointId);
+        double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
+        double raidPercentage = (raidHealth / config.RAID.RAID_HEALTH) * 100;
+        point.getRaidBossBar().setName(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(point.getCreationTime(), config.RAID.RAID_DURATION)));
+        point.getRaidBossBar().setPercent((float) (raidPercentage / 100));
+
+        //Update who should be seeing boss bar
+        updateBossBarPlayers(pointId);
+    }
+
     private Runnable RaidTimerTask() {
         return () -> {
             Set<UUID> pointsToRemove = new HashSet<>();
             activeRaids.forEach((uuid, point) -> {
                 updateBossBar(uuid);
-                updateBossBarPlayers(uuid);
                 if (hasDurationPassed(point.getRaidingTown())) {
                     pointsToRemove.add(uuid);
-                    removeEntity(point.getPointTransform().getExtent(), uuid);
                     AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
                         AtherysTowns.getInstance().getTownsMessagingService().info(player, Text.of("Your raid point has expired!"));
                     });

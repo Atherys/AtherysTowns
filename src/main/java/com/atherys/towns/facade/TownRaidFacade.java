@@ -157,8 +157,7 @@ public class TownRaidFacade {
     }
 
     public Text formatDurationLeft(LocalDateTime time, Duration duration) {
-        Duration durationBetweenPresent = Duration.between(time, LocalDateTime.now());
-        Duration durationLeft = duration.minus(durationBetweenPresent);
+        Duration durationLeft = duration.minus(Duration.between(time, LocalDateTime.now()));
         if (durationLeft.toMinutes() >= 1) {
             return Text.of(GOLD, durationLeft.toMinutes(), " minute(s)");
         }
@@ -218,25 +217,21 @@ public class TownRaidFacade {
 
     public void removeRaidPoint(Player player) throws TownsCommandException {
         Resident resident = residentService.getOrCreate(player);
-        if (townRaidService.isTownRaidActive(resident.getTown())) {
-            Optional<RaidPoint> raidPoint = townRaidService.getTownRaidPoint(resident.getTown());
-            raidPoint.ifPresent(point -> {
-                townRaidService.removeEntity(player.getWorld(), point.getRaidPointUUID());
-                point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
-                townRaidService.removeRaidPoint(point.getRaidPointUUID());
-            });
-            townFacade.getOnlineTownMembers(resident.getTown()).forEach(member -> townsMsg.info(member, "Your mage has been relieved of duty!"));
-        } else {
+
+        if (!townRaidService.isTownRaidActive(resident.getTown())) {
             throw new TownsCommandException("You do not have a town raid currently active!");
         }
 
+        Optional<RaidPoint> raidPoint = townRaidService.getTownRaidPoint(resident.getTown());
+        raidPoint.ifPresent(point -> townRaidService.removeRaidPoint(point.getRaidPointUUID()));
+
+        townFacade.getOnlineTownMembers(resident.getTown()).forEach(member -> townsMsg.info(member, "Your mage has been relieved of duty!"));
     }
 
     public void onRaidPointDeath(DestructEntityEvent.Death event) {
         UUID raidPointUUID = event.getTargetEntity().getUniqueId();
         RaidPoint point = townRaidService.getRaidPoint(raidPointUUID);
         townFacade.getOnlineTownMembers(point.getRaidingTown()).forEach(member -> townsMsg.info(member, "Your mage has been killed!"));
-        point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
         townRaidService.removeRaidPoint(raidPointUUID);
     }
 
