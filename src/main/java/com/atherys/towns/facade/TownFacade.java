@@ -449,6 +449,16 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownSpawn(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
+        Optional<Plot> plot  = plotService.getPlotByLocation(source.getLocation());
+
+        if (!plot.isPresent()) {
+            throw new TownsCommandException("Current location is not part of your town");
+        }
+
+        if (!plot.get().getTown().equals(town)) {
+            throw new TownsCommandException("Current location is not part of your town");
+        }
+
         townsMsg.info(source, "Town spawn set.");
         townService.setTownSpawn(town, source.getTransform());
     }
