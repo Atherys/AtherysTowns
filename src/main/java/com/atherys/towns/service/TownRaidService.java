@@ -2,7 +2,9 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.facade.TownFacade;
 import com.atherys.towns.facade.TownRaidFacade;
+import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.RaidPoint;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.MathUtils;
@@ -34,6 +36,15 @@ public class TownRaidService {
 
     @Inject
     TownService townService;
+
+    @Inject
+    TownRaidFacade townRaidFacade;
+
+    @Inject
+    TownFacade townFacade;
+
+    @Inject
+    TownsMessagingFacade townsMsg;
 
     Map<UUID, RaidPoint> activeRaids = new ConcurrentHashMap<>();
 
@@ -76,7 +87,6 @@ public class TownRaidService {
     }
 
     public void createRaidPointEntry(Transform<World> transform, Town town, Town targetTown, UUID entityId, Set<UUID> particleEffects) {
-        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
         ServerBossBar raidBar = ServerBossBar.builder()
                 .name(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(LocalDateTime.now(), config.RAID.RAID_DURATION)))
                 .overlay(BossBarOverlays.PROGRESS)
@@ -149,7 +159,6 @@ public class TownRaidService {
 
     private void updateBossBar(UUID pointId) {
         //Update BossBar health with current entity health
-        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
         RaidPoint point = activeRaids.get(pointId);
         double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
         double raidPercentage = (raidHealth / config.RAID.RAID_HEALTH) * 100;
@@ -167,8 +176,8 @@ public class TownRaidService {
                 updateBossBar(uuid);
                 if (hasDurationPassed(point.getRaidingTown())) {
                     pointsToRemove.add(uuid);
-                    AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
-                        AtherysTowns.getInstance().getTownsMessagingService().info(player, Text.of("Your raid point has expired!"));
+                    townFacade.getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
+                        townsMsg.info(player, Text.of("Your raid point has expired!"));
                     });
                 }
             });
