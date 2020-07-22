@@ -4,6 +4,10 @@ import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.AbstractMessagingFacade;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.service.NationService;
+import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +26,12 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
     @Inject
     private TownsConfig config;
 
+    @Inject
+    private NationFacade nationFacade;
+
+    @Inject
+    private TownFacade townFacade;
+
     public TownsMessagingFacade() {
         super("Towns");
     }
@@ -32,6 +42,20 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
 
     public void broadcastError(Object... message) {
         Sponge.getServer().getBroadcastChannel().send(formatError(message));
+    }
+
+    public void broadcastNationInfo(Nation nation, Object... message) {
+        Text formattedMessage = formatInfo(message);
+        nationFacade.getOnlineNationMembers(nation).stream().forEach(
+                player -> player.sendMessage(formattedMessage)
+        );
+    }
+
+    public void broadcastTownInfo(Town town, Object... message) {
+        Text formattedMessage = formatInfo(message);
+        townFacade.getOnlineTownMembers(town).stream().forEach(
+                player -> player.sendMessage(formattedMessage)
+        );
     }
 
     public Text renderBoolean(boolean value, boolean upperCase) {

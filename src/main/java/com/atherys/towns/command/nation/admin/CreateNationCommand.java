@@ -1,5 +1,5 @@
 
-package com.atherys.towns.command.nation;
+package com.atherys.towns.command.nation.admin;
 
 import com.atherys.core.command.ParameterizedCommand;
 import com.atherys.core.command.annotation.Aliases;
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("create")
 @Description("Creates a nation.")
-@Permission("atherystowns.nation.create")
+@Permission("atherystowns.nation.admin.create")
 public class CreateNationCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {

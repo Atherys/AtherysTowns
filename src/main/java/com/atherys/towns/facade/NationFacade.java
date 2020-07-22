@@ -117,6 +117,33 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
+    public void addTownToNation(Nation nation, Town town) throws TownsCommandException{
+        if (town.getNation() != null) {
+            throw new TownsCommandException("Town ", town.getName(), " is already part of a nation.");
+        }
+
+        nationService.addTown(nation, town);
+        townsMsg.broadcastNationInfo(nation,"The town ", GOLD, town.getName(), DARK_GREEN,
+                " has joined the nation");
+    }
+
+    public void removeTownFromNation(Nation nation, Town town) throws TownsCommandException {
+        if (!town.getNation().equals(nation)) {
+            throw new TownsCommandException("Town ", town.getName(), " is not part of ", nation.getName(), ".");
+        }
+
+        if (nation.getCapital().equals(town)) {
+            throw new TownsCommandException("Town ", town.getName(), " cannot be removed as it is the capital of ",
+                                            nation.getName(), ".");
+        }
+
+        nationService.removeTown(nation, town);
+        townsMsg.broadcastNationInfo(nation, "The town ", GOLD, town.getName(), DARK_GREEN,
+                " has left the nation");
+        townsMsg.broadcastTownInfo(town,"Your town ", GOLD, town.getName(), DARK_GREEN,
+                " has left the nation ", GOLD, nation.getName());
+    }
+
     public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
@@ -363,10 +390,9 @@ public class NationFacade implements EconomyFacade {
         return nation;
     }
 
-    public Set<Player> getOnlineNationMembers(Player player) {
-        return Sponge.getServer().getOnlinePlayers().stream()
-                .filter(onlinePlayer -> partOfSameNation(onlinePlayer, player))
-                .collect(Collectors.toSet());
+    public Set<Player> getOnlineNationMembers(Nation nation) {
+        return nation.getTowns().stream().flatMap(
+                town -> townFacade.getOnlineTownMembers(town).stream()).collect(Collectors.toSet());
     }
 
     public boolean partOfSameNation(User user, User other) {

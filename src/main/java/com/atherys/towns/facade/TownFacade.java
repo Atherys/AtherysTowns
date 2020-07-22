@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.format.TextColors.*;
@@ -449,9 +450,9 @@ public class TownFacade implements EconomyFacade {
     }
 
     public Set<Player> getOnlineTownMembers(Town town) {
-        return Sponge.getServer().getOnlinePlayers().stream()
-                .filter(onlinePlayer -> residentFacade.isPlayerInTown(onlinePlayer, town))
-                .collect(Collectors.toSet());
+        Set<UUID> townResidents = town.getResidents().stream().map(Resident::getId).collect(Collectors.toSet());
+        return Sponge.getServer().getOnlinePlayers().stream().filter(
+                player -> townResidents.contains(player.getUniqueId())).collect(Collectors.toSet());
     }
 
     public void sendTownInfo(Town town, MessageReceiver receiver) {
@@ -522,9 +523,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     private void joinTownMessage(Player player, Town town) {
-        //TODO: Send message to whole town
-        Text townText = Text.of(GOLD, town.getName(), DARK_GREEN, ".");
-        townsMsg.info(player, "You have joined the town of ", townText);
+        townsMsg.broadcastTownInfo(town, player.getName(), " has joined the town");
     }
 
     private boolean isLeaderOfPlayerTown(Player player) {
