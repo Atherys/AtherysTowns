@@ -23,6 +23,7 @@ import org.spongepowered.api.world.World;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class TownRaidService {
     @Inject
     TownService townService;
 
-    Map<UUID, RaidPoint> activeRaids = new HashMap<>();
+    Map<UUID, RaidPoint> activeRaids = new ConcurrentHashMap<>();
 
     public TownRaidService() {
 
@@ -120,7 +121,7 @@ public class TownRaidService {
         double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
         double raidPercentage = (raidHealth / config.RAID.RAID_HEALTH) * 100;
         point.getRaidBossBar().setName(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(point.getCreationTime(), config.RAID.RAID_DURATION)));
-        point.getRaidBossBar().setPercent((float)(raidPercentage / 100));
+        point.getRaidBossBar().setPercent((float) (raidPercentage / 100));
     }
 
     private void updateBossBarPlayers(UUID pointId) {
@@ -133,10 +134,13 @@ public class TownRaidService {
         Collection<Player> bossBarPlayers = point.getRaidBossBar().getPlayers();
         ServerBossBar bossBar = point.getRaidBossBar();
 
-        // Add players that were not previously in radius
-        playersInRadius.stream().filter(player -> !bossBarPlayers.contains(player)).forEach(bossBar::addPlayer);
         // Remove players that are no longer in radius
-        bossBarPlayers.stream().filter(player -> !playersInRadius.contains(player)).forEach(bossBar::removePlayer);
+        Set<Player> removePlayers = bossBarPlayers.stream().filter(player -> !playersInRadius.contains(player)).collect(Collectors.toSet());
+        bossBar.removePlayers(removePlayers);
+
+        // Add players that were not previously in radius
+        Set<Player> addPlayers = playersInRadius.stream().filter(player -> !bossBarPlayers.contains(player)).collect(Collectors.toSet());
+        bossBar.addPlayers(addPlayers);
     }
 
     private Runnable RaidTimerTask() {
