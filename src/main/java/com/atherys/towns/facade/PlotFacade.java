@@ -16,6 +16,8 @@ import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.util.Color;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
@@ -36,6 +38,12 @@ public class PlotFacade {
 
     @Inject
     ResidentService residentService;
+
+    @Inject
+    PlotBorderFacade plotBorderFacade;
+
+    @Inject
+    PlotSelectionFacade plotSelectionFacade;
 
     PlotFacade() {
     }
@@ -117,12 +125,12 @@ public class PlotFacade {
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        Optional<Plot> plot = plotService.getPlotByLocation(to.getLocation());
-        if (!plot.isPresent()) return;
-
+        Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
         Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+
+        if (!plotTo.isPresent()) return;
         if (plotFrom.isPresent()) return;
 
-        player.sendTitle(Title.builder().stay(20).title(Text.of(plot.get().getTown().getName())).build());
+        player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getName())).build());
     }
 }

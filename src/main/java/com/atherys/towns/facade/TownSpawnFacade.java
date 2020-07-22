@@ -36,7 +36,7 @@ public class TownSpawnFacade {
     @Inject
     private TownsMessagingFacade townsMsg;
 
-    private Task task = Task.builder()
+    private final Task task = Task.builder()
             .execute(() -> {
                 if (config.TOWN.TOWN_WARMUP == 0) return;
 

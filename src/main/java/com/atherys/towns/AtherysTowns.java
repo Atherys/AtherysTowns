@@ -99,6 +99,7 @@ public class AtherysTowns {
     private void start() {
         getRoleService().init();
         getTownsCache().initCache();
+        getPlotBorderFacade().initBorderTask();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
@@ -255,6 +256,10 @@ public class AtherysTowns {
         return components.pollFacade;
     }
 
+    public PlotBorderFacade getPlotBorderFacade() {
+        return components.plotBorderFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -330,6 +335,9 @@ public class AtherysTowns {
 
         @Inject
         private PollFacade pollFacade;
+
+        @Inject
+        private PlotBorderFacade plotBorderFacade;
 
         @Inject
         private PlayerListener playerListener;

@@ -38,13 +38,14 @@ public class PlayerListener {
     private PollFacade pollFacade;
 
     @Inject
-    private TownsMessagingFacade townsMsg;
+    private PlotBorderFacade plotBorderFacade;
 
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
         // And the move event was triggered due to a change in block position
         if (!event.getFromTransform().getPosition().toInt().equals(event.getToTransform().getPosition().toInt())) {
             plotFacade.onPlayerMove(event.getFromTransform(), event.getToTransform(), (Player) event.getTargetEntity());
+            plotBorderFacade.onPlayerMove(event.getFromTransform(), event.getToTransform(), (Player) event.getTargetEntity());
             townSpawnFacade.onPlayerMove(player);
         }
     }
