@@ -68,6 +68,13 @@ public class MathUtils {
                 rectASouthWest.getX() > rectBNorthEast.getX());
     }
 
+    public static boolean contains(Vector2i parentSouthWest, Vector2i parentNorthEast, Vector2i childSouthWest, Vector2i childNorthEast) {
+        return (parentSouthWest.getY() > childSouthWest.getY() &&
+                parentSouthWest.getX() > childSouthWest.getY() &&
+                parentNorthEast.getY() > childNorthEast.getY() &&
+                parentNorthEast.getX() > childNorthEast.getY());
+    }
+
     public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
         return overlaps(
                 rectASouthWest.add(-1, 1), rectANorthEast.add(1, -1), rectBSouthWest, rectBNorthEast

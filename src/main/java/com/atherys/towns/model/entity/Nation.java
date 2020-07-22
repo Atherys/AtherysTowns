@@ -188,6 +188,14 @@ public class Nation implements Identifiable<Long> {
         this.plots = plots;
     }
 
+    public void addPlot(NationPlot plot) {
+        this.plots.add(plot);
+    }
+
+    public void removePlot(NationPlot plot) {
+        this.plots.remove(plot);
+    }
+
     protected int getVersion() {
         return version;
     }

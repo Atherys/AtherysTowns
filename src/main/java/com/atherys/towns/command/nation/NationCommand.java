@@ -3,10 +3,7 @@ package com.atherys.towns.command.nation;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.command.nation.admin.AddTownToNationCommand;
-import com.atherys.towns.command.nation.admin.CreateNationCommand;
-import com.atherys.towns.command.nation.admin.DisbandNationCommand;
-import com.atherys.towns.command.nation.admin.RemoveTownFromNationCommand;
+import com.atherys.towns.command.nation.admin.*;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -37,7 +34,10 @@ import javax.annotation.Nonnull;
         NationRoleCommand.class,
         SetNationTaxCommand.class,
         AddTownToNationCommand.class,
-        RemoveTownFromNationCommand.class
+        RemoveTownFromNationCommand.class,
+        NationPlotCommand.class,
+        ClaimNationPlotCommand.class,
+        UnclaimNationPlotCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {

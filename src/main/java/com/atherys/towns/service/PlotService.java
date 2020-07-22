@@ -13,9 +13,11 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
 public class PlotService {
@@ -32,19 +34,6 @@ public class PlotService {
     ResidentService residentService;
 
     PlotService() {
-    }
-
-    public TownPlot createTownPlotFromSelection(PlotSelection selection) {
-        TownPlot plot = new TownPlot();
-        populatePlotFromSelection(plot, selection);
-        plot.setName(DEFAULT_TOWN_PLOT_NAME);
-        return plot;
-    }
-
-    public NationPlot createNationPlotFromSelection(PlotSelection selection) {
-        NationPlot plot = new NationPlot();
-        populatePlotFromSelection(plot, selection);
-        return plot;
     }
 
     private void populatePlotFromSelection(Plot plot, PlotSelection selection) {
@@ -92,9 +81,18 @@ public class PlotService {
         plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY()));
     }
 
-
     public boolean plotsIntersect(Plot plotA, Plot plotB) {
         return MathUtils.overlaps(plotA.getSouthWestCorner(), plotA.getNorthEastCorner(), plotB.getSouthWestCorner(), plotB.getNorthEastCorner());
+    }
+
+    public boolean plotContainsPlot(Plot parent, Plot child) {
+        return MathUtils.contains(parent.getSouthWestCorner(), parent.getNorthEastCorner(),
+                                  child.getSouthWestCorner(), child.getNorthEastCorner());
+    }
+
+    public boolean plotsEqual(Plot plotA, Plot plotB) {
+        return (plotA.getSouthWestCorner() == plotB.getSouthWestCorner()) &&
+                plotA.getNorthEastCorner() == plotB.getNorthEastCorner();
     }
 
     public boolean plotsBorder(Plot plotA, Plot plotB) {
@@ -137,6 +135,13 @@ public class PlotService {
             }
         }
         return chunkCoordinates;
+    }
+
+    public TownPlot createTownPlotFromSelection(PlotSelection selection) {
+        TownPlot plot = new TownPlot();
+        populatePlotFromSelection(plot, selection);
+        plot.setName(DEFAULT_TOWN_PLOT_NAME);
+        return plot;
     }
 
     public boolean townPlotIntersectAnyOthers(TownPlot plot) {
@@ -185,7 +190,17 @@ public class PlotService {
                 return true;
             }
         }
-
         return false;
+    }
+
+    public NationPlot createNationPlotFromSelection(PlotSelection selection) {
+        NationPlot plot = new NationPlot();
+        populatePlotFromSelection(plot, selection);
+        return plot;
+    }
+
+    public Set<NationPlot> getNationPlotsByLocation(Location<World> location) {
+        return nationPlotRepository.getAll().stream().filter(plot -> isLocationWithinPlot(location, plot))
+                .collect(Collectors.toSet());
     }
 }
