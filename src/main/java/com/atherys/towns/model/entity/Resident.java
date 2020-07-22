@@ -1,7 +1,7 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
+import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.SpongeIdentifiable;
-import com.atherys.towns.api.permission.Actor;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -12,12 +12,14 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Resident implements SpongeIdentifiable, Actor<UUID> {
+public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     @Id
     private UUID id;
 
     private String name;
+
+    private String title;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "town_id")
@@ -30,6 +32,12 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<Resident> friends = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> townRoleIds = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> nationRoleIds = new HashSet<>();
 
     private LocalDateTime registeredOn;
 
@@ -77,12 +85,28 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
         this.friends = friends;
     }
 
-    public boolean addFriend(Resident friend) {
-        return friends.add(friend);
+    public void addFriend(Resident friend) {
+        this.friends.add(friend);
     }
 
-    public boolean removeFriend(Resident friend) {
-        return friends.remove(friend);
+    public void removeFriend(Resident friend) {
+        this.friends.remove(friend);
+    }
+
+    public Set<String> getTownRoleIds() {
+        return townRoleIds;
+    }
+
+    public void setTownRoles(Set<String> townRoles) {
+        this.townRoleIds = townRoles;
+    }
+
+    public Set<String> getNationRoleIds() {
+        return nationRoleIds;
+    }
+
+    public void setNationRoles(Set<String> nationRoles) {
+        this.nationRoleIds = nationRoles;
     }
 
     public LocalDateTime getRegisteredOn() {
@@ -113,30 +137,16 @@ public class Resident implements SpongeIdentifiable, Actor<UUID> {
         return warmupSecondsLeft;
     }
 
-    public void setWarmupSecondsLeft(int secondsLeft) {
-        warmupSecondsLeft = secondsLeft;
+    public void setWarmupSecondsLeft(int warmupSecondsLeft) {
+        this.warmupSecondsLeft = warmupSecondsLeft;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Resident resident = (Resident) o;
-        return id.equals(resident.id) &&
-                name.equals(resident.name) &&
-                town.equals(resident.town);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
-
-    protected int getVersion() {
+    public int getVersion() {
         return version;
     }
 
-    protected void setVersion(int version) {
+    public void setVersion(int version) {
         this.version = version;
     }
+
 }

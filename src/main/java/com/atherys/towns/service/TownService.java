@@ -3,25 +3,29 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
-import com.atherys.towns.persistence.NationRepository;
+import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Singleton
 public class TownService {
@@ -46,9 +50,11 @@ public class TownService {
 
     private ResidentRepository residentRepository;
 
-    private PermissionService permissionService;
+    private ResidentService residentService;
 
-    private NationRepository nationRepository;
+    private TownsPermissionService townsPermissionService;
+
+    private RoleService roleService;
 
     @Inject
     TownService(
@@ -57,50 +63,61 @@ public class TownService {
             TownRepository townRepository,
             PlotRepository plotRepository,
             ResidentRepository residentRepository,
-            PermissionService permissionService,
-            NationRepository nationRepository
+            ResidentService residentService,
+            TownsPermissionService townsPermissionService,
+            RoleService roleService
     ) {
         this.config = config;
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
         this.residentRepository = residentRepository;
-        this.permissionService = permissionService;
-        this.nationRepository = nationRepository;
+        this.residentService = residentService;
+        this.townsPermissionService = townsPermissionService;
+        this.roleService = roleService;
     }
 
-    public Town createTown(World world, Transform<World> spawn, Resident leader, Plot homePlot, String name) {
+    public Town createTown(Player leader, Plot homePlot, String name) {
         Town town = new Town();
+        Nation nation = null;
+        Resident resLeader = residentService.getOrCreate(leader);
 
-        town.setLeader(leader);
+        if (resLeader.getTown() != null) {
+            nation = resLeader.getTown().getNation();
+            removeResidentFromTown(leader, resLeader, resLeader.getTown());
+        }
+
+        town.setLeader(resLeader);
         town.setName(name);
         town.setDescription(DEFAULT_TOWN_DESCRIPTION);
         town.setMotd(DEFAULT_TOWN_MOTD);
         town.setColor(DEFAULT_TOWN_COLOR);
-        town.setMaxSize(config.DEFAULT_TOWN_MAX_SIZE);
+        town.setMaxSize(config.TOWN.DEFAULT_TOWN_MAX_SIZE);
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
-        town.setWorld(world.getUniqueId());
+        town.setWorld(leader.getWorld().getUniqueId());
         town.setBank(UUID.randomUUID());
+        town.setNation(nation);
         if (AtherysTowns.economyIsEnabled()) {
-           AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
+            AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank().toString());
         }
-        town.setSpawn(spawn);
-
-        townRepository.saveOne(town);
+        town.setSpawn(leader.getTransform());
+        homePlot.setName(Text.of("HomePlot"));
 
         homePlot.setTown(town);
         town.addPlot(homePlot);
 
+
+        resLeader.setTown(town);
+        town.addResident(resLeader);
+
+        townRepository.saveOne(town);
         plotRepository.saveOne(homePlot);
 
-        leader.setTown(town);
-        town.addResident(leader);
+        residentRepository.saveOne(resLeader);
 
-        residentRepository.saveOne(leader);
-
-        permissionService.permit(leader, town, config.DEFAULT_TOWN_LEADER_PERMISSIONS);
-        permissionService.permit(town, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        roleService.addTownRole(leader, town, config.TOWN.TOWN_LEADER_ROLE);
+        roleService.addTownRole(leader, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         return town;
     }
@@ -135,23 +152,25 @@ public class TownService {
     }
 
     public void setTownNation(Town town, Nation nation) {
+        Set<String> ids = town.getResidents().stream()
+                .map(resident -> resident.getId().toString())
+                .collect(Collectors.toSet());
 
-        // if town is already part of another nation, remove it
-        if (town.getNation() != null) {
-            town.getNation().removeTown(town);
-            town.getResidents().forEach(resident -> permissionService.removeAll(resident, nation));
-            nationRepository.saveOne(town.getNation());
-        }
+        AtherysTowns.getInstance().getLogger().info(ids.toString());
 
-        town.getResidents().forEach(resident -> {
-            permissionService.permit(resident, nation, config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
-        });
+        Set<Context> nationContext = town.getNation() == null ? null : townsPermissionService.getContextForNation(town.getNation());
+
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> {
+                    if (town.getNation() != null) {
+                        townsPermissionService.clearPermissions(subject, nationContext);
+                    }
+                    roleService.addNationRole(subject, nation, config.NATION.DEFAULT_ROLE);
+                }, ids);
 
         town.setNation(nation);
-        nation.addTown(town);
-
         townRepository.saveOne(town);
-        nationRepository.saveOne(nation);
     }
 
     public void setTownJoinable(Town town, boolean joinable) {
@@ -167,16 +186,134 @@ public class TownService {
     public void removePlotFromTown(Town town, Plot plot) {
         town.removePlot(plot);
 
+        removePlotFromGraph(town, plot);
+
         townRepository.saveOne(town);
         plotRepository.deleteOne(plot);
     }
 
     public void claimPlotForTown(Plot plot, Town town) {
+        plot.setName(Text.of("Plot #", town.getPlots().size()));
         town.addPlot(plot);
         plot.setTown(town);
 
         plotRepository.saveOne(plot);
         townRepository.saveOne(town);
+
+        addPlotToGraph(town, plot);
+    }
+
+    public void generatePlotGraph(Town town) {
+        Map<Plot, Set<Plot>> adjList = new HashMap<>();
+        for (Plot plota : town.getPlots()) {
+            for (Plot plotb : town.getPlots()) {
+                // Plots can't be adjacent to themselves
+                if (plota == plotb) continue;
+
+                Set<Plot> plotaNeighbours = adjList.computeIfAbsent(plota, k -> new HashSet<>());
+                Set<Plot> plotbNeighbours = adjList.computeIfAbsent(plotb, k -> new HashSet<>());
+
+                // If we have already determined this is a neighbour in a previous iteration
+                if (plotaNeighbours.contains(plotb)) continue;
+
+                // Other check if we have neighbours
+                if (plotService.plotsBorder(plota, plotb)) {
+                    plotaNeighbours.add(plotb);
+                    plotbNeighbours.add(plota);
+                }
+            }
+        }
+        town.setPlotGraphAdjList(adjList);
+    }
+
+    public void addPlotToGraph(Town town, Plot newPlot) {
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+        if (adjList == null) return;
+
+        for (Plot existingPlot : town.getPlots()) {
+
+            // Plots can't be adjacent to themselves
+            if (newPlot == existingPlot) continue;
+
+            Set<Plot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
+            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+            if (plotService.plotsBorder(newPlot, existingPlot)) {
+                newPlotNeighbours.add(existingPlot);
+                existingPlotNeighbours.add(newPlot);
+            }
+        }
+    }
+
+    public void removePlotFromGraph(Town town, Plot removedPlot) {
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+        if (adjList == null) return;
+
+        for (Plot existingPlot : town.getPlots()) {
+            Set<Plot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
+            existingPlotNeighbours.remove(removedPlot);
+        }
+        adjList.remove(removedPlot);
+    }
+
+    /**
+     * Checks if the removal of a plot would result in orphaned plots
+     * <p>
+     * This is done by doing a Depth First Search starting with the node to be
+     * removed. Counting the number of children the root node has in the DFS we can
+     * determine if it is a articulation point.
+     *
+     * @param town       The Town to check
+     * @param targetPlot The plot to be removed
+     * @return true if removal of plot results in orphaned plots otherwise false
+     */
+    public boolean checkPlotRemovalCreatesOrphans(Town town, Plot targetPlot) {
+        // We need to do a full DFS, and work out if the root node > 1 children
+
+        Map<Plot, Boolean> visited = new HashMap<>();
+
+        // As we only care about whether or not the root node is an AP (articulation point)
+        // Only need to track the number of children the root node has
+        int rootChildren = 0;
+
+        Map<Plot, Set<Plot>> adjList = town.getPlotGraphAdjList();
+
+        if (adjList == null) {
+            generatePlotGraph(town);
+            adjList = town.getPlotGraphAdjList();
+        }
+
+        // Stack of possible edges to visit, edges of defined as an array of [parent, child]
+        // We keep track of parent so that we can can count the children of root
+        Stack<Tuple<Plot, Plot>> stack = new Stack<>();
+
+        visited.put(targetPlot, true);
+
+        Set<Plot> test = adjList.get(targetPlot);
+
+        for (Plot child : adjList.get(targetPlot)) {
+            stack.push(Tuple.of(targetPlot, child));
+        }
+
+        while (!stack.empty()) {
+            Tuple<Plot, Plot> t = stack.pop();
+            Plot parent = t.getFirst();
+            Plot plot = t.getSecond();
+
+            if (!visited.getOrDefault(plot, false)) {
+                // If we are choosing to use this edge, mark the node as visited
+                visited.put(plot, true);
+                if (parent == targetPlot) rootChildren++;
+                if (rootChildren >= 2) return true;
+            }
+
+            for (Plot child : adjList.get(plot)) {
+                if (!visited.getOrDefault(child, false)) {
+                    stack.push(Tuple.of(plot, child));
+                }
+            }
+        }
+
+        return false;
     }
 
     public int getTownSize(Town town) {
@@ -193,48 +330,47 @@ public class TownService {
         town.setMaxSize(town.getMaxSize() + amount);
         townRepository.saveOne(town);
     }
-    
+
     public void decreaseTownSize(Town town, int amount) {
         town.setMaxSize(town.getMaxSize() - amount);
         townRepository.saveOne(town);
     }
 
     public void removeTown(Town town) {
-        CompletableFuture<Void> complete = permissionService.removeAll(town);
+        Set<Context> townContext = townsPermissionService.getContextsForTown(town);
+        Set<String> ids = new HashSet<>();
 
-        complete.thenAccept(__ -> {
-            town.getResidents().forEach(resident -> {
-                permissionService.removeAll(resident, town);
-                resident.setTown(null);
-                residentRepository.saveOne(resident);
-            });
+        town.getResidents().forEach(resident -> {
+            resident.setTown(null);
+            ids.add(resident.getId().toString());
         });
 
+        Sponge.getServiceManager().provideUnchecked(PermissionService.class)
+                .getUserSubjects()
+                .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
+
+        residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
     }
 
-    public void addResidentToTown(Resident resident, Town town) {
+    public void addResidentToTown(User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        permissionService.permit(resident, town, config.DEFAULT_TOWN_RESIDENT_PERMISSIONS);
+        roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
         if (town.getNation() != null) {
-            permissionService.permit(resident, town.getNation(), config.DEFAULT_NATION_RESIDENT_PERMISSIONS);
+            roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
         }
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }
 
-    public void removeResidentFromTown(Resident resident, Town town) {
+    public void removeResidentFromTown(User user, Resident resident, Town town) {
         town.removeResident(resident);
         resident.setTown(null);
-        permissionService.removeAll(resident, town);
-
-        if (town.getNation() != null) {
-            permissionService.removeAll(resident, town.getNation());
-        }
+        townsPermissionService.clearPermissions(user, town);
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);

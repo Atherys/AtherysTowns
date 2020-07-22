@@ -17,12 +17,12 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("pvp")
-@Description("")
+@Description("Enables/Disables PvP Protection in your Town.")
 @Permission("atherystowns.town.pvp")
 public class SetTownPvpCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.bool(Text.of("pvp"))
         };
     }
@@ -30,7 +30,7 @@ public class SetTownPvpCommand implements PlayerCommand, ParameterizedCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source, args.<Boolean>getOne("pvp").get());
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source, args.<Boolean>getOne("pvp").orElse(false));
         return CommandResult.success();
     }
 }

@@ -1,8 +1,8 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -32,11 +32,11 @@ public class NationRepository extends CachedHibernateRepository<Nation, Long> {
         });
     }
 
-    public Collection<Nation> getAllNations() {
-        return townsCache.getNationCache().getAll();
+    public Collection<Nation> getAll() {
+        return cache.getAll();
     }
 
     public Optional<Nation> findByName(String nationName) {
-        return cache.findOne(n -> n.getName().equals(nationName));
+        return cache.findOne(n -> n.getName().equalsIgnoreCase(nationName));
     }
 }

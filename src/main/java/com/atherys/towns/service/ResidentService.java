@@ -1,9 +1,9 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
-import com.atherys.towns.entity.Nation;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -89,6 +89,11 @@ public class ResidentService {
         residentRepository.saveOne(resident);
     }
 
+    public void setLastLogin(Resident resident, LocalDateTime time) {
+        resident.setLastLogin(time);
+        residentRepository.saveOne(resident);
+    }
+
     public Optional<UniqueAccount> getResidentBank(Resident resident) {
         return Economy.getAccount(resident.getId());
     }
@@ -119,5 +124,25 @@ public class ResidentService {
 
     public boolean isResidentTownLeader(Resident resident, Town town) {
         return town.getLeader().getId().equals(resident.getId());
+    }
+
+    public void grantTownRole(Resident resident, String role) {
+        resident.getTownRoleIds().add(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void grantNationRole(Resident resident, String role) {
+        resident.getNationRoleIds().add(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void removeTownRole(Resident resident, String role) {
+        resident.getTownRoleIds().remove(role);
+        residentRepository.saveOne(resident);
+    }
+
+    public void removeNationRole(Resident resident, String role) {
+        resident.getNationRoleIds().remove(role);
+        residentRepository.saveOne(resident);
     }
 }

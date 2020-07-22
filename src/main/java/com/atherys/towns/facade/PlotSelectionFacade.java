@@ -1,11 +1,11 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.command.TownsCommandException;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.service.PlotService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -18,13 +18,15 @@ import java.util.UUID;
 @Singleton
 public class PlotSelectionFacade {
 
+    private final Map<UUID, PlotSelection> selections = new HashMap<>();
     @Inject
     TownsConfig config;
-
     @Inject
     TownsMessagingFacade townMsg;
-
-    private Map<UUID, PlotSelection> selections = new HashMap<>();
+    @Inject
+    PlotService plotService;
+    @Inject
+    PlotBorderFacade plotBorderFacade;
 
     private PlotSelection getOrCreateSelection(Player player) {
         if (selections.containsKey(player.getUniqueId())) {
@@ -36,16 +38,9 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointA(location);
-    }
-
-    private void selectPointBAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointB(location);
-    }
-
     public void clearSelection(Player player) {
         selections.remove(player.getUniqueId());
+        plotBorderFacade.refreshBorders(player, player.getLocation());
         townMsg.info(player, "You have cleared your selection.");
     }
 
@@ -71,11 +66,25 @@ public class PlotSelectionFacade {
 
         int sideX = Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX());
         int sideZ = Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
-        if (sideX < sideZ) {
-            return sideX;
-        } else {
-            return sideZ;
+        return Math.min(sideX, sideZ);
+    }
+
+    public void checkBorders(Player player) {
+        PlotSelection selection = getOrCreateSelection(player);
+        if (selection.isComplete()) {
+            validatePlotSelection(selection, player, true, player.getLocation());
+            plotBorderFacade.refreshBorders(player, player.getLocation());
         }
+    }
+
+    private void selectPointAAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointA(location);
+        checkBorders(player);
+    }
+
+    private void selectPointBAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointB(location);
+        checkBorders(player);
     }
 
     public void selectPointAFromPlayerLocation(Player player) {
@@ -98,42 +107,49 @@ public class PlotSelectionFacade {
      * Validate a plot selection.
      *
      * @param selection the selection to be validated
-     * @return true if no exception was thrown
      * @throws CommandException if the plot selection is null, is incomplete ( either point A or point B is null ),
      *                          it's area is greater than the maximum configured, or it's smallest side is smaller than the minimum configured
      */
-    public boolean validatePlotSelection(PlotSelection selection) throws CommandException {
+    public boolean validatePlotSelection(PlotSelection selection, Player player, boolean messageUser, Location<World> location) {
+
         if (selection == null) {
-            throw new TownsCommandException("Plot selection is null.");
+            if (messageUser) townMsg.error(player, "Plot selection is null.");
+            return false;
         }
 
         if (!selection.isComplete()) {
-            throw new TownsCommandException("Plot selection is incomplete.");
+            if (messageUser) townMsg.error(player, "Plot selection is incomplete.");
+            return false;
         }
 
         int selectionArea = getPlotSelectionArea(selection);
-        if (selectionArea > config.MAX_PLOT_AREA) {
-            throw new TownsCommandException("Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.MAX_PLOT_AREA, " )");
+        if (selectionArea > config.TOWN.MAX_PLOT_AREA) {
+            if (messageUser)
+                townMsg.error(player, "Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
+            return false;
         }
 
         int smallestSide = getSmallestPlotSelectionSideSize(selection);
-        if (smallestSide < config.MIN_PLOT_SIDE - 1) {
-            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.MIN_PLOT_SIDE, " )");
+        if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
+            if (messageUser)
+                townMsg.error(player, "Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+            return false;
         }
 
+        Plot plot = plotService.createPlotFromSelection(selection);
+        if (plotService.plotIntersectsAnyOthers(plot)) {
+            if (messageUser) townMsg.error(player, "The plot selection intersects with an already-existing plot.");
+            return false;
+        }
+
+        if (!plotService.isLocationWithinPlot(location, plot)) {
+            if (messageUser) townMsg.error(player, "You must be within your plot selection!");
+            return false;
+        }
         return true;
     }
 
-    public PlotSelection getCurrentPlotSelection(Player player) throws CommandException {
+    public PlotSelection getCurrentPlotSelection(Player player) {
         return getOrCreateSelection(player);
-    }
-
-    public PlotSelection getValidPlayerPlotSelection(Player source) throws CommandException {
-        PlotSelection selection = getOrCreateSelection(source);
-        if (validatePlotSelection(selection)) {
-            return selection;
-        } else {
-            throw new TownsCommandException("Invalid Plot Selection.");
-        }
     }
 }

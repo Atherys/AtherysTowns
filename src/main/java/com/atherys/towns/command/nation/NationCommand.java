@@ -3,6 +3,10 @@ package com.atherys.towns.command.nation;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.command.nation.admin.AddTownToNationCommand;
+import com.atherys.towns.command.nation.admin.CreateNationCommand;
+import com.atherys.towns.command.nation.admin.DisbandNationCommand;
+import com.atherys.towns.command.nation.admin.RemoveTownFromNationCommand;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -12,22 +16,26 @@ import javax.annotation.Nonnull;
 
 @Aliases({"nation", "n"})
 @Description("Base nation command.")
-@Permission("atherystowns.nation")
+@Permission("atherystowns.nation.base")
 @Children({
         CreateNationCommand.class,
-        NationAddActorPermissionCommand.class,
-        NationInfoCommand.class,
-        NationRemoveActorPermissionCommand.class,
-        SetNationDescriptionCommand.class,
-        SetNationNameCommand.class,
-        SetNationTaxCommand.class,
-        SetNationCapitalCommand.class,
+        DisbandNationCommand.class,
         AddNationAllyCommand.class,
         AddNationEnemyCommand.class,
         AddNationNeutralCommand.class,
+        NationAddActorPermissionCommand.class,
+        NationInfoCommand.class,
+        NationRemoveActorPermissionCommand.class,
         NationListCommand.class,
         DepositNationCommand.class,
-        WithdrawNationCommand.class
+        WithdrawNationCommand.class,
+        SetNationCapitalCommand.class,
+        SetNationNameCommand.class,
+        SetNationDescriptionCommand.class,
+        NationRoleCommand.class,
+        SetNationTaxCommand.class,
+        AddTownToNationCommand.class,
+        RemoveTownFromNationCommand.class
 })
 @HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {

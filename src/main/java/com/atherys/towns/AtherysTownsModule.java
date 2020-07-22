@@ -1,11 +1,12 @@
 package com.atherys.towns;
 
-import com.atherys.towns.api.chat.TownsChatService;
 import com.atherys.towns.facade.*;
-import com.atherys.towns.persistence.*;
+import com.atherys.towns.persistence.NationRepository;
+import com.atherys.towns.persistence.PlotRepository;
+import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.service.*;
-import com.atherys.towns.service.chat.SimpleTownsChatService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.spongepowered.api.Sponge;
@@ -25,7 +26,6 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownRepository.class);
         bind(PlotRepository.class);
         bind(ResidentRepository.class);
-        bind(PermissionRepository.class);
 
         // Sponge Services
         bind(UserStorageService.class).toProvider(() -> {
@@ -38,8 +38,8 @@ public class AtherysTownsModule extends AbstractModule {
         bind(TownSpawnFacade.class);
         bind(PlotService.class);
         bind(ResidentService.class);
-        bind(PermissionService.class);
-        bind(TownsChatService.class).to(SimpleTownsChatService.class);
+        bind(PollService.class);
+        bind(TownsPermissionService.class);
 
         // Facades
         bind(NationFacade.class);
@@ -50,5 +50,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotSelectionFacade.class);
         bind(TownsMessagingFacade.class);
         bind(TownAdminFacade.class);
+        bind(PollFacade.class);
+        bind(PlotBorderFacade.class);
     }
 }

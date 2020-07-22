@@ -1,7 +1,7 @@
 package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.SimpleCache;
-import com.atherys.towns.entity.Plot;
+import com.atherys.towns.model.entity.Plot;
 import com.flowpowered.math.vector.Vector2i;
 
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class PlotCache extends SimpleCache<Plot, Long> {
 
-    private Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
+    private final Map<Vector2i, Set<Plot>> performanceCache = new HashMap<>();
 
     public Set<Plot> getPlotsOverlappingChunk(Vector2i chunkCoordinate) {
         return performanceCache.getOrDefault(chunkCoordinate, new HashSet<>());
@@ -35,6 +35,16 @@ public class PlotCache extends SimpleCache<Plot, Long> {
         });
     }
 
+    @Override
+    public void remove(Plot plot) {
+        super.remove(plot);
+        getChunksOverlappedByPlot(plot).forEach(chunkCoordinate -> {
+            Set<Plot> plots = performanceCache.get(chunkCoordinate);
+            if (plots != null)
+                plots.remove(plot);
+        });
+    }
+
     private Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
         Vector2i southWestCorner = plot.getSouthWestCorner();
         Vector2i northEastCorner = plot.getNorthEastCorner();
@@ -46,10 +56,11 @@ public class PlotCache extends SimpleCache<Plot, Long> {
         Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getY() >> 4); // North East Corner Chunk
 
         for (int x = southWestChunk.getX(); x <= northEastChunk.getX(); x++) {
-            for (int y = southWestChunk.getY(); y <= northEastChunk.getY(); y++) {
+            for (int y = northEastChunk.getY(); y <= southWestChunk.getY(); y++) {
                 chunkCoordinates.add(Vector2i.from(x, y));
             }
         }
         return chunkCoordinates;
     }
+
 }

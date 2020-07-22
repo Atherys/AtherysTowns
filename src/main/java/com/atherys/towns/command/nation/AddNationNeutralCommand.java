@@ -6,7 +6,7 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.entity.Nation;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -31,7 +31,7 @@ public class AddNationNeutralCommand implements ParameterizedCommand, PlayerComm
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getNationFacade().addNationNeutral(
-            source, args.<Nation>getOne("nation").get()
+                source, args.<Nation>getOne("nation").get()
         );
         return CommandResult.success();
     }

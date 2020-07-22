@@ -1,7 +1,6 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.api.permission.Subject;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;
@@ -12,7 +11,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class Plot implements Identifiable<Long>, Subject<Town, Long> {
+public class Plot implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,35 +82,9 @@ public class Plot implements Identifiable<Long>, Subject<Town, Long> {
     public Resident getOwner() {
         return owner;
     }
+
     public void setOwner(Resident owner) {
         this.owner = owner;
-    }
-
-    @Override
-    public boolean hasParent() {
-        return true;
-    }
-
-    @Override
-    public Town getParent() {
-        return town;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Plot plot = (Plot) o;
-        return id.equals(plot.id) &&
-                town.equals(plot.town) &&
-                name.equals(plot.name) &&
-                swCorner.equals(plot.swCorner) &&
-                neCorner.equals(plot.neCorner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, swCorner, neCorner);
     }
 
     protected int getVersion() {

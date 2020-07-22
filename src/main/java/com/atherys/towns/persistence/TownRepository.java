@@ -1,7 +1,7 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -23,7 +23,7 @@ public class TownRepository extends CachedHibernateRepository<Town, Long> {
     }
 
     public Optional<Town> findByName(String townName) {
-        return cache.findOne(t -> t.getName().equals(townName));
+        return cache.findOne(t -> t.getName().equalsIgnoreCase(townName));
     }
 
     @Override

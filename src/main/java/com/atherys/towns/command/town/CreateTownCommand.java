@@ -15,6 +15,8 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nonnull;
+
 @Aliases("create")
 @Description("Creates a town.")
 @Permission("atherystowns.town.create")
@@ -26,9 +28,10 @@ public class CreateTownCommand implements PlayerCommand, ParameterizedCommand {
         };
     }
 
+    @Nonnull
     @Override
-    public CommandResult execute(Player src, CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().createTown(src, args.<String>getOne("name").orElse(""));
+    public CommandResult execute(@Nonnull Player src, CommandContext args) throws CommandException {
+        AtherysTowns.getInstance().getTownFacade().createTownOrPoll(src, args.<String>getOne("name").orElse(""));
         return CommandResult.success();
     }
 }

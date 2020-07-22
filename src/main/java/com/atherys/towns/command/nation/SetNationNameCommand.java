@@ -1,3 +1,4 @@
+
 package com.atherys.towns.command.nation;
 
 import com.atherys.core.command.ParameterizedCommand;

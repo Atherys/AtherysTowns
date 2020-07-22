@@ -1,24 +1,21 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.api.permission.Actor;
-import com.atherys.towns.api.permission.Subject;
-import com.atherys.towns.chat.NationMessageChannel;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<Long> {
+public class Nation implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     private String name;
@@ -26,19 +23,19 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     @Convert(converter = TextConverter.class)
     private Text description;
 
-    @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
-    private Set<Town> towns = new HashSet<>();
-
     @OneToOne
     private Resident leader;
 
     @OneToOne
     private Town capital;
 
+    @OneToMany(mappedBy = "nation", fetch = FetchType.EAGER)
+    private Set<Town> towns = new HashSet<>();
+
     @ManyToMany(
-			cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-			fetch = FetchType.EAGER
-	)
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER
+    )
     @JoinTable(
             name = "nation_allies",
             joinColumns = @JoinColumn(name = "nation_id"),
@@ -47,9 +44,9 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     private Set<Nation> allies = new HashSet<>();
 
     @ManyToMany(
-			cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-			fetch = FetchType.EAGER
-	)
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER
+    )
     @JoinTable(
             name = "nation_enemies",
             joinColumns = @JoinColumn(name = "nation_id"),
@@ -57,10 +54,7 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
     )
     private Set<Nation> enemies = new HashSet<>();
 
-    private boolean freelyJoinable;
-
-    @Transient
-    private NationMessageChannel messageChannel;
+    private boolean joinable;
 
     private double tax;
 
@@ -68,9 +62,6 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
 
     @Version
     private int version;
-
-    public Nation() {
-    }
 
     @Nonnull
     @Override
@@ -118,16 +109,16 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         return leader;
     }
 
-    public void setLeader(Resident leader) {
-        this.leader = leader;
+    public void setLeader(Resident resident) {
+        this.leader = resident;
     }
 
     public Town getCapital() {
         return capital;
     }
 
-    public void setCapital(Town capital) {
-        this.capital = capital;
+    public void setCapital(Town town) {
+        this.capital = town;
     }
 
     public Set<Nation> getAllies() {
@@ -162,30 +153,12 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         enemies.remove(nation);
     }
 
-    @Override
-    public boolean hasParent() {
-        return false;
+    public boolean isJoinable() {
+        return joinable;
     }
 
-    @Override
-    public Nation getParent() {
-        return this;
-    }
-
-    public boolean isFreelyJoinable() {
-        return freelyJoinable;
-    }
-
-    public void setFreelyJoinable(boolean freelyJoinable) {
-        this.freelyJoinable = freelyJoinable;
-    }
-
-    public NationMessageChannel getMessageChannel() {
-        return messageChannel;
-    }
-
-    public void setMessageChannel(NationMessageChannel messageChannel) {
-        this.messageChannel = messageChannel;
+    public void setJoinable(boolean freelyJoinable) {
+        this.joinable = freelyJoinable;
     }
 
     public double getTax() {
@@ -196,24 +169,12 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         this.tax = tax;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Nation nation = (Nation) o;
-        return id.equals(nation.id) &&
-                name.equals(nation.name) &&
-                description.equals(nation.description) &&
-                towns.equals(nation.towns) &&
-                leader.equals(nation.leader) &&
-                capital.equals(nation.capital) &&
-                allies.equals(nation.allies) &&
-                enemies.equals(nation.enemies);
+    public UUID getBank() {
+        return bank;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description);
+    public void setBank(UUID bank) {
+        this.bank = bank;
     }
 
     protected int getVersion() {
@@ -224,11 +185,4 @@ public class Nation implements Identifiable<Long>, Subject<Nation, Long>, Actor<
         this.version = version;
     }
 
-    public UUID getBank() {
-        return bank;
-    }
-
-    public void setBank(UUID bank) {
-        this.bank = bank;
-    }
 }

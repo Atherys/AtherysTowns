@@ -1,8 +1,8 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.entity.Plot;
-import com.atherys.towns.entity.Resident;
-import com.atherys.towns.entity.Town;
+import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.PlotRepository;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.util.MathUtils;
@@ -23,6 +23,9 @@ public class PlotService {
 
     @Inject
     PlotRepository plotRepository;
+
+    @Inject
+    ResidentService residentService;
 
     PlotService() {
     }
@@ -87,7 +90,7 @@ public class PlotService {
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
-        return MathUtils.vectorXZFitsInRange(location.getPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
+        return MathUtils.vectorXZFitsInRange(location.getBlockPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
     }
 
     public boolean plotIntersectsAnyOthers(Plot plot) {
@@ -116,12 +119,11 @@ public class PlotService {
 
     public boolean plotBordersTown(Town town, Plot plot) {
         for (Plot townPlot : town.getPlots()) {
-            if (!plotsBorder(plot, townPlot)) {
-                return false;
+            if (plotsBorder(plot, townPlot)) {
+                return true;
             }
         }
-
-        return true;
+        return false;
     }
 
     public boolean plotIntersectsTown(Town town, Plot plot) {

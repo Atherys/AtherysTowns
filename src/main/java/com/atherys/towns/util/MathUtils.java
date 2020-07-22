@@ -10,6 +10,14 @@ public class MathUtils {
         return Vector2i.from(vector3i.getX(), vector3i.getZ());
     }
 
+    public static int getXLength(Vector2i pointA, Vector2i pointB) {
+        return pointA.getX() - pointB.getX();
+    }
+
+    public static int getZLength(Vector2i pointA, Vector2i pointB) {
+        return pointB.getY() - pointA.getY();
+    }
+
     public static boolean vectorFitsInRange(Vector3d vec, Vector3i lower, Vector3i upper) {
         return fitsInRange(vec.getX(), lower.getX(), upper.getX()) &&
                 fitsInRange(vec.getY(), lower.getY(), upper.getY()) &&
@@ -47,9 +55,9 @@ public class MathUtils {
 
     public static boolean overlaps(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
         return !(rectBNorthEast.getY() > rectASouthWest.getY() ||
-                 rectBSouthWest.getX() > rectANorthEast.getX() ||
-                 rectANorthEast.getY() > rectBSouthWest.getY() ||
-                 rectASouthWest.getX() > rectBNorthEast.getX());
+                rectBSouthWest.getX() > rectANorthEast.getX() ||
+                rectANorthEast.getY() > rectBSouthWest.getY() ||
+                rectASouthWest.getX() > rectBNorthEast.getX());
     }
 
     public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {

@@ -1,10 +1,7 @@
-package com.atherys.towns.entity;
+package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
-import com.atherys.towns.api.permission.Actor;
-import com.atherys.towns.api.permission.Subject;
-import com.atherys.towns.chat.TownMessageChannel;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.entity.Transform;
@@ -14,13 +11,10 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
-public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Long> {
+public class Town implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +35,7 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
     @OneToOne
     private Resident leader;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "nation_id")
+    @OneToOne
     private Nation nation;
 
     private UUID world;
@@ -56,8 +49,11 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
     @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
     private Set<Plot> plots = new HashSet<>();
 
+    /**
+     * This is the graph of all plots within a town formatted as an adjacency list
+     */
     @Transient
-    private TownMessageChannel messageChannel;
+    private Map<Plot, Set<Plot>> plotGraphAdjList;
 
     private int maxSize;
 
@@ -184,16 +180,6 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.freelyJoinable = freelyJoinable;
     }
 
-    @Override
-    public boolean hasParent() {
-        return nation != null;
-    }
-
-    @Override
-    public Nation getParent() {
-        return nation;
-    }
-
     public boolean isPvpEnabled() {
         return pvpEnabled;
     }
@@ -210,35 +196,12 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
         this.color = color;
     }
 
-
-    public TownMessageChannel getMessageChannel() {
-        return messageChannel;
+    public Map<Plot, Set<Plot>> getPlotGraphAdjList() {
+        return plotGraphAdjList;
     }
 
-    public void setMessageChannel(TownMessageChannel messageChannel) {
-        this.messageChannel = messageChannel;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Town town = (Town) o;
-        return id.equals(town.id) &&
-                name.equals(town.name) &&
-                description.equals(town.description) &&
-                motd.equals(town.motd) &&
-                leader.equals(town.leader) &&
-                nation.equals(town.nation) &&
-                world.equals(town.world) &&
-                spawn.equals(town.spawn) &&
-                residents.equals(town.residents) &&
-                plots.equals(town.plots);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, motd, world, spawn);
+    public void setPlotGraphAdjList(Map<Plot, Set<Plot>> plotGraphAdjList) {
+        this.plotGraphAdjList = plotGraphAdjList;
     }
 
     protected int getVersion() {
@@ -256,4 +219,5 @@ public class Town implements Identifiable<Long>, Subject<Nation, Long>, Actor<Lo
     public void setBank(UUID bank) {
         this.bank = bank;
     }
+
 }

@@ -6,6 +6,7 @@ import javax.persistence.AttributeConverter;
 
 public class Vector2iConverter implements AttributeConverter<Vector2i, String> {
 
+
     private static final String SPLIT_CHARACTERS = "; ";
 
     @Override

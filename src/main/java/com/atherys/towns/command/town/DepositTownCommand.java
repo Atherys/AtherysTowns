@@ -19,11 +19,11 @@ import java.math.BigDecimal;
 
 @Aliases("deposit")
 @Description("Deposits funds into the town.")
-@Permission("atherystowns.nation.deposit")
+@Permission("atherystowns.town.deposit")
 public class DepositTownCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {
+        return new CommandElement[]{
                 GenericArguments.bigDecimal(Text.of("amount"))
         };
     }
