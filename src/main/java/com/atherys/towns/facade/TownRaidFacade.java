@@ -156,7 +156,7 @@ public class TownRaidFacade {
         return Text.of(GOLD, "x: ", location.getBlockX(), ", y: ", location.getBlockY(), ", z: ", location.getBlockZ());
     }
 
-    private Text formatDurationLeft(LocalDateTime time, Duration duration) {
+    public Text formatDurationLeft(LocalDateTime time, Duration duration) {
         Duration durationBetweenPresent = Duration.between(time, LocalDateTime.now());
         Duration durationLeft = duration.minus(durationBetweenPresent);
         if (durationLeft.toMinutes() >= 1) {
@@ -233,11 +233,11 @@ public class TownRaidFacade {
     }
 
     public void onRaidPointDeath(DestructEntityEvent.Death event) {
-        RaidPoint point = townRaidService.getRaidPoint(event.getTargetEntity().getUniqueId());
+        UUID raidPointUUID = event.getTargetEntity().getUniqueId();
+        RaidPoint point = townRaidService.getRaidPoint(raidPointUUID);
         townFacade.getOnlineTownMembers(point.getRaidingTown()).forEach(member -> townsMsg.info(member, "Your mage has been killed!"));
         point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
-        //TODO: Add logic to remove boss bar from players
-        townRaidService.removeRaidPoint(point.getRaidPointUUID());
+        townRaidService.removeRaidPoint(raidPointUUID);
     }
 
     public boolean onPlayerSpawn(RespawnPlayerEvent event) {

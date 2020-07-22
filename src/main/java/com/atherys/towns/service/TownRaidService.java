@@ -2,6 +2,7 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.facade.TownRaidFacade;
 import com.atherys.towns.model.RaidPoint;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.MathUtils;
@@ -39,11 +40,9 @@ public class TownRaidService {
 
     }
 
-    public double getRaidPercentage(double totalHealth, double currentHealth) {
-        return (currentHealth / totalHealth) * 100;
-    }
-
     public void removeRaidPoint(UUID id) {
+        ServerBossBar bossBar = activeRaids.get(id).getRaidBossBar();
+        bossBar.removePlayers(bossBar.getPlayers());
         activeRaids.remove(id);
     }
 
@@ -60,8 +59,9 @@ public class TownRaidService {
     }
 
     public void createRaidPointEntry(Transform<World> transform, Town town, Town targetTown, UUID entityId, Set<UUID> particleEffects) {
+        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
         ServerBossBar raidBar = ServerBossBar.builder()
-                .name(Text.of("Hired Mage"))
+                .name(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(LocalDateTime.now(), config.RAID.RAID_DURATION)))
                 .overlay(BossBarOverlays.PROGRESS)
                 .color(BossBarColors.RED)
                 .percent(1.0f)
@@ -114,48 +114,42 @@ public class TownRaidService {
         return 0;
     }
 
-    public void updateBossBar(RaidPoint point) {
+    private void updateBossBar(UUID pointId) {
+        TownRaidFacade townRaidFacade = AtherysTowns.getInstance().getTownRaidFacade();
+        RaidPoint point = activeRaids.get(pointId);
         double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
-        double raidPercentage = getRaidPercentage(config.RAID.RAID_HEALTH, raidHealth);
-        activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().setPercent((float)(raidPercentage / 100));
+        double raidPercentage = (raidHealth / config.RAID.RAID_HEALTH) * 100;
+        point.getRaidBossBar().setName(Text.of("Hired Mage | Time Left: ", townRaidFacade.formatDurationLeft(point.getCreationTime(), config.RAID.RAID_DURATION)));
+        point.getRaidBossBar().setPercent((float)(raidPercentage / 100));
     }
 
-    private void updateBossBarPlayers(RaidPoint point) {
-        //TODO: Optimize this function. I feel like more can be done here as this was done in a rush.
+    private void updateBossBarPlayers(UUID pointId) {
+        RaidPoint point = activeRaids.get(pointId);
         Location<World> location = point.getPointTransform().getLocation();
         Set<Player> playersInRadius = location.getExtent().getNearbyEntities(location.getPosition(), config.RAID.RAID_BOSS_BAR_DISTANCE).stream()
                 .filter(entity -> entity instanceof Player)
                 .map(entity -> (Player) entity).collect(Collectors.toSet());
 
         Collection<Player> bossBarPlayers = point.getRaidBossBar().getPlayers();
+        ServerBossBar bossBar = point.getRaidBossBar();
 
-        for (Player player: playersInRadius) {
-            if(!bossBarPlayers.contains(player)) {
-                activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().addPlayer(player);
-            }
-        }
-
-        for (Player player: bossBarPlayers) {
-            if(!playersInRadius.contains(player)) {
-                activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().removePlayer(player);
-            }
-        }
-
+        // Add players that were not previously in radius
+        playersInRadius.stream().filter(player -> !bossBarPlayers.contains(player)).forEach(bossBar::addPlayer);
+        // Remove players that are no longer in radius
+        bossBarPlayers.stream().filter(player -> !playersInRadius.contains(player)).forEach(bossBar::removePlayer);
     }
 
     private Runnable RaidTimerTask() {
         return () -> {
             Set<UUID> pointsToRemove = new HashSet<>();
             activeRaids.forEach((uuid, point) -> {
-                updateBossBar(point);
-                updateBossBarPlayers(point);
+                updateBossBar(uuid);
+                updateBossBarPlayers(uuid);
                 if (hasDurationPassed(point.getRaidingTown())) {
-                    removeEntity(point.getPointTransform().getExtent(), uuid);
-                    //TODO: Add logic to remove boss bar from players
                     pointsToRemove.add(uuid);
-                    Text raidRemovedText = Text.of("Your raid point has expired!");
+                    removeEntity(point.getPointTransform().getExtent(), uuid);
                     AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
-                        AtherysTowns.getInstance().getTownsMessagingService().info(player, raidRemovedText);
+                        AtherysTowns.getInstance().getTownsMessagingService().info(player, Text.of("Your raid point has expired!"));
                     });
                 }
             });
