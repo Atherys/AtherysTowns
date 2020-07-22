@@ -5,6 +5,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.RaidPoint;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
@@ -14,7 +15,6 @@ import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleType;
@@ -68,15 +68,17 @@ public class TownRaidFacade {
         return townRaidService.isIdRaidEntity(entity.getUniqueId());
     }
 
-    public boolean isTownTooClose(Town town, Location<World> spawnLocation) {
-        Logger logger = AtherysTowns.getInstance().getLogger();
-        double test = MathUtils.getSmallestDistanceToTown(town.getPlots(), MathUtils.vec3dToVec2i(spawnLocation.getPosition()));
-        logger.info(String.valueOf(test));
-        return test <= config.RAID.RAID_MIN_CREATION_DISTANCE;
-    }
-
-    public boolean isTownTooFarAway(Town town, Location<World> spawnLocation) {
-        return MathUtils.getSmallestDistanceToTown(town.getPlots(), MathUtils.vec3dToVec2i(spawnLocation.getPosition())) >= config.RAID.RAID_MAX_CREATION_DISTANCE;
+    public void checkDistanceToTown(Town town, Vector3d targetPoint) throws TownsCommandException {
+        Set<Double> distances = new HashSet<>();
+        for (Plot plot : town.getPlots()) {
+            distances.add(MathUtils.getDistanceToPlot(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner()));
+        }
+        if (distances.stream().anyMatch(aDouble -> aDouble < config.RAID.RAID_MIN_CREATION_DISTANCE)) {
+            throw new TownsCommandException("Target town is too close to current location!");
+        }
+        if (distances.stream().allMatch(aDouble -> aDouble > config.RAID.RAID_MAX_CREATION_DISTANCE)) {
+            throw new TownsCommandException("Target town is too far away from current location!");
+        }
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
@@ -110,17 +112,11 @@ public class TownRaidFacade {
             throw new TownsCommandException("Raid Cooldown is still in effect!");
         }
 
-        if (isTownTooClose(town, location)) {
-            throw new TownsCommandException("Target town is too close to current location!");
-        }
-
-        if (isTownTooFarAway(town, location)) {
-            throw new TownsCommandException("Target town is too far away from current location!");
-        }
-
         if (plotService.getPlotByLocation(location).isPresent()) {
             throw new TownsCommandException("You cannot create a raid point within the borders of a town!");
         }
+
+        checkDistanceToTown(targetTown, transform.getPosition());
     }
 
     public AreaEffectCloud getEffectCloud(ParticleType type, double verticalAdjustment, Transform<World> transform) {

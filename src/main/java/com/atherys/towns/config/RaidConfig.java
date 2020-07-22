@@ -24,10 +24,10 @@ public class RaidConfig {
     @Setting("town-raid-spawn-radius")
     public int RAID_SPAWN_RADIUS = 450;
 
-    @Setting("town-raid-creation-distance")
+    @Setting("town-raid-min-creation-distance")
     public int RAID_MIN_CREATION_DISTANCE = 20;
 
-    @Setting("town-raid-creation-distance")
+    @Setting("town-raid-max-creation-distance")
     public int RAID_MAX_CREATION_DISTANCE = 500;
 
     @Setting("town-raid-damage-per-spawn")

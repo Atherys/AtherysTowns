@@ -1,12 +1,8 @@
 package com.atherys.towns.util;
 
-import com.atherys.towns.model.entity.Plot;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
-import org.spongepowered.api.entity.living.player.Player;
-
-import java.util.*;
 
 public class MathUtils {
 
@@ -20,10 +16,6 @@ public class MathUtils {
 
     public static double getDistanceBetweenPoints(Vector3d point1, Vector3d point2) {
         return Math.sqrt(Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2));
-    }
-
-    public static double getDistanceBetweenPoints(Vector2i point1, Vector2i point2) {
-        return Math.sqrt(Math.pow(point2.getX() - point1.getX(), 2) + Math.pow(point2.getY() - point1.getY(), 2));
     }
 
     public static int getXLength(Vector2i pointA, Vector2i pointB) {
@@ -82,50 +74,27 @@ public class MathUtils {
         );
     }
 
-    private static Set<Vector2i> getTownPlotPoints(Set<Plot> plots) {
-        Set<Vector2i> plotPoints = new HashSet<>();
-        plots.forEach(plot -> {
-            plotPoints.add(plot.getNorthEastCorner());
-            plotPoints.add(plot.getSouthWestCorner());
-        });
-        return plotPoints;
-    }
-
-    private static Vector2i getClosestPlot(Set<Plot> plots, Vector2i targetPoint) {
-        Map<Double, Vector2i> pointDistances = new HashMap<>();
-        getTownPlotPoints(plots).forEach(plotVector -> pointDistances.put(getDistanceBetweenPoints(targetPoint, plotVector), plotVector));
-        return Collections.min(pointDistances.entrySet(), (entry1, entry2) -> (int) (entry1.getKey() - entry2.getKey())).getValue();
-    }
-
-    public static double getDistanceToPlot(Plot plot, Vector2i point) {
-        int plotMinX = plot.getSouthWestCorner().getX();
-        int plotMaxX = plot.getNorthEastCorner().getX();
-        int plotMinY = plot.getSouthWestCorner().getY();
-        int plotMaxY = plot.getNorthEastCorner().getY();
+    public static double getDistanceToPlot(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
+        int plotMinX = SWCorner.getX();
+        int plotMaxX = NECorner.getX();
+        int plotMinY = NECorner.getY();
+        int plotMaxY = SWCorner.getY();
         int pointX = point.getX();
         int pointY = point.getY();
 
         if (pointX < plotMinX) {
-            if (pointY <  plotMinY) return Math.hypot(plotMinX-pointX, plotMinY-pointY);
+            if (pointY < plotMinY) return Math.hypot(plotMinX - pointX, plotMinY - pointY);
             if (pointY <= plotMaxY) return plotMinX - pointX;
-            return Math.hypot(plotMinX-pointX, plotMaxY-pointY);
+            return Math.hypot(plotMinX - pointX, plotMaxY - pointY);
         } else if (pointX <= plotMaxX) {
-            if (pointY <  plotMinY) return plotMinY - pointY;
+            if (pointY < plotMinY) return plotMinY - pointY;
             if (pointY <= plotMaxY) return 0;
             return pointY - plotMaxY;
         } else {
-            if (pointY <  plotMinY) return Math.hypot(plotMaxX-pointX, plotMinY-pointY);
+            if (pointY < plotMinY) return Math.hypot(plotMaxX - pointX, plotMinY - pointY);
             if (pointY <= plotMaxY) return pointX - plotMaxX;
-            return Math.hypot(plotMaxX-pointX, plotMaxY-pointY);
+            return Math.hypot(plotMaxX - pointX, plotMaxY - pointY);
         }
-    }
-
-    public static double getSmallestDistanceToTown(Set<Plot> townPlots, Vector2i targetPoint) {
-        Vector2i closestPlotPointVector = getClosestPlot(townPlots, targetPoint);
-        Plot plot = townPlots.stream().filter(plot1 -> plot1.getSouthWestCorner().equals(closestPlotPointVector)
-                || plot1.getNorthEastCorner().equals(closestPlotPointVector)).findFirst().get();
-
-        return getDistanceToPlot(plot, targetPoint);
     }
 
 
