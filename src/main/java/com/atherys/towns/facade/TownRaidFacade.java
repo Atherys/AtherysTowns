@@ -236,6 +236,7 @@ public class TownRaidFacade {
         RaidPoint point = townRaidService.getRaidPoint(event.getTargetEntity().getUniqueId());
         townFacade.getOnlineTownMembers(point.getRaidingTown()).forEach(member -> townsMsg.info(member, "Your mage has been killed!"));
         point.getParticleUUIDs().forEach(uuid -> townRaidService.removeEntity(point.getPointTransform().getExtent(), uuid));
+        //TODO: Add logic to remove boss bar from players
         townRaidService.removeRaidPoint(point.getRaidPointUUID());
     }
 

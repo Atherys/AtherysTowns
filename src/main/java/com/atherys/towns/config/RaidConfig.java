@@ -36,6 +36,9 @@ public class RaidConfig {
     @Setting("town-raid-distance-between-points")
     public int RAID_DISTANCE_BETWEEN_POINTS = 150;
 
+    @Setting("town-raid-boss-bar-distance")
+    public int RAID_BOSS_BAR_DISTANCE = 20;
+
     @Setting("town-raid-skin-uuid")
     public String RAID_SKIN_UUID = "b1759db2-3b7f-4d5d-9155-70aca6e94cba";
 

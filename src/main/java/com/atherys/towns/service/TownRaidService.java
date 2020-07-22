@@ -13,6 +13,7 @@ import org.spongepowered.api.boss.ServerBossBar;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
@@ -22,6 +23,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Singleton
 public class TownRaidService {
@@ -62,7 +64,7 @@ public class TownRaidService {
                 .name(Text.of("Hired Mage"))
                 .overlay(BossBarOverlays.PROGRESS)
                 .color(BossBarColors.RED)
-                .percent(1f)
+                .percent(1.0f)
                 .build();
 
         RaidPoint point = new RaidPoint(LocalDateTime.now(), transform, entityId, town, targetTown, particleEffects, raidBar);
@@ -112,17 +114,44 @@ public class TownRaidService {
         return 0;
     }
 
-    private void updateBossBar(RaidPoint point) {
+    public void updateBossBar(RaidPoint point) {
         double raidHealth = getRaidHealth(point.getPointTransform().getExtent(), point);
         double raidPercentage = getRaidPercentage(config.RAID.RAID_HEALTH, raidHealth);
+        activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().setPercent((float)(raidPercentage / 100));
+    }
+
+    private void updateBossBarPlayers(RaidPoint point) {
+        //TODO: Optimize this function. I feel like more can be done here as this was done in a rush.
+        Location<World> location = point.getPointTransform().getLocation();
+        Set<Player> playersInRadius = location.getExtent().getNearbyEntities(location.getPosition(), config.RAID.RAID_BOSS_BAR_DISTANCE).stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity).collect(Collectors.toSet());
+
+        Collection<Player> bossBarPlayers = point.getRaidBossBar().getPlayers();
+
+        for (Player player: playersInRadius) {
+            if(!bossBarPlayers.contains(player)) {
+                activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().addPlayer(player);
+            }
+        }
+
+        for (Player player: bossBarPlayers) {
+            if(!playersInRadius.contains(player)) {
+                activeRaids.get(point.getRaidPointUUID()).getRaidBossBar().removePlayer(player);
+            }
+        }
+
     }
 
     private Runnable RaidTimerTask() {
         return () -> {
             Set<UUID> pointsToRemove = new HashSet<>();
             activeRaids.forEach((uuid, point) -> {
+                updateBossBar(point);
+                updateBossBarPlayers(point);
                 if (hasDurationPassed(point.getRaidingTown())) {
                     removeEntity(point.getPointTransform().getExtent(), uuid);
+                    //TODO: Add logic to remove boss bar from players
                     pointsToRemove.add(uuid);
                     Text raidRemovedText = Text.of("Your raid point has expired!");
                     AtherysTowns.getInstance().getTownFacade().getOnlineTownMembers(point.getRaidingTown()).forEach(player -> {
