@@ -499,6 +499,7 @@ public class TownService {
                     setTaxesPaid(town, true);
                     payTaxes(town, taxPaymentAmount);
                     town.setLastTaxDate(LocalDateTime.now());
+                    continue;
                 }
 
                 townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD, config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ", GOLD,
