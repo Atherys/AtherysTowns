@@ -12,7 +12,7 @@ import org.spongepowered.api.entity.living.player.Player;
 
 @Aliases("paydebt")
 @Description("Deletes your town.")
-@Permission("atherystowns.town.debt.pay")
+@Permission("atherystowns.town.pay_debt")
 public class TownPayDebtCommand implements PlayerCommand {
     @Override
     public CommandResult execute(Player src, CommandContext args) throws CommandException {
