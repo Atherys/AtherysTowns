@@ -52,21 +52,21 @@ public class TownService {
 
     public static final boolean DEFAULT_TOWN_FREELY_JOINABLE = false;
 
-    private TownsConfig config;
+    private final TownsConfig config;
 
-    private PlotService plotService;
+    private final PlotService plotService;
 
-    private TownRepository townRepository;
+    private final TownRepository townRepository;
 
-    private PlotRepository plotRepository;
+    private final PlotRepository plotRepository;
 
-    private ResidentRepository residentRepository;
+    private final ResidentRepository residentRepository;
 
-    private ResidentService residentService;
+    private final ResidentService residentService;
 
-    private TownsPermissionService townsPermissionService;
+    private final TownsPermissionService townsPermissionService;
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
     @Inject
     TownService(
@@ -108,8 +108,6 @@ public class TownService {
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
         town.setWorld(leader.getWorld().getUniqueId());
-        town.setPvpToggleDisabled(false);
-        town.setPlotClaimingDisabled(false);
         town.setLastTaxDate(LocalDateTime.now());
         town.setTaxFailedCount(0);
         town.setDebt(0);
@@ -170,16 +168,6 @@ public class TownService {
 
     public void setTownPvp(Town town, boolean pvp) {
         town.setPvpEnabled(pvp);
-        townRepository.saveOne(town);
-    }
-
-    public void setTownPvPToggleDisabled(Town town, boolean toggle) {
-        town.setPvpToggleDisabled(toggle);
-        townRepository.saveOne(town);
-    }
-
-    public void setTownPlotClaimingDisabled(Town town, boolean claiming) {
-        town.setPlotClaimingDisabled(claiming);
         townRepository.saveOne(town);
     }
 
@@ -449,8 +437,6 @@ public class TownService {
     }
 
     private void setTaxesPaid(Town town, boolean paid) {
-        setTownPvPToggleDisabled(town, !paid);
-        setTownPlotClaimingDisabled(town, !paid);
         if (!paid) {
             addFailedTaxOccurrence(town);
             setTownPvp(town, true);

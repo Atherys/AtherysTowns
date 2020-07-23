@@ -73,10 +73,6 @@ public class Town implements Identifiable<Long> {
 
     private int taxFailedCount;
 
-    private boolean plotClaimingDisabled;
-
-    private boolean pvpToggleDisabled;
-
     private double debt;
 
     @Version
@@ -266,21 +262,5 @@ public class Town implements Identifiable<Long> {
 
     public void setDebt(double debt) {
         this.debt = debt;
-    }
-
-    public boolean isPlotClaimingDisabled() {
-        return this.plotClaimingDisabled;
-    }
-
-    public void setPlotClaimingDisabled(boolean plotClaimingDisabled) {
-        this.plotClaimingDisabled = plotClaimingDisabled;
-    }
-
-    public boolean isPvpToggleDisabled() {
-        return this.pvpToggleDisabled;
-    }
-
-    public void setPvpToggleDisabled(boolean pvpToggleDisabled) {
-        this.pvpToggleDisabled = pvpToggleDisabled;
     }
 }
