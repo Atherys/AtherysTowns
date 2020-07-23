@@ -11,6 +11,9 @@ public class TaxConfig {
     @Setting("tax-collection-interval")
     public Duration TAX_COLLECTION_DURATION = Duration.ofMinutes(1);
 
+    @Setting("inactive-resident-duration")
+    public Duration INACTIVE_DURATION = Duration.ofDays(14);
+
     @Setting("tax-timer-interval-minutes")
     public int TAX_COLLECTION_TIMER_MINUTES = 1;
 

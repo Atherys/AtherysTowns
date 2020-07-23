@@ -6,8 +6,6 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +51,13 @@ public class TownsMessagingFacade extends AbstractMessagingFacade {
 
     public void broadcastTownInfo(Town town, Object... message) {
         Text formattedMessage = formatInfo(message);
+        townFacade.getOnlineTownMembers(town).stream().forEach(
+                player -> player.sendMessage(formattedMessage)
+        );
+    }
+
+    public void broadcastTownError(Town town, Object... message) {
+        Text formattedMessage = formatError(message);
         townFacade.getOnlineTownMembers(town).stream().forEach(
                 player -> player.sendMessage(formattedMessage)
         );

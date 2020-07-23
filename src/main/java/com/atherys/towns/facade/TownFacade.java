@@ -78,13 +78,6 @@ public class TownFacade implements EconomyFacade {
     TownFacade() {
     }
 
-    public void sendTownTaxMessage(Town town, double taxAmount) {
-        getOnlineTownMembers(town).forEach(player -> {
-            townsMsg.info(player, Text.of("Paid ", GOLD, config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxAmount)), DARK_GREEN, " to ", GOLD,
-                    town.getNation().getName(), DARK_GREEN, " in taxes."));
-        });
-    }
-
     public boolean isTownTaxDue(Town town) {
         return town.getTaxFailedCount() > 0;
     }

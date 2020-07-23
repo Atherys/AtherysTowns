@@ -39,6 +39,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+
 @Singleton
 public class TownService {
 
@@ -420,20 +423,23 @@ public class TownService {
         if (AtherysTowns.economyIsEnabled()) {
             Task.Builder taxTimer = Task.builder();
             taxTimer.interval(config.TAXES.TAX_COLLECTION_TIMER_MINUTES, TimeUnit.MINUTES)
-                    .execute(TaxTimerTask())
+                    .execute(TaxTask())
                     .submit(AtherysTowns.getInstance());
         }
     }
 
     private double getTaxAmount(Town town) {
-        long townSize = town.getResidents().stream()
-                .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(Duration.ofDays(14)) < 0)
-                .count();
+        TaxConfig taxConfig = config.TAXES;
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());
         int oversizeArea = area > town.getMaxSize() ? area - town.getMaxSize() : 0;
-        TaxConfig taxConfig = config.TAXES;
-        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea) + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
+
+        long townSize = town.getResidents().stream()
+                .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(taxConfig.INACTIVE_DURATION) < 0)
+                .count();
+
+        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea)
+                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
     }
 
     private void setTaxesPaid(Town town, boolean paid) {
@@ -451,37 +457,56 @@ public class TownService {
         Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
     }
 
-    private Runnable TaxTimerTask() {
-        return () -> townRepository.getAll().stream()
-                .filter(town -> town.getNation() != null)
-                .filter(town -> Duration.between(town.getLastTaxDate(), LocalDateTime.now())
-                        .compareTo(config.TAXES.TAX_COLLECTION_DURATION) > 0)
-                .forEach(town -> {
-                    TownsMessagingFacade townMsg = AtherysTowns.getInstance().getTownsMessagingService();
-                    double taxPaymentAmount = Math.floor(getTaxAmount(town));
-                    Account townBank = Economy.getAccount(town.getBank().toString()).get();
+    private boolean isTaxTime(Town town) {
+        return Duration.between(town.getLastTaxDate(), LocalDateTime.now())
+                .compareTo(config.TAXES.TAX_COLLECTION_DURATION) > 0;
+    }
 
-                    if (taxPaymentAmount <= townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue()) {
-                        if (town.getTaxFailedCount() > 0) {
-                            residentService.getPlayerFromResident(town.getLeader())
-                                    .ifPresent(player -> townMsg.info(player, Text.of("You have paid what you owe, all town features have been restored.")));
-                            setTaxesPaid(town, true);
-                        }
-                        payTaxes(town, taxPaymentAmount);
-                        town.setLastTaxDate(LocalDateTime.now());
-                        AtherysTowns.getInstance().getTownFacade().sendTownTaxMessage(town, taxPaymentAmount);
-                    } else if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
-                        residentService.getPlayerFromResident(town.getLeader())
-                                .ifPresent(player -> townMsg.error(player, Text.of("Failure to pay taxes has resulted in your town being ruined!")));
-                        removeTown(town);
-                    } else {
-                        residentService.getPlayerFromResident(town.getLeader())
-                                .ifPresent(player -> townMsg.error(player, Text.of("You have failed to pay your taxes! If not paid by next tax cycle your town will be ruined! Town features have been limited until paid off.")));
-                        double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
-                        payTaxes(town, townBalance);
-                        addTownDebt(town, (taxPaymentAmount - townBalance));
-                        setTaxesPaid(town, false);
-                    }
-                });
+    private Runnable TaxTask() {
+        return () -> {
+            Set<Town> taxableTowns = townRepository.getAll().stream()
+                    .filter(town -> town.getNation() != null)
+                    .filter(this::isTaxTime)
+                    .filter(town -> !town.getNation().getCapital().equals(town))
+                    .collect(Collectors.toSet());
+            Set<Town> townsToRemove = new HashSet<>();
+
+            for (Town town : taxableTowns) {
+                TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
+                double taxPaymentAmount = Math.floor(getTaxAmount(town));
+                Account townBank = Economy.getAccount(town.getBank().toString()).get();
+                double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
+                boolean hasMetMaximumTaxFailures = town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES;
+                boolean hasEnoughMoney = taxPaymentAmount <= townBalance;
+
+                if (!hasEnoughMoney && hasMetMaximumTaxFailures) {
+                    townsMsg.broadcastTownError(town, Text.of("Failure to pay taxes has resulted in your town being ruined!"));
+                    townsToRemove.add(town);
+                    continue;
+                }
+
+                if (!hasEnoughMoney) {
+                    townsMsg.broadcastTownError(town, Text.of("You have failed to pay your taxes! If not paid by next tax cycle your town will be ruined!" +
+                            " Town features have been limited until paid off."));
+                    payTaxes(town, townBalance);
+                    addTownDebt(town, (taxPaymentAmount - townBalance));
+                    setTaxesPaid(town, false);
+                    continue;
+                }
+
+                if (town.getTaxFailedCount() > 0) {
+                    townsMsg.broadcastTownInfo(town, Text.of("You have paid what you owe, all town features have been restored."));
+                    setTaxesPaid(town, true);
+                    payTaxes(town, taxPaymentAmount);
+                    town.setLastTaxDate(LocalDateTime.now());
+                }
+
+                townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD, config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ", GOLD,
+                        town.getNation().getName(), DARK_GREEN, " in taxes."));
+                payTaxes(town, taxPaymentAmount);
+                town.setLastTaxDate(LocalDateTime.now());
+            }
+            townsToRemove.forEach(this::removeTown);
+        };
     }
 }
