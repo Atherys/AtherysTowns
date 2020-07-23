@@ -20,6 +20,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -572,5 +573,19 @@ public class TownFacade implements EconomyFacade {
 
     private boolean hasPlayerTown(Player player) {
         return residentFacade.getPlayerTown(player).isPresent();
+    }
+
+    public void payTownDebt(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+        Account townBank = Economy.getAccount(town.getBank().toString()).get();
+        double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
+
+        if (town.getDebt() <= townBalance) {
+            townService.payTaxes(town, town.getDebt());
+            townService.setTaxesPaid(town, true);
+            townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+        }
+
+        throw new TownsCommandException("You have no debt to pay!");
     }
 }

@@ -442,7 +442,7 @@ public class TownService {
                 + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
     }
 
-    private void setTaxesPaid(Town town, boolean paid) {
+    public void setTaxesPaid(Town town, boolean paid) {
         if (!paid) {
             addFailedTaxOccurrence(town);
             setTownPvp(town, true);
@@ -452,7 +452,7 @@ public class TownService {
         }
     }
 
-    private void payTaxes(Town town, double amount) {
+    public void payTaxes(Town town, double amount) {
         Cause cause = Sponge.getCauseStackManager().getCurrentCause();
         Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
     }
