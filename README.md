@@ -16,7 +16,9 @@ A land-management plugin for the A'therys Horizons server, inspired by Towny
 * `/plot select A`
 * `/plot select B`
 * `/plot select clear`
+* `/plot border <true/false>`
 * `/plot rename <new name>`
+* `/plot grant <player>`
 * `/plot permit <player/town/nation> <permission>`
 * `/plot revoke <player/town/nation> <permission>`
 
@@ -31,28 +33,40 @@ A land-management plugin for the A'therys Horizons server, inspired by Towny
 * `/town join <town>`
 * `/town invite <player>`
 * `/town leave`
-* `/town expand <town> <extra area>`
-* `/town shrink <town> <less area>`
+* `/town raid`
+* `/town raid info`
+* `/town raid create`
+* `/town raid cancel`
+* `/town kick <player>`
+* `/town paydebt`
+* `/town spawn`
+* `/town setspawn`
 * `/town rename <name>`
 * `/town describe <description>`
 * `/town motd <motd>`
 * `/town color <color>`
+* `/town pvp <true/false>`
 * `/town deposit <amount> <currency>`
 * `/town withdraw <amount> <currency>`
 * `/town permit <player/town/nation> <permission>`
 * `/town revoke <player/town/nation> <permission>`
 * `/town role add <player> <role>`
 * `/town role revoke <player> <role>`
+### Town Admin Commands
+* `/town decrease <amount>`
+* `/town increase <amount>`
 
 ### Nation
 * `/nation`, `/n`
 * `/nation info <nation>`
+* `/nation list`
 * `/nation here`
-* `/nation create <name>`
-* `/nation disband`
-* `/nation status ally <nation>`
-* `/nation status neutral <nation>`
-* `/nation status war <nation>`
+* `/nation name <name>`
+* `/nation description <description>`
+* `/nation capital <town>`
+* `/nation ally <nation>`
+* `/nation neutral <nation>`
+* `/nation enemy <nation>`
 * `/nation deposit <amount> <currency>`
 * `/nation withdraw <amount> <currency>`
 * `/nation permit <player/town/nation> <permission>`
@@ -60,6 +74,11 @@ A land-management plugin for the A'therys Horizons server, inspired by Towny
 * `/nation tax <tax>`
 * `/nation role add <player> <role>`
 * `/nation role revoke <player> <role>`
+### Nation Admin Commands
+* `/nation create <name>`
+* `/nation disband <nation>`
+* `/nation add <town>`
+* `/nation remove <town>`
 
 # Installation
 ## Requirements
