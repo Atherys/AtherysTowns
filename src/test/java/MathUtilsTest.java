@@ -14,7 +14,7 @@ public class MathUtilsTest {
     private final Vector2i northEastA = Vector2i.from(91, 7);
 
     //Plot B
-    // 1. Should border with A
+    // 1. Should border with A and C
     // 2. Should not border with C or D
     // 3. Should overlap with C
     // 4. Should not overlap with A or D
@@ -22,7 +22,7 @@ public class MathUtilsTest {
     private final Vector2i northEastB = Vector2i.from(89, 2);
 
     //Plot C
-    // 1. Should not border with any
+    // 1. Should not border with B
     // 2. should overlap with B
     // 3. Should not overlap with A or D
     private final Vector2i southWestC = Vector2i.from(82, 4);
