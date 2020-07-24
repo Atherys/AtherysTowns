@@ -106,12 +106,12 @@ public class MathUtilsTest {
         // Middle vector is between lowest and highest (Also is a test for 3i to 2i conversion)
         Assert.assertTrue(MathUtils.vectorFitsInRange(middle2iVector, lowest2iVector, highest2iVector));
 
-        // Extraneous vector is between lowest and highest
+        // Extraneous vector is not between lowest and highest
         Assert.assertFalse(MathUtils.vectorFitsInRange(extraneousVector, lowestVector.toInt(), highestVector.toInt()));
-        // Extraneous vector is between lowest and highest
+        // Extraneous vector is not between lowest and highest
         Assert.assertFalse(MathUtils.vectorFitsInRange(extraneousVector.toInt(), lowestVector.toInt(), highestVector.toInt()));
 
-        // Extraneous vector is between lowest and highest (Also is a test for 3i to 2i conversion)
+        // Extraneous vector is not between lowest and highest (Also is a test for 3i to 2i conversion)
         Assert.assertFalse(MathUtils.vectorFitsInRange(extraneous2iVector, lowest2iVector, highest2iVector));
     }
 
