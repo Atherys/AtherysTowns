@@ -1,6 +1,7 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
@@ -61,6 +62,9 @@ public class PlotBorderFacade {
     @Inject
     TownsMessagingFacade townMsg;
 
+    @Inject
+    private TownsConfig config;
+
     public boolean isPlayerViewingBorders(Player player) {
         return borderViewers.getOrDefault(player.getUniqueId(), false);
     }
@@ -111,9 +115,13 @@ public class PlotBorderFacade {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
         if (selection.isComplete() && isPlayerViewingBorders(player)) {
             TownPlot plot = plotService.createTownPlotFromSelection(selection);
-            ParticleEffect effect = townFacade.isValidNewTownPlot(plot, location) ? greenWalls : yellowWalls;
-            BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
-            addSelectionBorder(player, borderInfo);
+            // Only show plots smaller than the max plot area
+            int plotArea = plotService.getPlotArea(plot);
+            if (plotArea < config.TOWN.MAX_PLOT_AREA) {
+                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, location) ? greenWalls : yellowWalls;
+                BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+                addSelectionBorder(player, borderInfo);
+            }
         }
     }
 
