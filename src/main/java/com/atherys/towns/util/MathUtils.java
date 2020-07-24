@@ -15,7 +15,7 @@ public class MathUtils {
     }
 
     public static double getDistanceBetweenPoints(Vector3d point1, Vector3d point2) {
-        return Math.sqrt(Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2));
+        return Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2);
     }
 
     public static int getXLength(Vector2i pointA, Vector2i pointB) {
@@ -75,26 +75,16 @@ public class MathUtils {
     }
 
     public static double getDistanceToPlot(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
-        int plotMinX = SWCorner.getX();
-        int plotMaxX = NECorner.getX();
-        int plotMinY = NECorner.getY();
-        int plotMaxY = SWCorner.getY();
-        int pointX = point.getX();
-        int pointY = point.getY();
+        int lengthX = MathUtils.getXLength(NECorner, SWCorner);
+        int lengthZ = MathUtils.getZLength(NECorner, SWCorner);
 
-        if (pointX < plotMinX) {
-            if (pointY < plotMinY) return Math.hypot(plotMinX - pointX, plotMinY - pointY);
-            if (pointY <= plotMaxY) return plotMinX - pointX;
-            return Math.hypot(plotMinX - pointX, plotMaxY - pointY);
-        } else if (pointX <= plotMaxX) {
-            if (pointY < plotMinY) return plotMinY - pointY;
-            if (pointY <= plotMaxY) return 0;
-            return pointY - plotMaxY;
-        } else {
-            if (pointY < plotMinY) return Math.hypot(plotMaxX - pointX, plotMinY - pointY);
-            if (pointY <= plotMaxY) return pointX - plotMaxX;
-            return Math.hypot(plotMaxX - pointX, plotMaxY - pointY);
-        }
+        double centerX = (double)(NECorner.getX() + SWCorner.getX()) / 2;
+        double centerZ = (double)(NECorner.getY() + SWCorner.getY()) / 2;
+
+        double pointXLength = Math.max(Math.abs(point.getX() - centerX) - (double)lengthX / 2, 0);
+        double pointYLength = Math.max(Math.abs(point.getY() - centerZ) - (double)lengthZ / 2, 0);
+
+        return pointXLength * pointXLength + pointYLength * pointYLength;
     }
 
 

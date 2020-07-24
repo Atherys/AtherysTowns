@@ -79,7 +79,7 @@ public class TownRaidService {
     }
 
     public boolean isIdRaidEntity(UUID entityId) {
-        return activeRaids.values().stream().anyMatch(point -> point.getRaidPointUUID().equals(entityId));
+        return activeRaids.containsKey(entityId);
     }
 
     public Optional<RaidPoint> getTownRaidPoint(Town town) {
@@ -104,7 +104,7 @@ public class TownRaidService {
     }
 
     public boolean isLocationTaken(Location<World> location) {
-        double raidDistance = config.RAID.RAID_DISTANCE_BETWEEN_POINTS;
+        double raidDistance = Math.pow(config.RAID.RAID_DISTANCE_BETWEEN_POINTS, 2);
         return activeRaids.values().stream()
                 .anyMatch(point -> MathUtils.getDistanceBetweenPoints(location.getPosition(), point.getPointTransform().getPosition()) < raidDistance);
     }
