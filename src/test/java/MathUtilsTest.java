@@ -50,31 +50,31 @@ public class MathUtilsTest {
     public void testPlotBordering() {
         // Plot A Borders B
         Assert.assertTrue(MathUtils.borders(southWestA, northEastA, southWestB, northEastB));
-        // Plot A Borders C
+        // Plot A Does Not Border C
         Assert.assertFalse(MathUtils.borders(southWestA, northEastA, southWestC, northEastC));
-        // Plot A Borders D
+        // Plot A Does Not Border D
         Assert.assertFalse(MathUtils.borders(southWestA, northEastA, southWestD, northEastD));
         // Plot B Borders C
         Assert.assertTrue(MathUtils.borders(southWestB, northEastB, southWestC, northEastC));
-        // Plot B Borders D
+        // Plot B Does Not Border D
         Assert.assertFalse(MathUtils.borders(southWestB, northEastB, southWestD, northEastD));
-        // Plot C Borders D
+        // Plot C Does Not Border D
         Assert.assertFalse(MathUtils.borders(southWestC, northEastC, southWestD, northEastD));
     }
 
     @Test
     public void testPlotOverlapping() {
-        // Plot A Overlaps B
+        // Plot A Does Not Overlap B
         Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestB, northEastB));
-        // Plot A Overlaps C
+        // Plot A Does Not Overlap C
         Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestC, northEastC));
-        // Plot A Overlaps D
+        // Plot A Does Not Overlap D
         Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestD, northEastD));
         // Plot B Overlaps C
         Assert.assertTrue(MathUtils.overlaps(southWestB, northEastB, southWestC, northEastC));
-        // Plot B Overlaps D
+        // Plot B Does Not Overlap D
         Assert.assertFalse(MathUtils.overlaps(southWestB, northEastB, southWestD, northEastD));
-        // Plot C Overlaps D
+        // Plot C Does Not Overlap D
         Assert.assertFalse(MathUtils.overlaps(southWestC, northEastC, southWestD, northEastD));
     }
 
