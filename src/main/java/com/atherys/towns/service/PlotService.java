@@ -146,4 +146,25 @@ public class PlotService {
         int sizeY = Math.abs(plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY());
         return new Vector2i(sizeX, sizeY);
     }
+
+    public Optional<Plot> getClosestPlot(Plot plot) {
+        int centerX = (plot.getNorthEastCorner().getX() + plot.getSouthWestCorner().getX()) / 2;
+        int centerZ = (plot.getNorthEastCorner().getY() + plot.getSouthWestCorner().getY()) / 2;
+
+        Plot closest = null;
+        double distance = 0;
+        for (Plot p : plotRepository.getAll()) {
+            if (p.equals(plot)) {
+                continue;
+            }
+
+            double newDistance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), p.getNorthEastCorner(), p.getSouthWestCorner());
+            if (closest == null || newDistance < distance) {
+                closest = p;
+                distance = newDistance;
+            }
+        }
+
+        return Optional.ofNullable(closest);
+    }
 }

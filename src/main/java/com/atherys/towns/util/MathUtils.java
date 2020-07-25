@@ -65,4 +65,17 @@ public class MathUtils {
                 rectASouthWest.add(-1, 1), rectANorthEast.add(1, -1), rectBSouthWest, rectBNorthEast
         );
     }
+
+    public static double getDistanceToPlotSquared(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
+        int lengthX = MathUtils.getXLength(NECorner, SWCorner);
+        int lengthZ = MathUtils.getZLength(NECorner, SWCorner);
+
+        double centerX = (double) (NECorner.getX() + SWCorner.getX()) / 2;
+        double centerZ = (double) (NECorner.getY() + SWCorner.getY()) / 2;
+
+        double pointXLength = Math.max(Math.abs(point.getX() - centerX) - (double) lengthX / 2, 0);
+        double pointYLength = Math.max(Math.abs(point.getY() - centerZ) - (double) lengthZ / 2, 0);
+
+        return Math.pow(pointXLength, 2) + Math.pow(pointYLength, 2);
+    }
 }

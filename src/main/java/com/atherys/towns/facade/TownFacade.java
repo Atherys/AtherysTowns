@@ -5,6 +5,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -13,6 +14,8 @@ import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.*;
+import com.atherys.towns.util.MathUtils;
+import com.flowpowered.math.vector.Vector2i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -106,19 +109,32 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        if(plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())){
-            Plot homePlot = plotService.createPlotFromSelection(selection);
-            if (party.isPresent()) {
-                Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
-                partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
+        if (!plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())) {
+            return;
+        }
 
-                if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
-                    throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
-                }
-                pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
-            } else {
-                createTown(player, townName, homePlot);
+        Plot homePlot = plotService.createPlotFromSelection(selection);
+        Optional<Plot> closestPlot = plotService.getClosestPlot(homePlot);
+
+        if (closestPlot.isPresent()) {
+            int centerX = (homePlot.getNorthEastCorner().getX() + homePlot.getSouthWestCorner().getX()) / 2;
+            int centerZ = (homePlot.getNorthEastCorner().getY() + homePlot.getSouthWestCorner().getY()) / 2;
+            double distance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), closestPlot.get().getNorthEastCorner(), closestPlot.get().getSouthWestCorner());
+            if (distance < Math.pow(config.TOWN.MIN_DISTANCE_TO_TOWN, 2)) {
+                throw new TownsCommandException("This plot is too close to and existing town. (Min distance " + config.TOWN.MIN_DISTANCE_TO_TOWN + ")");
             }
+        }
+
+        if (party.isPresent()) {
+            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
+            partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
+
+            if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
+            }
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+        } else {
+            createTown(player, townName, homePlot);
         }
     }
 
