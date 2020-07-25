@@ -70,7 +70,7 @@ public class TownRaidFacade {
 
     public void checkDistanceToTown(Town town, Vector3d targetPoint) throws TownsCommandException {
         for (Plot plot : town.getPlots()) {
-            double plotDistance = MathUtils.getDistanceToPlot(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+            double plotDistance = MathUtils.getDistanceToPlotSquared(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner());
             if (plotDistance < Math.pow(config.RAID.RAID_MIN_CREATION_DISTANCE, 2)) {
                 throw new TownsCommandException("Target town is too close to current location!");
             }
@@ -82,7 +82,7 @@ public class TownRaidFacade {
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
-        return MathUtils.getDistanceBetweenPoints(spawnLocation.getPosition(), targetSpawn.getPosition()) <= config.RAID.RAID_SPAWN_RADIUS;
+        return MathUtils.getDistanceBetweenPointsSquared(spawnLocation.getPosition(), targetSpawn.getPosition()) <= Math.pow(config.RAID.RAID_SPAWN_RADIUS, 2);
     }
 
     public void validateRaid(Town town, Transform<World> transform, Town targetTown) throws TownsCommandException {
@@ -172,7 +172,7 @@ public class TownRaidFacade {
         Text pointLocation = raidExists ? formatRaidLocation(point.get().getPointTransform()) : Text.of(RED, "No Raid in Progress");
         Text pointHealth = raidExists ? Text.of(GOLD, townRaidService.getRaidHealth(player.getWorld(), point.get())) : Text.of(RED, "No Raid in Progress");
         Text durationLeft = raidExists ? formatDurationLeft(point.get().getCreationTime(), config.RAID.RAID_DURATION) : Text.of(RED, "No Raid in Progress");
-        Text cooldown = townRaidService.hasCooldownPeriodPassed(town) ? Text.of(GREEN, "No Cooldown Remaining") : formatDurationLeft(town.getLastRaidCreationDate(), config.RAID.RAID_COOLDOWN);
+        Text cooldown = townRaidService.hasCooldownPeriodPassed(town) ? Text.of(GREEN, "No Cooldown Remaining") : formatDurationLeft(town.getLastRaidCreationDate().get(), config.RAID.RAID_COOLDOWN);
 
         Text.Builder raidText = Text.builder();
 

@@ -106,21 +106,17 @@ public class TownRaidService {
     public boolean isLocationTaken(Location<World> location) {
         double raidDistance = Math.pow(config.RAID.RAID_DISTANCE_BETWEEN_POINTS, 2);
         return activeRaids.values().stream()
-                .anyMatch(point -> MathUtils.getDistanceBetweenPoints(location.getPosition(), point.getPointTransform().getPosition()) < raidDistance);
+                .anyMatch(point -> MathUtils.getDistanceBetweenPointsSquared(location.getPosition(), point.getPointTransform().getPosition()) < raidDistance);
     }
 
     public boolean hasCooldownPeriodPassed(Town town) {
-        if (town.getLastRaidCreationDate() != null) {
-            return Duration.between(town.getLastRaidCreationDate(), LocalDateTime.now()).compareTo(config.RAID.RAID_COOLDOWN) >= 0;
-        }
-        return true;
+        Optional<LocalDateTime> raidCreationDate = town.getLastRaidCreationDate();
+        return raidCreationDate.map(dateTime -> Duration.between(dateTime, LocalDateTime.now()).compareTo(config.RAID.RAID_COOLDOWN) >= 0).orElse(true);
     }
 
     public boolean hasDurationPassed(Town town) {
-        if (town.getLastRaidCreationDate() != null) {
-            return Duration.between(town.getLastRaidCreationDate(), LocalDateTime.now()).compareTo(config.RAID.RAID_DURATION) >= 0;
-        }
-        return true;
+        Optional<LocalDateTime> raidCreationDate = town.getLastRaidCreationDate();
+        return raidCreationDate.map(dateTime -> Duration.between(dateTime, LocalDateTime.now()).compareTo(config.RAID.RAID_DURATION) >= 0).orElse(true);
     }
 
     public void initRaidTimer() {

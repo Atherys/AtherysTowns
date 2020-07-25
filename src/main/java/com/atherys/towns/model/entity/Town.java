@@ -4,7 +4,6 @@ import com.atherys.core.db.Identifiable;
 import com.atherys.core.db.converter.TransformConverter;
 import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
-import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -224,8 +223,8 @@ public class Town implements Identifiable<Long> {
         this.bank = bank;
     }
 
-    public LocalDateTime getLastRaidCreationDate() {
-        return this.lastRaidCreationDate;
+    public Optional<LocalDateTime> getLastRaidCreationDate() {
+        return Optional.ofNullable(this.lastRaidCreationDate);
     }
 
     public void setLastRaidCreationDate(LocalDateTime lastRaidCreationDate) {
