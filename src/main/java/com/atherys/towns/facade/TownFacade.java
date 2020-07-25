@@ -5,7 +5,6 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -120,8 +119,8 @@ public class TownFacade implements EconomyFacade {
             int centerX = (homePlot.getNorthEastCorner().getX() + homePlot.getSouthWestCorner().getX()) / 2;
             int centerZ = (homePlot.getNorthEastCorner().getY() + homePlot.getSouthWestCorner().getY()) / 2;
             double distance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), closestPlot.get().getNorthEastCorner(), closestPlot.get().getSouthWestCorner());
-            if (distance < Math.pow(config.TOWN.MIN_DISTANCE_TO_TOWN, 2)) {
-                throw new TownsCommandException("This plot is too close to and existing town. (Min distance " + config.TOWN.MIN_DISTANCE_TO_TOWN + ")");
+            if (distance < Math.pow(config.TOWN.MIN_CREATION_DISTANCE, 2)) {
+                throw new TownsCommandException("This plot is too close to and existing town. (Min distance " + config.TOWN.MIN_CREATION_DISTANCE + ")");
             }
         }
 

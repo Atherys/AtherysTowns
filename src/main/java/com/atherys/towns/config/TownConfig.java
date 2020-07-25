@@ -18,8 +18,8 @@ public class TownConfig {
     @Setting("plot-min-side")
     public int MIN_PLOT_SIDE = 16;
 
-    @Setting("min-distance-to-town")
-    public int MIN_DISTANCE_TO_TOWN = 100;
+    @Setting("town-min-creation-distance")
+    public int MIN_CREATION_DISTANCE = 100;
 
     @Setting("default-town-max-size")
     public int DEFAULT_TOWN_MAX_SIZE = 4096;
