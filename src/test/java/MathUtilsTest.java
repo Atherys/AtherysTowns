@@ -7,33 +7,64 @@ import org.junit.Test;
 
 public class MathUtilsTest {
 
-    //Plot A
-    // 1. Should border with B
-    // 2. Should not border with C or D
-    // 3. Should not overlap any
-    private final Vector2i southWestA = Vector2i.from(88, 11);
-    private final Vector2i northEastA = Vector2i.from(91, 7);
+    // Declare some common rectangles for testing
 
-    //Plot B
-    // 1. Should border with A and C
-    // 2. Should not border with C or D
-    // 3. Should overlap with C
-    // 4. Should not overlap with A or D
-    private final Vector2i southWestB = Vector2i.from(85, 6);
-    private final Vector2i northEastB = Vector2i.from(89, 2);
+    // Rectangles connected on the corner
+    // +---+      borders: False
+    // | a |      overlaps: False
+    // +-------+  contains: False
+    //     | b |  touches: True
+    //     +---+
+    private final BasicRectangle touchCornerA = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(92, 7));
+    private final BasicRectangle touchCornerB = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
 
-    //Plot C
-    // 1. Should not border with B
-    // 2. should overlap with B
-    // 3. Should not overlap with A or D
-    private final Vector2i southWestC = Vector2i.from(82, 4);
-    private final Vector2i northEastC = Vector2i.from(87, -2);
 
-    //Plot D
-    // 1. Should not border with any
-    // 2. Should not overlap with any
-    private final Vector2i southWestD = Vector2i.from(85, -10);
-    private final Vector2i northEastD = Vector2i.from(89, -15);
+    // Rectangles bordering on the bottom
+    // +---+      borders: True
+    // | a |      overlaps: False
+    // +-+-+-+    contains: False
+    //   | b |    touches: True
+    //   +---+
+    private final BasicRectangle borderBottomA = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(94, 7));
+    private final BasicRectangle borderBottomB = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
+
+    // Rectangles bordering on the side
+    // +---+---+   borders: True
+    // | a | b |   overlaps: False
+    // +---+---+   contains: False
+    //             touches: True
+    private final BasicRectangle borderSideA  = new BasicRectangle(Vector2i.from(-4, -2), Vector2i.from(-3, -4));
+    private final BasicRectangle borderSideB  = new BasicRectangle(Vector2i.from(-3, -2), Vector2i.from(-2, -4));
+
+    // Disjoint Rectangles
+    //  +---+       borders: False
+    //  | a |       overlaps: False
+    //  +---+       contains: False
+    //      +---+   touches: False
+    //      | b |
+    //      +---+
+    private final BasicRectangle disjointA = new BasicRectangle(Vector2i.from(-6, 2), Vector2i.from(-5, -1));
+    private final BasicRectangle disjointB = new BasicRectangle(Vector2i.from(-4, -3), Vector2i.from(2, -5));
+
+    // Intersecting rectangles
+    //  +-----+    borders: False
+    //  |  a  |    overlaps: True
+    //  |  +----+  contains: False
+    //  +--|--+ |  touches: False
+    //     | b  |
+    //     +----+
+    private final BasicRectangle intersectA = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(4, 2));
+    private final BasicRectangle intersectB = new BasicRectangle(Vector2i.from(3, 3), Vector2i.from(6, 1));
+
+    // Containing rectangles
+    //  +-------+  borders: False
+    //  |   a   |  overlaps: True
+    //  | +---+ |  contains: (a,b) True (b,a) False
+    //  | | b | |  touches: False
+    //  | +---+ |
+    //  +-------+
+    private final BasicRectangle containsA = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(6, 1));
+    private final BasicRectangle containsB = new BasicRectangle(Vector2i.from(3, 3), Vector2i.from(5, 2));
 
     //Vector Range Testing
     private final Vector3d extraneousVector = new Vector3d(2501, -224, -9281);
@@ -46,22 +77,6 @@ public class MathUtilsTest {
     private final Vector2i middle2iVector = MathUtils.vec3iToVec2i(middleVector.toInt());
     private final Vector2i lowest2iVector = MathUtils.vec3iToVec2i(lowestVector.toInt());
     private final Vector2i highest2iVector = MathUtils.vec3iToVec2i(highestVector.toInt());
-
-    @Test
-    public void testPlotOverlapping() {
-        // Plot A Does Not Overlap B
-        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestB, northEastB));
-        // Plot A Does Not Overlap C
-        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestC, northEastC));
-        // Plot A Does Not Overlap D
-        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestD, northEastD));
-        // Plot B Overlaps C
-        //Assert.assertTrue(MathUtils.overlaps(southWestB, northEastB, southWestC, northEastC));
-        // Plot B Does Not Overlap D
-        //Assert.assertFalse(MathUtils.overlaps(southWestB, northEastB, southWestD, northEastD));
-        // Plot C Does Not Overlap D
-        //Assert.assertFalse(MathUtils.overlaps(southWestC, northEastC, southWestD, northEastD));
-    }
 
     @Test
     public void testFitsInRange() {
@@ -114,79 +129,170 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testXLength() {
-        // Plot A Known X Length = 3
-        Assert.assertEquals(3, MathUtils.getXLength(northEastA, southWestA));
-        Assert.assertEquals(3, MathUtils.getXLength(southWestA, northEastA));
-    }
-
-    @Test
-    public void testZLength() {
-        // Plot A Known Z Length = 4
-        Assert.assertEquals(4, MathUtils.getZLength(northEastA, southWestA));
-        Assert.assertEquals(4, MathUtils.getZLength(southWestA, northEastA));
-    }
-
-    @Test
     public void testPlotBordering() {
-        BasicRectangle a, b;
+        // Rectangles connected on the corner
+        Assert.assertFalse("Rectangles touching on corners only do not border",
+                MathUtils.borders(touchCornerA, touchCornerB));
 
         // Rectangles bordering on the bottom
-        // +---+
-        // | a |
-        // +-+-+-+
-        //   | b |
-        //   +---+
-        a = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(94, 7));
-        b = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
-
-        Assert.assertTrue(MathUtils.borders(a, b));
-        Assert.assertTrue("Borders should be commutative", MathUtils.borders(b, a));
+        Assert.assertTrue(MathUtils.borders(borderBottomA, borderBottomB));
+        Assert.assertTrue(MathUtils.borders(borderBottomB, borderBottomA));
 
         // Rectangles bordering on the side
-        // +---+---+
-        // | a | b |
-        // +---+---+
-        a = new BasicRectangle(Vector2i.from(-4, -2), Vector2i.from(-3, -4));
-        b = new BasicRectangle(Vector2i.from(-3, -2), Vector2i.from(-2, -4));
-
-        Assert.assertTrue(MathUtils.borders(a, b));
-        Assert.assertTrue(MathUtils.borders(b, a));
-
-        // Rectangles connected on the corner
-        // +---+
-        // | a |
-        // +-------+
-        //     | b |
-        //     +---+
-        a = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(92, 7));
-        b = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
-
-        Assert.assertFalse("Rectangles touching on corners only do not border", MathUtils.borders(a, b));
+        Assert.assertTrue(MathUtils.borders(borderSideA, borderSideB));
+        Assert.assertTrue(MathUtils.borders(borderSideB, borderSideA));
 
         // Disjoint Rectangles
-        //
-        //  +---+
-        //  | a |
-        //  +---+
-        //      +---+
-        //      | b |
-        //      +---+
-        a = new BasicRectangle(Vector2i.from(-6, 2), Vector2i.from(-5, -1));
-        b = new BasicRectangle(Vector2i.from(-4, -3), Vector2i.from(2, -5));
+        Assert.assertFalse(MathUtils.borders(disjointA, disjointB));
+        Assert.assertFalse(MathUtils.borders(disjointB, disjointA));
 
-        Assert.assertFalse(MathUtils.borders(a, b));
+        // Intersecting rectangles
+        Assert.assertFalse(MathUtils.borders(intersectA, intersectB));
+        Assert.assertFalse(MathUtils.borders(intersectB, intersectA));
+
+        // Containing rectangles
+        Assert.assertFalse(MathUtils.borders(containsA, containsB));
+        Assert.assertFalse(MathUtils.borders(containsB, containsA));
     }
 
     @Test
     public void testTouches() {
-        BasicRectangle a, b;
+        // Rectangles connected on the corner
+        Assert.assertTrue(MathUtils.touches(touchCornerA, touchCornerB));
+        Assert.assertTrue(MathUtils.touches(touchCornerB, touchCornerA));
 
-        a = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(4, 2));
-        b = new BasicRectangle(Vector2i.from(3, 6), Vector2i.from(6, 4));
+        // Rectangles bordering on the bottom
+        Assert.assertTrue(MathUtils.touches(borderBottomA, borderBottomB));
+        Assert.assertTrue(MathUtils.touches(borderBottomB, borderBottomA));
 
-        Assert.assertTrue(MathUtils.touches(a, b));
-        Assert.assertFalse(MathUtils.borders(a, b));
+        // Rectangles bordering on the side
+        Assert.assertTrue(MathUtils.touches(borderSideA, borderSideB));
+        Assert.assertTrue(MathUtils.touches(borderSideB, borderSideA));
+
+        // Disjoint Rectangles
+        Assert.assertFalse(MathUtils.touches(disjointA, disjointB));
+        Assert.assertFalse(MathUtils.touches(disjointB, disjointA));
+
+        // Intersecting rectangles
+        Assert.assertFalse(MathUtils.touches(intersectA, intersectB));
+        Assert.assertFalse(MathUtils.touches(intersectB, intersectA));
+
+        // Containing rectangles
+        Assert.assertFalse(MathUtils.touches(containsA, containsB));
+        Assert.assertFalse(MathUtils.touches(containsB, containsA));
+    }
+
+    @Test
+    public void testOverlap() {
+        // Rectangles connected on the corner
+        Assert.assertFalse(MathUtils.overlaps(touchCornerA, touchCornerB));
+        Assert.assertFalse(MathUtils.overlaps(touchCornerB, touchCornerA));
+
+        // Rectangles bordering on the bottom
+        Assert.assertFalse(MathUtils.overlaps(borderBottomA, borderBottomB));
+        Assert.assertFalse(MathUtils.overlaps(borderBottomB, borderBottomA));
+
+        // Rectangles bordering on the side
+        Assert.assertFalse(MathUtils.overlaps(borderSideA, borderSideB));
+        Assert.assertFalse(MathUtils.overlaps(borderSideB, borderSideA));
+
+        // Disjoint Rectangles
+        Assert.assertFalse(MathUtils.overlaps(disjointA, disjointB));
+        Assert.assertFalse(MathUtils.overlaps(disjointB, disjointA));
+
+        // Intersecting rectangles
+        Assert.assertTrue(MathUtils.overlaps(intersectA, intersectB));
+        Assert.assertTrue(MathUtils.overlaps(intersectB, intersectA));
+
+        // Containing rectangles
+        Assert.assertTrue(MathUtils.overlaps(containsA, containsB));
+        Assert.assertTrue(MathUtils.overlaps(containsB, containsA));
+    }
+
+    @Test
+    public void testContains() {
+        // Rectangles connected on the corner
+        Assert.assertFalse(MathUtils.contains(touchCornerA, touchCornerB));
+        Assert.assertFalse(MathUtils.contains(touchCornerB, touchCornerA));
+
+        // Rectangles bordering on the bottom
+        Assert.assertFalse(MathUtils.contains(borderBottomA, borderBottomB));
+        Assert.assertFalse(MathUtils.contains(borderBottomB, borderBottomA));
+
+        // Rectangles bordering on the side
+        Assert.assertFalse(MathUtils.contains(borderSideA, borderSideB));
+        Assert.assertFalse(MathUtils.contains(borderSideB, borderSideA));
+
+        // Disjoint Rectangles
+        Assert.assertFalse(MathUtils.contains(disjointA, disjointB));
+        Assert.assertFalse(MathUtils.contains(disjointB, disjointA));
+
+        // Intersecting rectangles
+        Assert.assertFalse(MathUtils.contains(intersectA, intersectB));
+        Assert.assertFalse(MathUtils.contains(intersectB, intersectA));
+
+        // Containing rectangles
+        Assert.assertTrue(MathUtils.contains(containsA, containsB));
+        Assert.assertFalse(MathUtils.contains(containsB, containsA));
+    }
+
+    @Test
+    public void testEquals() {
+        // Test same Rectangle
+        Assert.assertTrue(MathUtils.equals(containsA, containsA));
+
+        // Test copied rectangle
+        BasicRectangle test = new BasicRectangle(containsA.getTopLeftCorner(), containsA.getBottomRightCorner());
+        Assert.assertTrue(MathUtils.equals(containsA, test));
+        Assert.assertTrue(MathUtils.equals(test, containsA));
+    }
+
+    @Test
+    public void testWidth() {
+        // Test touchCornerA
+        Assert.assertEquals(4, MathUtils.getWidth(touchCornerA));
+
+        // Test containsA
+        Assert.assertEquals(4, MathUtils.getWidth(containsA));
+
+        // Test containsB
+        Assert.assertEquals(2, MathUtils.getWidth(containsB));
+    }
+
+    @Test
+    public void testHeight() {
+        // Test touchCornerA
+        Assert.assertEquals(4, MathUtils.getHeight(touchCornerA));
+
+        // Test containsA
+        Assert.assertEquals(3, MathUtils.getHeight(containsA));
+
+        // Test containsB
+        Assert.assertEquals(1, MathUtils.getHeight(containsB));
+    }
+
+    @Test
+    public void testShortestSide() {
+        // Test touchCornerA
+        Assert.assertEquals(4, MathUtils.getShortestSide(touchCornerA));
+
+        // Test containsA
+        Assert.assertEquals(3, MathUtils.getShortestSide(containsA));
+
+        // Test containsB
+        Assert.assertEquals(1, MathUtils.getShortestSide(containsB));
+    }
+
+    @Test
+    public void testArea() {
+        // Test touchCornerA
+        Assert.assertEquals(16, MathUtils.getArea(touchCornerA));
+
+        // Test containsA
+        Assert.assertEquals(12, MathUtils.getArea(containsA));
+
+        // Test containsB
+        Assert.assertEquals(2, MathUtils.getArea(containsB));
     }
 
 }

@@ -70,7 +70,7 @@ public class MathUtils {
 
     public static boolean contains(Rectangle a, Rectangle b) {
         // a contains b iff no points of b lie in the exterior of a, and at least one point of the interior of b lies in the interior of a
-        return (a.maxY() >= b.maxY() && a.minY() >= b.minY() && a.maxX() >= b.maxX() && a.minX() >= b.minX());
+        return (a.maxY() >= b.maxY() && a.minY() <= b.minY() && a.maxX() >= b.maxX() && a.minX() <= b.minX());
     }
 
     public static boolean equals(Rectangle a, Rectangle b) {
