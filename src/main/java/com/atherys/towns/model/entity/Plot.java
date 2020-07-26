@@ -2,13 +2,14 @@ package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
+import com.atherys.towns.util.Rectangle;
 import com.flowpowered.math.vector.Vector2i;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 
 @MappedSuperclass
-public class Plot implements Identifiable<Long> {
+public class Plot implements Rectangle, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +39,19 @@ public class Plot implements Identifiable<Long> {
         return swCorner;
     }
 
+    public Vector2i getTopLeftCorner() {
+        return swCorner;
+    }
+
     public void setSouthWestCorner(Vector2i swCorner) {
         this.swCorner = swCorner;
     }
 
     public Vector2i getNorthEastCorner() {
+        return neCorner;
+    }
+
+    public Vector2i getBottomRightCorner() {
         return neCorner;
     }
 

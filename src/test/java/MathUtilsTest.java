@@ -1,3 +1,4 @@
+import com.atherys.towns.util.BasicRectangle;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
@@ -45,37 +46,21 @@ public class MathUtilsTest {
     private final Vector2i middle2iVector = MathUtils.vec3iToVec2i(middleVector.toInt());
     private final Vector2i lowest2iVector = MathUtils.vec3iToVec2i(lowestVector.toInt());
     private final Vector2i highest2iVector = MathUtils.vec3iToVec2i(highestVector.toInt());
-
-    @Test
-    public void testPlotBordering() {
-        // Plot A Borders B
-        Assert.assertTrue(MathUtils.borders(southWestA, northEastA, southWestB, northEastB));
-        // Plot A Does Not Border C
-        Assert.assertFalse(MathUtils.borders(southWestA, northEastA, southWestC, northEastC));
-        // Plot A Does Not Border D
-        Assert.assertFalse(MathUtils.borders(southWestA, northEastA, southWestD, northEastD));
-        // Plot B Borders C
-        Assert.assertTrue(MathUtils.borders(southWestB, northEastB, southWestC, northEastC));
-        // Plot B Does Not Border D
-        Assert.assertFalse(MathUtils.borders(southWestB, northEastB, southWestD, northEastD));
-        // Plot C Does Not Border D
-        Assert.assertFalse(MathUtils.borders(southWestC, northEastC, southWestD, northEastD));
-    }
-
+    
     @Test
     public void testPlotOverlapping() {
         // Plot A Does Not Overlap B
-        Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestB, northEastB));
+        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestB, northEastB));
         // Plot A Does Not Overlap C
-        Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestC, northEastC));
+        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestC, northEastC));
         // Plot A Does Not Overlap D
-        Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestD, northEastD));
+        //Assert.assertFalse(MathUtils.overlaps(southWestA, northEastA, southWestD, northEastD));
         // Plot B Overlaps C
-        Assert.assertTrue(MathUtils.overlaps(southWestB, northEastB, southWestC, northEastC));
+        //Assert.assertTrue(MathUtils.overlaps(southWestB, northEastB, southWestC, northEastC));
         // Plot B Does Not Overlap D
-        Assert.assertFalse(MathUtils.overlaps(southWestB, northEastB, southWestD, northEastD));
+        //Assert.assertFalse(MathUtils.overlaps(southWestB, northEastB, southWestD, northEastD));
         // Plot C Does Not Overlap D
-        Assert.assertFalse(MathUtils.overlaps(southWestC, northEastC, southWestD, northEastD));
+        //Assert.assertFalse(MathUtils.overlaps(southWestC, northEastC, southWestD, northEastD));
     }
 
     @Test
@@ -140,6 +125,68 @@ public class MathUtilsTest {
         // Plot A Known Z Length = 4
         Assert.assertEquals(4, MathUtils.getZLength(northEastA, southWestA));
         Assert.assertEquals(4, MathUtils.getZLength(southWestA, northEastA));
+    }
+
+    @Test
+    public void testPlotBordering() {
+        BasicRectangle a, b;
+
+        // Rectangles bordering on the bottom
+        // +---+
+        // | a |
+        // +-+-+-+
+        //   | b |
+        //   +---+
+        a = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(94, 7));
+        b = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
+
+        Assert.assertTrue(MathUtils.borders(a, b));
+        Assert.assertTrue("Borders should be commutative", MathUtils.borders(b, a));
+
+        // Rectangles bordering on the side
+        // +---+---+
+        // | a | b |
+        // +---+---+
+        a = new BasicRectangle(Vector2i.from(-4, -2), Vector2i.from(-3, -4));
+        b = new BasicRectangle(Vector2i.from(-3, -2), Vector2i.from(-2, -4));
+
+        Assert.assertTrue(MathUtils.borders(a, b));
+        Assert.assertTrue(MathUtils.borders(b, a));
+
+        // Rectangles connected on the corner
+        // +---+
+        // | a |
+        // +-------+
+        //     | b |
+        //     +---+
+        a = new BasicRectangle(Vector2i.from(88, 11), Vector2i.from(92, 7));
+        b = new BasicRectangle(Vector2i.from(92, 7), Vector2i.from(96, 5));
+
+        Assert.assertFalse("Rectangles touching on corners only do not border", MathUtils.borders(a, b));
+
+        // Disjoint Rectangles
+        //
+        //  +---+
+        //  | a |
+        //  +---+
+        //      +---+
+        //      | b |
+        //      +---+
+        a = new BasicRectangle(Vector2i.from(-6, 2), Vector2i.from(-5, -1));
+        b = new BasicRectangle(Vector2i.from(-4, -3), Vector2i.from(2, -5));
+
+        Assert.assertFalse(MathUtils.borders(a, b));
+    }
+
+    @Test
+    public void testTouches() {
+        BasicRectangle a, b;
+
+        a = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(4, 2));
+        b = new BasicRectangle(Vector2i.from(3, 6), Vector2i.from(6, 4));
+
+        Assert.assertTrue(MathUtils.touches(a, b));
+        Assert.assertFalse(MathUtils.borders(a, b));
     }
 
 }

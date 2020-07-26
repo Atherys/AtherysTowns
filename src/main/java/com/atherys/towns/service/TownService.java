@@ -13,6 +13,7 @@ import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.TownPlotRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -258,7 +259,7 @@ public class TownService {
                 if (plotaNeighbours.contains(plotb)) continue;
 
                 // Other check if we have neighbours
-                if (plotService.plotsBorder(plota, plotb)) {
+                if (MathUtils.borders(plota, plotb)) {
                     plotaNeighbours.add(plotb);
                     plotbNeighbours.add(plota);
                 }
@@ -278,7 +279,7 @@ public class TownService {
 
             Set<TownPlot> newPlotNeighbours = adjList.computeIfAbsent(newPlot, k -> new HashSet<>());
             Set<TownPlot> existingPlotNeighbours = adjList.computeIfAbsent(existingPlot, k -> new HashSet<>());
-            if (plotService.plotsBorder(newPlot, existingPlot)) {
+            if (MathUtils.borders(newPlot, existingPlot)) {
                 newPlotNeighbours.add(existingPlot);
                 existingPlotNeighbours.add(newPlot);
             }

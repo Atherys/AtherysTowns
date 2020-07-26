@@ -13,7 +13,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +35,28 @@ public class PlotService {
     PlotService() {
     }
 
+    /**
+     * Populate the SouthWest and NorthEast corners of a plot from a PlotSelection
+     *
+     * Minecraft's plane is aligned in an unexpected way, the SouthWest corner is the TopLeft corner
+     * and the NorthEast corner is the BottomRight
+     *
+     *          South
+     *           +z
+     *            ^
+     *            |
+     * West -x <-----> +x East
+     *            |
+     *           -z
+     *          North
+     *
+     * The two points in a PlotSelection are not necessarily the corners we need, we may need to work out opposite corners
+     *
+     * Additionally, as we want the borders around a set of blocks, we need to Floor SW.x, Ceil SW.y, Ceil NE.x, Floor NE.y
+     *
+     * @param plot The plot to populate
+     * @param selection The selection to use
+     */
     private void populatePlotFromSelection(Plot plot, PlotSelection selection) {
         Vector2d pA = selection.getPointA().getPosition().toVector2(true);
         Vector2d pB = selection.getPointB().getPosition().toVector2(true);
@@ -43,60 +64,56 @@ public class PlotService {
         Vector2d pNE;
         Vector2d pSW;
 
-        //              NE
-        //      +---+ pA
-        //      |   |
-        //   pB +---+
-        // SW
+        //             +z
+        //     pB, SW  *
+        //         +---+
+        //         |   |
+        //  -x  <- +---+ -> +X pA
+        //         *    pA NE
+        //         -z
+        //
         if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
             pNE = pA;
             pSW = pB;
-
-            //    +---+ pB
-            //    |   |
-            // pA +---+
+        //             +z
+        //     pA, SW  *
+        //         +---+
+        //         |   |
+        //  -x  <- +---+ -> +X pA
+        //         *    pB NE
+        //         -z
+        //
         } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
             pNE = pB;
             pSW = pA;
-
-            // pB +---+
-            //    |   |
-            //    +---+ pA
+        //         +z
+        //         *     pA
+        //         +---+
+        //         |   |
+        //  -x  <- +---+ -> +X pA
+        //     pB      *
+        //            -z
+        //
         } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
             pNE = Vector2d.from(pA.getX(), pB.getY());
             pSW = Vector2d.from(pB.getX(), pA.getY());
-
-            // pA +---+
-            //    |   |
-            //    +---+ pB
+        //         +z
+        //         *     pB
+        //         +---+
+        //         |   |
+        //  -x  <- +---+ -> +X pA
+        //     pA      *
+        //            -z
+        //
         } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
             pNE = Vector2d.from(pB.getX(), pA.getY());
             pSW = Vector2d.from(pA.getX(), pB.getY());
-
         } else {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        plot.setNorthEastCorner(new Vector2i(pNE.getFloorX(), pNE.getFloorY()));
-        plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY()));
-    }
-
-    public boolean plotsIntersect(Plot plotA, Plot plotB) {
-        return MathUtils.overlaps(plotA.getSouthWestCorner(), plotA.getNorthEastCorner(), plotB.getSouthWestCorner(), plotB.getNorthEastCorner());
-    }
-
-    public boolean plotContainsPlot(Plot parent, Plot child) {
-        return MathUtils.contains(parent.getSouthWestCorner(), parent.getNorthEastCorner(),
-                                  child.getSouthWestCorner(), child.getNorthEastCorner());
-    }
-
-    public boolean plotsEqual(Plot plotA, Plot plotB) {
-        return (plotA.getSouthWestCorner() == plotB.getSouthWestCorner()) &&
-                plotA.getNorthEastCorner() == plotB.getNorthEastCorner();
-    }
-
-    public boolean plotsBorder(Plot plotA, Plot plotB) {
-        return MathUtils.borders(plotA.getSouthWestCorner(), plotA.getNorthEastCorner(), plotB.getSouthWestCorner(), plotB.getNorthEastCorner());
+        plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY() + 1));
+        plot.setNorthEastCorner(new Vector2i(pNE.getFloorX() + 1, pNE.getFloorY()));
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
@@ -147,7 +164,7 @@ public class PlotService {
     public boolean townPlotIntersectAnyOthers(TownPlot plot) {
         for (Vector2i chunkCoordinate : getChunksOverlappedByPlot(plot)) {
             for (TownPlot other : townPlotRepository.getPlotsIntersectingChunk(chunkCoordinate)) {
-                if (plotsIntersect(plot, other)) {
+                if (MathUtils.overlaps(plot, other)) {
                     return true;
                 }
             }
@@ -177,7 +194,7 @@ public class PlotService {
 
     public boolean townPlotBordersTown(Town town, TownPlot plot) {
         for (TownPlot townPlot : town.getPlots()) {
-            if (plotsBorder(plot, townPlot)) {
+            if (MathUtils.borders(plot, townPlot)) {
                 return true;
             }
         }
@@ -186,7 +203,7 @@ public class PlotService {
 
     public boolean townPlotIntersectsTown(Town town, TownPlot plot) {
         for (TownPlot townPlot : town.getPlots()) {
-            if (!plotsIntersect(townPlot, plot)) {
+            if (!MathUtils.overlaps(townPlot, plot)) {
                 return true;
             }
         }
@@ -202,5 +219,17 @@ public class PlotService {
     public Set<NationPlot> getNationPlotsByLocation(Location<World> location) {
         return nationPlotRepository.getAll().stream().filter(plot -> isLocationWithinPlot(location, plot))
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks if a Plot is fully contained within the plots of a nation
+     * @param plot The plot to check
+     * @param nation The nation of the NationPlots to compare
+     * @return
+     */
+    public boolean plotContainedInNationPlots(Plot plot, Nation nation) {
+
+
+        return false;
     }
 }

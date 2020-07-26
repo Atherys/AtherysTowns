@@ -10,6 +10,7 @@ import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.*;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -217,11 +218,11 @@ public class NationFacade implements EconomyFacade {
                 throw new TownsCommandException("Plot for nation: ", other.getNation(), " already exists at this location.");
             }
 
-            if (plotService.plotsEqual(plot, other)) {
+            if (MathUtils.equals(plot, other)) {
                 throw new TownsCommandException("Plot with same coordinates already exists.");
             }
 
-            if (plotService.plotContainsPlot(other, plot)) {
+            if (MathUtils.contains(other, plot)) {
                 throw new TownsCommandException("Plot fits within an existing nation plot.");
             }
         }

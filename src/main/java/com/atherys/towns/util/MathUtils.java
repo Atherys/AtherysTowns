@@ -4,6 +4,8 @@ import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 
+import java.lang.Math;
+
 public class MathUtils {
 
     public static Vector2i vec3iToVec2i(Vector3i vector3i) {
@@ -61,24 +63,62 @@ public class MathUtils {
         return number >= lower && number <= upper;
     }
 
-    public static boolean overlaps(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
-        return !(rectBNorthEast.getY() > rectASouthWest.getY() ||
-                rectBSouthWest.getX() > rectANorthEast.getX() ||
-                rectANorthEast.getY() > rectBSouthWest.getY() ||
-                rectASouthWest.getX() > rectBNorthEast.getX());
+    public static boolean overlaps(Rectangle a, Rectangle b) {
+        // Rectangles are considered overlapping when any of the interior points are shared
+        return !(b.minY() > a.maxY() || b.minX() > a.maxX() || b.maxY() < a.minY() || b.maxX() < a.minX());
     }
 
-    public static boolean contains(Vector2i parentSouthWest, Vector2i parentNorthEast, Vector2i childSouthWest, Vector2i childNorthEast) {
-        return (parentSouthWest.getY() > childSouthWest.getY() &&
-                parentSouthWest.getX() > childSouthWest.getY() &&
-                parentNorthEast.getY() > childNorthEast.getY() &&
-                parentNorthEast.getX() > childNorthEast.getY());
+    public static boolean contains(Rectangle a, Rectangle b) {
+        // a contains b iff no points of b lie in the exterior of a, and at least one point of the interior of b lies in the interior of a
+        return (a.maxY() >= b.maxY() && a.minY() >= b.minY() && a.maxX() >= b.maxX() && a.minX() >= b.minX());
     }
 
-    public static boolean borders(Vector2i rectASouthWest, Vector2i rectANorthEast, Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
-        return overlaps(
-                rectASouthWest.add(-1, 1), rectANorthEast.add(1, -1), rectBSouthWest, rectBNorthEast
-        );
+    public static boolean equals(Rectangle a, Rectangle b) {
+        return a.getTopLeftCorner() == b.getTopLeftCorner() &&
+               a.getBottomRightCorner() == b.getBottomRightCorner();
+    }
+
+    public static boolean touches(Rectangle a, Rectangle b) {
+        // a touches b: they have at least one point in common, but their interiors do not intersect.
+
+        // If Top or bottom is shared and X overlaps
+        if ((a.minY() == b.maxY() || a.maxY() == b.minY()) &&
+                a.minX() <= b.maxX() && b.minX() <= a.maxX()) {
+            return true;
+        }
+
+        // If Left or Right is shared and Y overlaps
+        if ((a.minX() == b.maxX() || a.maxX() == b.minX()) &&
+                a.minY() <= b.maxY() && b.minY() <= a.maxY()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean borders(Rectangle a, Rectangle b) {
+        // a borders b if they have at least 2 points in common, but their interiors do not intersect.
+        // excludes touching corners
+
+        // If Top or bottom is shared and X overlaps
+        if ((a.minY() == b.maxY() || a.maxY() == b.minY()) &&
+                a.minX() < b.maxX() && b.minX() < a.maxX()) {
+            return true;
+        }
+
+        // If Left or Right is shared and Y overlaps
+        if ((a.minX() == b.maxX() || a.maxX() == b.minX()) &&
+                a.minY() < b.maxY() && b.minY() < a.maxY()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static Vector2i getPlotSize(Vector2i NECorner, Vector2i SWCorner) {
+        int sizeX = Math.abs(NECorner.getX() - SWCorner.getX());
+        int sizeY = Math.abs(NECorner.getY() - SWCorner.getY());
+        return new Vector2i(sizeX, sizeY);
     }
 
     public static double getDistanceToPlotSquared(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
@@ -94,5 +134,92 @@ public class MathUtils {
         return Math.pow(pointXLength, 2) + Math.pow(pointYLength, 2);
     }
 
-
+//    /**
+//     * Subtracts RectB from RectA returning at most 4 new rectangles
+//     *
+//     *   ****************      ****************      ****************
+//     *   |      RA      |      |              |      |      1       |
+//     *   |    ******    |      |    ******    |      |**************|
+//     *   |    | RB |    |  ->  |    |Hole|    |  ->  |  2 |Hole| 3  |
+//     *   |    ******    |      |    ******    |      |**************|
+//     *   |              |      |              |      |      4       |
+//     *   ****************      ****************      ****************
+//     *
+//     * @param rectASouthWest Rectangle A top left corner
+//     * @param rectANorthEast Rectangle A bottom right corner
+//     * @param rectBSouthWest Rectangle B top left corner
+//     * @param rectBNorthEast Rectangle B bottom right corner
+//     * @return A List of rectangles that make up the remainder of RectA
+//     */
+//    public static List<Rectangle> subtractRectangles(Vector2i rectASouthWest, Vector2i rectANorthEast,
+//                                                     Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
+//        // Handle edge cases
+//        // Same rectangle
+//        if (rectASouthWest == rectBSouthWest && rectANorthEast == rectBNorthEast) {
+//            return new ArrayList<>();
+//        }
+//        // RectB Contains RectA
+//        if (contains(rectBSouthWest, rectBNorthEast, rectASouthWest, rectANorthEast)) {
+//            return new ArrayList<>();
+//        }
+//        // No intersect
+//        if (!overlaps(rectASouthWest, rectANorthEast, rectBSouthWest, rectBNorthEast)) {
+//            return new ArrayList<Rectangle>() {{
+//                add(new Rectangle(rectASouthWest, rectANorthEast));
+//            }};
+//        }
+//
+//        ArrayList<Rectangle> results = new ArrayList<>();
+//
+//        // Get top rectangle
+//        if (rectBSouthWest.getY() < rectASouthWest.getY()) {
+//            results.add(new Rectangle(rectASouthWest, Vector2i.from(rectANorthEast.getX(), rectBSouthWest.getY())));
+//        }
+//
+//        // Get left rectangle
+//        if (rectBSouthWest.getX() > rectASouthWest.getX()) {
+//            results.add(new Rectangle(Vector2i.from(rectASouthWest.getX(), Math.min(rectASouthWest.getY(), rectBSouthWest.getY())),
+//                        Vector2i.from(rectBSouthWest.getX(), Math.max(rectANorthEast.getY(), rectBNorthEast.getY()))));
+//        }
+//
+//        // Get right rectangle
+//        if (rectBNorthEast.getX() < rectANorthEast.getX()) {
+//            results.add(new Rectangle(Vector2i.from(rectBNorthEast.getX(), Math.min(rectASouthWest.getY(), rectBSouthWest.getY())),
+//                        Vector2i.from(rectANorthEast.getX(), Math.max(rectANorthEast.getY(), rectBNorthEast.getY()))));
+//        }
+//
+//        // Get bottom rectangle
+//        if (rectANorthEast.getY() < rectBNorthEast.getY()) {
+//            results.add(new Rectangle(Vector2i.from(rectASouthWest.getX(), rectBNorthEast.getY()) , rectANorthEast));
+//        }
+//
+//        return results;
+//    }
+//
+//    /**
+//     * Checks to see if a rectangle is fully contained within another set of rectangles
+//     * @param target The rectangle to check
+//     * @param set The set of rectangles
+//     * @return True if the target is fully within the area covered by the set, otherwise false
+//     */
+//    public static boolean rectangleContainedInSet(Rectangle target, Set<Rectangle> set) {
+//        List<Rectangle> remaining = new ArrayList<Rectangle>() {{
+//            add(target);
+//        }};
+//
+//        for (Rectangle rect : set) {
+//            ListIterator<Rectangle> iterator = remaining.listIterator();
+//            while (iterator.hasNext()) {
+//                Rectangle tar = iterator.next();
+//                iterator.remove();
+//
+//                subtractRectangles(tar.getSouthWest(), tar.getNorthEast(), rect.getSouthWest(), rect.getNorthEast())
+//                        .forEach(iterator::add);
+//            }
+//        }
+//
+//        remaining.forEach(System.out::print);
+//
+//        return remaining.isEmpty();
+//    }
 }
