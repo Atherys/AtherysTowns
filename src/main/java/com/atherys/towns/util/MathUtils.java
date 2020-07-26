@@ -11,11 +11,11 @@ public class MathUtils {
     }
 
     public static int getXLength(Vector2i pointA, Vector2i pointB) {
-        return pointA.getX() - pointB.getX();
+        return Math.abs(pointA.getX() - pointB.getX());
     }
 
     public static int getZLength(Vector2i pointA, Vector2i pointB) {
-        return pointB.getY() - pointA.getY();
+        return Math.abs(pointB.getY() - pointA.getY());
     }
 
     public static boolean vectorFitsInRange(Vector3d vec, Vector3i lower, Vector3i upper) {
