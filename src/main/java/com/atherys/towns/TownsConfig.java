@@ -25,6 +25,12 @@ public class TownsConfig extends PluginConfig {
     @Setting("min-residents-to-create-town")
     public int MIN_RESIDENTS_TOWN_CREATE = 3;
 
+    @Setting("nation-chat-prefix")
+    public String NATION_CHAT_PREFIX = "&f[&eN&f]&r";
+
+    @Setting("town-chat-prefix")
+    public String TOWN_CHAT_PREFIX = "&f[&bT&f]&r";
+
     @Setting("respawn-in-town")
     public boolean SPAWN_IN_TOWN = true;
 
