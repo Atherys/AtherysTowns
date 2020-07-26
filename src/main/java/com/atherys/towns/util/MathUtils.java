@@ -1,5 +1,6 @@
 package com.atherys.towns.util;
 
+import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
@@ -67,9 +68,13 @@ public class MathUtils {
         return number >= lower && number <= upper;
     }
 
-    public static boolean pointInRectangle(Vector2i point, Rectangle rect) {
+    public static boolean pointInRectangle(Vector3d point, Rectangle rect) {
+        return pointInRectangle(point.toVector2(true), rect);
+    }
+
+    public static boolean pointInRectangle(Vector2d point, Rectangle rect) {
         return rect.maxY() >= point.getY() && point.getY() >= rect.minY() &&
-                rect.maxY() >= point.getY() && point.getY() >= rect.minY();
+                rect.maxX() >= point.getX() && point.getX() >= rect.minX();
     }
 
     public static boolean overlaps(Rectangle a, Rectangle b) {

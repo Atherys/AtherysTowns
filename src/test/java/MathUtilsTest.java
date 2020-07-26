@@ -377,5 +377,4 @@ public class MathUtilsTest {
         }};
         Assert.assertFalse(MathUtils.rectangleContainedInSet(disjointA, rects));
     }
-
 }

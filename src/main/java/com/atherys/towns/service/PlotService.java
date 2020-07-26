@@ -117,7 +117,7 @@ public class PlotService {
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
-        return MathUtils.vectorXZFitsInRange(location.getBlockPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
+        return MathUtils.pointInRectangle(location.getPosition(), plot);
     }
 
     public static Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
