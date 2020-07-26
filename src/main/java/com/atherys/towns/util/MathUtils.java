@@ -120,7 +120,7 @@ public class MathUtils {
     }
 
     public static int getHeight(Rectangle a) {
-        return Math.abs(a.maxY() - a.maxY());
+        return Math.abs(a.maxY() - a.minY());
     }
 
     public static int getShortestSide(Rectangle a) {

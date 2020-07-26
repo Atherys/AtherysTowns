@@ -39,6 +39,7 @@ public class Plot implements Rectangle, Identifiable<Long> {
         return swCorner;
     }
 
+    @Override
     public Vector2i getTopLeftCorner() {
         return swCorner;
     }
@@ -51,6 +52,7 @@ public class Plot implements Rectangle, Identifiable<Long> {
         return neCorner;
     }
 
+    @Override
     public Vector2i getBottomRightCorner() {
         return neCorner;
     }

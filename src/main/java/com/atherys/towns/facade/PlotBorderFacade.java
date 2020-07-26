@@ -129,24 +129,26 @@ public class PlotBorderFacade {
         Task.builder().execute(task -> activeBorders.forEach((uuid, borderInfoSet) -> {
             Sponge.getServer().getPlayer(uuid).ifPresent(player -> {
                 borderInfoSet.forEach(borderInfo -> {
-                    int xLength = MathUtils.getXLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
-                    int zLength = MathUtils.getZLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
+                    int width = MathUtils.getWidth(borderInfo);
+                    int height = MathUtils.getHeight(borderInfo);
+                    
                     Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
                     Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
 
-                    player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, 0));
-                    player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(0, 0, 1));
-                    for (int i = 0; i <= zLength; i++) {
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, i + 1));
+                    player.spawnParticles(borderInfo.getEffect(), particleLocationNE);
+                    player.spawnParticles(borderInfo.getEffect(), particleLocationSW);
+                    for (int i = 1; i <= height; i++) {
+                        player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(0, 0, i));
                         player.spawnParticles(borderInfo.getEffect(), particleLocationSW.sub(0, 0, i));
                     }
-                    for (int i = 0; i <= xLength; i++) {
+
+                    for (int i = 1; i <= width; i++) {
                         player.spawnParticles(borderInfo.getEffect(), particleLocationNE.sub(i, 0, 0));
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i + 1, 0, 1));
+                        player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i, 0, 0));
                     }
                 });
             });
-        })).intervalTicks(10).submit(AtherysTowns.getInstance());
+        })).intervalTicks(30).submit(AtherysTowns.getInstance());
     }
 
     public void setPlayerViewBorderStatus(Player player, boolean state) throws TownsCommandException {

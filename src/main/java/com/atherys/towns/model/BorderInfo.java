@@ -1,11 +1,12 @@
 package com.atherys.towns.model;
 
+import com.atherys.towns.util.Rectangle;
 import com.flowpowered.math.vector.Vector2i;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 
 import java.util.UUID;
 
-public class BorderInfo {
+public class BorderInfo implements Rectangle {
 
     private ParticleEffect effect;
     private Vector2i neCorner;
@@ -49,5 +50,15 @@ public class BorderInfo {
 
     public void setEffect(ParticleEffect effect) {
         this.effect = effect;
+    }
+
+    @Override
+    public Vector2i getTopLeftCorner() {
+        return swCorner;
+    }
+
+    @Override
+    public Vector2i getBottomRightCorner() {
+        return neCorner;
     }
 }
