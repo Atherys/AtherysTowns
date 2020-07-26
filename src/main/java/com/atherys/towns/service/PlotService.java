@@ -205,15 +205,8 @@ public class PlotService {
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * Checks if a Plot is fully contained within the plots of a nation
-     * @param plot The plot to check
-     * @param nation The nation of the NationPlots to compare
-     * @return
-     */
-    public boolean plotContainedInNationPlots(Plot plot, Nation nation) {
-
-
-        return false;
+    public Optional<NationPlot> getNationPlotsByTownPlot(TownPlot tPlot) {
+        return nationPlotRepository.getAll().stream().filter(plot ->
+                MathUtils.overlaps(tPlot, plot)).findFirst();
     }
 }

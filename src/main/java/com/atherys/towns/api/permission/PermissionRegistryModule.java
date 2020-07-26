@@ -1,6 +1,7 @@
 package com.atherys.towns.api.permission;
 
 import com.atherys.towns.api.permission.nation.NationPermissions;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import org.spongepowered.api.registry.CatalogRegistryModule;
 
@@ -42,6 +43,7 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.WITHDRAW_FROM_BANK,
                 TownPermissions.DEPOSIT_INTO_BANK,
                 TownPermissions.JOIN_NATION,
+                TownPermissions.CREATE_WITHOUT_NATION,
                 TownPermissions.SET_NAME,
                 TownPermissions.SET_DESCRIPTION,
                 TownPermissions.SET_MOTD,

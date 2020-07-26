@@ -8,9 +8,8 @@ import com.atherys.party.facade.PartyFacade;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.model.entity.TownPlot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.service.*;
 import com.atherys.towns.util.MathUtils;
@@ -75,6 +74,9 @@ public class TownFacade implements EconomyFacade {
     private NationFacade nationFacade;
 
     @Inject
+    private PermissionFacade permissionFacade;
+
+    @Inject
     private PlotBorderFacade plotBorderFacade;
 
     @Inject
@@ -105,6 +107,17 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
+        // Get the Nation this Town would be created in
+        Nation nation = null;
+        Optional<NationPlot> plot = plotService.getNationPlotsByLocation(player.getLocation()).stream().findFirst();
+        if (plot.isPresent()) {
+            nation = plot.get().getNation();
+        }
+
+        if (nation == null && !permissionFacade.isPermitted(player, TownPermissions.CREATE_WITHOUT_NATION)) {
+            throw new TownsCommandException("You are not permitted to create a town outside of a nation!");
+        }
+
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(player);
         TownPlot homePlot = plotService.createTownPlotFromSelection(selection);
         validateNewTownPlot(homePlot, player, player.getLocation());
@@ -119,20 +132,21 @@ public class TownFacade implements EconomyFacade {
             }
 
             partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
-            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot, nation);
         } else {
-            createTown(player, townName, homePlot);
+            createTown(player, townName, homePlot, nation);
         }
     }
 
-    public Town createTown(Player player, String name, TownPlot homePlot) throws CommandException {
+    public Town createTown(Player player, String name, TownPlot homePlot, @Nullable Nation nation) throws CommandException {
         Resident mayor = residentService.getOrCreate(player);
 
         // create the town
         Town town = townService.createTown(
                 player,
                 homePlot,
-                name
+                name,
+                nation
         );
 
         townsPermissionService.updateContexts(player, mayor);
@@ -260,6 +274,14 @@ public class TownFacade implements EconomyFacade {
 
             if (!plotService.townPlotBordersTown(town, plot)) {
                 throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+            }
+        }
+
+        // Plot must be completely contained within the nation
+        Optional<NationPlot> nPlot = plotService.getNationPlotsByTownPlot(plot);
+        if (nPlot.isPresent()) {
+            if (!MathUtils.rectangleContainedInSet(plot, nPlot.get().getNation().getPlots())){
+                throw new TownsCommandException("New plot is not contained completely within the nation.");
             }
         }
     }

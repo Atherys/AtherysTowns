@@ -204,16 +204,19 @@ public class NationFacade implements EconomyFacade {
 
         NationPlot plot = plotService.createNationPlotFromSelection(selection);
 
+        int plotArea = MathUtils.getArea(plot);
+        if (MathUtils.getArea(plot) < config.TOWN.MAX_PLOT_AREA) {
+            throw new TownsCommandException("Plot selection is smaller than area permitted ( ", plotArea, " < ", config.TOWN.MAX_PLOT_AREA, " )");
+        }
+
         if (!plotService.isLocationWithinPlot(player.getLocation(), plot)) {
             throw new TownsCommandException("You must be within your plot selection!");
         }
 
-        // Check that the plot is not fully contained an existing plot
+        // Check that the plot is not fully contained in an existing plot
         Set<NationPlot> plots = plotService.getNationPlotsByLocation(player.getLocation());
 
-        // Check that the plot
         for (NationPlot other : plots) {
-            // If the other plot is for a different nation
             if (!other.getNation().equals(nation)) {
                 throw new TownsCommandException("Plot for nation: ", other.getNation(), " already exists at this location.");
             }

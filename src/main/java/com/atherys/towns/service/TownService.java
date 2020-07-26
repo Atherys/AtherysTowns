@@ -34,6 +34,7 @@ import org.spongepowered.api.world.World;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -91,13 +92,11 @@ public class TownService {
         this.roleService = roleService;
     }
 
-    public Town createTown(Player leader, TownPlot homePlot, String name) {
+    public Town createTown(Player leader, TownPlot homePlot, String name, @Nullable Nation nation) {
         Town town = new Town();
-        Nation nation = null;
         Resident resLeader = residentService.getOrCreate(leader);
 
         if (resLeader.getTown() != null) {
-            nation = resLeader.getTown().getNation();
             removeResidentFromTown(leader, resLeader, resLeader.getTown());
         }
 
@@ -123,7 +122,6 @@ public class TownService {
 
         homePlot.setTown(town);
         town.addPlot(homePlot);
-
 
         resLeader.setTown(town);
         town.addResident(resLeader);

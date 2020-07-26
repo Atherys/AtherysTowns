@@ -67,6 +67,11 @@ public class MathUtils {
         return number >= lower && number <= upper;
     }
 
+    public static boolean pointInRectangle(Vector2i point, Rectangle rect) {
+        return rect.maxY() >= point.getY() && point.getY() >= rect.minY() &&
+                rect.maxY() >= point.getY() && point.getY() >= rect.minY();
+    }
+
     public static boolean overlaps(Rectangle a, Rectangle b) {
         // Rectangles are considered overlapping when any of the interior points are shared
         return !(b.minY() >= a.maxY() || b.minX() >= a.maxX() || b.maxY() <= a.minY() || b.maxX() <= a.minX());
