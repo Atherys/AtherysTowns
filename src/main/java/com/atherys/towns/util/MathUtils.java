@@ -10,6 +10,14 @@ public class MathUtils {
         return Vector2i.from(vector3i.getX(), vector3i.getZ());
     }
 
+    public static Vector2i vec3dToVec2i(Vector3d vector3d) {
+        return Vector2i.from(vector3d.getFloorX(), vector3d.getFloorZ());
+    }
+
+    public static double getDistanceBetweenPointsSquared(Vector3d point1, Vector3d point2) {
+        return Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2);
+    }
+
     public static int getXLength(Vector2i pointA, Vector2i pointB) {
         return Math.abs(pointA.getX() - pointB.getX());
     }
@@ -65,4 +73,19 @@ public class MathUtils {
                 rectASouthWest.add(-1, 1), rectANorthEast.add(1, -1), rectBSouthWest, rectBNorthEast
         );
     }
+
+    public static double getDistanceToPlotSquared(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
+        int lengthX = MathUtils.getXLength(NECorner, SWCorner);
+        int lengthZ = MathUtils.getZLength(NECorner, SWCorner);
+
+        double centerX = (double) (NECorner.getX() + SWCorner.getX()) / 2;
+        double centerZ = (double) (NECorner.getY() + SWCorner.getY()) / 2;
+
+        double pointXLength = Math.max(Math.abs(point.getX() - centerX) - (double) lengthX / 2, 0);
+        double pointYLength = Math.max(Math.abs(point.getY() - centerZ) - (double) lengthZ / 2, 0);
+
+        return Math.pow(pointXLength, 2) + Math.pow(pointYLength, 2);
+    }
+
+
 }

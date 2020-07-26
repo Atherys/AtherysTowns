@@ -11,6 +11,7 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -62,6 +63,8 @@ public class Town implements Identifiable<Long> {
     private boolean pvpEnabled;
 
     private UUID bank;
+
+    private LocalDateTime lastRaidCreationDate;
 
     @Version
     private int version;
@@ -218,6 +221,14 @@ public class Town implements Identifiable<Long> {
 
     public void setBank(UUID bank) {
         this.bank = bank;
+    }
+
+    public Optional<LocalDateTime> getLastRaidCreationDate() {
+        return Optional.ofNullable(this.lastRaidCreationDate);
+    }
+
+    public void setLastRaidCreationDate(LocalDateTime lastRaidCreationDate) {
+        this.lastRaidCreationDate = lastRaidCreationDate;
     }
 
 }

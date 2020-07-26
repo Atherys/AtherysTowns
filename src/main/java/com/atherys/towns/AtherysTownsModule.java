@@ -39,6 +39,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotService.class);
         bind(ResidentService.class);
         bind(PollService.class);
+        bind(TownRaidService.class);
         bind(TownsPermissionService.class);
 
         // Facades
@@ -50,6 +51,7 @@ public class AtherysTownsModule extends AbstractModule {
         bind(PlotSelectionFacade.class);
         bind(TownsMessagingFacade.class);
         bind(TownAdminFacade.class);
+        bind(TownRaidFacade.class);
         bind(PollFacade.class);
         bind(PlotBorderFacade.class);
     }

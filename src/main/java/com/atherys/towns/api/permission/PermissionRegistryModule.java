@@ -37,6 +37,8 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.SET_PERMISSION,
                 TownPermissions.SET_ROLE,
                 TownPermissions.RUIN_TOWN,
+                TownPermissions.START_RAID,
+                TownPermissions.CANCEL_RAID,
                 TownPermissions.WITHDRAW_FROM_BANK,
                 TownPermissions.DEPOSIT_INTO_BANK,
                 TownPermissions.JOIN_NATION,

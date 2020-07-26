@@ -12,6 +12,7 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
@@ -24,6 +25,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,6 +182,11 @@ public class TownService {
 
     public void setTownSpawn(Town town, Transform<World> spawn) {
         town.setSpawn(spawn);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownLastRaidCreationDate(Town town, LocalDateTime dateTime) {
+        town.setLastRaidCreationDate(dateTime);
         townRepository.saveOne(town);
     }
 

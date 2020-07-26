@@ -19,6 +19,7 @@ import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
+import com.atherys.towns.listener.RaidListener;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
@@ -99,10 +100,12 @@ public class AtherysTowns {
     private void start() {
         getRoleService().init();
         getTownsCache().initCache();
+        getTownRaidService().initRaidTimer();
         getPlotBorderFacade().initBorderTask();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
+        Sponge.getEventManager().registerListeners(this, components.raidListener);
         AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
@@ -220,6 +223,10 @@ public class AtherysTowns {
         return components.townsMessagingFacade;
     }
 
+    public TownRaidService getTownRaidService() {
+        return components.townRaidService;
+    }
+
     public NationFacade getNationFacade() {
         return components.nationFacade;
     }
@@ -258,6 +265,10 @@ public class AtherysTowns {
 
     public PlotBorderFacade getPlotBorderFacade() {
         return components.plotBorderFacade;
+    }
+
+    public TownRaidFacade getTownRaidFacade() {
+        return components.townRaidFacade;
     }
 
     public TownsCache getTownsCache() {
@@ -307,6 +318,9 @@ public class AtherysTowns {
         private TownsPermissionService townsPermissionService;
 
         @Inject
+        private TownRaidService townRaidService;
+
+        @Inject
         private TownsMessagingFacade townsMessagingFacade;
 
         @Inject
@@ -340,9 +354,15 @@ public class AtherysTowns {
         private PlotBorderFacade plotBorderFacade;
 
         @Inject
+        private TownRaidFacade townRaidFacade;
+
+        @Inject
         private PlayerListener playerListener;
 
         @Inject
         private ProtectionListener protectionListener;
+
+        @Inject
+        private RaidListener raidListener;
     }
 }

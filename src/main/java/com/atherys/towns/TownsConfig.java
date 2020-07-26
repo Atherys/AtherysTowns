@@ -2,6 +2,7 @@ package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
 import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.RaidConfig;
 import com.atherys.towns.config.TownConfig;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
@@ -33,6 +34,9 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("respawn-in-town")
     public boolean SPAWN_IN_TOWN = true;
+
+    @Setting("raid")
+    public RaidConfig RAID = new RaidConfig();
 
     @Setting("nation")
     public NationConfig NATION = new NationConfig();
