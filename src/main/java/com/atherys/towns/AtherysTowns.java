@@ -364,9 +364,6 @@ public class AtherysTowns {
         private ProtectionListener protectionListener;
 
         @Inject
-        private TaxTimer taxTimer;
-
-        @Inject
         private RaidListener raidListener;
     }
 }

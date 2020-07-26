@@ -12,10 +12,7 @@ import org.spongepowered.api.world.World;
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 public class Town implements Identifiable<Long> {
