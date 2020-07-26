@@ -5,6 +5,9 @@ import com.flowpowered.math.vector.Vector3d;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.List;
+
 public class MathUtilsTest {
 
     // Declare some common rectangles for testing
@@ -293,6 +296,86 @@ public class MathUtilsTest {
 
         // Test containsB
         Assert.assertEquals(2, MathUtils.getArea(containsB));
+    }
+
+    @Test
+    public void testRectangleSubtract() {
+        List<BasicRectangle> rects;
+
+        // Subtract Intersecting
+        rects = MathUtils.subtractRectangles(intersectA, intersectB);
+        Assert.assertEquals(2, rects.size());
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(2,4), Vector2i.from(4,3))));
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(2,3), Vector2i.from(3,2))));
+
+        // Subtract containsB from containsA
+        rects = MathUtils.subtractRectangles(containsA, containsB);
+        Assert.assertEquals(4, rects.size());
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(2,4), Vector2i.from(6,3))));
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(2,3), Vector2i.from(3,2))));
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(2,2), Vector2i.from(6,1))));
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(5,3), Vector2i.from(6,2))));
+
+        // Subtract half covered
+        BasicRectangle a = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 10));
+        BasicRectangle left = new BasicRectangle(Vector2i.from(5,20), Vector2i.from(15,5));
+        BasicRectangle right = new BasicRectangle(Vector2i.from(15,20), Vector2i.from(30,5));
+        // Left from A
+        rects = MathUtils.subtractRectangles(a, left);
+        Assert.assertEquals(1, rects.size());
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(15,15), Vector2i.from(25,10))));
+        // Right from A
+        rects = MathUtils.subtractRectangles(a, right);
+        Assert.assertEquals(1, rects.size());
+        Assert.assertTrue(rects.contains(new BasicRectangle(Vector2i.from(10,15), Vector2i.from(15,10))));
+
+        // Subtract contains
+        rects = MathUtils.subtractRectangles(containsB, containsA);
+        Assert.assertEquals(0, rects.size());
+
+        // Subtract Disjoint
+        rects = MathUtils.subtractRectangles(disjointA, disjointB);
+        Assert.assertEquals(1, rects.size());
+        Assert.assertTrue(rects.contains(disjointA));
+
+        // Subtract Equals
+        rects = MathUtils.subtractRectangles(intersectA, intersectA);
+        Assert.assertEquals(0, rects.size());
+    }
+
+    @Test
+    public void testRectangleContainedInSet() {
+        HashSet<BasicRectangle> rects;
+        BasicRectangle target;
+
+        // Target contained within single rectangle in set
+        target = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 10));
+        rects = new HashSet<BasicRectangle>() {{
+            add(new BasicRectangle(Vector2i.from(5,20), Vector2i.from(30,5)));
+        }};
+        Assert.assertTrue(MathUtils.rectangleContainedInSet(target, rects));
+
+        // Covered by Two rectangles
+        target = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 10));
+        rects = new HashSet<BasicRectangle>() {{
+            add(new BasicRectangle(Vector2i.from(5,20), Vector2i.from(15,5)));
+            add(new BasicRectangle(Vector2i.from(15,20), Vector2i.from(30,5)));
+        }};
+        Assert.assertTrue(MathUtils.rectangleContainedInSet(target, rects));
+
+        // Uncovered Hole in Center
+        target = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 0));
+        rects = new HashSet<BasicRectangle>() {{
+            add(new BasicRectangle(Vector2i.from(5,20), Vector2i.from(15,-5)));
+            add(new BasicRectangle(Vector2i.from(20,20), Vector2i.from(30,-5)));
+        }};
+        Assert.assertFalse(MathUtils.rectangleContainedInSet(target, rects));
+
+        // Disjoint Rectangles
+        rects = new HashSet<BasicRectangle>() {{
+            add(disjointB);
+        }};
+        Assert.assertFalse(MathUtils.rectangleContainedInSet(disjointA, rects));
     }
 
 }

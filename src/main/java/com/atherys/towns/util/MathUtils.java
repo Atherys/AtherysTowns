@@ -5,6 +5,10 @@ import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 public class MathUtils {
 
@@ -130,7 +134,7 @@ public class MathUtils {
     public static int getArea(Rectangle a) {
         return getHeight(a) * getWidth(a);
     }
-
+    
     public static double getDistanceToPlotSquared(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {
         int lengthX = MathUtils.getXLength(NECorner, SWCorner);
         int lengthZ = MathUtils.getZLength(NECorner, SWCorner);
@@ -144,92 +148,77 @@ public class MathUtils {
         return Math.pow(pointXLength, 2) + Math.pow(pointYLength, 2);
     }
 
-//    /**
-//     * Subtracts RectB from RectA returning at most 4 new rectangles
-//     *
-//     *   ****************      ****************      ****************
-//     *   |      RA      |      |              |      |      1       |
-//     *   |    ******    |      |    ******    |      |**************|
-//     *   |    | RB |    |  ->  |    |Hole|    |  ->  |  2 |Hole| 3  |
-//     *   |    ******    |      |    ******    |      |**************|
-//     *   |              |      |              |      |      4       |
-//     *   ****************      ****************      ****************
-//     *
-//     * @param rectASouthWest Rectangle A top left corner
-//     * @param rectANorthEast Rectangle A bottom right corner
-//     * @param rectBSouthWest Rectangle B top left corner
-//     * @param rectBNorthEast Rectangle B bottom right corner
-//     * @return A List of rectangles that make up the remainder of RectA
-//     */
-//    public static List<Rectangle> subtractRectangles(Vector2i rectASouthWest, Vector2i rectANorthEast,
-//                                                     Vector2i rectBSouthWest, Vector2i rectBNorthEast) {
-//        // Handle edge cases
-//        // Same rectangle
-//        if (rectASouthWest == rectBSouthWest && rectANorthEast == rectBNorthEast) {
-//            return new ArrayList<>();
-//        }
-//        // RectB Contains RectA
-//        if (contains(rectBSouthWest, rectBNorthEast, rectASouthWest, rectANorthEast)) {
-//            return new ArrayList<>();
-//        }
-//        // No intersect
-//        if (!overlaps(rectASouthWest, rectANorthEast, rectBSouthWest, rectBNorthEast)) {
-//            return new ArrayList<Rectangle>() {{
-//                add(new Rectangle(rectASouthWest, rectANorthEast));
-//            }};
-//        }
-//
-//        ArrayList<Rectangle> results = new ArrayList<>();
-//
-//        // Get top rectangle
-//        if (rectBSouthWest.getY() < rectASouthWest.getY()) {
-//            results.add(new Rectangle(rectASouthWest, Vector2i.from(rectANorthEast.getX(), rectBSouthWest.getY())));
-//        }
-//
-//        // Get left rectangle
-//        if (rectBSouthWest.getX() > rectASouthWest.getX()) {
-//            results.add(new Rectangle(Vector2i.from(rectASouthWest.getX(), Math.min(rectASouthWest.getY(), rectBSouthWest.getY())),
-//                        Vector2i.from(rectBSouthWest.getX(), Math.max(rectANorthEast.getY(), rectBNorthEast.getY()))));
-//        }
-//
-//        // Get right rectangle
-//        if (rectBNorthEast.getX() < rectANorthEast.getX()) {
-//            results.add(new Rectangle(Vector2i.from(rectBNorthEast.getX(), Math.min(rectASouthWest.getY(), rectBSouthWest.getY())),
-//                        Vector2i.from(rectANorthEast.getX(), Math.max(rectANorthEast.getY(), rectBNorthEast.getY()))));
-//        }
-//
-//        // Get bottom rectangle
-//        if (rectANorthEast.getY() < rectBNorthEast.getY()) {
-//            results.add(new Rectangle(Vector2i.from(rectASouthWest.getX(), rectBNorthEast.getY()) , rectANorthEast));
-//        }
-//
-//        return results;
-//    }
-//
-//    /**
-//     * Checks to see if a rectangle is fully contained within another set of rectangles
-//     * @param target The rectangle to check
-//     * @param set The set of rectangles
-//     * @return True if the target is fully within the area covered by the set, otherwise false
-//     */
-//    public static boolean rectangleContainedInSet(Rectangle target, Set<Rectangle> set) {
-//        List<Rectangle> remaining = new ArrayList<Rectangle>() {{
-//            add(target);
-//        }};
-//
-//        for (Rectangle rect : set) {
-//            ListIterator<Rectangle> iterator = remaining.listIterator();
-//            while (iterator.hasNext()) {
-//                Rectangle tar = iterator.next();
-//                iterator.remove();
-//
-//                subtractRectangles(tar.getSouthWest(), tar.getNorthEast(), rect.getSouthWest(), rect.getNorthEast())
-//                        .forEach(iterator::add);
-//            }
-//        }
-//
-//        remaining.forEach(System.out::print);
-//
-//        return remaining.isEmpty();
-//    }
+    /**
+     * Subtracts RectB from RectA returning at most 4 new rectangles
+     *
+     *   ****************      ****************      ****************
+     *   |      RA      |      |              |      |      1       |
+     *   |    ******    |      |    ******    |      |**************|
+     *   |    | RB |    |  ->  |    |Hole|    |  ->  |  2 |Hole| 3  |
+     *   |    ******    |      |    ******    |      |**************|
+     *   |              |      |              |      |      4       |
+     *   ****************      ****************      ****************
+     *
+     * @param a Rectangle a
+     * @param b Rectangle b
+     * @return A List of rectangles that make up the remainder of Rectangle A
+     */
+    public static List<BasicRectangle> subtractRectangles(Rectangle a, Rectangle b) {
+        // Handle edge cases
+        if (equals(a, b)) {
+            return new ArrayList<>();
+        }
+        if (contains(b, a)) {
+            return new ArrayList<>();
+        }
+        if (!overlaps(a, b)) {
+            return new ArrayList<BasicRectangle>() {{
+                add(new BasicRectangle(a.getTopLeftCorner(), a.getBottomRightCorner()));
+            }};
+        }
+
+        ArrayList<BasicRectangle> results = new ArrayList<>();
+        // Get top rectangle
+        if (b.maxY() < a.maxY()) {
+            results.add(new BasicRectangle(a.getTopLeftCorner(), Vector2i.from(a.maxX(), b.maxY())));
+        }
+        // Get left rectangle
+        if (b.minX() > a.minX()) {
+            results.add(new BasicRectangle(Vector2i.from(a.minX(), Math.min(a.maxY(), b.maxY())),
+                                           Vector2i.from(b.minX(), Math.max(a.minY(), b.minY()))));
+        }
+        // Get right rectangle
+        if (b.maxX() < a.maxX()) {
+            results.add(new BasicRectangle(Vector2i.from(b.maxX(), Math.min(a.maxY(), b.maxY())),
+                                           Vector2i.from(a.maxX(), Math.max(a.minY(), b.minY()))));
+        }
+        // Get bottom rectangle
+        if (b.minY() > a.minY()) {
+            results.add(new BasicRectangle(Vector2i.from(a.minX(), b.minY()) , a.getBottomRightCorner()));
+        }
+
+        return results;
+    }
+
+    /**
+     * Checks to see if a rectangle is fully contained within another set of rectangles
+     * @param target The rectangle to check
+     * @param set The set of rectangles
+     * @return True if the target is fully within the area covered by the set, otherwise false
+     */
+    public static boolean rectangleContainedInSet(Rectangle target, Set<? extends Rectangle> set) {
+        List<Rectangle> remaining = new ArrayList<Rectangle>() {{
+            add(target);
+        }};
+
+        for (Rectangle rect : set) {
+            ListIterator<Rectangle> iterator = remaining.listIterator();
+            while (iterator.hasNext()) {
+                Rectangle tar = iterator.next();
+                iterator.remove();
+                subtractRectangles(tar, rect).forEach(iterator::add);
+            }
+        }
+        return remaining.isEmpty();
+    }
 }
