@@ -31,6 +31,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class TownFacade implements EconomyFacade {
 
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(player);
         TownPlot homePlot = plotService.createTownPlotFromSelection(selection);
-        validateNewTownPlot(homePlot, player.getLocation());
+        validateNewTownPlot(homePlot, player, player.getLocation());
 
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(player);
@@ -228,7 +229,7 @@ public class TownFacade implements EconomyFacade {
      * Validate a TownPlot meets the sizing rules
      * @param plot
      */
-    public void validateNewTownPlot(TownPlot plot, Location<World> location) throws TownsCommandException {
+    public void validateNewTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
         int plotArea = MathUtils.getArea(plot);
         if (plotArea > config.TOWN.MAX_PLOT_AREA) {
             throw new TownsCommandException("Plot selection has an area greater than permitted ( ", plotArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
@@ -246,11 +247,26 @@ public class TownFacade implements EconomyFacade {
         if (!plotService.isLocationWithinPlot(location, plot)) {
             throw new TownsCommandException("You must be within your plot selection!");
         }
+
+        Town town = residentService.getOrCreate(player).getTown();
+        if (town != null) {
+            if (isTownTaxDue(town)) {
+                throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
+            }
+
+            if (townService.getTownSize(town) + MathUtils.getArea(plot) > town.getMaxSize()) {
+                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+            }
+
+            if (!plotService.townPlotBordersTown(town, plot)) {
+                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+            }
+        }
     }
 
-    public boolean isValidNewTownPlot(TownPlot plot, Location<World> location) {
+    public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location) {
         try {
-            validateNewTownPlot(plot, location);
+            validateNewTownPlot(plot, player, location);
         } catch (TownsCommandException e) {
             return false;
         }
@@ -280,19 +296,7 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(source);
         TownPlot plot = plotService.createTownPlotFromSelection(selection);
-        validateNewTownPlot(plot, source.getLocation());
-
-        if (townService.getTownSize(town) + MathUtils.getArea(plot) > town.getMaxSize()) {
-            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-        }
-
-        if (isTownTaxDue(town)) {
-            throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
-        }
-
-        if (!plotService.townPlotBordersTown(town, plot)) {
-            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
-        }
+        validateNewTownPlot(plot, source, source.getLocation());
 
         townService.claimPlotForTown(plot, town);
         plotSelectionFacade.clearSelection(source);

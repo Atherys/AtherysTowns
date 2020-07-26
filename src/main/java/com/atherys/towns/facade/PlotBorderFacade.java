@@ -6,6 +6,7 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.PlotSelection;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.MathUtils;
@@ -118,7 +119,7 @@ public class PlotBorderFacade {
             // Only show plots smaller than the max plot area
             int plotArea = MathUtils.getArea(plot);
             if (plotArea < config.TOWN.MAX_PLOT_AREA) {
-                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, location) ? greenWalls : yellowWalls;
+                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location) ? greenWalls : yellowWalls;
                 BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
                 addSelectionBorder(player, borderInfo);
             }
@@ -131,7 +132,7 @@ public class PlotBorderFacade {
                 borderInfoSet.forEach(borderInfo -> {
                     int width = MathUtils.getWidth(borderInfo);
                     int height = MathUtils.getHeight(borderInfo);
-                    
+
                     Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
                     Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
 
@@ -148,7 +149,7 @@ public class PlotBorderFacade {
                     }
                 });
             });
-        })).intervalTicks(30).submit(AtherysTowns.getInstance());
+        })).intervalTicks(10).submit(AtherysTowns.getInstance());
     }
 
     public void setPlayerViewBorderStatus(Player player, boolean state) throws TownsCommandException {

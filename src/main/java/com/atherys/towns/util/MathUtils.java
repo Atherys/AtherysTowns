@@ -65,7 +65,7 @@ public class MathUtils {
 
     public static boolean overlaps(Rectangle a, Rectangle b) {
         // Rectangles are considered overlapping when any of the interior points are shared
-        return !(b.minY() > a.maxY() || b.minX() > a.maxX() || b.maxY() < a.minY() || b.maxX() < a.minX());
+        return !(b.minY() >= a.maxY() || b.minX() >= a.maxX() || b.maxY() <= a.minY() || b.maxX() <= a.minX());
     }
 
     public static boolean contains(Rectangle a, Rectangle b) {
