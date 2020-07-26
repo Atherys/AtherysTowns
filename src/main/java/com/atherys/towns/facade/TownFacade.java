@@ -511,7 +511,6 @@ public class TownFacade implements EconomyFacade {
 
     public void setPlayerTownSpawn(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
-
         Optional<TownPlot> plot = plotService.getTownPlotByLocation(source.getLocation());
 
         if (!plot.isPresent()) {

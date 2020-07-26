@@ -1,5 +1,6 @@
 import com.atherys.towns.util.BasicRectangle;
 import com.atherys.towns.util.MathUtils;
+import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import org.junit.Assert;
@@ -68,68 +69,6 @@ public class MathUtilsTest {
     //  +-------+
     private final BasicRectangle containsA = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(6, 1));
     private final BasicRectangle containsB = new BasicRectangle(Vector2i.from(3, 3), Vector2i.from(5, 2));
-
-    //Vector Range Testing
-    private final Vector3d extraneousVector = new Vector3d(2501, -224, -9281);
-    private final Vector3d middleVector = new Vector3d(5,74,-14);
-    private final Vector3d lowestVector = new Vector3d(-14,24,-204);
-    private final Vector3d highestVector = new Vector3d(25,115,539);
-
-    //Vector3i to 2i conversion
-    private final Vector2i extraneous2iVector = MathUtils.vec3iToVec2i(extraneousVector.toInt());
-    private final Vector2i middle2iVector = MathUtils.vec3iToVec2i(middleVector.toInt());
-    private final Vector2i lowest2iVector = MathUtils.vec3iToVec2i(lowestVector.toInt());
-    private final Vector2i highest2iVector = MathUtils.vec3iToVec2i(highestVector.toInt());
-
-    @Test
-    public void testFitsInRange() {
-        // Int Range Testing Variables
-        int lowestPoint = -14;
-        int highestPoint = 117;
-        int middleNumber = -4;
-        int extraneousNumber = 2093;
-
-        // Middle number is between lowest and highest
-        Assert.assertTrue(MathUtils.fitsInRange(middleNumber, lowestPoint, highestPoint));
-        // Middle number is between lowest and highest
-        Assert.assertTrue(MathUtils.fitsInRange((double) middleNumber, lowestPoint, highestPoint));
-        // Extraneous number is not between lowest and highest
-        Assert.assertFalse(MathUtils.fitsInRange(extraneousNumber, lowestPoint, highestPoint));
-        // Extraneous number is not between lowest and highest
-        Assert.assertFalse(MathUtils.fitsInRange((double) extraneousNumber, lowestPoint, highestPoint));
-    }
-
-    @Test
-    public void testVectorFitsInRange() {
-        // Middle vector is between lowest and highest
-        Assert.assertTrue(MathUtils.vectorFitsInRange(middleVector, lowestVector.toInt(), highestVector.toInt()));
-        // Middle vector is between lowest and highest
-        Assert.assertTrue(MathUtils.vectorFitsInRange(middleVector.toInt(), lowestVector.toInt(), highestVector.toInt()));
-
-        // Middle vector is between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertTrue(MathUtils.vectorFitsInRange(middle2iVector, lowest2iVector, highest2iVector));
-
-        // Extraneous vector is not between lowest and highest
-        Assert.assertFalse(MathUtils.vectorFitsInRange(extraneousVector, lowestVector.toInt(), highestVector.toInt()));
-        // Extraneous vector is not between lowest and highest
-        Assert.assertFalse(MathUtils.vectorFitsInRange(extraneousVector.toInt(), lowestVector.toInt(), highestVector.toInt()));
-
-        // Extraneous vector is not between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertFalse(MathUtils.vectorFitsInRange(extraneous2iVector, lowest2iVector, highest2iVector));
-    }
-
-    @Test
-    public void testVector2DFitsInRange() {
-        // Middle vector is between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertFalse(MathUtils.vectorXZFitsInRange(middleVector, lowest2iVector, highest2iVector));
-        // Middle vector is between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertFalse(MathUtils.vectorXZFitsInRange(middleVector.toInt(), lowest2iVector, highest2iVector));
-
-        // Extraneous vector is not between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertFalse(MathUtils.vectorXZFitsInRange(extraneousVector, lowest2iVector, highest2iVector));
-        // Extraneous vector is not between lowest and highest (Also is a test for 3i to 2i conversion)
-        Assert.assertFalse(MathUtils.vectorXZFitsInRange(extraneousVector.toInt(), lowest2iVector, highest2iVector));
-    }
 
     @Test
     public void testPlotBordering() {
@@ -376,5 +315,56 @@ public class MathUtilsTest {
             add(disjointB);
         }};
         Assert.assertFalse(MathUtils.rectangleContainedInSet(disjointA, rects));
+    }
+
+    @Test
+    public void testPointInRectangle() {
+        BasicRectangle rect = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 0));
+
+        // Test a corner
+        Assert.assertTrue(MathUtils.pointInRectangle(Vector2d.from(10, 15), rect));
+        // Test a point on the edge
+        Assert.assertTrue(MathUtils.pointInRectangle(Vector2d.from(10, 0), rect));
+        // Test an external point
+        Assert.assertFalse(MathUtils.pointInRectangle(Vector2d.from(0, 0), rect));
+    }
+
+    @Test
+    public void testGetCenter() {
+        BasicRectangle rect = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 0));
+        Assert.assertEquals(Vector2d.from(17.5, 7.5), MathUtils.getCenter(rect));
+    }
+
+    @Test
+    public void testGetDistanceSquaredToRectangle() {
+        BasicRectangle rect = new BasicRectangle(Vector2i.from(10, 15), Vector2i.from(25, 0));
+
+        // A point on the border should return 0
+        Assert.assertEquals(0, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(10,15), rect));
+        // A point within the border should return 0
+        Assert.assertEquals(0, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(16,7), rect));
+
+        // A point directly above/below/left/right should return regardless of the change in x/y
+        // points below
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(18,-5), rect));
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(10,-5), rect));
+        // points above
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(12,20), rect));
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(25,20), rect));
+        // points left
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(5,15), rect));
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(5,6), rect));
+        // points right
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(30,11), rect));
+        Assert.assertEquals(25, (int) MathUtils.getDistanceSquaredToRectangle(Vector2d.from(30,0), rect));
+    }
+
+    @Test
+    public void testDistanceSquaredBetweenPoints() {
+        Assert.assertEquals(200 , (int) MathUtils.getDistanceBetweenPointsSquared(Vector3d.from(0, 0, 0),
+                Vector3d.from(10, 0, 10)));
+
+        Assert.assertEquals(133664 , (int) MathUtils.getDistanceBetweenPointsSquared(Vector3d.from(-20, 0, -50),
+                Vector3d.from(200, 0, 242)));
     }
 }
