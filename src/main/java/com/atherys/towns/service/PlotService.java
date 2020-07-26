@@ -120,22 +120,6 @@ public class PlotService {
         return MathUtils.vectorXZFitsInRange(location.getBlockPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
     }
 
-    public int getSmallestPlotSide(Plot plot) {
-        Vector2i plotSize = getPlotSize(plot);
-        return Math.min(plotSize.getX(), plotSize.getY());
-    }
-
-    public int getPlotArea(Plot plot) {
-        Vector2i plotSize = getPlotSize(plot);
-        return plotSize.getX() * plotSize.getY();
-    }
-
-    public Vector2i getPlotSize(Plot plot) {
-        int sizeX = Math.abs(plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX());
-        int sizeY = Math.abs(plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY());
-        return new Vector2i(sizeX, sizeY);
-    }
-
     public static Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
         Vector2i southWestCorner = plot.getSouthWestCorner();
         Vector2i northEastCorner = plot.getNorthEastCorner();

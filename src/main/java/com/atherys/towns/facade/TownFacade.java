@@ -13,6 +13,7 @@ import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.service.*;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -228,12 +229,12 @@ public class TownFacade implements EconomyFacade {
      * @param plot
      */
     public void validateNewTownPlot(TownPlot plot, Location<World> location) throws TownsCommandException {
-        int plotArea = plotService.getPlotArea(plot);
+        int plotArea = MathUtils.getArea(plot);
         if (plotArea > config.TOWN.MAX_PLOT_AREA) {
             throw new TownsCommandException("Plot selection has an area greater than permitted ( ", plotArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
         }
 
-        int smallestSide = plotService.getSmallestPlotSide(plot);
+        int smallestSide = MathUtils.getShortestSide(plot);
         if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
             throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
         }
@@ -281,7 +282,7 @@ public class TownFacade implements EconomyFacade {
         TownPlot plot = plotService.createTownPlotFromSelection(selection);
         validateNewTownPlot(plot, source.getLocation());
 
-        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+        if (townService.getTownSize(town) + MathUtils.getArea(plot) > town.getMaxSize()) {
             throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
         }
 

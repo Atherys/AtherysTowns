@@ -115,10 +115,20 @@ public class MathUtils {
         return false;
     }
 
-    public static Vector2i getPlotSize(Vector2i NECorner, Vector2i SWCorner) {
-        int sizeX = Math.abs(NECorner.getX() - SWCorner.getX());
-        int sizeY = Math.abs(NECorner.getY() - SWCorner.getY());
-        return new Vector2i(sizeX, sizeY);
+    public static int getWidth(Rectangle a) {
+        return Math.abs(a.maxX() - a.minX());
+    }
+
+    public static int getHeight(Rectangle a) {
+        return Math.abs(a.maxY() - a.maxY());
+    }
+
+    public static int getShortestSide(Rectangle a) {
+        return Math.min(getHeight(a), getWidth(a));
+    }
+
+    public static int getArea(Rectangle a) {
+        return getHeight(a) * getWidth(a);
     }
 
     public static double getDistanceToPlotSquared(Vector2i point, Vector2i NECorner, Vector2i SWCorner) {

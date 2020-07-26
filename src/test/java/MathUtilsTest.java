@@ -46,7 +46,7 @@ public class MathUtilsTest {
     private final Vector2i middle2iVector = MathUtils.vec3iToVec2i(middleVector.toInt());
     private final Vector2i lowest2iVector = MathUtils.vec3iToVec2i(lowestVector.toInt());
     private final Vector2i highest2iVector = MathUtils.vec3iToVec2i(highestVector.toInt());
-    
+
     @Test
     public void testPlotOverlapping() {
         // Plot A Does Not Overlap B

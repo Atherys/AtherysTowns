@@ -7,6 +7,7 @@ import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Transform;
@@ -68,7 +69,7 @@ public class PlotFacade {
 
         plotText
                 .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Size: ", GOLD, plotService.getPlotArea(plot), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
 

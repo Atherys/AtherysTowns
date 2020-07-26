@@ -362,7 +362,7 @@ public class TownService {
         int size = 0;
 
         for (TownPlot plot : town.getPlots()) {
-            size += plotService.getPlotArea(plot);
+            size += MathUtils.getArea(plot);
         }
 
         return size;
