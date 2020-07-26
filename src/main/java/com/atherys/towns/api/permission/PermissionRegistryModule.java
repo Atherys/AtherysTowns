@@ -50,7 +50,8 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.SET_SPAWN,
                 TownPermissions.SET_PVP,
                 TownPermissions.TRANSFER_LEADERSHIP,
-                TownPermissions.CHAT
+                TownPermissions.CHAT,
+                TownPermissions.DEBT_PAY
         );
     }
 
