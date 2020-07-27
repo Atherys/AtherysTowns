@@ -535,11 +535,17 @@ public class TownFacade implements EconomyFacade {
         return townsText.build();
     }
 
-    public void onPlayerDamage(DamageEntityEvent event, Player player) {
-        plotService.getPlotByLocation(player.getLocation()).ifPresent(plot -> {
-            Town townAtPlot = plot.getTown();
-            event.setCancelled(!townAtPlot.isPvpEnabled());
-        });
+    public void onPlayerDamage(DamageEntityEvent event, Player attacker, Player target) {
+        Optional<Plot> attackerPlot = plotService.getPlotByLocation(attacker.getLocation());
+        Optional<Plot> targetPlot = plotService.getPlotByLocation(target.getLocation());
+        if(!(attackerPlot.isPresent() || targetPlot.isPresent())) {
+            return;
+        }
+        if (attackerPlot.isPresent()) {
+            event.setCancelled(!attackerPlot.get().getTown().isPvpEnabled());
+            return;
+        }
+        event.setCancelled(!targetPlot.get().getTown().isPvpEnabled());
     }
 
     private void joinTownMessage(Player player, Town town) {

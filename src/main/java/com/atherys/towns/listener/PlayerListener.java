@@ -67,9 +67,7 @@ public class PlayerListener {
 
     @Listener
     public void onPlayerDamage(DamageEntityEvent event, @Root EntityDamageSource source, @Getter("getTargetEntity") Player target) {
-        EntityUtils.playerAttackedEntity(source).ifPresent(player -> {
-            townFacade.onPlayerDamage(event, player);
-        });
+        EntityUtils.playerAttackedEntity(source).ifPresent(attacker -> townFacade.onPlayerDamage(event, attacker, target));
     }
 
     @Listener
