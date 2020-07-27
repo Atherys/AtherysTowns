@@ -539,7 +539,7 @@ public class TownFacade implements EconomyFacade {
         Optional<Plot> attackerPlot = plotService.getPlotByLocation(attacker.getLocation());
         Optional<Plot> targetPlot = plotService.getPlotByLocation(target.getLocation());
         //If the attacker and the target are not in plots, then return.
-        if (!(attackerPlot.isPresent() || targetPlot.isPresent())) {
+        if (!attackerPlot.isPresent() && !targetPlot.isPresent()) {
             return;
         }
         //If the target is in a plot, set cancelled to opposite of pvpEnabled for that town.
