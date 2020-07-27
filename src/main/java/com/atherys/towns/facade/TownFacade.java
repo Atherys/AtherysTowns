@@ -106,7 +106,7 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        if(plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())){
+        if (plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())) {
             Plot homePlot = plotService.createPlotFromSelection(selection);
             if (party.isPresent()) {
                 Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
@@ -449,7 +449,7 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownSpawn(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        Optional<Plot> plot  = plotService.getPlotByLocation(source.getLocation());
+        Optional<Plot> plot = plotService.getPlotByLocation(source.getLocation());
 
         if (!plot.isPresent()) {
             throw new TownsCommandException("Current location is not part of your town");
@@ -535,11 +535,20 @@ public class TownFacade implements EconomyFacade {
         return townsText.build();
     }
 
-    public void onPlayerDamage(DamageEntityEvent event, Player player) {
-        plotService.getPlotByLocation(player.getLocation()).ifPresent(plot -> {
-            Town townAtPlot = plot.getTown();
-            event.setCancelled(!townAtPlot.isPvpEnabled());
-        });
+    public void onPlayerDamage(DamageEntityEvent event, Player attacker, Player target) {
+        Optional<Plot> attackerPlot = plotService.getPlotByLocation(attacker.getLocation());
+        Optional<Plot> targetPlot = plotService.getPlotByLocation(target.getLocation());
+        //If the attacker and the target are not in plots, then return.
+        if (!attackerPlot.isPresent() && !targetPlot.isPresent()) {
+            return;
+        }
+        //If the target is in a plot, set cancelled to opposite of pvpEnabled for that town.
+        if (targetPlot.isPresent()) {
+            event.setCancelled(!targetPlot.get().getTown().isPvpEnabled());
+            return;
+        }
+        //If none of the above statements catch, the attacker must be in a plot. Set to opposite of pvpEnabled for that town.
+        event.setCancelled(!attackerPlot.get().getTown().isPvpEnabled());
     }
 
     private void joinTownMessage(Player player, Town town) {
