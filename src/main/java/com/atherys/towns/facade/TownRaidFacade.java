@@ -69,16 +69,18 @@ public class TownRaidFacade {
     }
 
     public void checkDistanceToTown(Town town, Vector3d targetPoint) throws TownsCommandException {
+        boolean townInRange = false;
         for (Plot plot : town.getPlots()) {
             double plotDistance = MathUtils.getDistanceToPlotSquared(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner());
             if (plotDistance < Math.pow(config.RAID.RAID_MIN_CREATION_DISTANCE, 2)) {
                 throw new TownsCommandException("Target town is too close to current location!");
             }
             if (plotDistance < Math.pow(config.RAID.RAID_MAX_CREATION_DISTANCE, 2)) {
-                return;
+                townInRange = true;
             }
         }
-        throw new TownsCommandException("Target town is too far away from current location!");
+        if (!townInRange)
+            throw new TownsCommandException("Target town is too far away from current location!");
     }
 
     public boolean isPlayerCloseToRaid(Transform<World> targetSpawn, Transform<World> spawnLocation) {
