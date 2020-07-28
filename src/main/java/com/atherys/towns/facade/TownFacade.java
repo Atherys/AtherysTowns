@@ -241,7 +241,9 @@ public class TownFacade implements EconomyFacade {
 
     /**
      * Validate a TownPlot meets the sizing rules
-     * @param plot
+     * @param plot The plot to validate
+     * @param player The player requesting validation
+     * @param location location when validation was requested
      */
     public void validateNewTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
         int plotArea = MathUtils.getArea(plot);
@@ -286,10 +288,11 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
-    public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location) {
+    public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location, boolean messageUser) {
         try {
             validateNewTownPlot(plot, player, location);
         } catch (TownsCommandException e) {
+            if (messageUser && e.getText() != null) player.sendMessage(e.getText());
             return false;
         }
         return true;

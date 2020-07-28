@@ -17,6 +17,86 @@ public class MathUtils {
         return Vector2i.from(vector3i.getX(), vector3i.getZ());
     }
 
+    /**
+     * Populate the SouthWest and NorthEast corners of a plot from a PlotSelection
+     *
+     * Minecraft's plane is aligned in an unexpected way, the SouthWest corner is the TopLeft corner
+     * and the NorthEast corner is the BottomRight
+     *
+     *          South
+     *           +z
+     *            ^
+     *            |
+     * West -x <-----> +x East
+     *            |
+     *           -z
+     *          North
+     *
+     * The two points in a PlotSelection are not necessarily the corners we need, we may need to work out opposite corners
+     *
+     * Additionally, as we want the borders around a set of blocks, we need to Floor SW.x, Ceil SW.y, Ceil NE.x, Floor NE.y
+     *
+     * @param rect The Rectangle to populate
+     * @param pA First point
+     * @param pB Second point
+     */
+    public static void populateRectangleFromTwoCorners(Rectangle rect, Vector2d pA, Vector2d pB) {
+        Vector2d pNE;
+        Vector2d pSW;
+
+        //             +z
+        //     pB, SW  *
+        //         +---+
+        //         |   |
+        //  -x  <- +---+ -> +X pA
+        //         *    pA NE
+        //         -z
+        //
+        if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
+            pNE = pA;
+            pSW = pB;
+            //             +z
+            //     pA, SW  *
+            //         +---+
+            //         |   |
+            //  -x  <- +---+ -> +X pA
+            //         *    pB NE
+            //         -z
+            //
+        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
+            pNE = pB;
+            pSW = pA;
+            //         +z
+            //         *     pA
+            //         +---+
+            //         |   |
+            //  -x  <- +---+ -> +X pA
+            //     pB      *
+            //            -z
+            //
+        } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
+            pNE = Vector2d.from(pA.getX(), pB.getY());
+            pSW = Vector2d.from(pB.getX(), pA.getY());
+            //         +z
+            //         *     pB
+            //         +---+
+            //         |   |
+            //  -x  <- +---+ -> +X pA
+            //     pA      *
+            //            -z
+            //
+        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
+            pNE = Vector2d.from(pB.getX(), pA.getY());
+            pSW = Vector2d.from(pA.getX(), pB.getY());
+        } else {
+            throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
+        }
+
+        rect.setTopLeftCorner(new Vector2i(pSW.getFloorX(), Math.ceil(pSW.getY())));
+        rect.setBottomRightCorner(new Vector2i(Math.ceil(pNE.getX()), pNE.getFloorY()));
+    }
+
+
     public static double getDistanceBetweenPointsSquared(Vector3d point1, Vector3d point2) {
         return Math.pow(point2.getFloorX() - point1.getFloorX(), 2) + Math.pow(point2.getFloorZ() - point1.getFloorZ(), 2);
     }

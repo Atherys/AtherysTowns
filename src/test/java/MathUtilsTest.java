@@ -70,6 +70,34 @@ public class MathUtilsTest {
     private final BasicRectangle containsA = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(6, 1));
     private final BasicRectangle containsB = new BasicRectangle(Vector2i.from(3, 3), Vector2i.from(5, 2));
 
+
+    @Test
+    public void testPopulateRectangle() {
+        BasicRectangle rect = new BasicRectangle();
+        Vector2d pA, pB;
+
+        // Test different points of a rectangle
+        BasicRectangle expected = new BasicRectangle(Vector2i.from(2, 4), Vector2i.from(6, 1));
+
+        // pA = TL pB = BR
+        pA = Vector2d.from(2, 4);
+        pB = Vector2d.from(6, 1);
+        MathUtils.populateRectangleFromTwoCorners(rect, pA, pB);
+        Assert.assertEquals(expected, rect);
+
+        // pA = BR pB = TL
+        rect = new BasicRectangle();
+        MathUtils.populateRectangleFromTwoCorners(rect, pB, pA);
+        Assert.assertEquals(expected, rect);
+
+        // pA = TR pB = BL
+        rect = new BasicRectangle();
+        pA = Vector2d.from(6, 4);
+        pB = Vector2d.from(2, 1);
+        MathUtils.populateRectangleFromTwoCorners(rect, pB, pA);
+        Assert.assertEquals(expected, rect);
+    }
+
     @Test
     public void testPlotBordering() {
         // Rectangles connected on the corner

@@ -48,6 +48,11 @@ public class Plot implements Rectangle, Identifiable<Long> {
         this.swCorner = swCorner;
     }
 
+    @Override
+    public void setTopLeftCorner(Vector2i point) {
+        this.swCorner = point;
+    }
+
     public Vector2i getNorthEastCorner() {
         return neCorner;
     }
@@ -59,6 +64,11 @@ public class Plot implements Rectangle, Identifiable<Long> {
 
     public void setNorthEastCorner(Vector2i neCorner) {
         this.neCorner = neCorner;
+    }
+
+    @Override
+    public void setBottomRightCorner(Vector2i point) {
+        this.neCorner = point;
     }
 
     public int getVersion() {

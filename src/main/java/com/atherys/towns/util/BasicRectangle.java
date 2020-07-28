@@ -8,17 +8,32 @@ public class BasicRectangle implements Rectangle {
     private Vector2i topLeft;
     private Vector2i bottomRight;
 
+    public BasicRectangle() {
+    }
+
     public BasicRectangle(Vector2i topLeft, Vector2i bottomRight) {
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
     }
 
+    @Override
     public Vector2i getTopLeftCorner() {
         return topLeft;
     }
 
+    @Override
     public Vector2i getBottomRightCorner() {
         return bottomRight;
+    }
+
+    @Override
+    public void setTopLeftCorner(Vector2i point) {
+        topLeft = point;
+    }
+
+    @Override
+    public void setBottomRightCorner(Vector2i point) {
+        bottomRight = point;
     }
 
     @Override

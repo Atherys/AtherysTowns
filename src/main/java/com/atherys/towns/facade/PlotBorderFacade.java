@@ -119,7 +119,7 @@ public class PlotBorderFacade {
             // Only show plots smaller than the max plot area
             int plotArea = MathUtils.getArea(plot);
             if (plotArea < config.TOWN.MAX_PLOT_AREA) {
-                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location) ? greenWalls : yellowWalls;
+                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location, true) ? greenWalls : yellowWalls;
                 BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
                 addSelectionBorder(player, borderInfo);
             }

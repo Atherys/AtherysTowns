@@ -61,4 +61,14 @@ public class BorderInfo implements Rectangle {
     public Vector2i getBottomRightCorner() {
         return neCorner;
     }
+
+    @Override
+    public void setTopLeftCorner(Vector2i point) {
+        swCorner = point;
+    }
+
+    @Override
+    public void setBottomRightCorner(Vector2i point) {
+        neCorner = point;
+    }
 }

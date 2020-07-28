@@ -35,87 +35,6 @@ public class PlotService {
     PlotService() {
     }
 
-    /**
-     * Populate the SouthWest and NorthEast corners of a plot from a PlotSelection
-     *
-     * Minecraft's plane is aligned in an unexpected way, the SouthWest corner is the TopLeft corner
-     * and the NorthEast corner is the BottomRight
-     *
-     *          South
-     *           +z
-     *            ^
-     *            |
-     * West -x <-----> +x East
-     *            |
-     *           -z
-     *          North
-     *
-     * The two points in a PlotSelection are not necessarily the corners we need, we may need to work out opposite corners
-     *
-     * Additionally, as we want the borders around a set of blocks, we need to Floor SW.x, Ceil SW.y, Ceil NE.x, Floor NE.y
-     *
-     * @param plot The plot to populate
-     * @param selection The selection to use
-     */
-    private void populatePlotFromSelection(Plot plot, PlotSelection selection) {
-        Vector2d pA = selection.getPointA().getPosition().toVector2(true);
-        Vector2d pB = selection.getPointB().getPosition().toVector2(true);
-
-        Vector2d pNE;
-        Vector2d pSW;
-
-        //             +z
-        //     pB, SW  *
-        //         +---+
-        //         |   |
-        //  -x  <- +---+ -> +X pA
-        //         *    pA NE
-        //         -z
-        //
-        if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
-            pNE = pA;
-            pSW = pB;
-        //             +z
-        //     pA, SW  *
-        //         +---+
-        //         |   |
-        //  -x  <- +---+ -> +X pA
-        //         *    pB NE
-        //         -z
-        //
-        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
-            pNE = pB;
-            pSW = pA;
-        //         +z
-        //         *     pA
-        //         +---+
-        //         |   |
-        //  -x  <- +---+ -> +X pA
-        //     pB      *
-        //            -z
-        //
-        } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
-            pNE = Vector2d.from(pA.getX(), pB.getY());
-            pSW = Vector2d.from(pB.getX(), pA.getY());
-        //         +z
-        //         *     pB
-        //         +---+
-        //         |   |
-        //  -x  <- +---+ -> +X pA
-        //     pA      *
-        //            -z
-        //
-        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
-            pNE = Vector2d.from(pB.getX(), pA.getY());
-            pSW = Vector2d.from(pA.getX(), pB.getY());
-        } else {
-            throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
-        }
-
-        plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY() + 1));
-        plot.setNorthEastCorner(new Vector2i(pNE.getFloorX() + 1, pNE.getFloorY()));
-    }
-
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
         return MathUtils.pointInRectangle(location.getPosition(), plot);
     }
@@ -140,7 +59,7 @@ public class PlotService {
 
     public TownPlot createTownPlotFromSelection(PlotSelection selection) {
         TownPlot plot = new TownPlot();
-        populatePlotFromSelection(plot, selection);
+        MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
         plot.setName(DEFAULT_TOWN_PLOT_NAME);
         return plot;
     }
@@ -196,7 +115,7 @@ public class PlotService {
 
     public NationPlot createNationPlotFromSelection(PlotSelection selection) {
         NationPlot plot = new NationPlot();
-        populatePlotFromSelection(plot, selection);
+        MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
         return plot;
     }
 

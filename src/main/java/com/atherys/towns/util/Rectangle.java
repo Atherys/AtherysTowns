@@ -6,6 +6,9 @@ public interface Rectangle {
     Vector2i getTopLeftCorner();
     Vector2i getBottomRightCorner();
 
+    void setTopLeftCorner(Vector2i point);
+    void setBottomRightCorner(Vector2i point);
+
     default int maxX() {
         return getBottomRightCorner().getX();
     }
