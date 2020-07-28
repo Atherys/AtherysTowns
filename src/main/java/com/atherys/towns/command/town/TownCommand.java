@@ -43,10 +43,7 @@ import javax.annotation.Nonnull;
         TownRaidCommand.class
 })
 @Permission("atherystowns.town.base")
-@HelpCommand(
-        title = "Town Help",
-        command = "help"
-)
+@HelpCommand(title = "Town Help")
 public class TownCommand implements PlayerCommand {
     @Nonnull
     @Override
