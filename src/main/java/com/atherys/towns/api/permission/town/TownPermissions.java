@@ -64,6 +64,9 @@ public final class TownPermissions {
     // permission to destroy the town
     public static final TownPermission RUIN_TOWN = new TownPermission("atherystowns.town.ruin", "Ruin Town");
 
+    // permission to pay off taxes
+    public static final TownPermission DEBT_PAY = new TownPermission("atherystowns.town.pay_debt", "Pay back debt");
+
     // permission to start a raid on an enemy town
     public static final TownPermission START_RAID = new TownPermission("atherystowns.town.raid.start", "Start Raid");
 

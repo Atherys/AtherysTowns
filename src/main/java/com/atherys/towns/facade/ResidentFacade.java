@@ -58,6 +58,7 @@ public class ResidentFacade {
     public void onLogin(Player player) {
         Resident resident = residentService.getOrCreate(player);
         residentService.setLastTownSpawn(resident, LocalDateTime.now());
+        residentService.setLastLogin(resident, LocalDateTime.now());
         roleService.validateRoles(player, resident);
     }
 

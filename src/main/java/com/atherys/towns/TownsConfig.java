@@ -2,6 +2,7 @@ package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
 import com.atherys.towns.config.NationConfig;
+import com.atherys.towns.config.TaxConfig;
 import com.atherys.towns.config.RaidConfig;
 import com.atherys.towns.config.TownConfig;
 import com.google.inject.Singleton;
@@ -43,6 +44,9 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("town")
     public TownConfig TOWN = new TownConfig();
+
+    @Setting("taxes")
+    public TaxConfig TAXES = new TaxConfig();
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");

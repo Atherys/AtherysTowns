@@ -59,7 +59,8 @@ public class NationFacade implements EconomyFacade {
     @Inject
     private ResidentService residentService;
 
-    NationFacade() {}
+    NationFacade() {
+    }
 
     public void createNation(String nationName, Town capital) throws TownsCommandException {
         if (nationName.length() > config.NATION.MAX_NATION_NAME_LENGTH) {
@@ -117,13 +118,13 @@ public class NationFacade implements EconomyFacade {
         townsMsg.info(source, "Nation capital set.");
     }
 
-    public void addTownToNation(Nation nation, Town town) throws TownsCommandException{
+    public void addTownToNation(Nation nation, Town town) throws TownsCommandException {
         if (town.getNation() != null) {
             throw new TownsCommandException("Town ", town.getName(), " is already part of a nation.");
         }
 
         nationService.addTown(nation, town);
-        townsMsg.broadcastNationInfo(nation,"The town ", GOLD, town.getName(), DARK_GREEN,
+        townsMsg.broadcastNationInfo(nation, "The town ", GOLD, town.getName(), DARK_GREEN,
                 " has joined the nation");
     }
 
@@ -134,13 +135,13 @@ public class NationFacade implements EconomyFacade {
 
         if (nation.getCapital().equals(town)) {
             throw new TownsCommandException("Town ", town.getName(), " cannot be removed as it is the capital of ",
-                                            nation.getName(), ".");
+                    nation.getName(), ".");
         }
 
         nationService.removeTown(nation, town);
         townsMsg.broadcastNationInfo(nation, "The town ", GOLD, town.getName(), DARK_GREEN,
                 " has left the nation");
-        townsMsg.broadcastTownInfo(town,"Your town ", GOLD, town.getName(), DARK_GREEN,
+        townsMsg.broadcastTownInfo(town, "Your town ", GOLD, town.getName(), DARK_GREEN,
                 " has left the nation ", GOLD, nation.getName());
     }
 
@@ -177,12 +178,18 @@ public class NationFacade implements EconomyFacade {
 
 
     public void setNationTax(Player source, double tax) throws TownsCommandException {
-        Nation nation = getPlayerNation(source);
+        double minMultiplier = config.TAXES.MIN_NATION_TAX_MULTIPLIER;
+        double maxMultiplier = config.TAXES.MAX_NATION_TAX_MULTIPLIER;
+
+        if (tax > maxMultiplier || tax < minMultiplier) {
+            throw new TownsCommandException(Text.of("Tax amount does not meet requirements (", minMultiplier, " - ", maxMultiplier, ")"));
+        }
 
         permissionFacade.checkPermitted(source, NationPermissions.SET_TAX, "change the nation's tax");
 
+        Nation nation = getPlayerNation(source);
         nationService.setTax(nation, tax);
-        townsMsg.info(source, "Nation tax changed to: " + tax + ".");
+        townsMsg.info(source, "Nation tax rate changed to: ", GOLD, +tax);
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {

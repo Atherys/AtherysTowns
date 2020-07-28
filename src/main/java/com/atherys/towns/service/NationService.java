@@ -16,6 +16,9 @@ import org.spongepowered.api.text.Text;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 @Singleton
 public class NationService {
@@ -70,7 +73,7 @@ public class NationService {
 
         nation.setBank(UUID.randomUUID());
         if (AtherysTowns.economyIsEnabled()) {
-            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank().toString());
+            AtherysCore.getEconomyService().get().getOrCreateAccount(nation.getBank());
         }
 
         nationRepository.saveOne(nation);

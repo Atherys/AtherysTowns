@@ -34,6 +34,8 @@ import javax.annotation.Nonnull;
         SetNationDescriptionCommand.class,
         NationRoleCommand.class,
         SetNationTaxCommand.class,
+        NationRoleCommand.class,
+        SetNationTaxCommand.class,
         AddTownToNationCommand.class,
         RemoveTownFromNationCommand.class
 })

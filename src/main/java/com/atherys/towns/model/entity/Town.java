@@ -64,7 +64,13 @@ public class Town implements Identifiable<Long> {
 
     private UUID bank;
 
+    private LocalDateTime lastTaxDate;
+
     private LocalDateTime lastRaidCreationDate;
+
+    private int taxFailedCount;
+
+    private double debt;
 
     @Version
     private int version;
@@ -231,4 +237,27 @@ public class Town implements Identifiable<Long> {
         this.lastRaidCreationDate = lastRaidCreationDate;
     }
 
+    public LocalDateTime getLastTaxDate() {
+        return this.lastTaxDate;
+    }
+
+    public void setLastTaxDate(LocalDateTime lastTaxDate) {
+        this.lastTaxDate = lastTaxDate;
+    }
+
+    public int getTaxFailedCount() {
+        return this.taxFailedCount;
+    }
+
+    public void setTaxFailedCount(int taxFailedCount) {
+        this.taxFailedCount = taxFailedCount;
+    }
+
+    public double getDebt() {
+        return this.debt;
+    }
+
+    public void setDebt(double debt) {
+        this.debt = debt;
+    }
 }

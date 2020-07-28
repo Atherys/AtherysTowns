@@ -111,6 +111,8 @@ public class AtherysTowns {
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
+        getTownService().initTaxTimer();
+
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
@@ -274,7 +276,6 @@ public class AtherysTowns {
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
-
 
     private static class Components {
 

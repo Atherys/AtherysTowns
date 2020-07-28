@@ -20,6 +20,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -70,12 +71,6 @@ public class TownFacade implements EconomyFacade {
     private NationFacade nationFacade;
 
     @Inject
-    private PermissionFacade permissionFacade;
-
-    @Inject
-    private PlotFacade plotFacade;
-
-    @Inject
     private PlotBorderFacade plotBorderFacade;
 
     @Inject
@@ -84,12 +79,11 @@ public class TownFacade implements EconomyFacade {
     TownFacade() {
     }
 
-    public void createTownOrPoll(Player player, String townName) throws CommandException {
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
-        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
-        Optional<Party> party = partyFacade.getPlayerParty(player);
-        Resident resident = residentService.getOrCreate(player);
+    public boolean isTownTaxDue(Town town) {
+        return town.getTaxFailedCount() > 0;
+    }
 
+    public void createTownOrPoll(Player player, String townName) throws CommandException {
         if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
         }
@@ -102,23 +96,30 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
         }
 
+        Resident resident = residentService.getOrCreate(player);
         if (hasPlayerTown(player) && residentService.isResidentTownLeader(resident, resident.getTown())) {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        if (plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())) {
-            Plot homePlot = plotService.createPlotFromSelection(selection);
-            if (party.isPresent()) {
-                Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
-                partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
+        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
+        if (!plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())) {
+            return;
+        }
 
-                if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
-                    throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
-                }
-                pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
-            } else {
-                createTown(player, townName, homePlot);
+        Plot homePlot = plotService.createPlotFromSelection(selection);
+        Optional<Party> party = partyFacade.getPlayerParty(player);
+        if (party.isPresent()) {
+            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
+
+            if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
+                throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
             }
+
+            partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+        } else {
+            createTown(player, townName, homePlot);
         }
     }
 
@@ -183,6 +184,10 @@ public class TownFacade implements EconomyFacade {
     public void setPlayerTownPvp(Player player, boolean pvp) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
+        if (isTownTaxDue(town)) {
+            throw new TownsCommandException("Unable to change PvP status as taxes are unpaid!");
+        }
+
         townService.setTownPvp(town, pvp);
         townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
     }
@@ -221,9 +226,8 @@ public class TownFacade implements EconomyFacade {
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
 
-        Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("You are not currently standing on a claim area.");
-        });
+        Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() ->
+                new TownsCommandException("You are not currently standing on a claim area."));
 
         if (town.getPlots().size() == 1) {
             throw new TownsCommandException("You cannot unclaim your last remaining plot.");
@@ -240,23 +244,30 @@ public class TownFacade implements EconomyFacade {
 
     public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(source);
-        if (plotSelectionFacade.validatePlotSelection(selection, source, true, source.getLocation())) {
-            Town town = getPlayerTown(source);
-            Plot plot = plotService.createPlotFromSelection(selection);
 
-            if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
-                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-            }
-
-            if (!plotService.plotBordersTown(town, plot)) {
-                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
-            }
-
-            townService.claimPlotForTown(plot, town);
-            plotSelectionFacade.clearSelection(source);
-
-            townsMsg.info(source, "Plot claimed.");
+        if (!plotSelectionFacade.validatePlotSelection(selection, source, true, source.getLocation())) {
+            return;
         }
+
+        Town town = getPlayerTown(source);
+
+        if (isTownTaxDue(town)) {
+            throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
+        }
+
+        Plot plot = plotService.createPlotFromSelection(selection);
+
+        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
+            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+        }
+
+        if (!plotService.plotBordersTown(town, plot)) {
+            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+        }
+
+        townService.claimPlotForTown(plot, town);
+        plotSelectionFacade.clearSelection(source);
+        townsMsg.info(source, "Plot claimed.");
     }
 
     public void inviteToTown(Player source, Player invitee) throws TownsCommandException {
@@ -308,16 +319,13 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
-    //Util for voting, may move to different facade in future
-
-
     public void joinTown(Player player, Town town) throws TownsCommandException {
-        if (town.isFreelyJoinable()) {
-            townService.addResidentToTown(player, residentService.getOrCreate(player), town);
-            joinTownMessage(player, town);
-        } else {
-            townsMsg.error(player, town.getName(), " is not freely joinable.");
+        if (!town.isFreelyJoinable()) {
+            throw new TownsCommandException(Text.of(town.getName(), " is not freely joinable."));
         }
+
+        townService.addResidentToTown(player, residentService.getOrCreate(player), town);
+        joinTownMessage(player, town);
     }
 
     public void leaveTown(Player player) throws TownsCommandException {
@@ -326,10 +334,10 @@ public class TownFacade implements EconomyFacade {
 
         if (town.getLeader().equals(resident)) {
             throw new TownsCommandException("The town leader cannot leave the town.");
-        } else {
-            townService.removeResidentFromTown(player, resident, town);
-            townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
         }
+
+        townService.removeResidentFromTown(player, resident, town);
+        townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
     }
 
 
@@ -410,7 +418,7 @@ public class TownFacade implements EconomyFacade {
         if (result.isPresent()) {
             Text feedback = getResultFeedback(
                     result.get().getResult(),
-                    Text.of("Deposited", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                    Text.of("Deposited ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
                     Text.of("You do not have enough to deposit."),
                     Text.of("Depositing failed.")
             );
@@ -565,5 +573,19 @@ public class TownFacade implements EconomyFacade {
 
     private boolean hasPlayerTown(Player player) {
         return residentFacade.getPlayerTown(player).isPresent();
+    }
+
+    public void payTownDebt(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+        Account townBank = Economy.getAccount(town.getBank().toString()).get();
+        double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
+
+        if (town.getDebt() <= townBalance) {
+            townService.payTaxes(town, town.getDebt());
+            townService.setTaxesPaid(town, true);
+            townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+        }
+
+        throw new TownsCommandException("You have no debt to pay!");
     }
 }
