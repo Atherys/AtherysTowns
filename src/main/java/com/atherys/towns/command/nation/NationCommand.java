@@ -2,6 +2,7 @@ package com.atherys.towns.command.nation;
 
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.command.nation.admin.AddTownToNationCommand;
 import com.atherys.towns.command.nation.admin.CreateNationCommand;
 import com.atherys.towns.command.nation.admin.DisbandNationCommand;
@@ -38,11 +39,12 @@ import javax.annotation.Nonnull;
         AddTownToNationCommand.class,
         RemoveTownFromNationCommand.class
 })
-@HelpCommand(title = "Nation Help")
+@HelpCommand(title = "Nation Help", command = "help")
 public class NationCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
+        AtherysTowns.getInstance().getNationFacade().sendPlayerNationInfo(source);
         return CommandResult.success();
     }
 }
