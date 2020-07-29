@@ -16,7 +16,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 
-@Aliases("border")
+@Aliases({"border", "borders"})
 @Description("Displays outline for town plots.")
 @Permission("atherystowns.plot.border")
 public class BordersCommand implements PlayerCommand, ParameterizedCommand {
