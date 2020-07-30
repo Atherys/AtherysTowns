@@ -1,6 +1,8 @@
 package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
+import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.persistence.converter.PermissionConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
 import com.flowpowered.math.vector.Vector2i;
@@ -8,7 +10,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Plot implements Identifiable<Long> {
@@ -33,6 +35,21 @@ public class Plot implements Identifiable<Long> {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Resident owner;
+
+    @Convert(converter = PermissionConverter.class)
+    private Set<Permission> friendPermissions;
+
+    @Convert(converter = PermissionConverter.class)
+    private Set<Permission> townPermissions;
+
+    @Convert(converter = PermissionConverter.class)
+    private Set<Permission> allyPermissions;
+
+    @Convert(converter = PermissionConverter.class)
+    private Set<Permission> enemyPermissions;
+
+    @Convert(converter = PermissionConverter.class)
+    private Set<Permission> neutralPermissions;
 
     @Version
     private int version;
@@ -85,6 +102,46 @@ public class Plot implements Identifiable<Long> {
 
     public void setOwner(Resident owner) {
         this.owner = owner;
+    }
+
+    public Set<Permission> getFriendPermissions() {
+        return this.friendPermissions;
+    }
+
+    public void setFriendPermissions(Set<Permission> friendPermissions) {
+        this.friendPermissions = friendPermissions;
+    }
+
+    public Set<Permission> getTownPermissions() {
+        return this.townPermissions;
+    }
+
+    public void setTownPermissions(Set<Permission> townPermissions) {
+        this.townPermissions = townPermissions;
+    }
+
+    public Set<Permission> getAllyPermissions() {
+        return this.allyPermissions;
+    }
+
+    public void setAllyPermissions(Set<Permission> allyPermissions) {
+        this.allyPermissions = allyPermissions;
+    }
+
+    public Set<Permission> getEnemyPermissions() {
+        return this.enemyPermissions;
+    }
+
+    public void setEnemyPermissions(Set<Permission> enemyPermissions) {
+        this.enemyPermissions = enemyPermissions;
+    }
+
+    public Set<Permission> getNeutralPermissions() {
+        return this.neutralPermissions;
+    }
+
+    public void setNeutralPermissions(Set<Permission> neutralPermissions) {
+        this.neutralPermissions = neutralPermissions;
     }
 
     protected int getVersion() {

@@ -6,6 +6,7 @@ import org.spongepowered.api.Sponge;
 import javax.persistence.AttributeConverter;
 
 public class PermissionConverter implements AttributeConverter<Permission, String> {
+
     @Override
     public String convertToDatabaseColumn(Permission attribute) {
         return attribute.getId();

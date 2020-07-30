@@ -5,6 +5,7 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.town.TownPermission;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownsPermissionService;
@@ -24,6 +25,8 @@ public class PermissionFacade {
     static final String NOT_PERMITTED = "You are not permitted to ";
     public final Map<String, TownPermission> TOWN_PERMISSIONS = getTownPermissions();
     public final Map<String, NationPermission> NATION_PERMISSIONS = getNationPermissions();
+    public final Map<String, WorldPermission> WORLD_PERMISSIONS = getWorldPermissions();
+
     @Inject
     TownsConfig config;
     @Inject
@@ -61,6 +64,18 @@ public class PermissionFacade {
         perms.forEach(permission -> townPerms.put(permission.getId(), permission));
 
         return townPerms;
+    }
+
+    private Map<String, WorldPermission> getWorldPermissions() {
+        Collection<WorldPermission> perms = Sponge.getGame().getRegistry().getAllOf(Permission.class).stream()
+                .filter(permission -> permission instanceof WorldPermission)
+                .map(permission -> (WorldPermission) permission)
+                .collect(Collectors.toList());
+
+        Map<String, WorldPermission> worldPerms = new HashMap<>();
+        perms.forEach(permission -> worldPerms.put(permission.getId(), permission));
+
+        return worldPerms;
     }
 
     private Map<String, NationPermission> getNationPermissions() {
