@@ -59,6 +59,8 @@ public class TownService {
 
     private final PlotService plotService;
 
+    private final NationService nationService;
+
     private final TownRepository townRepository;
 
     private final PlotRepository plotRepository;
@@ -77,6 +79,7 @@ public class TownService {
             PlotService plotService,
             TownRepository townRepository,
             PlotRepository plotRepository,
+            NationService nationService,
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
@@ -86,6 +89,7 @@ public class TownService {
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
+        this.nationService = nationService;
         this.residentRepository = residentRepository;
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
@@ -392,6 +396,7 @@ public class TownService {
                 .getUserSubjects()
                 .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
+        nationService.removeTown(town.getNation(), town);
         residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
