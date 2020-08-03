@@ -215,7 +215,7 @@ public class TownFacade implements EconomyFacade {
         }
 
         townService.removeTown(town);
-        plotBorderFacade.refreshBorders(player, player.getLocation());
+        plotBorderFacade.removeBordersForTown(town);
         townsMsg.info(player, "Town ruined.");
     }
 
