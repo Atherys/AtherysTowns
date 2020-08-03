@@ -428,7 +428,7 @@ public class TownService {
         }
     }
 
-    private double getTaxAmount(Town town) {
+    public double getTaxAmount(Town town) {
         TaxConfig taxConfig = config.TAXES;
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());

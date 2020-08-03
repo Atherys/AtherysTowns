@@ -5,6 +5,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -505,8 +506,17 @@ public class TownFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
-                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
-                .append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
+                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
+
+        if (AtherysTowns.economyIsEnabled()) {
+            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town)));
+        }
+
+        if (town.getDebt() > 0) {
+            townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt()));
+        }
+
+        townText.append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
                 .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE));
 
         townText.append(Text.of(
