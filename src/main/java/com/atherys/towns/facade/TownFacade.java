@@ -508,12 +508,12 @@ public class TownFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
 
-        if (AtherysTowns.economyIsEnabled()) {
-            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town)));
-        }
+        if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
+            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town), Text.NEW_LINE));
 
-        if (town.getDebt() > 0) {
-            townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt()));
+            if (town.getDebt() > 0) {
+                townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
+            }
         }
 
         townText.append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
@@ -592,15 +592,20 @@ public class TownFacade implements EconomyFacade {
 
     public void payTownDebt(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
+
+        if (town.getDebt() == 0) {
+            throw new TownsCommandException("You have no debt to pay!");
+        }
+
         Account townBank = Economy.getAccount(town.getBank().toString()).get();
         double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
 
-        if (town.getDebt() <= townBalance) {
-            townService.payTaxes(town, town.getDebt());
-            townService.setTaxesPaid(town, true);
-            townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+        if (town.getDebt() > townBalance) {
+            throw new TownsCommandException("Town bank does not have enough money to pay your debt!");
         }
 
-        throw new TownsCommandException("You have no debt to pay!");
+        townService.payTaxes(town, town.getDebt());
+        townService.setTaxesPaid(town, true);
+        townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
     }
 }

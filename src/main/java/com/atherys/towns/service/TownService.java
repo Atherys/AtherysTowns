@@ -15,8 +15,6 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
@@ -475,8 +473,10 @@ public class TownService {
                     .filter(town -> !town.getNation().getCapital().equals(town))
                     .collect(Collectors.toSet());
             Set<Town> townsToRemove = new HashSet<>();
+            AtherysTowns.getInstance().getLogger().info("Got Here Tax");
 
             for (Town town : taxableTowns) {
+                AtherysTowns.getInstance().getLogger().info("Got Here Town");
                 TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
                 double taxPaymentAmount = Math.floor(getTaxAmount(town));
                 Account townBank = Economy.getAccount(town.getBank().toString()).get();
