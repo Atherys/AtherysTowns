@@ -394,7 +394,9 @@ public class TownService {
                 .getUserSubjects()
                 .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
-        nationService.removeTown(town.getNation(), town);
+        if (town.getNation() != null) {
+            nationService.removeTown(town.getNation(), town);
+        }
         residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);

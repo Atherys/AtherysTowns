@@ -205,7 +205,7 @@ public class TownFacade implements EconomyFacade {
         Resident resident = residentService.getOrCreate(player);
 
         // Towns that are the capital of a nation cannot be ruined.
-        if (town.getNation().getCapital().equals(town)) {
+        if (town.getNation() != null && town.getNation().getCapital().equals(town)) {
             throw new TownsCommandException("Nation capitals cannot be ruined.");
         }
 
