@@ -475,10 +475,9 @@ public class TownService {
                     .filter(town -> !town.getNation().getCapital().equals(town))
                     .collect(Collectors.toSet());
             Set<Town> townsToRemove = new HashSet<>();
-            AtherysTowns.getInstance().getLogger().info("Got Here Tax");
+            AtherysTowns.getInstance().getLogger().info("Town taxes have been collected!");
 
             for (Town town : taxableTowns) {
-                AtherysTowns.getInstance().getLogger().info("Got Here Town");
                 TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
                 double taxPaymentAmount = Math.floor(getTaxAmount(town));
                 Account townBank = Economy.getAccount(town.getBank().toString()).get();
