@@ -11,7 +11,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
 
 @Aliases("paydebt")
-@Description("Deletes your town.")
+@Description("Pay off your town debt early.")
 @Permission("atherystowns.town.pay_debt")
 public class TownPayDebtCommand implements PlayerCommand {
     @Override

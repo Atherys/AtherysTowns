@@ -4,6 +4,7 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.MathUtils;
@@ -25,6 +26,7 @@ import org.spongepowered.api.world.World;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Singleton
 public class PlotBorderFacade {
@@ -79,6 +81,17 @@ public class PlotBorderFacade {
         Set<BorderInfo> playerBorders = activeBorders.get(player.getUniqueId());
         if (playerBorders != null && playerBorders.size() > 0 && plot != null) {
             playerBorders.removeIf(borderInfo -> borderInfo.getNECorner().equals(plot.getNorthEastCorner()));
+        }
+    }
+
+    public void removeBordersForTown(Town town) {
+        for (Plot plot : town.getPlots()) {
+            Map<UUID, Set<BorderInfo>> bordersToRemove = new HashMap<>();
+            for (Map.Entry<UUID, Set<BorderInfo>> info : activeBorders.entrySet()) {
+                Set<BorderInfo> borders = info.getValue().stream().filter(borderInfo -> borderInfo.getNECorner() == plot.getNorthEastCorner()).collect(Collectors.toSet());
+                bordersToRemove.put(info.getKey(), borders);
+            }
+            bordersToRemove.forEach(activeBorders::remove);
         }
     }
 

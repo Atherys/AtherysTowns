@@ -15,8 +15,6 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import net.bytebuddy.asm.Advice;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
@@ -59,6 +57,8 @@ public class TownService {
 
     private final PlotService plotService;
 
+    private final NationService nationService;
+
     private final TownRepository townRepository;
 
     private final PlotRepository plotRepository;
@@ -77,6 +77,7 @@ public class TownService {
             PlotService plotService,
             TownRepository townRepository,
             PlotRepository plotRepository,
+            NationService nationService,
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
@@ -86,6 +87,7 @@ public class TownService {
         this.plotService = plotService;
         this.townRepository = townRepository;
         this.plotRepository = plotRepository;
+        this.nationService = nationService;
         this.residentRepository = residentRepository;
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
@@ -392,6 +394,9 @@ public class TownService {
                 .getUserSubjects()
                 .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
+        if (town.getNation() != null) {
+            nationService.removeTown(town.getNation(), town);
+        }
         residentRepository.saveAll(town.getResidents());
         plotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
@@ -428,7 +433,7 @@ public class TownService {
         }
     }
 
-    private double getTaxAmount(Town town) {
+    public double getTaxAmount(Town town) {
         TaxConfig taxConfig = config.TAXES;
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());
@@ -470,6 +475,7 @@ public class TownService {
                     .filter(town -> !town.getNation().getCapital().equals(town))
                     .collect(Collectors.toSet());
             Set<Town> townsToRemove = new HashSet<>();
+            AtherysTowns.getInstance().getLogger().info("Town taxes have been collected!");
 
             for (Town town : taxableTowns) {
                 TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();

@@ -68,7 +68,7 @@ public class PollFacade {
 
     private Set<Player> findNonVoters(Poll poll) {
         Set<UUID> voted = poll.getVoters().stream()
-                .filter(uuid -> poll.getVotes().stream().anyMatch(vote -> vote.getVoter() == uuid))
+                .filter(uuid -> poll.getVotes().stream().noneMatch(vote -> vote.getVoter() == uuid))
                 .collect(Collectors.toSet());
 
         return getPlayersByUUID(voted);
