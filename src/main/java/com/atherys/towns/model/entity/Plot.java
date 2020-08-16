@@ -10,6 +10,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -36,20 +37,25 @@ public class Plot implements Identifiable<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     private Resident owner;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Convert(converter = PermissionConverter.class)
-    private Set<Permission> friendPermissions;
+    private Set<Permission> friendPermissions = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Convert(converter = PermissionConverter.class)
-    private Set<Permission> townPermissions;
+    private Set<Permission> townPermissions = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Convert(converter = PermissionConverter.class)
-    private Set<Permission> allyPermissions;
+    private Set<Permission> allyPermissions = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Convert(converter = PermissionConverter.class)
-    private Set<Permission> enemyPermissions;
+    private Set<Permission> enemyPermissions = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Convert(converter = PermissionConverter.class)
-    private Set<Permission> neutralPermissions;
+    private Set<Permission> neutralPermissions = new HashSet<>();
 
     @Version
     private int version;
