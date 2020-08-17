@@ -103,7 +103,7 @@ public class PlotFacade {
         return plotService.getPlotByLocation(player.getLocation());
     }
 
-    public Set<Permission> getPlotRelationPermissions(Plot plot, Resident resident) {
+    public Set<String> getPlotRelationPermissions(Plot plot, Resident resident) {
 
         // If resident is owner's friend, apply friend permissions
         if (plot.getOwner().getFriends().contains(resident)) {
@@ -151,8 +151,9 @@ public class PlotFacade {
         if (plotOwner == resPlayer) {
             return true;
         }
+        Set<WorldPermission> perms = plotService.convertToPermissionSet(getPlotRelationPermissions(plot, resPlayer));
 
-        return getPlotRelationPermissions(plot, resPlayer).contains(permission);
+        return perms.contains(permission);
     }
 
     public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, Location<World> location, boolean messageUser) {
@@ -180,7 +181,7 @@ public class PlotFacade {
         Plot plot = getPlotAtPlayer(player);
 
         Resident resident = residentService.getOrCreate(player);
-        if (!plot.getOwner().equals(resident)) {
+        if (plot.getOwner() != null && !plot.getOwner().equals(resident)) {
             throw new TownsCommandException("You are not the owner of this plot!");
         }
 
@@ -189,13 +190,14 @@ public class PlotFacade {
         }
 
         plotService.addPlotPermission(plot, type, permission);
+        townsMsg.info(player, "Added ", permission.getName(), " to ", type.toString());
     }
 
     public void removePlotPermimssion(Player player, PlotService.AllianceType type, WorldPermission permission) throws TownsCommandException {
         Plot plot = getPlotAtPlayer(player);
 
         Resident resident = residentService.getOrCreate(player);
-        if (!plot.getOwner().equals(resident)) {
+        if (plot.getOwner() != null && !plot.getOwner().equals(resident)) {
             throw new TownsCommandException("You are not the owner of this plot!");
         }
 
@@ -204,5 +206,6 @@ public class PlotFacade {
         }
 
         plotService.removePlotPermission(plot, type, permission);
+        townsMsg.info(player, "Removed ", permission.getName(), " to ", type.toString());
     }
 }

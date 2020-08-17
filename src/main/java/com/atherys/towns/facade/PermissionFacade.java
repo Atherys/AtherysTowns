@@ -13,7 +13,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.World;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +69,7 @@ public class PermissionFacade {
     }
 
     private Map<String, WorldPermission> getWorldPermissions() {
-        Collection<WorldPermission> perms = Sponge.getGame().getRegistry().getAllOf(Permission.class).stream()
-                .filter(permission -> permission instanceof WorldPermission)
-                .map(permission -> (WorldPermission) permission)
-                .collect(Collectors.toList());
+        Collection<WorldPermission> perms = new ArrayList<>(Sponge.getGame().getRegistry().getAllOf(WorldPermission.class));
 
         Map<String, WorldPermission> worldPerms = new HashMap<>();
         perms.forEach(permission -> worldPerms.put(permission.getId(), permission));

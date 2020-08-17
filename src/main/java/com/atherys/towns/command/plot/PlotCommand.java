@@ -17,7 +17,8 @@ import javax.annotation.Nonnull;
         PlotSelectCommand.class,
         SetPlotNameCommand.class,
         GrantPlotCommand.class,
-        BordersCommand.class
+        BordersCommand.class,
+        PlotPermissionCommand.class
 })
 @Permission("atherystowns.plot.base")
 @HelpCommand(title = "Plot Help", command = "help")

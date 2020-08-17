@@ -37,25 +37,21 @@ public class Plot implements Identifiable<Long> {
     @ManyToOne(fetch = FetchType.EAGER)
     private Resident owner;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Convert(converter = PermissionConverter.class)
-    private Set<Permission> friendPermissions = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Convert(converter = PermissionConverter.class)
-    private Set<Permission> townPermissions = new HashSet<>();
+    private Set<String> friendPermissions = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Convert(converter = PermissionConverter.class)
-    private Set<Permission> allyPermissions = new HashSet<>();
+    private Set<String> townPermissions = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Convert(converter = PermissionConverter.class)
-    private Set<Permission> enemyPermissions = new HashSet<>();
+    private Set<String> allyPermissions = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Convert(converter = PermissionConverter.class)
-    private Set<Permission> neutralPermissions = new HashSet<>();
+    private Set<String> enemyPermissions = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> neutralPermissions = new HashSet<>();
 
     @Version
     private int version;
@@ -110,43 +106,43 @@ public class Plot implements Identifiable<Long> {
         this.owner = owner;
     }
 
-    public Set<Permission> getFriendPermissions() {
+    public Set<String> getFriendPermissions() {
         return this.friendPermissions;
     }
 
-    public void setFriendPermissions(Set<Permission> friendPermissions) {
+    public void setFriendPermissions(Set<String> friendPermissions) {
         this.friendPermissions = friendPermissions;
     }
 
-    public Set<Permission> getTownPermissions() {
+    public Set<String> getTownPermissions() {
         return this.townPermissions;
     }
 
-    public void setTownPermissions(Set<Permission> townPermissions) {
+    public void setTownPermissions(Set<String> townPermissions) {
         this.townPermissions = townPermissions;
     }
 
-    public Set<Permission> getAllyPermissions() {
+    public Set<String> getAllyPermissions() {
         return this.allyPermissions;
     }
 
-    public void setAllyPermissions(Set<Permission> allyPermissions) {
+    public void setAllyPermissions(Set<String> allyPermissions) {
         this.allyPermissions = allyPermissions;
     }
 
-    public Set<Permission> getEnemyPermissions() {
+    public Set<String> getEnemyPermissions() {
         return this.enemyPermissions;
     }
 
-    public void setEnemyPermissions(Set<Permission> enemyPermissions) {
+    public void setEnemyPermissions(Set<String> enemyPermissions) {
         this.enemyPermissions = enemyPermissions;
     }
 
-    public Set<Permission> getNeutralPermissions() {
+    public Set<String> getNeutralPermissions() {
         return this.neutralPermissions;
     }
 
-    public void setNeutralPermissions(Set<Permission> neutralPermissions) {
+    public void setNeutralPermissions(Set<String> neutralPermissions) {
         this.neutralPermissions = neutralPermissions;
     }
 
