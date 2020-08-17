@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
         PlotPermissionListCommand.class,
 })
 @Permission("atherystowns.plot.modify_permissions")
-@HelpCommand(title = "Plot Permission Help")
+@HelpCommand(title = "Plot Permission Help", prefix = "plot")
 public class PlotPermissionCommand implements PlayerCommand {
 
     @Nonnull
