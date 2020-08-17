@@ -31,11 +31,11 @@ public final class TownsElements {
 
     public static CommandElement allianceType() {
         Map<String, PlotService.AllianceType> allianceTypeMap = new HashMap<>();
-        allianceTypeMap.put("ally", PlotService.AllianceType.ALLY);
-        allianceTypeMap.put("friend", PlotService.AllianceType.FRIEND);
-        allianceTypeMap.put("enemy", PlotService.AllianceType.ENEMY);
-        allianceTypeMap.put("town", PlotService.AllianceType.TOWN);
-        allianceTypeMap.put("neutral", PlotService.AllianceType.NEUTRAL);
+        allianceTypeMap.put("ally", PlotService.AllianceType.Ally);
+        allianceTypeMap.put("friend", PlotService.AllianceType.Friend);
+        allianceTypeMap.put("enemy", PlotService.AllianceType.Enemy);
+        allianceTypeMap.put("town", PlotService.AllianceType.Town);
+        allianceTypeMap.put("neutral", PlotService.AllianceType.Neutral);
 
         return GenericArguments.choices(
                 Text.of("type"),

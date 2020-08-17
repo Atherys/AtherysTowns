@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
         PlotPermissionGrantCommand.class,
         PlotPermissionRevokeCommand.class,
         PlotPermissionListCommand.class,
+        PlotPermissionInfoCommand.class
 })
 @Permission("atherystowns.plot.modify_permissions")
 @HelpCommand(title = "Plot Permission Help", prefix = "plot")

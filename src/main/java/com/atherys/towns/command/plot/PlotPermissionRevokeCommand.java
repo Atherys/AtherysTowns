@@ -37,7 +37,7 @@ public class PlotPermissionRevokeCommand implements ParameterizedCommand, Player
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotFacade().removePlotPermimssion(
+        AtherysTowns.getInstance().getPlotFacade().removePlotPermission(
                 source,
                 args.<PlotService.AllianceType>getOne("type").get(),
                 args.<WorldPermission>getOne("permission").get()
