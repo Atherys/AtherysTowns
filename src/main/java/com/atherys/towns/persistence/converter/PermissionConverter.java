@@ -1,21 +1,23 @@
 package com.atherys.towns.persistence.converter;
 
 import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.WorldPermissionRegistryModule;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import org.spongepowered.api.Sponge;
 
 import javax.persistence.AttributeConverter;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PermissionConverter implements AttributeConverter<Set<Permission>, Set<String>> {
+public class PermissionConverter implements AttributeConverter<WorldPermission, String> {
 
     @Override
-    public Set<String> convertToDatabaseColumn(Set<Permission> attributes) {
-        return attributes.stream().map(Permission::getName).collect(Collectors.toSet());
+    public String convertToDatabaseColumn(WorldPermission attribute) {
+        return attribute.getId();
     }
 
     @Override
-    public Set<Permission> convertToEntityAttribute(Set<String> dbData) {
-        return dbData.stream().map(s -> Sponge.getRegistry().getType(Permission.class, s).orElse(null)).collect(Collectors.toSet());
+    public WorldPermission convertToEntityAttribute(String dbData) {
+        return Sponge.getRegistry().getType(WorldPermission.class, dbData).get();
     }
 }

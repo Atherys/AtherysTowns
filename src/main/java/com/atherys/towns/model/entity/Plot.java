@@ -1,7 +1,7 @@
 package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.api.permission.Permission;
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
@@ -38,20 +38,25 @@ public class Plot implements Identifiable<Long> {
     private Resident owner;
 
 
+    @Convert(converter = PermissionConverter.class)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> friendPermissions = new HashSet<>();
+    private Set<WorldPermission> friendPermissions = new HashSet<>();
 
+    @Convert(converter = PermissionConverter.class)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> townPermissions = new HashSet<>();
+    private Set<WorldPermission> townPermissions = new HashSet<>();
 
+    @Convert(converter = PermissionConverter.class)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> allyPermissions = new HashSet<>();
+    private Set<WorldPermission> allyPermissions = new HashSet<>();
 
+    @Convert(converter = PermissionConverter.class)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> enemyPermissions = new HashSet<>();
+    private Set<WorldPermission> enemyPermissions = new HashSet<>();
 
+    @Convert(converter = PermissionConverter.class)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> neutralPermissions = new HashSet<>();
+    private Set<WorldPermission> neutralPermissions = new HashSet<>();
 
     @Version
     private int version;
@@ -106,43 +111,43 @@ public class Plot implements Identifiable<Long> {
         this.owner = owner;
     }
 
-    public Set<String> getFriendPermissions() {
+    public Set<WorldPermission> getFriendPermissions() {
         return this.friendPermissions;
     }
 
-    public void setFriendPermissions(Set<String> friendPermissions) {
+    public void setFriendPermissions(Set<WorldPermission> friendPermissions) {
         this.friendPermissions = friendPermissions;
     }
 
-    public Set<String> getTownPermissions() {
+    public Set<WorldPermission> getTownPermissions() {
         return this.townPermissions;
     }
 
-    public void setTownPermissions(Set<String> townPermissions) {
+    public void setTownPermissions(Set<WorldPermission> townPermissions) {
         this.townPermissions = townPermissions;
     }
 
-    public Set<String> getAllyPermissions() {
+    public Set<WorldPermission> getAllyPermissions() {
         return this.allyPermissions;
     }
 
-    public void setAllyPermissions(Set<String> allyPermissions) {
+    public void setAllyPermissions(Set<WorldPermission> allyPermissions) {
         this.allyPermissions = allyPermissions;
     }
 
-    public Set<String> getEnemyPermissions() {
+    public Set<WorldPermission> getEnemyPermissions() {
         return this.enemyPermissions;
     }
 
-    public void setEnemyPermissions(Set<String> enemyPermissions) {
+    public void setEnemyPermissions(Set<WorldPermission> enemyPermissions) {
         this.enemyPermissions = enemyPermissions;
     }
 
-    public Set<String> getNeutralPermissions() {
+    public Set<WorldPermission> getNeutralPermissions() {
         return this.neutralPermissions;
     }
 
-    public void setNeutralPermissions(Set<String> neutralPermissions) {
+    public void setNeutralPermissions(Set<WorldPermission> neutralPermissions) {
         this.neutralPermissions = neutralPermissions;
     }
 

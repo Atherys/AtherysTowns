@@ -154,36 +154,35 @@ public class PlotService {
     public boolean permissionAlreadyExistsInContext(AllianceType type, Plot plot, WorldPermission permission) {
         switch (type) {
             case Ally:
-                return convertToPermissionSet(plot.getAllyPermissions()).contains(permission);
+                return plot.getAllyPermissions().contains(permission);
             case Enemy:
-                return convertToPermissionSet(plot.getEnemyPermissions()).contains(permission);
+                return plot.getEnemyPermissions().contains(permission);
             case Friend:
-                return convertToPermissionSet(plot.getFriendPermissions()).contains(permission);
+                return plot.getFriendPermissions().contains(permission);
             case Town:
-                return convertToPermissionSet(plot.getTownPermissions()).contains(permission);
+                return plot.getTownPermissions().contains(permission);
             case Neutral:
-                return convertToPermissionSet(plot.getNeutralPermissions()).contains(permission);
+                return plot.getNeutralPermissions().contains(permission);
         }
         return false;
     }
 
     public void addPlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
-        String permString = permission.getId();
         switch (type) {
             case Ally:
-                plot.getAllyPermissions().add(permString);
+                plot.getAllyPermissions().add(permission);
                 break;
             case Enemy:
-                plot.getEnemyPermissions().add(permString);
+                plot.getEnemyPermissions().add(permission);
                 break;
             case Friend:
-                plot.getFriendPermissions().add(permString);
+                plot.getFriendPermissions().add(permission);
                 break;
             case Town:
-                plot.getTownPermissions().add(permString);
+                plot.getTownPermissions().add(permission);
                 break;
             case Neutral:
-                plot.getNeutralPermissions().add(permString);
+                plot.getNeutralPermissions().add(permission);
                 break;
         }
 
@@ -191,30 +190,25 @@ public class PlotService {
     }
 
     public void removePlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
-        String permString = permission.getId();
         switch (type) {
             case Ally:
-                plot.getAllyPermissions().remove(permString);
+                plot.getAllyPermissions().remove(permission);
                 break;
             case Enemy:
-                plot.getEnemyPermissions().remove(permString);
+                plot.getEnemyPermissions().remove(permission);
                 break;
             case Friend:
-                plot.getFriendPermissions().remove(permString);
+                plot.getFriendPermissions().remove(permission);
                 break;
             case Town:
-                plot.getTownPermissions().remove(permString);
+                plot.getTownPermissions().remove(permission);
                 break;
             case Neutral:
-                plot.getNeutralPermissions().remove(permString);
+                plot.getNeutralPermissions().remove(permission);
                 break;
         }
 
         plotRepository.saveOne(plot);
-    }
-
-    public Set<WorldPermission> convertToPermissionSet(Set<String> dbData) {
-        return dbData.stream().map(s -> Sponge.getRegistry().getType(WorldPermission.class, s).orElse(null)).collect(Collectors.toSet());
     }
 
     public enum AllianceType {

@@ -103,7 +103,7 @@ public class PlotFacade {
         return plotService.getPlotByLocation(player.getLocation());
     }
 
-    public Set<String> getPlotRelationPermissions(Plot plot, Resident resident) {
+    public Set<WorldPermission> getPlotRelationPermissions(Plot plot, Resident resident) {
 
         // If resident is owner's friend, apply friend permissions
         if (plot.getOwner().getFriends().contains(resident)) {
@@ -151,7 +151,7 @@ public class PlotFacade {
         if (plotOwner == resPlayer) {
             return true;
         }
-        Set<WorldPermission> perms = plotService.convertToPermissionSet(getPlotRelationPermissions(plot, resPlayer));
+        Set<WorldPermission> perms = getPlotRelationPermissions(plot, resPlayer);
 
         return perms.contains(permission);
     }
