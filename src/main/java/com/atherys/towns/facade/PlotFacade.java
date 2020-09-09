@@ -121,6 +121,10 @@ public class PlotFacade {
         Nation plotNation = plotTown.getNation();
         Nation resNation = resTown.getNation();
 
+        if (plotNation == null || resNation == null) {
+            return plot.getNeutralPermissions();
+        }
+
         // If resident nation is the plot nation, apply ally permissions
         if (resNation == plotNation) {
             return plot.getAllyPermissions();
@@ -237,19 +241,19 @@ public class PlotFacade {
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
             Set<String> groups = new HashSet<>();
-            if (plot.getFriendPermissions().stream().anyMatch(s::equals)) {
+            if (plot.getFriendPermissions().contains(worldPermission)) {
                 groups.add(PlotService.AllianceType.Friend.name());
             }
-            if (plot.getAllyPermissions().stream().anyMatch(s::equals)) {
+            if (plot.getAllyPermissions().contains(worldPermission)) {
                 groups.add(PlotService.AllianceType.Ally.name());
             }
-            if (plot.getTownPermissions().stream().anyMatch(s::equals)) {
+            if (plot.getTownPermissions().contains(worldPermission)) {
                 groups.add(PlotService.AllianceType.Town.name());
             }
-            if (plot.getEnemyPermissions().stream().anyMatch(s::equals)) {
+            if (plot.getEnemyPermissions().contains(worldPermission)) {
                 groups.add(PlotService.AllianceType.Enemy.name());
             }
-            if (plot.getNeutralPermissions().stream().anyMatch(s::equals)) {
+            if (plot.getNeutralPermissions().contains(worldPermission)) {
                 groups.add(PlotService.AllianceType.Neutral.name());
             }
             if (groups.size() > 0) {
