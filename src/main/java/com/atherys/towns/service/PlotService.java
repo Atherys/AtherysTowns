@@ -11,14 +11,11 @@ import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Singleton
 public class PlotService {
@@ -153,15 +150,15 @@ public class PlotService {
 
     public boolean permissionAlreadyExistsInContext(AllianceType type, Plot plot, WorldPermission permission) {
         switch (type) {
-            case Ally:
+            case ALLY:
                 return plot.getAllyPermissions().contains(permission);
-            case Enemy:
+            case ENEMY:
                 return plot.getEnemyPermissions().contains(permission);
-            case Friend:
+            case FRIEND:
                 return plot.getFriendPermissions().contains(permission);
-            case Town:
+            case TOWN:
                 return plot.getTownPermissions().contains(permission);
-            case Neutral:
+            case NEUTRAL:
                 return plot.getNeutralPermissions().contains(permission);
         }
         return false;
@@ -169,19 +166,19 @@ public class PlotService {
 
     public void addPlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
         switch (type) {
-            case Ally:
+            case ALLY:
                 plot.getAllyPermissions().add(permission);
                 break;
-            case Enemy:
+            case ENEMY:
                 plot.getEnemyPermissions().add(permission);
                 break;
-            case Friend:
+            case FRIEND:
                 plot.getFriendPermissions().add(permission);
                 break;
-            case Town:
+            case TOWN:
                 plot.getTownPermissions().add(permission);
                 break;
-            case Neutral:
+            case NEUTRAL:
                 plot.getNeutralPermissions().add(permission);
                 break;
         }
@@ -191,19 +188,19 @@ public class PlotService {
 
     public void removePlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
         switch (type) {
-            case Ally:
+            case ALLY:
                 plot.getAllyPermissions().remove(permission);
                 break;
-            case Enemy:
+            case ENEMY:
                 plot.getEnemyPermissions().remove(permission);
                 break;
-            case Friend:
+            case FRIEND:
                 plot.getFriendPermissions().remove(permission);
                 break;
-            case Town:
+            case TOWN:
                 plot.getTownPermissions().remove(permission);
                 break;
-            case Neutral:
+            case NEUTRAL:
                 plot.getNeutralPermissions().remove(permission);
                 break;
         }
@@ -212,10 +209,10 @@ public class PlotService {
     }
 
     public enum AllianceType {
-        Ally,
-        Enemy,
-        Friend,
-        Town,
-        Neutral
+        ALLY,
+        ENEMY,
+        FRIEND,
+        TOWN,
+        NEUTRAL
     }
 }

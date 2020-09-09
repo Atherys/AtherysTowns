@@ -113,6 +113,10 @@ public class PlotFacade {
         Town plotTown = plot.getTown();
         Town resTown = resident.getTown();
 
+        if (resTown == null) {
+            return plot.getNeutralPermissions();
+        }
+
         // If resident town is the same town the plot is in, apply town permissions
         if (resTown == plotTown) {
             return plot.getTownPermissions();
@@ -242,19 +246,19 @@ public class PlotFacade {
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
             Set<String> groups = new HashSet<>();
             if (plot.getFriendPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.Friend.name());
+                groups.add(PlotService.AllianceType.FRIEND.name());
             }
             if (plot.getAllyPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.Ally.name());
+                groups.add(PlotService.AllianceType.ALLY.name());
             }
             if (plot.getTownPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.Town.name());
+                groups.add(PlotService.AllianceType.TOWN.name());
             }
             if (plot.getEnemyPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.Enemy.name());
+                groups.add(PlotService.AllianceType.ENEMY.name());
             }
             if (plot.getNeutralPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.Neutral.name());
+                groups.add(PlotService.AllianceType.NEUTRAL.name());
             }
             if (groups.size() > 0) {
                 plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), Text.NEW_LINE));
