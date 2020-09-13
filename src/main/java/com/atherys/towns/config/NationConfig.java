@@ -20,6 +20,9 @@ public class NationConfig {
     @Setting("nation-default-role")
     public String DEFAULT_ROLE = "citizen";
 
+    @Setting("generate-roles")
+    public boolean GENERATE_ROLES = true;
+
     @Setting("roles")
     public Map<String, NationRoleConfig> ROLES = new HashMap<>();
 
