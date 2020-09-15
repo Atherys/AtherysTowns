@@ -18,7 +18,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         PlotClearSelectionCommand.class
 })
 
-@HelpCommand(title = "Selection Help")
+@HelpCommand(title = "Selection Help", prefix = "plot")
 public class PlotSelectCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {

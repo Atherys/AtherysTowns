@@ -3,6 +3,7 @@ package com.atherys.towns.listener;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.google.inject.Inject;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
@@ -27,8 +28,8 @@ public class ProtectionListener {
         return blockType.getDefaultState().supports(Keys.POWERED);
     }
 
-    public boolean isTileEntity(InteractBlockEvent event) {
-        return event.getTargetBlock().getLocation().map(location -> location.getTileEntity().isPresent()).orElse(false);
+    public boolean isTileEntity(BlockSnapshot snapshot) {
+        return snapshot.getLocation().map(location -> location.getTileEntity().isPresent()).orElse(false);
     }
 
     public boolean isDoor(BlockType blockType) {
@@ -53,6 +54,9 @@ public class ProtectionListener {
     @Listener
     public void onBlockChange(ChangeBlockEvent.Modify event, @Root Player player) {
         event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
+            BlockType blockType = blockSnapshotTransaction.getOriginal().getState().getType();
+            if (isDoor(blockType) || isRedstone(blockType) || isTileEntity(blockSnapshotTransaction.getOriginal())) return;
+
             plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
         }));
     }
@@ -61,7 +65,7 @@ public class ProtectionListener {
     public void onBlockInteract(InteractBlockEvent event, @Root Player player) {
         event.getTargetBlock().getLocation().ifPresent(location -> {
             BlockType blockType = event.getTargetBlock().getState().getType();
-            if (isTileEntity(event)) {
+            if (isTileEntity(event.getTargetBlock())) {
                 plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, location, true);
             }
             if (isDoor(blockType)) {

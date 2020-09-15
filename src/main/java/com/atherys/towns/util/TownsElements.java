@@ -3,10 +3,13 @@ package com.atherys.towns.util;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.service.PlotService;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class TownsElements {
@@ -23,6 +26,20 @@ public final class TownsElements {
                 Text.of("nation"),
                 () -> AtherysTowns.getInstance().getNationRepository().getAll().stream().map(Nation::getName).collect(Collectors.toList()),
                 string -> AtherysTowns.getInstance().getNationService().getNationFromName(string).orElse(null)
+        );
+    }
+
+    public static CommandElement allianceType() {
+        Map<String, PlotService.AllianceType> allianceTypeMap = new HashMap<>();
+        allianceTypeMap.put("ally", PlotService.AllianceType.ALLY);
+        allianceTypeMap.put("friend", PlotService.AllianceType.FRIEND);
+        allianceTypeMap.put("enemy", PlotService.AllianceType.ENEMY);
+        allianceTypeMap.put("town", PlotService.AllianceType.TOWN);
+        allianceTypeMap.put("neutral", PlotService.AllianceType.NEUTRAL);
+
+        return GenericArguments.choices(
+                Text.of("type"),
+                allianceTypeMap
         );
     }
 
