@@ -5,7 +5,6 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Children;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.HelpCommand;
-import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -21,7 +20,7 @@ import javax.annotation.Nonnull;
         TownRaidCancelCommand.class
 })
 
-@HelpCommand(title = "Town Raid Help")
+@HelpCommand(title = "Town Raid Help", prefix = "town")
 public class TownRaidCommand implements PlayerCommand {
 
     @Nonnull

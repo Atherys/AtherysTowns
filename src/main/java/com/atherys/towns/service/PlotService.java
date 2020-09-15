@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
@@ -145,5 +146,73 @@ public class PlotService {
         int sizeX = Math.abs(plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX());
         int sizeY = Math.abs(plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY());
         return new Vector2i(sizeX, sizeY);
+    }
+
+    public boolean permissionAlreadyExistsInContext(AllianceType type, Plot plot, WorldPermission permission) {
+        switch (type) {
+            case ALLY:
+                return plot.getAllyPermissions().contains(permission);
+            case ENEMY:
+                return plot.getEnemyPermissions().contains(permission);
+            case FRIEND:
+                return plot.getFriendPermissions().contains(permission);
+            case TOWN:
+                return plot.getTownPermissions().contains(permission);
+            case NEUTRAL:
+                return plot.getNeutralPermissions().contains(permission);
+        }
+        return false;
+    }
+
+    public void addPlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
+        switch (type) {
+            case ALLY:
+                plot.getAllyPermissions().add(permission);
+                break;
+            case ENEMY:
+                plot.getEnemyPermissions().add(permission);
+                break;
+            case FRIEND:
+                plot.getFriendPermissions().add(permission);
+                break;
+            case TOWN:
+                plot.getTownPermissions().add(permission);
+                break;
+            case NEUTRAL:
+                plot.getNeutralPermissions().add(permission);
+                break;
+        }
+
+        plotRepository.saveOne(plot);
+    }
+
+    public void removePlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
+        switch (type) {
+            case ALLY:
+                plot.getAllyPermissions().remove(permission);
+                break;
+            case ENEMY:
+                plot.getEnemyPermissions().remove(permission);
+                break;
+            case FRIEND:
+                plot.getFriendPermissions().remove(permission);
+                break;
+            case TOWN:
+                plot.getTownPermissions().remove(permission);
+                break;
+            case NEUTRAL:
+                plot.getNeutralPermissions().remove(permission);
+                break;
+        }
+
+        plotRepository.saveOne(plot);
+    }
+
+    public enum AllianceType {
+        ALLY,
+        ENEMY,
+        FRIEND,
+        TOWN,
+        NEUTRAL
     }
 }
