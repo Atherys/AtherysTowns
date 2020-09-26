@@ -398,6 +398,7 @@ public class NationFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "Capital: ", GOLD, capital), Text.NEW_LINE)
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, leader), Text.NEW_LINE)
                 .append(townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE)
+                .append(Text.of(DARK_GREEN, "Tax Rate: ", GOLD, nation.getTax(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation)), Text.NEW_LINE)
                 .append(Text.of(
                         DARK_GREEN, "Towns [", GREEN, nation.getTowns().size(), DARK_GREEN, "]: ",

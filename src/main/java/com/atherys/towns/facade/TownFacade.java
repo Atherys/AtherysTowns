@@ -5,6 +5,7 @@ import com.atherys.core.utils.Question;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
@@ -219,13 +220,18 @@ public class TownFacade implements EconomyFacade {
         Town town = getPlayerTown(player);
         Resident resident = residentService.getOrCreate(player);
 
+        // Towns that are the capital of a nation cannot be ruined.
+        if (town.getNation() != null && town.getNation().getCapital().equals(town)) {
+            throw new TownsCommandException("Nation capitals cannot be ruined.");
+        }
+
         // Only the town leader may remove the town
         if (!residentService.isResidentTownLeader(resident, town)) {
             throw new TownsCommandException("Only the town leader may remove the town.");
         }
 
         townService.removeTown(town);
-        plotBorderFacade.refreshBorders(player, player.getLocation());
+        plotBorderFacade.removeBordersForTown(town);
         townsMsg.info(player, "Town ruined.");
     }
 
@@ -557,8 +563,17 @@ public class TownFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
-                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
-                .append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
+                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
+
+        if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
+            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town), Text.NEW_LINE));
+
+            if (town.getDebt() > 0) {
+                townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
+            }
+        }
+
+        townText.append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
                 .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE));
 
         townText.append(Text.of(
@@ -634,15 +649,20 @@ public class TownFacade implements EconomyFacade {
 
     public void payTownDebt(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
+
+        if (town.getDebt() == 0) {
+            throw new TownsCommandException("You have no debt to pay!");
+        }
+
         Account townBank = Economy.getAccount(town.getBank().toString()).get();
         double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
 
-        if (town.getDebt() <= townBalance) {
-            townService.payTaxes(town, town.getDebt());
-            townService.setTaxesPaid(town, true);
-            townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+        if (town.getDebt() > townBalance) {
+            throw new TownsCommandException("Town bank does not have enough money to pay your debt!");
         }
 
-        throw new TownsCommandException("You have no debt to pay!");
+        townService.payTaxes(town, town.getDebt());
+        townService.setTaxesPaid(town, true);
+        townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
     }
 }

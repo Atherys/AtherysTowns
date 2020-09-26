@@ -6,6 +6,9 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.service.PlotService;
+import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -16,22 +19,29 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 
-@Aliases({"border", "borders"})
-@Description("Displays outline for town plots.")
-@Permission("atherystowns.plot.border")
-public class BordersCommand implements PlayerCommand, ParameterizedCommand {
-
+@Aliases("revoke")
+@Description("Revoke permission from plot group")
+@Permission("atherystowns.plot.permission.revoke")
+public class PlotPermissionRevokeCommand implements ParameterizedCommand, PlayerCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.bool(Text.of("border"))
+                TownsElements.allianceType(),
+                GenericArguments.choices(
+                        Text.of("permission"),
+                        AtherysTowns.getInstance().getPermissionFacade().WORLD_PERMISSIONS
+                )
         };
     }
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotBorderFacade().setPlayerViewBorderStatus(source, args.<Boolean>getOne("border").orElse(false));
+        AtherysTowns.getInstance().getPlotFacade().removePlotPermission(
+                source,
+                args.<PlotService.AllianceType>getOne("type").get(),
+                args.<WorldPermission>getOne("permission").get()
+        );
         return CommandResult.success();
     }
 }

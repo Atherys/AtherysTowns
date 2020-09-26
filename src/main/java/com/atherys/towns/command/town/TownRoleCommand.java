@@ -1,9 +1,6 @@
 package com.atherys.towns.command.town;
 
-import com.atherys.core.command.annotation.Aliases;
-import com.atherys.core.command.annotation.Children;
-import com.atherys.core.command.annotation.Description;
-import com.atherys.core.command.annotation.Permission;
+import com.atherys.core.command.annotation.*;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -17,6 +14,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
         AddTownRoleCommand.class,
         RevokeTownRoleCommand.class
 })
+@HelpCommand(title = "Town Role Help", prefix = "town")
 public class TownRoleCommand implements CommandExecutor {
 
     @Override

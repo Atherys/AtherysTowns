@@ -59,6 +59,8 @@ public class TownService {
 
     private final PlotService plotService;
 
+    private final NationService nationService;
+
     private final TownRepository townRepository;
 
     private TownPlotRepository townPlotRepository;
@@ -77,6 +79,7 @@ public class TownService {
             PlotService plotService,
             TownRepository townRepository,
             TownPlotRepository townPlotRepository,
+            NationService nationService,
             ResidentRepository residentRepository,
             ResidentService residentService,
             TownsPermissionService townsPermissionService,
@@ -87,6 +90,7 @@ public class TownService {
         this.townRepository = townRepository;
         this.townPlotRepository = townPlotRepository;
         this.residentRepository = residentRepository;
+        this.nationService = nationService;
         this.residentService = residentService;
         this.townsPermissionService = townsPermissionService;
         this.roleService = roleService;
@@ -389,6 +393,10 @@ public class TownService {
                 .getUserSubjects()
                 .applyToAll(subject -> townsPermissionService.clearPermissions(subject, townContext), ids);
 
+        if (town.getNation() != null) {
+            nationService.removeTown(town.getNation(), town);
+        }
+
         residentRepository.saveAll(town.getResidents());
         townPlotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
@@ -425,7 +433,7 @@ public class TownService {
         }
     }
 
-    private double getTaxAmount(Town town) {
+    public double getTaxAmount(Town town) {
         TaxConfig taxConfig = config.TAXES;
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());
