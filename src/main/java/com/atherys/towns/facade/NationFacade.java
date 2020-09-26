@@ -5,15 +5,16 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
 import com.atherys.towns.api.permission.nation.NationPermissions;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.service.NationService;
-import com.atherys.towns.service.ResidentService;
-import com.atherys.towns.service.RoleService;
-import com.atherys.towns.service.TownsPermissionService;
+import com.atherys.towns.service.*;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -32,6 +33,10 @@ import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class NationFacade implements EconomyFacade {
+
+    @Inject
+    private PlotSelectionFacade plotSelectionFacade;
+
     @Inject
     private TownsConfig config;
 
@@ -59,8 +64,10 @@ public class NationFacade implements EconomyFacade {
     @Inject
     private ResidentService residentService;
 
-    NationFacade() {
-    }
+    @Inject
+    private PlotService plotService;
+
+    NationFacade() {}
 
     public void createNation(String nationName, Town capital) throws TownsCommandException {
         if (nationName.length() > config.NATION.MAX_NATION_NAME_LENGTH) {
@@ -190,6 +197,84 @@ public class NationFacade implements EconomyFacade {
         Nation nation = getPlayerNation(source);
         nationService.setTax(nation, tax);
         townsMsg.info(source, "Nation tax rate changed to: ", GOLD, +tax);
+    }
+
+    public void claimNationPlotFromPlayerSelection(Player player, Nation nation) throws CommandException {
+        PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(player);
+
+        NationPlot plot = plotService.createNationPlotFromSelection(selection);
+
+        int plotArea = MathUtils.getArea(plot);
+        if (MathUtils.getArea(plot) < config.TOWN.MAX_PLOT_AREA) {
+            throw new TownsCommandException("Plot selection is smaller than area permitted ( ", plotArea, " < ", config.TOWN.MAX_PLOT_AREA, " )");
+        }
+
+        if (!plotService.isLocationWithinPlot(player.getLocation(), plot)) {
+            throw new TownsCommandException("You must be within your plot selection!");
+        }
+
+        // Check that the plot is not fully contained in an existing plot
+        Set<NationPlot> plots = plotService.getNationPlotsByLocation(player.getLocation());
+
+        for (NationPlot other : plots) {
+            if (!other.getNation().equals(nation)) {
+                throw new TownsCommandException("Plot for nation: ", other.getNation(), " already exists at this location.");
+            }
+
+            if (MathUtils.equals(plot, other)) {
+                throw new TownsCommandException("Plot with same coordinates already exists.");
+            }
+
+            if (MathUtils.contains(other, plot)) {
+                throw new TownsCommandException("Plot fits within an existing nation plot.");
+            }
+        }
+
+        nationService.claimPlotForNation(plot, nation);
+
+        townsMsg.info(player, "Nation Plot claimed.");
+    }
+
+    public void removeNationPlotAtPlayerLocation(Player player) throws TownsCommandException {
+        Set<NationPlot> plots = plotService.getNationPlotsByLocation(player.getLocation());
+
+        if (plots.size() < 1) {
+            throw new TownsCommandException("There is no plot at this location.");
+        }
+
+        // Can't unclaim if there are multiple plots
+        if (plots.size() > 1) {
+            throw new TownsCommandException("Multiple plots exist at this location.");
+        }
+
+        nationService.removeNationPlot(plots.iterator().next());
+
+        townsMsg.info(player, "Nation Plot removed.");
+    }
+
+    public void sendInfoOnPlotAtPlayerLocation(Player player) throws TownsCommandException {
+        Set<NationPlot> plots = plotService.getNationPlotsByLocation(player.getLocation());
+        if (plots.size() < 1) {
+            throw new TownsCommandException("There is no nation plot at this location.");
+        }
+
+        Text.Builder plotText = Text.builder();
+        plotText.append(townsMsg.createTownsHeader("Nation Plots"));
+        for (NationPlot plot : plots) {
+
+            plotText.append(Text.of(
+                    DARK_GREEN, "Plot ID: ", GOLD, plot.getId(), Text.NEW_LINE,
+                    DARK_GREEN, "Nation: ",
+                    plot.getNation() == null ? Text.of(RED, "None") : Text.of(GOLD, plot.getNation().getName()),
+                    Text.NEW_LINE
+            ));
+
+            plotText.append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
+                    .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()))
+                    .append(Text.NEW_LINE, Text.NEW_LINE);
+        }
+
+        player.sendMessage(plotText.build());
     }
 
     public void addNationPermission(Player source, User target, NationPermission permission) throws TownsCommandException {

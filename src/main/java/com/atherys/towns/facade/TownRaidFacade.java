@@ -71,7 +71,7 @@ public class TownRaidFacade {
     public void checkDistanceToTown(Town town, Vector3d targetPoint) throws TownsCommandException {
         boolean townInRange = false;
         for (Plot plot : town.getPlots()) {
-            double plotDistance = MathUtils.getDistanceToPlotSquared(MathUtils.vec3dToVec2i(targetPoint), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+            double plotDistance = MathUtils.getDistanceSquaredToRectangle(targetPoint, plot);
             if (plotDistance < Math.pow(config.RAID.RAID_MIN_CREATION_DISTANCE, 2)) {
                 throw new TownsCommandException("Target town is too close to current location!");
             }
@@ -114,7 +114,7 @@ public class TownRaidFacade {
             throw new TownsCommandException("Raid Cooldown is still in effect!");
         }
 
-        if (plotService.getPlotByLocation(location).isPresent()) {
+        if (plotService.getTownPlotByLocation(location).isPresent()) {
             throw new TownsCommandException("You cannot create a raid point within the borders of a town!");
         }
 

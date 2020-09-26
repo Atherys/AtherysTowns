@@ -3,30 +3,22 @@ package com.atherys.towns.model.entity;
 import com.atherys.core.db.Identifiable;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
-import com.atherys.towns.persistence.converter.TextConverter;
 import com.atherys.towns.persistence.converter.Vector2iConverter;
+import com.atherys.towns.util.Rectangle;
 import com.flowpowered.math.vector.Vector2i;
-import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-public class Plot implements Identifiable<Long> {
+@MappedSuperclass
+public class Plot implements Rectangle, Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
-
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "town_id")
-    private Town town;
-
-    @Convert(converter = TextConverter.class)
-    private Text name;
 
     @Convert(converter = Vector2iConverter.class)
     private Vector2i swCorner;
@@ -71,23 +63,12 @@ public class Plot implements Identifiable<Long> {
         this.id = id;
     }
 
-    public Town getTown() {
-        return town;
-    }
-
-    public void setTown(Town town) {
-        this.town = town;
-    }
-
-    public Text getName() {
-        return name;
-    }
-
-    public void setName(Text name) {
-        this.name = name;
-    }
-
     public Vector2i getSouthWestCorner() {
+        return swCorner;
+    }
+
+    @Override
+    public Vector2i getTopLeftCorner() {
         return swCorner;
     }
 
@@ -95,7 +76,17 @@ public class Plot implements Identifiable<Long> {
         this.swCorner = swCorner;
     }
 
+    @Override
+    public void setTopLeftCorner(Vector2i point) {
+        this.swCorner = point;
+    }
+
     public Vector2i getNorthEastCorner() {
+        return neCorner;
+    }
+
+    @Override
+    public Vector2i getBottomRightCorner() {
         return neCorner;
     }
 
@@ -103,12 +94,9 @@ public class Plot implements Identifiable<Long> {
         this.neCorner = neCorner;
     }
 
-    public Resident getOwner() {
-        return owner;
-    }
-
-    public void setOwner(Resident owner) {
-        this.owner = owner;
+    @Override
+    public void setBottomRightCorner(Vector2i point) {
+        this.neCorner = point;
     }
 
     public Set<WorldPermission> getFriendPermissions() {
@@ -155,7 +143,7 @@ public class Plot implements Identifiable<Long> {
         return version;
     }
 
-    protected void setVersion(int version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 }

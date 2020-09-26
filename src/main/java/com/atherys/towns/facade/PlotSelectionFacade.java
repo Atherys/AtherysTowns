@@ -1,9 +1,7 @@
 package com.atherys.towns.facade;
 
-import com.atherys.towns.TownsConfig;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.plot.PlotSelection;
-import com.atherys.towns.service.PlotService;
+import com.atherys.towns.api.command.TownsCommandException;
+import com.atherys.towns.model.PlotSelection;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
@@ -19,12 +17,10 @@ import java.util.UUID;
 public class PlotSelectionFacade {
 
     private final Map<UUID, PlotSelection> selections = new HashMap<>();
-    @Inject
-    TownsConfig config;
+
     @Inject
     TownsMessagingFacade townMsg;
-    @Inject
-    PlotService plotService;
+
     @Inject
     PlotBorderFacade plotBorderFacade;
 
@@ -72,7 +68,6 @@ public class PlotSelectionFacade {
     public void checkBorders(Player player) {
         PlotSelection selection = getOrCreateSelection(player);
         if (selection.isComplete()) {
-            validatePlotSelection(selection, player, true, player.getLocation());
             plotBorderFacade.refreshBorders(player, player.getLocation());
         }
     }
@@ -105,48 +100,32 @@ public class PlotSelectionFacade {
 
     /**
      * Validate a plot selection.
-     *
-     * @param selection the selection to be validated
-     * @throws CommandException if the plot selection is null, is incomplete ( either point A or point B is null ),
-     *                          it's area is greater than the maximum configured, or it's smallest side is smaller than the minimum configured
+     * @param player The player requesting the selection
      */
-    public boolean validatePlotSelection(PlotSelection selection, Player player, boolean messageUser, Location<World> location) {
-
+    public void validatePlayerPlotSelection(Player player) throws TownsCommandException {
+        PlotSelection selection = getCurrentPlotSelection(player);
         if (selection == null) {
-            if (messageUser) townMsg.error(player, "Plot selection is null.");
-            return false;
+            throw new TownsCommandException("Plot selection is null");
         }
 
         if (!selection.isComplete()) {
-            if (messageUser) townMsg.error(player, "Plot selection is incomplete.");
-            return false;
+            throw new TownsCommandException("Plot selection is incomplete.");
         }
+    }
 
-        int selectionArea = getPlotSelectionArea(selection);
-        if (selectionArea > config.TOWN.MAX_PLOT_AREA) {
-            if (messageUser)
-                townMsg.error(player, "Plot selection has an area greater than permitted ( ", selectionArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
-            return false;
-        }
-
-        int smallestSide = getSmallestPlotSelectionSideSize(selection);
-        if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
-            if (messageUser)
-                townMsg.error(player, "Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
-            return false;
-        }
-
-        Plot plot = plotService.createPlotFromSelection(selection);
-        if (plotService.plotIntersectsAnyOthers(plot)) {
-            if (messageUser) townMsg.error(player, "The plot selection intersects with an already-existing plot.");
-            return false;
-        }
-
-        if (!plotService.isLocationWithinPlot(location, plot)) {
-            if (messageUser) townMsg.error(player, "You must be within your plot selection!");
+    public boolean playerHasValidSelection(Player player) {
+        try {
+            validatePlayerPlotSelection(player);
+        } catch (TownsCommandException e) {
             return false;
         }
         return true;
+    }
+
+    public PlotSelection getValidPlayerPlotSelection(Player player) throws TownsCommandException {
+        PlotSelection selection = getOrCreateSelection(player);
+        validatePlayerPlotSelection(player);
+        return selection;
     }
 
     public PlotSelection getCurrentPlotSelection(Player player) {

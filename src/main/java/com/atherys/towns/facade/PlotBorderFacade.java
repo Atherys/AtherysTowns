@@ -1,11 +1,14 @@
 package com.atherys.towns.facade;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.model.entity.TownPlot;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
@@ -57,7 +60,13 @@ public class PlotBorderFacade {
     PlotSelectionFacade plotSelectionFacade;
 
     @Inject
+    TownFacade townFacade;
+
+    @Inject
     TownsMessagingFacade townMsg;
+
+    @Inject
+    private TownsConfig config;
 
     public boolean isPlayerViewingBorders(Player player) {
         return borderViewers.getOrDefault(player.getUniqueId(), false);
@@ -109,7 +118,7 @@ public class PlotBorderFacade {
     }
 
     public void showPlotBorders(Player player, Location<World> newLocation) {
-        Optional<Plot> plot = plotService.getPlotByLocation(newLocation);
+        Optional<TownPlot> plot = plotService.getTownPlotByLocation(newLocation);
         if (plot.isPresent() && isPlayerViewingBorders(player)) {
             BorderInfo borderInfo = new BorderInfo(blueWalls, player.getUniqueId(), plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner());
             addSelectionBorder(player, borderInfo);
@@ -119,10 +128,14 @@ public class PlotBorderFacade {
     public void showNewPlotSelectionBorders(Player player, Location<World> location) {
         PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
         if (selection.isComplete() && isPlayerViewingBorders(player)) {
-            ParticleEffect effect = plotSelectionFacade.validatePlotSelection(selection, player, false, location) ? greenWalls : yellowWalls;
-            Plot plot = plotService.createPlotFromSelection(selection);
-            BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
-            addSelectionBorder(player, borderInfo);
+            TownPlot plot = plotService.createTownPlotFromSelection(selection);
+            // Only show plots smaller than the max plot area
+            int plotArea = MathUtils.getArea(plot);
+            if (plotArea < config.TOWN.MAX_PLOT_AREA) {
+                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location, true) ? greenWalls : yellowWalls;
+                BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+                addSelectionBorder(player, borderInfo);
+            }
         }
     }
 
@@ -130,20 +143,22 @@ public class PlotBorderFacade {
         Task.builder().execute(task -> activeBorders.forEach((uuid, borderInfoSet) -> {
             Sponge.getServer().getPlayer(uuid).ifPresent(player -> {
                 borderInfoSet.forEach(borderInfo -> {
-                    int xLength = MathUtils.getXLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
-                    int zLength = MathUtils.getZLength(borderInfo.getNECorner(), borderInfo.getSWCorner());
+                    int width = MathUtils.getWidth(borderInfo);
+                    int height = MathUtils.getHeight(borderInfo);
+
                     Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
                     Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
 
-                    player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, 0));
-                    player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(0, 0, 1));
-                    for (int i = 0; i <= zLength; i++) {
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(1, 0, i + 1));
+                    player.spawnParticles(borderInfo.getEffect(), particleLocationNE);
+                    player.spawnParticles(borderInfo.getEffect(), particleLocationSW);
+                    for (int i = 1; i <= height; i++) {
+                        player.spawnParticles(borderInfo.getEffect(), particleLocationNE.add(0, 0, i));
                         player.spawnParticles(borderInfo.getEffect(), particleLocationSW.sub(0, 0, i));
                     }
-                    for (int i = 0; i <= xLength; i++) {
+
+                    for (int i = 1; i <= width; i++) {
                         player.spawnParticles(borderInfo.getEffect(), particleLocationNE.sub(i, 0, 0));
-                        player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i + 1, 0, 1));
+                        player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i, 0, 0));
                     }
                 });
             });
@@ -169,8 +184,8 @@ public class PlotBorderFacade {
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
         if (isPlayerViewingBorders(player)) {
-            Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
-            Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+            Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
+            Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
             PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
 
             //If you're leaving a plot, then remove the border
@@ -190,7 +205,7 @@ public class PlotBorderFacade {
 
             //If you have a complete plot selection
             if (selection.isComplete()) {
-                Plot selectionPlot = plotService.createPlotFromSelection(selection);
+                TownPlot selectionPlot = plotService.createTownPlotFromSelection(selection);
                 boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
                 boolean toInSelection = plotService.isLocationWithinPlot(to.getLocation(), selectionPlot);
 

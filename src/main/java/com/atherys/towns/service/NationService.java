@@ -4,8 +4,10 @@ import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.persistence.NationPlotRepository;
 import com.atherys.towns.persistence.NationRepository;
 import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
@@ -45,6 +47,9 @@ public class NationService {
 
     @Inject
     private NationRepository nationRepository;
+
+    @Inject
+    private NationPlotRepository nationPlotRepository;
 
     @Inject
     private TownsConfig config;
@@ -153,6 +158,22 @@ public class NationService {
         nation.removeAlly(enemy);
         nation.addEnemy(enemy);
         nationRepository.saveOne(nation);
+    }
+
+    public void claimPlotForNation(NationPlot plot, Nation nation) {
+        nation.addPlot(plot);
+        plot.setNation(nation);
+
+        nationPlotRepository.saveOne(plot);
+        nationRepository.saveOne(nation);
+    }
+
+    public void removeNationPlot(NationPlot plot) {
+        Nation nation = plot.getNation();
+        nation.removePlot(plot);
+
+        nationRepository.saveOne(nation);
+        nationPlotRepository.deleteOne(plot);
     }
 
     public Collection<Nation> getAllNations() {

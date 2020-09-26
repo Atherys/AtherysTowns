@@ -9,11 +9,11 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.plot.PlotSelection;
+import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.model.entity.*;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.service.*;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
@@ -28,7 +28,10 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
@@ -72,6 +75,9 @@ public class TownFacade implements EconomyFacade {
     private NationFacade nationFacade;
 
     @Inject
+    private PermissionFacade permissionFacade;
+
+    @Inject
     private PlotBorderFacade plotBorderFacade;
 
     @Inject
@@ -102,13 +108,22 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
-        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
-        if (!plotSelectionFacade.validatePlotSelection(selection, player, true, player.getLocation())) {
-            return;
+        // Get the Nation this Town would be created in
+        Nation nation = null;
+        Optional<NationPlot> plot = plotService.getNationPlotsByLocation(player.getLocation()).stream().findFirst();
+        if (plot.isPresent()) {
+            nation = plot.get().getNation();
         }
 
-        Plot homePlot = plotService.createPlotFromSelection(selection);
+        if (nation == null && !permissionFacade.isPermitted(player, TownPermissions.CREATE_WITHOUT_NATION)) {
+            throw new TownsCommandException("You are not permitted to create a town outside of a nation!");
+        }
+
+        PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(player);
+        TownPlot homePlot = plotService.createTownPlotFromSelection(selection);
+        validateNewTownPlot(homePlot, player, player.getLocation());
+
+        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(player);
         if (party.isPresent()) {
             Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
@@ -118,20 +133,21 @@ public class TownFacade implements EconomyFacade {
             }
 
             partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
-            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot);
+            pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot, nation);
         } else {
-            createTown(player, townName, homePlot);
+            createTown(player, townName, homePlot, nation);
         }
     }
 
-    public Town createTown(Player player, String name, Plot homePlot) throws CommandException {
+    public Town createTown(Player player, String name, TownPlot homePlot, @Nullable Nation nation) throws CommandException {
         Resident mayor = residentService.getOrCreate(player);
 
         // create the town
         Town town = townService.createTown(
                 player,
                 homePlot,
-                name
+                name,
+                nation
         );
 
         townsPermissionService.updateContexts(player, mayor);
@@ -229,12 +245,70 @@ public class TownFacade implements EconomyFacade {
         return town;
     }
 
+    /**
+     * Validate a TownPlot meets the sizing rules
+     * @param plot The plot to validate
+     * @param player The player requesting validation
+     * @param location location when validation was requested
+     */
+    public void validateNewTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
+        int plotArea = MathUtils.getArea(plot);
+        if (plotArea > config.TOWN.MAX_PLOT_AREA) {
+            throw new TownsCommandException("Plot selection has an area greater than permitted ( ", plotArea, " > ", config.TOWN.MAX_PLOT_AREA, " )");
+        }
+
+        int smallestSide = MathUtils.getShortestSide(plot);
+        if (smallestSide < config.TOWN.MIN_PLOT_SIDE - 1) {
+            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", smallestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+        }
+
+        if (plotService.townPlotIntersectAnyOthers(plot)) {
+            throw new TownsCommandException("The plot selection intersects with an already-existing plot.");
+        }
+
+        if (!plotService.isLocationWithinPlot(location, plot)) {
+            throw new TownsCommandException("You must be within your plot selection!");
+        }
+
+        Town town = residentService.getOrCreate(player).getTown();
+        if (town != null) {
+            if (isTownTaxDue(town)) {
+                throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
+            }
+
+            if (townService.getTownSize(town) + MathUtils.getArea(plot) > town.getMaxSize()) {
+                throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
+            }
+
+            if (!plotService.townPlotBordersTown(town, plot)) {
+                throw new TownsCommandException("New plot does not border the town it's being claimed for.");
+            }
+        }
+
+        // Plot must be completely contained within the nation
+        Optional<NationPlot> nPlot = plotService.getNationPlotsByTownPlot(plot);
+        if (nPlot.isPresent()) {
+            if (!MathUtils.rectangleContainedInSet(plot, nPlot.get().getNation().getPlots())){
+                throw new TownsCommandException("New plot is not contained completely within the nation.");
+            }
+        }
+    }
+
+    public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location, boolean messageUser) {
+        try {
+            validateNewTownPlot(plot, player, location);
+        } catch (TownsCommandException e) {
+            if (messageUser && e.getText() != null) player.sendMessage(e.getText());
+            return false;
+        }
+        return true;
+    }
+
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
-
-        Plot plot = plotService.getPlotByLocation(source.getLocation()).orElseThrow(() ->
-                new TownsCommandException("You are not currently standing on a claim area."));
-
+        TownPlot plot = plotService.getTownPlotByLocation(source.getLocation()).orElseThrow(() -> {
+            return new TownsCommandException("You are not currently standing on a claim area.");
+        });
         if (town.getPlots().size() == 1) {
             throw new TownsCommandException("You cannot unclaim your last remaining plot.");
         }
@@ -249,27 +323,11 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void claimTownPlotFromPlayerSelection(Player source) throws CommandException {
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(source);
-
-        if (!plotSelectionFacade.validatePlotSelection(selection, source, true, source.getLocation())) {
-            return;
-        }
+        PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(source);
 
         Town town = getPlayerTown(source);
-
-        if (isTownTaxDue(town)) {
-            throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
-        }
-
-        Plot plot = plotService.createPlotFromSelection(selection);
-
-        if (townService.getTownSize(town) + plotService.getPlotArea(plot) > town.getMaxSize()) {
-            throw new TownsCommandException("The plot you are claiming is larger than your town's remaining max area.");
-        }
-
-        if (!plotService.plotBordersTown(town, plot)) {
-            throw new TownsCommandException("New plot does not border the town it's being claimed for.");
-        }
+        TownPlot plot = plotService.createTownPlotFromSelection(selection);
+        validateNewTownPlot(plot, source, source.getLocation());
 
         townService.claimPlotForTown(plot, town);
         plotSelectionFacade.clearSelection(source);
@@ -462,8 +520,7 @@ public class TownFacade implements EconomyFacade {
 
     public void setPlayerTownSpawn(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
-
-        Optional<Plot> plot = plotService.getPlotByLocation(source.getLocation());
+        Optional<TownPlot> plot = plotService.getTownPlotByLocation(source.getLocation());
 
         if (!plot.isPresent()) {
             throw new TownsCommandException("Current location is not part of your town");
@@ -478,7 +535,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     private boolean playerOutsideTown(Player player, Town town) {
-        return plotService.getPlotByLocation(player.getLocation())
+        return plotService.getTownPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
     }
@@ -559,8 +616,8 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void onPlayerDamage(DamageEntityEvent event, Player attacker, Player target) {
-        Optional<Plot> attackerPlot = plotService.getPlotByLocation(attacker.getLocation());
-        Optional<Plot> targetPlot = plotService.getPlotByLocation(target.getLocation());
+        Optional<TownPlot> attackerPlot = plotService.getTownPlotByLocation(attacker.getLocation());
+        Optional<TownPlot> targetPlot = plotService.getTownPlotByLocation(target.getLocation());
         //If the attacker and the target are not in plots, then return.
         if (!attackerPlot.isPresent() && !targetPlot.isPresent()) {
             return;

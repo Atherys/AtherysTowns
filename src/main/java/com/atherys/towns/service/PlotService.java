@@ -1,11 +1,13 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.model.entity.*;
+import com.atherys.towns.persistence.NationPlotRepository;
+import com.atherys.towns.persistence.TownPlotRepository;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.persistence.PlotRepository;
-import com.atherys.towns.plot.PlotSelection;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
@@ -15,15 +17,21 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
 public class PlotService {
 
-    public static final Text DEFAULT_PLOT_NAME = Text.of("None");
+    public static final Text DEFAULT_TOWN_PLOT_NAME = Text.of("None");
 
     @Inject
-    PlotRepository plotRepository;
+    TownPlotRepository townPlotRepository;
+
+    @Inject
+    NationPlotRepository nationPlotRepository;
 
     @Inject
     ResidentService residentService;
@@ -31,75 +39,48 @@ public class PlotService {
     PlotService() {
     }
 
-    public Plot createPlotFromSelection(PlotSelection selection) {
-        Plot plot = new Plot();
+    public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
+        return MathUtils.pointInRectangle(location.getPosition(), plot);
+    }
 
-        Vector2d pA = selection.getPointA().getPosition().toVector2(true);
-        Vector2d pB = selection.getPointB().getPosition().toVector2(true);
+    public static Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
+        Vector2i southWestCorner = plot.getSouthWestCorner();
+        Vector2i northEastCorner = plot.getNorthEastCorner();
 
-        Vector2d pNE;
-        Vector2d pSW;
+        Set<Vector2i> chunkCoordinates = new HashSet<>();
 
-        //              NE
-        //      +---+ pA
-        //      |   |
-        //   pB +---+
-        // SW
-        if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
-            pNE = pA;
-            pSW = pB;
+        // Calculate min corner and max corner chunks
+        Vector2i southWestChunk = Vector2i.from(southWestCorner.getX() >> 4, southWestCorner.getY() >> 4); // South West Corner Chunk
+        Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getY() >> 4); // North East Corner Chunk
 
-            //    +---+ pB
-            //    |   |
-            // pA +---+
-        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
-            pNE = pB;
-            pSW = pA;
-
-            // pB +---+
-            //    |   |
-            //    +---+ pA
-        } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
-            pNE = Vector2d.from(pA.getX(), pB.getY());
-            pSW = Vector2d.from(pB.getX(), pA.getY());
-
-            // pA +---+
-            //    |   |
-            //    +---+ pB
-        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
-            pNE = Vector2d.from(pB.getX(), pA.getY());
-            pSW = Vector2d.from(pA.getX(), pB.getY());
-
-        } else {
-            throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
+        for (int x = southWestChunk.getX(); x <= northEastChunk.getX(); x++) {
+            for (int y = northEastChunk.getY(); y <= southWestChunk.getY(); y++) {
+                chunkCoordinates.add(Vector2i.from(x, y));
+            }
         }
+        return chunkCoordinates;
+    }
 
-        plot.setNorthEastCorner(new Vector2i(pNE.getFloorX(), pNE.getFloorY()));
-        plot.setSouthWestCorner(new Vector2i(pSW.getFloorX(), pSW.getFloorY()));
-
-        plot.setName(DEFAULT_PLOT_NAME);
-
+    public TownPlot createTownPlotFromSelection(PlotSelection selection) {
+        TownPlot plot = new TownPlot();
+        MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
+        plot.setName(DEFAULT_TOWN_PLOT_NAME);
         return plot;
     }
 
-    public boolean plotsIntersect(Plot plotA, Plot plotB) {
-        return MathUtils.overlaps(plotA.getSouthWestCorner(), plotA.getNorthEastCorner(), plotB.getSouthWestCorner(), plotB.getNorthEastCorner());
+    public boolean townPlotIntersectAnyOthers(TownPlot plot) {
+        for (Vector2i chunkCoordinate : getChunksOverlappedByPlot(plot)) {
+            for (TownPlot other : townPlotRepository.getPlotsIntersectingChunk(chunkCoordinate)) {
+                if (MathUtils.overlaps(plot, other)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    public boolean plotsBorder(Plot plotA, Plot plotB) {
-        return MathUtils.borders(plotA.getSouthWestCorner(), plotA.getNorthEastCorner(), plotB.getSouthWestCorner(), plotB.getNorthEastCorner());
-    }
-
-    public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
-        return MathUtils.vectorXZFitsInRange(location.getBlockPosition(), plot.getSouthWestCorner(), plot.getNorthEastCorner());
-    }
-
-    public boolean plotIntersectsAnyOthers(Plot plot) {
-        return plotRepository.getAll().stream().anyMatch(other -> plotsIntersect(plot, other));
-    }
-
-    public Optional<Plot> getPlotByLocation(Location<World> location) {
-        for (Plot plot : plotRepository.getPlotsIntersectingChunk(location.getChunkPosition())) {
+    public Optional<TownPlot> getTownPlotByLocation(Location<World> location) {
+        for (TownPlot plot : townPlotRepository.getPlotsIntersectingChunk(location.getChunkPosition())) {
             if (isLocationWithinPlot(location, plot)) {
                 return Optional.of(plot);
             }
@@ -108,28 +89,28 @@ public class PlotService {
         return Optional.empty();
     }
 
-    public void setPlotName(Plot plot, Text newName) {
+    public void setTownPlotName(TownPlot plot, Text newName) {
         plot.setName(newName);
-        plotRepository.saveOne(plot);
+        townPlotRepository.saveOne(plot);
     }
 
-    public void setPlotOwner(Plot plot, Resident owner) {
+    public void setTownPlotOwner(TownPlot plot, Resident owner) {
         plot.setOwner(owner);
-        plotRepository.saveOne(plot);
+        townPlotRepository.saveOne(plot);
     }
 
-    public boolean plotBordersTown(Town town, Plot plot) {
-        for (Plot townPlot : town.getPlots()) {
-            if (plotsBorder(plot, townPlot)) {
+    public boolean townPlotBordersTown(Town town, TownPlot plot) {
+        for (TownPlot townPlot : town.getPlots()) {
+            if (MathUtils.borders(plot, townPlot)) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean plotIntersectsTown(Town town, Plot plot) {
-        for (Plot townPlot : town.getPlots()) {
-            if (!plotsIntersect(townPlot, plot)) {
+    public boolean townPlotIntersectsTown(Town town, TownPlot plot) {
+        for (TownPlot townPlot : town.getPlots()) {
+            if (!MathUtils.overlaps(townPlot, plot)) {
                 return true;
             }
         }
@@ -137,18 +118,23 @@ public class PlotService {
         return false;
     }
 
-    public int getPlotArea(Plot plot) {
-        Vector2i plotSize = getPlotSize(plot);
-        return plotSize.getX() * plotSize.getY();
+    public NationPlot createNationPlotFromSelection(PlotSelection selection) {
+        NationPlot plot = new NationPlot();
+        MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
+        return plot;
     }
 
-    public Vector2i getPlotSize(Plot plot) {
-        int sizeX = Math.abs(plot.getNorthEastCorner().getX() - plot.getSouthWestCorner().getX());
-        int sizeY = Math.abs(plot.getNorthEastCorner().getY() - plot.getSouthWestCorner().getY());
-        return new Vector2i(sizeX, sizeY);
+    public Set<NationPlot> getNationPlotsByLocation(Location<World> location) {
+        return nationPlotRepository.getAll().stream().filter(plot -> isLocationWithinPlot(location, plot))
+                .collect(Collectors.toSet());
     }
 
-    public boolean permissionAlreadyExistsInContext(AllianceType type, Plot plot, WorldPermission permission) {
+    public Optional<NationPlot> getNationPlotsByTownPlot(TownPlot tPlot) {
+        return nationPlotRepository.getAll().stream().filter(plot ->
+                MathUtils.overlaps(tPlot, plot)).findFirst();
+    }
+
+    public boolean permissionAlreadyExistsInContext(AllianceType type, TownPlot plot, WorldPermission permission) {
         switch (type) {
             case ALLY:
                 return plot.getAllyPermissions().contains(permission);
@@ -164,7 +150,7 @@ public class PlotService {
         return false;
     }
 
-    public void addPlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
+    public void addPlotPermission(TownPlot plot, AllianceType type, WorldPermission permission) {
         switch (type) {
             case ALLY:
                 plot.getAllyPermissions().add(permission);
@@ -183,10 +169,10 @@ public class PlotService {
                 break;
         }
 
-        plotRepository.saveOne(plot);
+        townPlotRepository.saveOne(plot);
     }
 
-    public void removePlotPermission(Plot plot, AllianceType type, WorldPermission permission) {
+    public void removePlotPermission(TownPlot plot, AllianceType type, WorldPermission permission) {
         switch (type) {
             case ALLY:
                 plot.getAllyPermissions().remove(permission);
@@ -205,7 +191,7 @@ public class PlotService {
                 break;
         }
 
-        plotRepository.saveOne(plot);
+        townPlotRepository.saveOne(plot);
     }
 
     public enum AllianceType {

@@ -31,6 +31,9 @@ public final class TownPermissions {
     // permission to change the nation that the town belongs to
     public static final TownPermission JOIN_NATION = new TownPermission("atherystowns.town.nation", "Join Nation");
 
+    // Permission to create a town without a nation
+    public static final TownPermission CREATE_WITHOUT_NATION = new TownPermission("atherystowns.town.create_without_nation", "Create Town without a Nation");
+
     // permission to deposit into the town bank
     public static final TownPermission DEPOSIT_INTO_BANK = new TownPermission("atherystowns.town.deposit", "Deposit");
 

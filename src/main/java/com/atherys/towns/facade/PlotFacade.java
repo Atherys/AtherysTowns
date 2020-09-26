@@ -3,12 +3,14 @@ package com.atherys.towns.facade;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.Transform;
@@ -41,22 +43,15 @@ public class PlotFacade {
     @Inject
     ResidentService residentService;
 
-    @Inject
-    PlotBorderFacade plotBorderFacade;
+    PlotFacade() {}
 
-    @Inject
-    PlotSelectionFacade plotSelectionFacade;
-
-    PlotFacade() {
-    }
-
-    public void renamePlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+    public void renameTownPlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
+        TownPlot plot = getPlotAtPlayer(player);
 
         if (permissionFacade.isPermitted(player, TownPermissions.RENAME_PLOT) ||
                 residentService.getOrCreate(player).equals(plot.getOwner())) {
 
-            plotService.setPlotName(plot, newName);
+            plotService.setTownPlotName(plot, newName);
             townsMsg.info(player, "Plot renamed.");
         } else {
             throw new TownsCommandException("You are not permitted to rename this plot.");
@@ -64,13 +59,12 @@ public class PlotFacade {
     }
 
     public void sendInfoOnPlotAtPlayerLocation(Player player) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+        TownPlot plot = getPlotAtPlayer(player);
         Resident plotOwner = (plot.getOwner() != null) ? plot.getOwner() : new Resident();
         String ownerName = (plotOwner.getName() != null) ? plotOwner.getName() : "None";
         Text.Builder plotText = Text.builder();
 
-        plotText
-                .append(townsMsg.createTownsHeader(plot.getName().toPlain()));
+        plotText.append(townsMsg.createTownsHeader(plot.getName().toPlain()));
 
         plotText.append(Text.of(
                 DARK_GREEN, "Town: ",
@@ -80,7 +74,7 @@ public class PlotFacade {
 
         plotText
                 .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Size: ", GOLD, plotService.getPlotArea(plot), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
 
@@ -88,22 +82,22 @@ public class PlotFacade {
     }
 
     public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+        TownPlot plot = getPlotAtPlayer(player);
 
-        plotService.setPlotOwner(plot, residentService.getOrCreate(target));
+        plotService.setTownPlotOwner(plot, residentService.getOrCreate(target));
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");
     }
 
-    private Plot getPlotAtPlayer(Player player) throws TownsCommandException {
-        return plotService.getPlotByLocation(player.getLocation()).orElseThrow(() ->
+    private TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
+        return plotService.getTownPlotByLocation(player.getLocation()).orElseThrow(() ->
                 new TownsCommandException("No plot found at your position"));
     }
 
-    private Optional<Plot> getPlotAtPlayerOptional(Player player) {
-        return plotService.getPlotByLocation(player.getLocation());
+    private Optional<TownPlot> getPlotAtPlayerOptional(Player player) {
+        return plotService.getTownPlotByLocation(player.getLocation());
     }
 
-    public Set<WorldPermission> getPlotRelationPermissions(Plot plot, Resident resident) {
+    public Set<WorldPermission> getPlotRelationPermissions(TownPlot plot, Resident resident) {
 
         // If resident is owner's friend, apply friend permissions
         if (plot.getOwner().getFriends().contains(resident)) {
@@ -148,7 +142,7 @@ public class PlotFacade {
 
     }
 
-    public boolean hasPlotAccess(Player player, Plot plot, WorldPermission permission) {
+    public boolean hasPlotAccess(Player player, TownPlot plot, WorldPermission permission) {
         Resident resPlayer = residentService.getOrCreate(player);
         Resident plotOwner = plot.getOwner();
 
@@ -165,7 +159,7 @@ public class PlotFacade {
     }
 
     public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, Location<World> location, boolean messageUser) {
-        plotService.getPlotByLocation(location).ifPresent(plot -> {
+        plotService.getTownPlotByLocation(location).ifPresent(plot -> {
             if (!hasPlotAccess(player, plot, permission)) {
                 if (messageUser) {
                     townsMsg.error(player, "You do not have permission to do that!");
@@ -176,8 +170,8 @@ public class PlotFacade {
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        Optional<Plot> plotTo = plotService.getPlotByLocation(to.getLocation());
-        Optional<Plot> plotFrom = plotService.getPlotByLocation(from.getLocation());
+        Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
+        Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
         if (!plotTo.isPresent()) return;
         if (plotFrom.isPresent()) return;
@@ -185,7 +179,7 @@ public class PlotFacade {
         player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getName())).build());
     }
 
-    private void verifyPlotOwnership(Plot plot, Player player) throws TownsCommandException {
+    private void verifyPlotOwnership(TownPlot plot, Player player) throws TownsCommandException {
         if (plot.getOwner() == null) {
             throw new TownsCommandException("This plot does not have an owner!");
         }
@@ -198,7 +192,7 @@ public class PlotFacade {
     }
 
     public void addPlotPermission(Player player, PlotService.AllianceType type, WorldPermission permission) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+        TownPlot plot = getPlotAtPlayer(player);
         verifyPlotOwnership(plot, player);
 
         if (plotService.permissionAlreadyExistsInContext(type, plot, permission)) {
@@ -211,7 +205,7 @@ public class PlotFacade {
     }
 
     public void removePlotPermission(Player player, PlotService.AllianceType type, WorldPermission permission) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+        TownPlot plot = getPlotAtPlayer(player);
         verifyPlotOwnership(plot, player);
 
         if (!plotService.permissionAlreadyExistsInContext(type, plot, permission)) {
@@ -236,7 +230,7 @@ public class PlotFacade {
     }
 
     public void sendCurrentPlotPermissions(Player player) throws TownsCommandException {
-        Plot plot = getPlotAtPlayer(player);
+        TownPlot plot = getPlotAtPlayer(player);
         verifyPlotOwnership(plot, player);
         Text.Builder plotPermsText = Text.builder();
 
