@@ -3,6 +3,7 @@ package com.atherys.towns.command.town;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
+import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -13,6 +14,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("Info")
 @Description("Shows current raid point information.")
+@Permission("atherystowns.town.raid.info")
 public class TownRaidInfoCommand implements PlayerCommand {
 
     @Nonnull

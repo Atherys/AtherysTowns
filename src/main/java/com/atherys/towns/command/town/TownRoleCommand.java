@@ -1,6 +1,7 @@
 package com.atherys.towns.command.town;
 
 import com.atherys.core.command.annotation.*;
+import ninja.leaping.configurate.util.MapFactories;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
