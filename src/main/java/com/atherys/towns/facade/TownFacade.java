@@ -134,8 +134,10 @@ public class TownFacade implements EconomyFacade {
 
             partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
             pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot, nation);
-        } else {
+        } else if (permissionFacade.isPermitted(player, TownPermissions.CREATE_WITHOUT_PARTY)) {
             createTown(player, townName, homePlot, nation);
+        } else {
+            throw new TownsCommandException("You require a party to form a town!");
         }
     }
 

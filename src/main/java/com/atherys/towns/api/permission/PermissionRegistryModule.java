@@ -44,6 +44,7 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.DEPOSIT_INTO_BANK,
                 TownPermissions.JOIN_NATION,
                 TownPermissions.CREATE_WITHOUT_NATION,
+                TownPermissions.CREATE_WITHOUT_PARTY,
                 TownPermissions.SET_NAME,
                 TownPermissions.SET_DESCRIPTION,
                 TownPermissions.SET_MOTD,
