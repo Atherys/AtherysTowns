@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("claim")
 @Description("Claims the current plot selection for the specified nation.")
-@Permission("atherystowns.town.plot.unclaim")
+@Permission("atherystowns.nation.admin.plot.claim")
 public class ClaimNationPlotCommand implements PlayerCommand, ParameterizedCommand {
 
     @Override
