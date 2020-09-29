@@ -190,6 +190,10 @@ public class TownsPermissionService {
         player.getSubjectData().setPermission(contexts, permission.getId(), tristate);
     }
 
+    public void removeTownRole() {
+
+    }
+
     public void clearPermissions(User user, Town town) {
         clearPermissions(user, getContextsForTown(town));
     }

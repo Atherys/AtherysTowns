@@ -164,6 +164,18 @@ public class TownFacade implements EconomyFacade {
         return town;
     }
 
+    public void grantTown(Player player, User target) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+        Resident newMayor = residentService.getOrCreate(target);
+        Resident oldMayor = residentService.getOrCreate(target);
+
+        if (residentService.isResidentTownLeader(oldMayor, town) && partOfSameTown(player, target)) {
+            roleService.removeTownRole(player, town, config.TOWN.TOWN_LEADER_ROLE);
+            townService.setTownLeader(town, newMayor, target);
+            townsMsg.broadcastTownInfo(town, GOLD, target.getName(), DARK_GREEN, " is now the mayor of ", GOLD, town.getName(), ".");
+        }
+    }
+
     public void sendTownInfo(Player player) throws TownsCommandException {
         sendTownInfo(getPlayerTown(player), player);
     }

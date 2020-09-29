@@ -4,6 +4,7 @@ import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.config.TaxConfig;
 import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Nation;
@@ -143,6 +144,12 @@ public class TownService {
 
     public Optional<Town> getTownFromName(String townName) {
         return townRepository.findByName(townName);
+    }
+
+    public void setTownLeader(Town town, Resident resident, User user) {
+        town.setLeader(resident);
+        townRepository.saveOne(town);
+        roleService.addTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE);
     }
 
     public void setTownName(Town town, String name) {
