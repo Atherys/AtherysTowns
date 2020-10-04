@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 @Aliases("Info")
 @Permission("atherystowns.raid.info")
 @Description("Shows current raid point information.")
+@Permission("atherystowns.town.raid.info")
 public class TownRaidInfoCommand implements PlayerCommand {
 
     @Nonnull

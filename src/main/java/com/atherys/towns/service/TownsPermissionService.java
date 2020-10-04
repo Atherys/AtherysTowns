@@ -57,8 +57,8 @@ public class TownsPermissionService {
      * @param player   The player whose town or nation has changed
      * @param resident The resident object for that player
      */
-    public void updateContexts(@Nonnull Player player, @Nullable Resident resident) {
-        if (resident != null) {
+    public void updateContexts(@Nonnull User player, @Nullable Resident resident) {
+        if (resident != null && resident.getTown() != null) {
             Town town = resident.getTown();
 
             playerTownContexts.put(

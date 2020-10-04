@@ -4,10 +4,13 @@ import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.entity.Nation;
+import com.atherys.towns.model.entity.Plot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.RoleService;
+import com.atherys.towns.service.TownsPermissionService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +44,12 @@ public class ResidentFacade {
     private RoleService roleService;
 
     @Inject
+    private TownsPermissionService townsPermissionService;
+
+    @Inject
+    private PlotService plotService;
+
+    @Inject
     private TownsMessagingFacade townsMsg;
 
     @Inject
@@ -60,6 +69,10 @@ public class ResidentFacade {
         residentService.setLastTownSpawn(resident, LocalDateTime.now());
         residentService.setLastLogin(resident, LocalDateTime.now());
         roleService.validateRoles(player, resident);
+        townsPermissionService.updateContexts(player, resident);
+
+        Town currentTown = plotService.getPlotByLocation(player.getLocation()).map(Plot::getTown).orElse(null);
+        townsPermissionService.updateWorldContexts(player, currentTown);
     }
 
     public void onPlayerSpawn(RespawnPlayerEvent event) {

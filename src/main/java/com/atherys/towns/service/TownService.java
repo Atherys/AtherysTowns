@@ -418,6 +418,7 @@ public class TownService {
             roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
         }
 
+        townsPermissionService.updateContexts(user, resident);
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
     }
@@ -426,6 +427,7 @@ public class TownService {
         town.removeResident(resident);
         resident.setTown(null);
         townsPermissionService.clearPermissions(user, town);
+        townsPermissionService.updateContexts(user, resident);
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);

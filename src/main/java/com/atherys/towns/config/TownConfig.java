@@ -39,6 +39,9 @@ public class TownConfig {
     @Setting("local-transactions")
     public boolean LOCAL_TRANSACTIONS = false;
 
+    @Setting("generate-roles")
+    public boolean GENERATE_ROLES = true;
+
     @Setting("roles")
     public Map<String, TownRoleConfig> ROLES = new HashMap<>();
 

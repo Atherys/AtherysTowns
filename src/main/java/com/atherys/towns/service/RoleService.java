@@ -35,14 +35,17 @@ public class RoleService {
     PermissionService permissionService;
 
     public void init() {
-        config.NATION.ROLES.forEach((id, roleConfig) -> {
-            createRole(NATION_PREFIX + id, roleConfig.getNationPermissions(), Collections.emptySet());
-        });
+        if (config.NATION.GENERATE_ROLES) {
+            config.NATION.ROLES.forEach((id, roleConfig) -> {
+                createRole(NATION_PREFIX + id, roleConfig.getNationPermissions(), Collections.emptySet());
+            });
+        }
 
-        config.TOWN.ROLES.forEach((id, roleConfig) -> {
-            createRole(TOWN_PREFIX + id, roleConfig.getTownPermissions(), roleConfig.getWorldPermissions());
-        });
-
+        if (config.TOWN.GENERATE_ROLES) {
+            config.TOWN.ROLES.forEach((id, roleConfig) -> {
+                createRole(TOWN_PREFIX + id, roleConfig.getTownPermissions(), roleConfig.getWorldPermissions());
+            });
+        }
     }
 
     public void createRole(String id, Set<? extends Permission> permissions, Set<WorldPermission> worldPermissions) {
