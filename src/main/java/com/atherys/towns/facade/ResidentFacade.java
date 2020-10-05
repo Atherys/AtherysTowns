@@ -3,10 +3,7 @@ package com.atherys.towns.facade;
 import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
-import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.RoleService;
@@ -71,7 +68,7 @@ public class ResidentFacade {
         roleService.validateRoles(player, resident);
         townsPermissionService.updateContexts(player, resident);
 
-        Town currentTown = plotService.getPlotByLocation(player.getLocation()).map(Plot::getTown).orElse(null);
+        Town currentTown = plotService.getTownPlotByLocation(player.getLocation()).map(TownPlot::getTown).orElse(null);
         townsPermissionService.updateWorldContexts(player, currentTown);
     }
 
