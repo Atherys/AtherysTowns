@@ -118,10 +118,15 @@ public class TownService {
         town.setTaxFailedCount(0);
         town.setDebt(0);
         town.setBank(UUID.randomUUID());
-        town.setNation(nation);
+
+        if (nation != null) {
+            nationService.addTown(nation, town);
+        }
+
         if (AtherysTowns.economyIsEnabled()) {
             AtherysCore.getEconomyService().get().getOrCreateAccount(town.getBank());
         }
+
         town.setSpawn(leader.getTransform());
         homePlot.setName(Text.of("HomePlot"));
 
