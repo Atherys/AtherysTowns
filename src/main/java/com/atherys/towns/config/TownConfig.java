@@ -39,6 +39,9 @@ public class TownConfig {
     @Setting("local-transactions")
     public boolean LOCAL_TRANSACTIONS = false;
 
+    @Setting("town-creation-cost")
+    public double CREATION_COST = 0;
+
     @Setting("generate-roles")
     public boolean GENERATE_ROLES = true;
 

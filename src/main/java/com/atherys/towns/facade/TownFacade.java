@@ -21,7 +21,9 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -122,6 +124,13 @@ public class TownFacade implements EconomyFacade {
         PlotSelection selection = plotSelectionFacade.getValidPlayerPlotSelection(player);
         TownPlot homePlot = plotService.createTownPlotFromSelection(selection);
         validateNewTownPlot(homePlot, player, player.getLocation());
+
+        if (AtherysTowns.economyIsEnabled()) {
+            UniqueAccount account = Economy.getAccount(player.getUniqueId()).get();
+            if (account.getBalance(config.DEFAULT_CURRENCY).doubleValue() < config.TOWN.CREATION_COST) {
+                throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST, " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
+            }
+        }
 
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(player);
