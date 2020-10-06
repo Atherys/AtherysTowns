@@ -2,6 +2,7 @@ package com.atherys.towns.facade;
 
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
+import com.atherys.core.utils.Question.Answer;
 import com.atherys.party.AtherysParties;
 import com.atherys.party.entity.Party;
 import com.atherys.party.facade.PartyFacade;
@@ -253,9 +254,18 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Only the town leader may remove the town.");
         }
 
-        townService.removeTown(town);
-        plotBorderFacade.removeBordersForTown(town);
-        townsMsg.info(player, "Town ruined.");
+        Question confirmation = Question.of(Text.of(DARK_GREEN, "Are you sure you want to delete your town?"))
+                .addAnswer(Answer.of(Text.of(DARK_GREEN, "Yes"), p -> {
+                    townService.removeTown(town);
+                    plotBorderFacade.removeBordersForTown(town);
+                    townsMsg.info(player, "Town ruined.");
+                }))
+                .addAnswer(Answer.of(Text.of(RED, "No"), p -> {
+                    townsMsg.error(p, "Town deletion cancelled.");
+                }))
+                .build();
+
+        confirmation.pollChat(player);
     }
 
     public Town getPlayerTown(Player source) throws TownsCommandException {
@@ -374,14 +384,14 @@ public class TownFacade implements EconomyFacade {
         );
 
         return Question.of(invitationText)
-                .addAnswer(Question.Answer.of(
+                .addAnswer(Answer.of(
                         Text.of(TextStyles.BOLD, DARK_GREEN, "Accept"),
                         player -> {
                             townService.addResidentToTown(player, residentService.getOrCreate(player), town);
                             joinTownMessage(player, town);
                         }
                 ))
-                .addAnswer(Question.Answer.of(
+                .addAnswer(Answer.of(
                         Text.of(TextStyles.BOLD, DARK_RED, "Decline"),
                         player -> {
                         }
