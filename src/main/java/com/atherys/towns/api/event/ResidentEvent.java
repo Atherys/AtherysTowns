@@ -1,7 +1,6 @@
-package com.atherys.towns.event;
+package com.atherys.towns.api.event;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import org.spongepowered.api.Sponge;

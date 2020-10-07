@@ -1,12 +1,10 @@
-package com.atherys.towns.event;
+package com.atherys.towns.api.event;
 
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.text.Text;
 
 public abstract class TownEvent implements Event {
     private final Cause cause;
