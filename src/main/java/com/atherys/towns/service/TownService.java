@@ -406,6 +406,7 @@ public class TownService {
         town.getResidents().forEach(resident -> {
             resident.setTown(null);
             ids.add(resident.getId().toString());
+            Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
         });
 
         Sponge.getServiceManager().provideUnchecked(PermissionService.class)

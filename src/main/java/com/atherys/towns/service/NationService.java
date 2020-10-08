@@ -4,6 +4,7 @@ import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.NationEvent;
+import com.atherys.towns.api.event.TownEvent;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Resident;
@@ -119,6 +120,8 @@ public class NationService {
         town.setNation(nation);
         nation.addTown(town);
 
+        Sponge.getEventManager().post(new TownEvent.JoinedNation(town, nation));
+
         townRepository.saveOne(town);
         nationRepository.saveOne(nation);
     }
@@ -133,6 +136,8 @@ public class NationService {
 
         town.setNation(null);
         nation.removeTown(town);
+
+        Sponge.getEventManager().post(new TownEvent.LeftNation(town, nation));
 
         townRepository.saveOne(town);
         nationRepository.saveOne(nation);

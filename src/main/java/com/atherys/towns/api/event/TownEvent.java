@@ -1,6 +1,7 @@
 package com.atherys.towns.api.event;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
@@ -34,6 +35,28 @@ public abstract class TownEvent implements Event {
     public static class Removed extends TownEvent {
         public Removed(Town town) {
             super(town);
+        }
+    }
+
+    public static class LeftNation extends TownEvent {
+        private Nation nation;
+
+        public LeftNation(Town town, Nation nation) {
+            super(town);
+            this.nation = nation;
+        }
+    }
+
+    public static class JoinedNation extends TownEvent {
+        private Nation nation;
+
+        public JoinedNation(Town town, Nation nation) {
+            super(town);
+            this.nation = nation;
+        }
+
+        public Nation getNation() {
+            return nation;
         }
     }
 
