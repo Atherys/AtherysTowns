@@ -466,13 +466,13 @@ public class TownService {
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());
         int oversizeArea = area > town.getMaxSize() ? area - town.getMaxSize() : 0;
-
+        double pvpMultiplier = town.isPvpEnabled() ? 1.0 : taxConfig.PVP_TAX_MULTIPLIER;
         long townSize = town.getResidents().stream()
                 .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(taxConfig.INACTIVE_DURATION) < 0)
                 .count();
 
         return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea)
-                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
+                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * (taxConfig.PVP_TAX_MULTIPLIER * pvpMultiplier)) * town.getNation().getTax()) + town.getDebt());
     }
 
     public void setTaxesPaid(Town town, boolean paid) {
