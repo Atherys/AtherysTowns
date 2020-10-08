@@ -3,6 +3,8 @@ package com.atherys.towns.service;
 import com.atherys.core.AtherysCore;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
+import com.atherys.towns.api.event.NationEvent;
+import com.atherys.towns.api.event.TownEvent;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Resident;
@@ -13,11 +15,9 @@ import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -83,6 +83,8 @@ public class NationService {
 
         nationRepository.saveOne(nation);
 
+        Sponge.getEventManager().post(new NationEvent.Created(nation));
+
         return nation;
     }
 
@@ -92,6 +94,8 @@ public class NationService {
         }
 
         nationRepository.deleteOne(nation);
+
+        Sponge.getEventManager().post(new NationEvent.Removed(nation));
     }
 
     public int getNationPopulation(Nation nation) {
@@ -99,8 +103,12 @@ public class NationService {
     }
 
     public void setNationName(Nation nation, String name) {
+        String oldName = nation.getName();
+
         nation.setName(name);
         nationRepository.saveOne(nation);
+
+        Sponge.getEventManager().post(new NationEvent.Renamed(nation, oldName, name));
     }
 
     public void setNationDescription(Nation nation, Text description) {
@@ -111,6 +119,8 @@ public class NationService {
     public void addTown(Nation nation, Town town) {
         town.setNation(nation);
         nation.addTown(town);
+
+        Sponge.getEventManager().post(new TownEvent.JoinedNation(town, nation));
 
         townRepository.saveOne(town);
         nationRepository.saveOne(nation);
@@ -126,6 +136,8 @@ public class NationService {
 
         town.setNation(null);
         nation.removeTown(town);
+
+        Sponge.getEventManager().post(new TownEvent.LeftNation(town, nation));
 
         townRepository.saveOne(town);
         nationRepository.saveOne(nation);
