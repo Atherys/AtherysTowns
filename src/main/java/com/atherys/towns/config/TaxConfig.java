@@ -28,6 +28,9 @@ public class TaxConfig {
 
     @Setting("area-oversize-tax-amount")
     public int AREA_OVERSIZE_TAX = 10;
+    
+    @Setting("pvp-tax-multiplier")
+    public double PVP_TAX_MULTIPLIER = 1.25;
 
     @Setting("min-nation-multiplier")
     public double MIN_NATION_TAX_MULTIPLIER = 0.1;
