@@ -471,8 +471,8 @@ public class TownService {
                 .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(taxConfig.INACTIVE_DURATION) < 0)
                 .count();
 
-        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea)
-                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * (taxConfig.PVP_TAX_MULTIPLIER * pvpMultiplier)) * town.getNation().getTax()) + town.getDebt());
+        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * area)
+                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * pvpMultiplier) * town.getNation().getTax()) + town.getDebt());
     }
 
     public void setTaxesPaid(Town town, boolean paid) {
