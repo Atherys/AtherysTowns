@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 
 @Aliases("rename")
-@Permission("atherystowns.town.plot.rename")
+@Permission("atherystowns.plot.rename")
 @Description("Renames the plot at your location.")
 public class SetPlotNameCommand implements ParameterizedCommand, PlayerCommand {
     @Override

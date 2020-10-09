@@ -183,6 +183,8 @@ public class TownFacade implements EconomyFacade {
             roleService.removeTownRole(player, town, config.TOWN.TOWN_LEADER_ROLE);
             townService.setTownLeader(town, newMayor, target);
             townsMsg.broadcastTownInfo(town, GOLD, target.getName(), DARK_GREEN, " is now the mayor of ", GOLD, town.getName(), ".");
+        } else {
+            throw new TownsCommandException("The player you are granting leadership to is either not in your town, or you are not the town leader.");
         }
     }
 
