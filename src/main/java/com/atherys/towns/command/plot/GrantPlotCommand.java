@@ -18,7 +18,7 @@ import org.spongepowered.api.text.Text;
 import javax.annotation.Nonnull;
 
 @Aliases("grant")
-@Permission("atherystowns.town.plot.grant")
+@Permission("atherystowns.plot.grant")
 @Description("Grants the player the plot you're standing on.")
 public class GrantPlotCommand implements PlayerCommand, ParameterizedCommand {
     @Override

@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 
 @Aliases("grant")
 @Description("Grants a town member leadership of your town.")
+@Permission("atherystowns.town.grant")
 public class GrantTownCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {

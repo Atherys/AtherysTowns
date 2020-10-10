@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
         TownRaidInfoCommand.class,
         TownRaidCancelCommand.class
 })
-@Permission("atherystowns.raid.base")
+@Permission("atherystowns.town.raid.base")
 @HelpCommand(title = "Town Raid Help", prefix = "town")
 public class TownRaidCommand implements PlayerCommand {
 

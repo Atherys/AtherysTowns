@@ -4,8 +4,9 @@ import com.atherys.core.AtherysCore;
 import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.config.TaxConfig;
+import com.atherys.towns.api.event.ResidentEvent;
+import com.atherys.towns.api.event.TownEvent;
 import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.TownPlot;
@@ -144,6 +145,8 @@ public class TownService {
         roleService.addTownRole(leader, town, config.TOWN.TOWN_LEADER_ROLE);
         roleService.addTownRole(leader, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
+        Sponge.getEventManager().post(new TownEvent.Created(town));
+
         return town;
     }
 
@@ -158,8 +161,12 @@ public class TownService {
     }
 
     public void setTownName(Town town, String name) {
+        String oldName = town.getName();
+
         town.setName(name);
         townRepository.saveOne(town);
+
+        Sponge.getEventManager().post(new TownEvent.Renamed(town, oldName, name));
     }
 
     public void setTownMotd(Town town, Text motd) {
@@ -399,6 +406,7 @@ public class TownService {
         town.getResidents().forEach(resident -> {
             resident.setTown(null);
             ids.add(resident.getId().toString());
+            Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
         });
 
         Sponge.getServiceManager().provideUnchecked(PermissionService.class)
@@ -412,6 +420,8 @@ public class TownService {
         residentRepository.saveAll(town.getResidents());
         townPlotRepository.deleteAll(town.getPlots());
         townRepository.deleteOne(town);
+
+        Sponge.getEventManager().post(new TownEvent.Removed(town));
     }
 
     public void addResidentToTown(User user, Resident resident, Town town) {
@@ -426,6 +436,8 @@ public class TownService {
         townsPermissionService.updateContexts(user, resident);
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
+
+        Sponge.getEventManager().post(new ResidentEvent.JoinedTown(resident, town));
     }
 
     public void removeResidentFromTown(User user, Resident resident, Town town) {
@@ -436,6 +448,8 @@ public class TownService {
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
+
+        Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
     }
 
     public void initTaxTimer() {
@@ -452,13 +466,13 @@ public class TownService {
         int area = getTownSize(town);
         int maxArea = Math.min(area, town.getMaxSize());
         int oversizeArea = area > town.getMaxSize() ? area - town.getMaxSize() : 0;
-
+        double pvpMultiplier = town.isPvpEnabled() ? 1.0 : taxConfig.PVP_TAX_MULTIPLIER;
         long townSize = town.getResidents().stream()
                 .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(taxConfig.INACTIVE_DURATION) < 0)
                 .count();
 
-        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * maxArea)
-                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * town.getNation().getTax()) + town.getDebt());
+        return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * area)
+                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * pvpMultiplier) * town.getNation().getTax()) + town.getDebt());
     }
 
     public void setTaxesPaid(Town town, boolean paid) {

@@ -13,7 +13,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import javax.annotation.Nonnull;
 
 @Aliases("Info")
-@Permission("atherystowns.raid.info")
+@Permission("atherystowns.town.raid.info")
 @Description("Shows current raid point information.")
 public class TownRaidInfoCommand implements PlayerCommand {
 

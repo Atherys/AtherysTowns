@@ -50,16 +50,16 @@ public final class TownPermissions {
     public static final TownPermission SET_ROLE = new TownPermission("atherystowns.town.role", "Set Role");
 
     // permission to unclaim a plot belonging to the town
-    public static final TownPermission UNCLAIM_PLOT = new TownPermission("atherystowns.town.plot.unclaim", "Unclaim Plot");
+    public static final TownPermission UNCLAIM_PLOT = new TownPermission("atherystowns.plot.unclaim", "Unclaim Plot");
 
     // permission to claim a plot for the town
-    public static final TownPermission CLAIM_PLOT = new TownPermission("atherystowns.town.plot.claim", "Claim Plot");
+    public static final TownPermission CLAIM_PLOT = new TownPermission("atherystowns.plot.claim", "Claim Plot");
 
     // permission to rename plots belonging to the town
-    public static final TownPermission RENAME_PLOT = new TownPermission("atherystowns.town.plot.rename", "Rename Plot");
+    public static final TownPermission RENAME_PLOT = new TownPermission("atherystowns.plot.rename", "Rename Plot");
 
     // permission to change the owner of a plot belonging to the town
-    public static final TownPermission GRANT_PLOT = new TownPermission("atherystowns.town.plot.grant", "Grant Plot");
+    public static final TownPermission GRANT_PLOT = new TownPermission("atherystowns.plot.grant", "Grant Plot");
 
     // permission to kick residents from the town
     public static final TownPermission KICK_RESIDENT = new TownPermission("atherystowns.town.kick", "Kick Resident");
@@ -71,7 +71,7 @@ public final class TownPermissions {
     public static final TownPermission RUIN_TOWN = new TownPermission("atherystowns.town.ruin", "Ruin Town");
 
     // permission to pay off taxes
-    public static final TownPermission DEBT_PAY = new TownPermission("atherystowns.town.pay_debt", "Pay back debt");
+    public static final TownPermission DEBT_PAY = new TownPermission("atherystowns.town.paydebt", "Pay back debt");
 
     // permission to start a raid on an enemy town
     public static final TownPermission START_RAID = new TownPermission("atherystowns.town.raid.start", "Start Raid");
