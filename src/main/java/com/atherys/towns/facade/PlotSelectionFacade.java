@@ -9,14 +9,17 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
 public class PlotSelectionFacade {
 
     private final Map<UUID, PlotSelection> selections = new HashMap<>();
+    private final Set<UUID> pointA = new HashSet<>();
+    private final Set<UUID> pointB = new HashSet<>();
 
     @Inject
     TownsMessagingFacade townMsg;
@@ -36,6 +39,8 @@ public class PlotSelectionFacade {
 
     public void clearSelection(Player player) {
         selections.remove(player.getUniqueId());
+        pointA.remove(player.getUniqueId());
+        pointB.remove(player.getUniqueId());
         plotBorderFacade.refreshBorders(player, player.getLocation());
         townMsg.info(player, "You have cleared your selection.");
     }
@@ -72,29 +77,41 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAAtLocation(Player player, Location<World> location) {
+    public boolean isSelectingPointA(Player player) {
+        return pointA.contains(player.getUniqueId());
+    }
+
+    public boolean isSelectingPointB(Player player) {
+        return pointB.contains(player.getUniqueId());
+    }
+
+    public void startSelectingPointA(Player player) {
+        townMsg.info(player, "Right click to select point ", GOLD, "A.");
+        pointA.add(player.getUniqueId());
+    }
+
+    public void startSelectingPointB(Player player) {
+        townMsg.info(player, "Right click to select point ", GOLD, "B.");
+        pointB.add(player.getUniqueId());
+    }
+
+    public void selectPointAAtLocation(Player player, Location<World> location) {
         getOrCreateSelection(player).setPointA(location);
+        pointA.remove(player.getUniqueId());
         checkBorders(player);
-    }
-
-    private void selectPointBAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointB(location);
-        checkBorders(player);
-    }
-
-    public void selectPointAFromPlayerLocation(Player player) {
-        selectPointAAtLocation(player, player.getLocation());
         sendPointSelectionMessage(player, "A");
     }
 
-    public void selectPointBFromPlayerLocation(Player player) {
-        selectPointBAtLocation(player, player.getLocation());
+    public void selectPointBAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointB(location);
+        pointB.remove(player.getUniqueId());
+        checkBorders(player);
         sendPointSelectionMessage(player, "B");
     }
 
     private void sendPointSelectionMessage(Player player, String point) {
         Location<World> location = player.getLocation();
-        townMsg.info(player, "You have selected point", TextColors.GOLD, " ", point, " ", TextColors.DARK_GREEN,
+        townMsg.info(player, "You have selected point", GOLD, " ", point, " ", DARK_GREEN,
                 "at ", location.getBlockX(), ", ", location.getBlockY(), ", ", location.getBlockZ(), ".");
     }
 

@@ -18,7 +18,7 @@ public class PlotSelectPointACommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotSelectionFacade().selectPointAFromPlayerLocation(source);
+        AtherysTowns.getInstance().getPlotSelectionFacade().startSelectingPointA(source);
         return CommandResult.success();
     }
 
