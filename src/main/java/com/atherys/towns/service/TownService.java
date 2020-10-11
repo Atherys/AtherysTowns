@@ -472,7 +472,7 @@ public class TownService {
                 .count();
 
         return (((taxConfig.BASE_TAX + (taxConfig.RESIDENT_TAX * townSize) + ((taxConfig.AREA_TAX * area)
-                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * pvpMultiplier) * town.getNation().getTax()) + town.getDebt());
+                + (taxConfig.AREA_OVERSIZE_TAX * oversizeArea))) * pvpMultiplier) * town.getNation().getTax()) + town.getDebt();
     }
 
     public void setTaxesPaid(Town town, boolean paid) {
