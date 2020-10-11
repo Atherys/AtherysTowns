@@ -94,16 +94,12 @@ public class NationFacade implements EconomyFacade {
     public void setNationName(Player source, String nationName) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
-        permissionFacade.checkPermitted(source, NationPermissions.SET_NAME, "change the nation's name");
-
         nationService.setNationName(nation, nationName);
         townsMsg.info(source, "Nation name set.");
     }
 
     public void setNationDescription(Player source, Text nationDescription) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-
-        permissionFacade.checkPermitted(source, NationPermissions.SET_DESCRIPTION, "change the nation's description");
 
         nationService.setNationDescription(nation, nationDescription);
         townsMsg.info(source, "Nation description set.");
@@ -112,8 +108,6 @@ public class NationFacade implements EconomyFacade {
 
     public void setNationCapital(Player source, Town town) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-
-        permissionFacade.checkPermitted(source, NationPermissions.SET_CAPITAL, "change the nation's capital");
 
         // If the town doesn't have a nation, or the town's nation isn't the nation
         if (town.getNation() == null || town.getNation() != nation) {
@@ -155,8 +149,6 @@ public class NationFacade implements EconomyFacade {
     public void addNationAlly(Player source, Nation ally) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
-        permissionFacade.checkPermitted(source, NationPermissions.ADD_ALLY, "add allies.");
-
         if (nation.equals(ally)) {
             throw new TownsCommandException("Cannot add your own nation as an ally.");
         }
@@ -168,16 +160,12 @@ public class NationFacade implements EconomyFacade {
     public void addNationNeutral(Player source, Nation neutral) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
 
-        permissionFacade.checkPermitted(source, NationPermissions.ADD_NEUTRAL, "add neutral nations.");
-
         nationService.addNationNeutral(nation, neutral);
         townsMsg.info(source, "Your nation is now neutral with ", GOLD, neutral.getName(), DARK_GREEN, ".");
     }
 
     public void addNationEnemy(Player source, Nation enemy) throws TownsCommandException {
         Nation nation = getPlayerNation(source);
-
-        permissionFacade.checkPermitted(source, NationPermissions.ADD_ENEMY, "add enemies.");
 
         nationService.addNationEnemy(nation, enemy);
         townsMsg.info(source, "Your nation is now enemies with ", GOLD, enemy.getName(), DARK_GREEN, ".");
@@ -191,8 +179,6 @@ public class NationFacade implements EconomyFacade {
         if (tax > maxMultiplier || tax < minMultiplier) {
             throw new TownsCommandException(Text.of("Tax amount does not meet requirements (", minMultiplier, " - ", maxMultiplier, ")"));
         }
-
-        permissionFacade.checkPermitted(source, NationPermissions.SET_TAX, "change the nation's tax");
 
         Nation nation = getPlayerNation(source);
         nationService.setTax(nation, tax);

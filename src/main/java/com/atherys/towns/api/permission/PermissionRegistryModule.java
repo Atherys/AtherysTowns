@@ -25,7 +25,13 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 NationPermissions.CHAT,
                 NationPermissions.ADD_ALLY,
                 NationPermissions.ADD_ENEMY,
-                NationPermissions.ADD_NEUTRAL
+                NationPermissions.ADD_NEUTRAL,
+                NationPermissions.SET_CAPITAL,
+                NationPermissions.SET_DESCRIPTION,
+                NationPermissions.SET_NAME,
+                NationPermissions.TRANSFER_LEADERSHIP,
+                NationPermissions.SET_JOINABLE,
+                NationPermissions.SET_TAX
         );
 
         put(
