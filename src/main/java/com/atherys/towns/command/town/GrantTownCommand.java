@@ -1,6 +1,5 @@
 package com.atherys.towns.command.town;
 
-import com.atherys.core.AtherysCore;
 import com.atherys.core.command.ParameterizedCommand;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.Aliases;
@@ -18,9 +17,9 @@ import org.spongepowered.api.text.Text;
 
 import javax.annotation.Nonnull;
 
-@Aliases("grant")
+@Aliases("leader")
 @Description("Grants a town member leadership of your town.")
-@Permission("atherystowns.town.grant")
+@Permission("atherystowns.town.leader")
 public class GrantTownCommand implements PlayerCommand, ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {

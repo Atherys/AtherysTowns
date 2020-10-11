@@ -41,7 +41,8 @@ import javax.annotation.Nonnull;
         TownSpawnCommand.class,
         TownRoleCommand.class,
         TownRaidCommand.class,
-        TownPayDebtCommand.class
+        TownPayDebtCommand.class,
+        GrantTownCommand.class
 })
 @Permission("atherystowns.town.base")
 @HelpCommand(title = "Town Help", command = "help")
