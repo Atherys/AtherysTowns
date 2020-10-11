@@ -10,6 +10,7 @@ import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
+import com.atherys.towns.service.TownsPermissionService;
 import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -42,6 +43,9 @@ public class PlotFacade {
 
     @Inject
     ResidentService residentService;
+
+    @Inject
+    TownsPermissionService townsPermissionService;
 
     PlotFacade() {}
 
@@ -147,7 +151,7 @@ public class PlotFacade {
         Resident plotOwner = plot.getOwner();
 
         if (plotOwner == null) {
-            return player.hasPermission(permission.getId());
+            return player.hasPermission(townsPermissionService.getContextsForTown(plot.getTown()), permission.getId());
         }
 
         if (plotOwner == resPlayer) {
