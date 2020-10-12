@@ -177,7 +177,7 @@ public class TownFacade implements EconomyFacade {
     public void grantTown(Player player, User target) throws TownsCommandException {
         Town town = getPlayerTown(player);
         Resident newMayor = residentService.getOrCreate(target);
-        Resident oldMayor = residentService.getOrCreate(target);
+        Resident oldMayor = residentService.getOrCreate(player);
 
         if (residentService.isResidentTownLeader(oldMayor, town) && partOfSameTown(player, target)) {
             roleService.removeTownRole(player, town, config.TOWN.TOWN_LEADER_ROLE);
