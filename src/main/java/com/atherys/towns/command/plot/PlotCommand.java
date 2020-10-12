@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
         PlotInfoCommand.class,
         PlotSelectCommand.class,
         SetPlotNameCommand.class,
+        RevokePlotCommand.class,
         GrantPlotCommand.class,
         BordersCommand.class,
         PlotPermissionCommand.class

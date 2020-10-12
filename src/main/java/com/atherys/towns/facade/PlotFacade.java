@@ -85,11 +85,18 @@ public class PlotFacade {
         player.sendMessage(plotText.build());
     }
 
-    public void grantPlayerPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
+    public void grantPlotAtPlayerLocation(Player player, User target) throws TownsCommandException {
         TownPlot plot = getPlotAtPlayer(player);
 
         plotService.setTownPlotOwner(plot, residentService.getOrCreate(target));
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");
+    }
+
+    public void revokePlotAtPlayerLocation(Player player) throws TownsCommandException {
+        TownPlot plot = getPlotAtPlayer(player);
+
+        plotService.setTownPlotOwner(plot, null);
+        townsMsg.info(player, "Revoked ownership of plot ", GOLD, plot.getName(), DARK_GREEN, ".");
     }
 
     private TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {

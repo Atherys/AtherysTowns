@@ -31,7 +31,7 @@ public class GrantPlotCommand implements PlayerCommand, ParameterizedCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotFacade().grantPlayerPlotAtPlayerLocation(
+        AtherysTowns.getInstance().getPlotFacade().grantPlotAtPlayerLocation(
                 source, args.<User>getOne("player").get()
         );
         return CommandResult.success();
