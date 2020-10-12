@@ -502,7 +502,7 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(player);
 
-        if (config.TOWN.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
+        if (config.TOWN.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
@@ -530,7 +530,7 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(player);
 
-        if (config.TOWN.LOCAL_TRANSACTIONS && playerOutsideTown(player, town)) {
+        if (config.TOWN.LOCAL_TRANSACTIONS && !playerInsideTown(player, town)) {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
@@ -569,7 +569,7 @@ public class TownFacade implements EconomyFacade {
         townService.setTownSpawn(town, source.getTransform());
     }
 
-    private boolean playerOutsideTown(Player player, Town town) {
+    private boolean playerInsideTown(Player player, Town town) {
         return plotService.getTownPlotByLocation(player.getLocation())
                 .map(plot -> plot.getTown().equals(town))
                 .orElse(false);
