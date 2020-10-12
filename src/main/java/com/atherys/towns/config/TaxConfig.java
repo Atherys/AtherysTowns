@@ -24,10 +24,10 @@ public class TaxConfig {
     public int RESIDENT_TAX = 5;
 
     @Setting("area-tax-amount")
-    public int AREA_TAX = 10;
+    public double AREA_TAX = 0.1;
 
     @Setting("area-oversize-tax-amount")
-    public int AREA_OVERSIZE_TAX = 10;
+    public double AREA_OVERSIZE_TAX = 0.5;
     
     @Setting("pvp-tax-multiplier")
     public double PVP_TAX_MULTIPLIER = 1.25;
