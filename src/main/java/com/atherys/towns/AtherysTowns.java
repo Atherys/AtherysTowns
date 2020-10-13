@@ -97,6 +97,7 @@ public class AtherysTowns {
         getTownsCache().initCache();
         getTownRaidService().initRaidTimer();
         getPlotBorderFacade().initBorderTask();
+        getTaxFacade().init();
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
@@ -105,8 +106,6 @@ public class AtherysTowns {
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
-
-        getTownService().initTaxTimer();
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
@@ -193,6 +192,10 @@ public class AtherysTowns {
         return components.residentRepository;
     }
 
+    public TaxService getTaxService() {
+        return components.taxService;
+    }
+
     public PollService getPollService() {
         return components.pollService;
     }
@@ -273,6 +276,10 @@ public class AtherysTowns {
         return components.townRaidFacade;
     }
 
+    public TaxFacade getTaxFacade() {
+        return components.taxFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -302,6 +309,9 @@ public class AtherysTowns {
 
         @Inject
         private ResidentRepository residentRepository;
+
+        @Inject
+        private TaxService taxService;
 
         @Inject
         private PollService pollService;
@@ -362,6 +372,9 @@ public class AtherysTowns {
 
         @Inject
         private TownRaidFacade townRaidFacade;
+
+        @Inject
+        private TaxFacade taxFacade;
 
         @Inject
         private PlayerListener playerListener;

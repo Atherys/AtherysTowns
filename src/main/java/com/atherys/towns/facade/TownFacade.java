@@ -86,6 +86,9 @@ public class TownFacade implements EconomyFacade {
     @Inject
     private TownsPermissionService townsPermissionService;
 
+    @Inject
+    private TaxService taxService;
+
     TownFacade() {
     }
 
@@ -601,7 +604,7 @@ public class TownFacade implements EconomyFacade {
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
 
         if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
-            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town), Text.NEW_LINE));
+            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, taxService.getTaxAmount(town), Text.NEW_LINE));
 
             if (town.getDebt() > 0) {
                 townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
@@ -696,8 +699,8 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Town bank does not have enough money to pay your debt!");
         }
 
-        townService.payTaxes(town, town.getDebt());
-        townService.setTaxesPaid(town, true);
+        taxService.payTaxes(town, town.getDebt());
+        taxService.setTaxesPaid(town, true);
         townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
     }
 }
