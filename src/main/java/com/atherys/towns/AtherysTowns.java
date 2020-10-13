@@ -31,6 +31,7 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -45,7 +46,9 @@ import static com.atherys.towns.AtherysTowns.*;
         description = DESCRIPTION,
         version = VERSION,
         dependencies = {
-                @Dependency(id = "atheryscore")
+                @Dependency(id = "atheryscore"),
+                @Dependency(id = "atherysparties"),
+                @Dependency(id = "economylite")
         }
 )
 public class AtherysTowns {
@@ -93,6 +96,18 @@ public class AtherysTowns {
     }
 
     private void start() {
+        economyEnabled = Economy.isPresent() && components.config.ECONOMY;
+
+        if (components.config.TOWN.TOWN_WARMUP < 0) {
+            logger.warn("Town spawn warmup is negative. Will default to zero.");
+            components.config.TOWN.TOWN_WARMUP = 0;
+        }
+
+        if (components.config.TOWN.TOWN_COOLDOWN < 0) {
+            components.config.TOWN.TOWN_COOLDOWN = 0;
+            logger.warn("Town spawn cooldown is negative. Will default to zero.");
+        }
+
         getRoleService().init();
         getTownsCache().initCache();
         getTownRaidService().initRaidTimer();
@@ -105,8 +120,6 @@ public class AtherysTowns {
         AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
         AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
 
-        economyEnabled = Economy.isPresent() && components.config.ECONOMY;
-
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
                 .registerContextCalculator(new TownsContextCalculator());
@@ -118,16 +131,6 @@ public class AtherysTowns {
             AtherysCore.getCommandService().register(new NationCommand(), this);
         } catch (CommandService.AnnotatedCommandException e) {
             e.printStackTrace();
-        }
-
-        if (components.config.TOWN.TOWN_WARMUP < 0) {
-            logger.warn("Town spawn warmup is negative. Will default to zero.");
-            components.config.TOWN.TOWN_WARMUP = 0;
-        }
-
-        if (components.config.TOWN.TOWN_COOLDOWN < 0) {
-            components.config.TOWN.TOWN_COOLDOWN = 0;
-            logger.warn("Town spawn cooldown is negative. Will default to zero.");
         }
     }
 
@@ -149,7 +152,7 @@ public class AtherysTowns {
         event.registerEntity(Resident.class);
     }
 
-    @Listener
+    @Listener(order = Order.LAST)
     public void onStart(GameStartingServerEvent event) {
         if (init) start();
     }

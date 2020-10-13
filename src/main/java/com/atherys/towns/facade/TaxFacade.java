@@ -8,6 +8,8 @@ import com.atherys.towns.service.TaxService;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.text.Text;
@@ -38,9 +40,9 @@ public class TaxFacade {
 
     public void init() {
         if (AtherysTowns.economyIsEnabled() && config.TAXES.IS_ENABLED) {
-            Task.Builder taxTimer = Task.builder();
-            townTaxTask = taxTimer.interval(config.TAXES.TAX_TIMER_INTERVAL.toMinutes(), TimeUnit.MINUTES)
+            townTaxTask = Task.builder()
                     .execute(this::taxTowns)
+                    .interval(config.TAXES.TAX_TIMER_INTERVAL.toMinutes(), TimeUnit.MINUTES)
                     .submit(AtherysTowns.getInstance());
         }
     }
