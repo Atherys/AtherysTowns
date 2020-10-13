@@ -449,4 +449,8 @@ public class TownService {
 
         Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
     }
+
+    public Collection<Town> fetchAllTowns() {
+        return townRepository.getAll();
+    }
 }

@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
@@ -36,6 +37,8 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -702,5 +705,23 @@ public class TownFacade implements EconomyFacade {
         taxService.payTaxes(town, town.getDebt());
         taxService.setTaxesPaid(town, true);
         townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+    }
+
+    public void recalculateTownSizes() {
+        if (!config.TOWN_SIZE_AUTOMATION.IS_ENABLED) {
+            return;
+        }
+
+        townService.fetchAllTowns().forEach(this::recalculateTownSize);
+    }
+
+    private void recalculateTownSize(Town town) {
+        int numberOfActiveResidents = (int) town.getResidents().stream()
+                .filter(resident -> residentFacade.isResidentActive(resident))
+                .count();
+
+        int newTownMaxArea = config.TOWN_SIZE_AUTOMATION.AREA_GRANTED_PER_ACTIVE_RESIDENT * numberOfActiveResidents;
+
+        town.setMaxSize(newTownMaxArea);
     }
 }

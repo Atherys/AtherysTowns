@@ -1,29 +1,19 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.economy.Economy;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.service.economy.account.Account;
-import org.spongepowered.api.text.Text;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
 public class TaxService {
@@ -48,11 +38,11 @@ public class TaxService {
      * A town is taxed for each active resident currently residing in the town, per-resident-tax amount each
      */
     private double calcResidentTax(Town town) {
-        long numberOfResidents = town.getResidents().stream()
+        long numberOfActiveResidents = town.getResidents().stream()
                 .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(config.TAXES.INACTIVE_DURATION) < 0)
                 .count();
 
-        return config.TAXES.PER_RESIDENT_TAX * numberOfResidents;
+        return config.TAXES.PER_RESIDENT_TAX * numberOfActiveResidents;
     }
 
     /**
