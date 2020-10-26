@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
@@ -36,6 +37,8 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -85,6 +88,9 @@ public class TownFacade implements EconomyFacade {
 
     @Inject
     private TownsPermissionService townsPermissionService;
+
+    @Inject
+    private TaxService taxService;
 
     TownFacade() {
     }
@@ -601,7 +607,7 @@ public class TownFacade implements EconomyFacade {
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
 
         if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
-            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, townService.getTaxAmount(town), Text.NEW_LINE));
+            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, taxService.getTaxAmount(town), Text.NEW_LINE));
 
             if (town.getDebt() > 0) {
                 townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
@@ -696,8 +702,26 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Town bank does not have enough money to pay your debt!");
         }
 
-        townService.payTaxes(town, town.getDebt());
-        townService.setTaxesPaid(town, true);
+        taxService.payTaxes(town, town.getDebt());
+        taxService.setTaxesPaid(town, true);
         townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
+    }
+
+    public void recalculateTownSizes() {
+        if (!config.TOWN_SIZE_AUTOMATION.IS_ENABLED) {
+            return;
+        }
+
+        townService.fetchAllTowns().forEach(this::recalculateTownSize);
+    }
+
+    private void recalculateTownSize(Town town) {
+        int numberOfActiveResidents = (int) town.getResidents().stream()
+                .filter(resident -> residentFacade.isResidentActive(resident))
+                .count();
+
+        int newTownMaxArea = config.TOWN_SIZE_AUTOMATION.AREA_GRANTED_PER_ACTIVE_RESIDENT * numberOfActiveResidents;
+
+        town.setMaxSize(newTownMaxArea);
     }
 }

@@ -1,10 +1,7 @@
 package com.atherys.towns;
 
 import com.atherys.core.utils.PluginConfig;
-import com.atherys.towns.config.NationConfig;
-import com.atherys.towns.config.TaxConfig;
-import com.atherys.towns.config.RaidConfig;
-import com.atherys.towns.config.TownConfig;
+import com.atherys.towns.config.*;
 import com.google.inject.Singleton;
 import ninja.leaping.configurate.objectmapping.Setting;
 import org.spongepowered.api.service.economy.Currency;
@@ -47,6 +44,9 @@ public class TownsConfig extends PluginConfig {
 
     @Setting("taxes")
     public TaxConfig TAXES = new TaxConfig();
+
+    @Setting("town-size-automation")
+    public TownSizeAutomationConfig TOWN_SIZE_AUTOMATION = new TownSizeAutomationConfig();
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");

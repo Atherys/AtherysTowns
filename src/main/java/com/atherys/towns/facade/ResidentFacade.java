@@ -21,6 +21,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -118,7 +119,7 @@ public class ResidentFacade {
 
     public Text renderResident(Resident resident) {
         return Text.builder()
-                .append(Text.of(GOLD, resident.getName()))
+                .append(Text.of( isResidentActive(resident) ? GOLD : GRAY, resident.getName()))
                 .onHover(TextActions.showText(
                         Text.of(
                                 GOLD, resident.getName(), Text.NEW_LINE,
@@ -131,6 +132,10 @@ public class ResidentFacade {
                     sendResidentInfo(source, resident);
                 }))
                 .build();
+    }
+
+    public boolean isResidentActive(Resident resident) {
+        return Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(config.TAXES.INACTIVE_DURATION) < 0;
     }
 
     public Text renderResidents(Collection<Resident> residents) {
@@ -173,20 +178,6 @@ public class ResidentFacade {
         } else {
             townsMsg.error(player, target.getName(), " is not your friend.");
         }
-    }
-
-    public boolean isPlayerInTown(Player player, Town town) {
-        return town.equals(residentService.getOrCreate(player).getTown());
-    }
-
-    public boolean isPlayerInNation(Player player, Nation nation) {
-        Resident resident = residentService.getOrCreate(player);
-
-        if (resident.getTown() == null) {
-            return false;
-        }
-
-        return nation.equals(resident.getTown().getNation());
     }
 
     public Optional<Town> getPlayerTown(Player player) {

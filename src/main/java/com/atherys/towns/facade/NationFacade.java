@@ -173,8 +173,8 @@ public class NationFacade implements EconomyFacade {
 
 
     public void setNationTax(Player source, double tax) throws TownsCommandException {
-        double minMultiplier = config.TAXES.MIN_NATION_TAX_MULTIPLIER;
-        double maxMultiplier = config.TAXES.MAX_NATION_TAX_MULTIPLIER;
+        double minMultiplier = config.TAXES.MIN_NATION_TAX_MODIFIER;
+        double maxMultiplier = config.TAXES.MAX_NATION_TAX_MODIFIER;
 
         if (tax > maxMultiplier || tax < minMultiplier) {
             throw new TownsCommandException(Text.of("Tax amount does not meet requirements (", minMultiplier, " - ", maxMultiplier, ")"));

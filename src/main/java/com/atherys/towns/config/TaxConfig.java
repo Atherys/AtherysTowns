@@ -8,37 +8,40 @@ import java.time.Duration;
 @ConfigSerializable
 public class TaxConfig {
 
+    @Setting("is-enabled")
+    public boolean IS_ENABLED = false;
+
     @Setting("tax-collection-interval")
-    public Duration TAX_COLLECTION_DURATION = Duration.ofMinutes(1);
+    public Duration TAX_COLLECTION_DURATION = Duration.ofHours(12);
+
+    @Setting("tax-timer-interval")
+    public Duration TAX_TIMER_INTERVAL = Duration.ofMinutes(1);
 
     @Setting("inactive-resident-duration")
     public Duration INACTIVE_DURATION = Duration.ofDays(14);
 
-    @Setting("tax-timer-interval-minutes")
-    public int TAX_COLLECTION_TIMER_MINUTES = 1;
-
-    @Setting("base-tax-amount")
+    @Setting("base-tax")
     public int BASE_TAX = 100;
 
-    @Setting("resident-tax-amount")
-    public int RESIDENT_TAX = 5;
+    @Setting("per-resident-tax")
+    public int PER_RESIDENT_TAX = 5;
 
-    @Setting("area-tax-amount")
-    public double AREA_TAX = 0.1;
+    @Setting("per-block-area-tax")
+    public double PER_BLOCK_AREA_TAX = 0.1;
 
-    @Setting("area-oversize-tax-amount")
-    public double AREA_OVERSIZE_TAX = 0.5;
+    @Setting("oversize-area-tax-modifier")
+    public double OVERSIZE_AREA_TAX_MODIFIER = 0.5;
     
-    @Setting("pvp-tax-multiplier")
-    public double PVP_TAX_MULTIPLIER = 1.25;
+    @Setting("pvp-tax-modifier")
+    public double PVP_TAX_MODIFIER = 1.25;
 
-    @Setting("min-nation-multiplier")
-    public double MIN_NATION_TAX_MULTIPLIER = 0.1;
+    @Setting("min-nation-modifier")
+    public double MIN_NATION_TAX_MODIFIER = 1.0;
 
-    @Setting("max-nation-multiplier")
-    public double MAX_NATION_TAX_MULTIPLIER = 1.0;
+    @Setting("max-nation-modifier")
+    public double MAX_NATION_TAX_MODIFIER = 2.0;
 
     @Setting("max-tax-failures-before-ruin")
-    public int MAX_TAX_FAILURES = 1;
+    public int MAX_TAX_FAILURES = 3;
 
 }
