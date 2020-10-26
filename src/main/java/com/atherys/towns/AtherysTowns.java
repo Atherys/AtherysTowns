@@ -47,8 +47,7 @@ import static com.atherys.towns.AtherysTowns.*;
         version = VERSION,
         dependencies = {
                 @Dependency(id = "atheryscore"),
-                @Dependency(id = "atherysparties"),
-                @Dependency(id = "economylite")
+                @Dependency(id = "atherysparties")
         }
 )
 public class AtherysTowns {
