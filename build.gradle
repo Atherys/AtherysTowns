@@ -1,6 +1,7 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.2'
-    id 'com.atherys.gradle' version '1.4.0'
+    id 'com.atherys.gradle' version '1.5.0'
+    id 'net.kyori.blossom' version '1.1.0'
 }
 
 group 'com.atherys'
@@ -12,4 +13,8 @@ dependencies {
     testCompile 'com.flowpowered:flow-math:1.0.3'
     shadow 'com.github.Atherys-Horizons:AtherysChat:master-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysParties:master-SNAPSHOT'
+}
+
+blossom {
+    replaceToken '%PROJECT_VERSION%', project.version
 }
