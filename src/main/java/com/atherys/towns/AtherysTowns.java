@@ -55,7 +55,7 @@ public class AtherysTowns {
     final static String ID = "atherystowns";
     final static String NAME = "A'therys Towns";
     final static String DESCRIPTION = "A land-management plugin for the Atherys Horizons server";
-    final static String VERSION = "%PLUGIN_VERSION%";
+    final static String VERSION = "%PROJECT_VERSION%";
 
     private static AtherysTowns instance;
     private static boolean init = false;
