@@ -148,6 +148,7 @@ public class AtherysTowns {
         event.registerEntity(NationPlot.class);
         event.registerEntity(TownPlot.class);
         event.registerEntity(Resident.class);
+        event.registerEntity(TownPlotPermission.class);
     }
 
     @Listener(order = Order.LAST)

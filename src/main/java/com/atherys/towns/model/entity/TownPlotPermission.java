@@ -11,6 +11,11 @@ import java.util.Objects;
 @Entity
 public class TownPlotPermission {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
+
     @Convert(converter = TownsPermissionContextConverter.class)
     private TownsPermissionContext context;
 
@@ -18,6 +23,14 @@ public class TownPlotPermission {
     private WorldPermission worldPermission;
 
     public TownPlotPermission() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public TownsPermissionContext getContext() {
