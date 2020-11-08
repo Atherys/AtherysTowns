@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.persistence.NationPlotRepository;
 import com.atherys.towns.persistence.TownPlotRepository;
@@ -134,71 +135,23 @@ public class PlotService {
                 MathUtils.overlaps(tPlot, plot)).findFirst();
     }
 
-    public boolean permissionAlreadyExistsInContext(AllianceType type, TownPlot plot, WorldPermission permission) {
-        switch (type) {
-            case ALLY:
-                return plot.getAllyPermissions().contains(permission);
-            case ENEMY:
-                return plot.getEnemyPermissions().contains(permission);
-            case FRIEND:
-                return plot.getFriendPermissions().contains(permission);
-            case TOWN:
-                return plot.getTownPermissions().contains(permission);
-            case NEUTRAL:
-                return plot.getNeutralPermissions().contains(permission);
-        }
-        return false;
+    public boolean permissionAlreadyExistsInContext(TownsPermissionContext context, TownPlot plot, WorldPermission permission) {
+        return plot.getPermissions().stream().anyMatch(p -> p.getContext().equals(context) && p.getWorldPermission().equals(permission));
     }
 
-    public void addPlotPermission(TownPlot plot, AllianceType type, WorldPermission permission) {
-        switch (type) {
-            case ALLY:
-                plot.getAllyPermissions().add(permission);
-                break;
-            case ENEMY:
-                plot.getEnemyPermissions().add(permission);
-                break;
-            case FRIEND:
-                plot.getFriendPermissions().add(permission);
-                break;
-            case TOWN:
-                plot.getTownPermissions().add(permission);
-                break;
-            case NEUTRAL:
-                plot.getNeutralPermissions().add(permission);
-                break;
-        }
+    public void addPlotPermission(TownPlot plot, TownsPermissionContext type, WorldPermission permission) {
+        TownPlotPermission townPlotPermission = new TownPlotPermission();
+        townPlotPermission.setContext(type);
+        townPlotPermission.setWorldPermission(permission);
+
+        plot.getPermissions().add(townPlotPermission);
 
         townPlotRepository.saveOne(plot);
     }
 
-    public void removePlotPermission(TownPlot plot, AllianceType type, WorldPermission permission) {
-        switch (type) {
-            case ALLY:
-                plot.getAllyPermissions().remove(permission);
-                break;
-            case ENEMY:
-                plot.getEnemyPermissions().remove(permission);
-                break;
-            case FRIEND:
-                plot.getFriendPermissions().remove(permission);
-                break;
-            case TOWN:
-                plot.getTownPermissions().remove(permission);
-                break;
-            case NEUTRAL:
-                plot.getNeutralPermissions().remove(permission);
-                break;
-        }
+    public void removePlotPermission(TownPlot plot, TownsPermissionContext type, WorldPermission permission) {
+        plot.getPermissions().removeIf(p -> p.getWorldPermission().equals(permission) && p.getContext().equals(type));
 
         townPlotRepository.saveOne(plot);
-    }
-
-    public enum AllianceType {
-        ALLY,
-        ENEMY,
-        FRIEND,
-        TOWN,
-        NEUTRAL
     }
 }

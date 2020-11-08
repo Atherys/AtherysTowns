@@ -6,6 +6,7 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.TownsElements;
@@ -26,7 +27,7 @@ public class PlotPermissionGrantCommand implements ParameterizedCommand, PlayerC
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                TownsElements.allianceType(),
+                TownsElements.townPermissionContext(),
                 GenericArguments.choices(
                         Text.of("permission"),
                         AtherysTowns.getInstance().getPermissionFacade().WORLD_PERMISSIONS
@@ -39,7 +40,7 @@ public class PlotPermissionGrantCommand implements ParameterizedCommand, PlayerC
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getPlotFacade().addPlotPermission(
                 source,
-                args.<PlotService.AllianceType>getOne("type").get(),
+                args.<TownsPermissionContext>getOne("type").get(),
                 args.<WorldPermission>getOne("permission").get()
         );
         return CommandResult.success();

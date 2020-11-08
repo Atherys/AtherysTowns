@@ -1,5 +1,7 @@
 package com.atherys.towns.config;
 
+import com.atherys.towns.api.permission.TownsPermissionContext;
+import com.atherys.towns.api.permission.TownsPermissionContexts;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.ImmutableSet;
@@ -7,7 +9,9 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @ConfigSerializable
 public class TownConfig {
@@ -44,6 +48,17 @@ public class TownConfig {
 
     @Setting("generate-roles")
     public boolean GENERATE_ROLES = true;
+
+    @Setting("default-plot-permissions")
+    public Set<PlotPermissionConfig> DEFAULT_PLOT_PERMISSIONS = new HashSet<>();
+    {
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.DESTROY));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.BUILD));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.DAMAGE_NONPLAYERS));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_ENTITIES));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_TILE_ENTITIES));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_DOORS));
+    }
 
     @Setting("roles")
     public Map<String, TownRoleConfig> ROLES = new HashMap<>();
