@@ -19,13 +19,15 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 
+import java.util.Optional;
+
 public class ProtectionListener {
 
     @Inject
     PlotFacade plotFacade;
 
     public boolean isRedstone(BlockType blockType) {
-        return blockType.getDefaultState().supports(Keys.POWERED);
+        return blockType.getDefaultState().supports(Keys.POWERED) || blockType.getDefaultState().supports(Keys.POWER);
     }
 
     public boolean isTileEntity(BlockSnapshot snapshot) {
@@ -41,7 +43,6 @@ public class ProtectionListener {
         event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
             plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
         }));
-
     }
 
     @Listener

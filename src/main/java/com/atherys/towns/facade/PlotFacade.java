@@ -19,6 +19,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -153,7 +154,7 @@ public class PlotFacade {
 
     }
 
-    public boolean hasPlotAccess(Player player, TownPlot plot, WorldPermission permission) {
+    public boolean hasPlotAccess(User player, TownPlot plot, WorldPermission permission) {
         Resident resPlayer = residentService.getOrCreate(player);
         Resident plotOwner = plot.getOwner();
 
@@ -169,11 +170,11 @@ public class PlotFacade {
         return perms.contains(permission);
     }
 
-    public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, Location<World> location, boolean messageUser) {
+    public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
         plotService.getTownPlotByLocation(location).ifPresent(plot -> {
             if (!hasPlotAccess(player, plot, permission)) {
-                if (messageUser) {
-                    townsMsg.error(player, "You do not have permission to do that!");
+                if (messageUser && player instanceof Player) {
+                    townsMsg.error((MessageReceiver) player, "You do not have permission to do that!");
                 }
                 event.setCancelled(true);
             }
