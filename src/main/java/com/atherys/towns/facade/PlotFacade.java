@@ -171,12 +171,12 @@ public class PlotFacade {
 
             return permissionValue.asBoolean();
         }
-
+w
         if (plotOwner == resPlayer) {
             return true;
         }
 
-        return plot.getPermissions().stream().anyMatch(p -> p.getWorldPermission().equals(permission) && contexts.contains(p.getContext()));
+        return plot.getPermissions().stream().anyMatch(p -> (p.getWorldPermission() != null && p.getWorldPermission().equals(permission)) && (p.getContext() != null && contexts.contains(p.getContext())));
     }
 
     public void plotAccessCheck(Cancellable event, Player player, WorldPermission permission, Location<World> location, boolean messageUser) {
@@ -259,10 +259,15 @@ public class PlotFacade {
                 .append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
-            Set<String> groups = plot.getPermissions().stream()
-                    .filter(p -> p.getWorldPermission().equals(worldPermission))
-                    .map(p -> p.getContext().getName())
-                    .collect(Collectors.toSet());
+            Set<TownPlotPermission> permissions = plot.getPermissions();
+            Set<String> groups = new HashSet<>();
+
+            if (permissions != null) {
+                groups = permissions.stream()
+                        .filter(p -> p.getWorldPermission().equals(worldPermission))
+                        .map(p -> p.getContext().getName())
+                        .collect(Collectors.toSet());
+            }
 
             if (groups.size() > 0) {
                 plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), Text.NEW_LINE));
