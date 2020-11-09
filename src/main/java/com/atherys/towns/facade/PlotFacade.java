@@ -19,6 +19,7 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
@@ -195,10 +196,13 @@ public class PlotFacade {
         Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
-        if (!plotTo.isPresent()) return;
-        if (plotFrom.isPresent()) return;
+        if (plotTo.isPresent()) {
+            player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName())).build());
+        }
 
-        player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getName())).build());
+        if (!plotTo.isPresent() && plotFrom.isPresent()) {
+            player.sendTitle(Title.builder().stay(20).title(Text.of(GREEN, "Wilderness")).build());
+        }
     }
 
     private void verifyPlotOwnership(TownPlot plot, Player player) throws TownsCommandException {
