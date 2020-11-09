@@ -196,11 +196,12 @@ public class PlotFacade {
         Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
-        if (plotTo.isPresent()) {
+        if (plotTo.isPresent() && !plotFrom.isPresent()) {
             player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName())).build());
+            return;
         }
 
-        if (!plotTo.isPresent() && plotFrom.isPresent()) {
+        if (plotFrom.isPresent()) {
             player.sendTitle(Title.builder().stay(20).title(Text.of(GREEN, "Wilderness")).build());
         }
     }
