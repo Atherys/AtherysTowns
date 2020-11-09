@@ -1,9 +1,11 @@
 package com.atherys.towns.util;
 
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
@@ -29,17 +31,10 @@ public final class TownsElements {
         );
     }
 
-    public static CommandElement allianceType() {
-        Map<String, PlotService.AllianceType> allianceTypeMap = new HashMap<>();
-        allianceTypeMap.put("ally", PlotService.AllianceType.ALLY);
-        allianceTypeMap.put("friend", PlotService.AllianceType.FRIEND);
-        allianceTypeMap.put("enemy", PlotService.AllianceType.ENEMY);
-        allianceTypeMap.put("town", PlotService.AllianceType.TOWN);
-        allianceTypeMap.put("neutral", PlotService.AllianceType.NEUTRAL);
-
-        return GenericArguments.choices(
+    public static CommandElement townPermissionContext() {
+        return GenericArguments.catalogedElement(
                 Text.of("type"),
-                allianceTypeMap
+                TownsPermissionContext.class
         );
     }
 

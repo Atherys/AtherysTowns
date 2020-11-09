@@ -1,13 +1,12 @@
 package com.atherys.towns.facade;
 
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
+import com.atherys.towns.api.permission.TownsPermissionContext;
+import com.atherys.towns.api.permission.TownsPermissionContexts;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.model.entity.TownPlot;
-import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownsPermissionService;
@@ -21,17 +20,23 @@ import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class PlotFacade {
+
+    @Inject
+    TownsConfig config;
 
     @Inject
     PlotService plotService;
@@ -109,65 +114,70 @@ public class PlotFacade {
         return plotService.getTownPlotByLocation(player.getLocation());
     }
 
-    public Set<WorldPermission> getPlotRelationPermissions(TownPlot plot, Resident resident) {
+    public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {
+        Set<TownsPermissionContext> contexts = new HashSet<>();
+        contexts.add(TownsPermissionContexts.ALL);
 
-        // If resident is owner's friend, apply friend permissions
-        if (plot.getOwner().getFriends().contains(resident)) {
-            return plot.getFriendPermissions();
+        Resident owner = plot.getOwner();
+
+        if (owner != null && owner.getFriends().contains(resident)) {
+            contexts.add(TownsPermissionContexts.FRIEND);
         }
 
         Town plotTown = plot.getTown();
         Town resTown = resident.getTown();
 
         if (resTown == null) {
-            return plot.getNeutralPermissions();
+            contexts.add(TownsPermissionContexts.NEUTRAL);
+        } else {
+            // If resident town is the same town the plot is in, apply town permissions
+            if (resTown == plotTown) {
+                contexts.add(TownsPermissionContexts.TOWN);
+            }
+
+            Nation plotNation = plotTown.getNation();
+            Nation resNation = resTown.getNation();
+
+            if (plotNation == null || resNation == null) {
+                contexts.add(TownsPermissionContexts.NEUTRAL);
+            } else {
+
+                // If resident nation is the plot nation, apply ally permissions
+                // If resident nation is an ally to plot nation, apply ally permissions
+                if (resNation == plotNation || plotNation.getAllies().contains(resNation)) {
+                    contexts.add(TownsPermissionContexts.ALLY);
+                }
+
+                // If resident nation is an enemy to plot nation, apply enemy permissions
+                if (plotNation.getEnemies().contains(resNation)) {
+                    contexts.add(TownsPermissionContexts.ENEMY);
+                }
+            }
         }
-
-        // If resident town is the same town the plot is in, apply town permissions
-        if (resTown == plotTown) {
-            return plot.getTownPermissions();
-        }
-
-        Nation plotNation = plotTown.getNation();
-        Nation resNation = resTown.getNation();
-
-        if (plotNation == null || resNation == null) {
-            return plot.getNeutralPermissions();
-        }
-
-        // If resident nation is the plot nation, apply ally permissions
-        if (resNation == plotNation) {
-            return plot.getAllyPermissions();
-        }
-
-        // If resident nation is an ally to plot nation, apply ally permissions
-        if (plotNation.getAllies().contains(resNation)) {
-            return plot.getAllyPermissions();
-        }
-
-        // If resident nation is an enemy to plot nation, apply enemmy permissions
-        if (plotNation.getEnemies().contains(resNation)) {
-            return plot.getEnemyPermissions();
-        }
-
-        return plot.getNeutralPermissions();
-
+        return contexts;
     }
 
     public boolean hasPlotAccess(User player, TownPlot plot, WorldPermission permission) {
         Resident resPlayer = residentService.getOrCreate(player);
         Resident plotOwner = plot.getOwner();
 
-        if (plotOwner == null) {
-            return player.hasPermission(townsPermissionService.getContextsForTown(plot.getTown()), permission.getId());
-        }
+        Set<TownsPermissionContext> contexts = getRelevantResidentContexts(plot, resPlayer);
 
+        if (plotOwner == null) {
+            Tristate permissionValue = player.getPermissionValue(townsPermissionService.getContextsForTown(plot.getTown()), permission.getId());
+
+            if (permissionValue.equals(Tristate.UNDEFINED)) {
+                return config.TOWN.DEFAULT_PLOT_PERMISSIONS.stream().anyMatch(p -> p.getWorldPermission().equals(permission) && contexts.contains(p.getContext()));
+            }
+
+            return permissionValue.asBoolean();
+        }
+w
         if (plotOwner == resPlayer) {
             return true;
         }
-        Set<WorldPermission> perms = getPlotRelationPermissions(plot, resPlayer);
 
-        return perms.contains(permission);
+        return plot.getPermissions().stream().anyMatch(p -> (p.getWorldPermission() != null && p.getWorldPermission().equals(permission)) && (p.getContext() != null && contexts.contains(p.getContext())));
     }
 
     public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
@@ -203,7 +213,7 @@ public class PlotFacade {
         }
     }
 
-    public void addPlotPermission(Player player, PlotService.AllianceType type, WorldPermission permission) throws TownsCommandException {
+    public void addPlotPermission(Player player, TownsPermissionContext type, WorldPermission permission) throws TownsCommandException {
         TownPlot plot = getPlotAtPlayer(player);
         verifyPlotOwnership(plot, player);
 
@@ -216,7 +226,7 @@ public class PlotFacade {
                 GOLD, type.toString(), DARK_GREEN, " group.");
     }
 
-    public void removePlotPermission(Player player, PlotService.AllianceType type, WorldPermission permission) throws TownsCommandException {
+    public void removePlotPermission(Player player, TownsPermissionContext type, WorldPermission permission) throws TownsCommandException {
         TownPlot plot = getPlotAtPlayer(player);
         verifyPlotOwnership(plot, player);
 
@@ -250,28 +260,21 @@ public class PlotFacade {
                 .append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
+            Set<TownPlotPermission> permissions = plot.getPermissions();
             Set<String> groups = new HashSet<>();
-            if (plot.getFriendPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.FRIEND.name());
+
+            if (permissions != null) {
+                groups = permissions.stream()
+                        .filter(p -> p.getWorldPermission().equals(worldPermission))
+                        .map(p -> p.getContext().getName())
+                        .collect(Collectors.toSet());
             }
-            if (plot.getAllyPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.ALLY.name());
-            }
-            if (plot.getTownPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.TOWN.name());
-            }
-            if (plot.getEnemyPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.ENEMY.name());
-            }
-            if (plot.getNeutralPermissions().contains(worldPermission)) {
-                groups.add(PlotService.AllianceType.NEUTRAL.name());
-            }
+
             if (groups.size() > 0) {
                 plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), Text.NEW_LINE));
             }
         });
 
         player.sendMessage(plotPermsText.build());
-
     }
 }
