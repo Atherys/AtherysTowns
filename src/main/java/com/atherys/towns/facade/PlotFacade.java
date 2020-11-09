@@ -172,7 +172,7 @@ public class PlotFacade {
 
             return permissionValue.asBoolean();
         }
-w
+
         if (plotOwner == resPlayer) {
             return true;
         }
