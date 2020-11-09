@@ -201,7 +201,7 @@ public class PlotFacade {
             return;
         }
 
-        if (plotFrom.isPresent()) {
+        if (!plotTo.isPresent() && plotFrom.isPresent()) {
             player.sendTitle(Title.builder().stay(20).title(Text.of(GREEN, "Wilderness")).build());
         }
     }
