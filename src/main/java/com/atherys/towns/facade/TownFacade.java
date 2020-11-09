@@ -28,6 +28,8 @@ import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.ClickAction;
+import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
@@ -39,6 +41,7 @@ import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -607,7 +610,13 @@ public class TownFacade implements EconomyFacade {
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
 
         if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
-            townText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, taxService.getTaxAmount(town), Text.NEW_LINE));
+            Text.Builder taxText = Text.builder();
+            taxText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, taxService.getTaxAmount(town), Text.NEW_LINE));
+
+            LocalDateTime next = town.getLastTaxDate().plus(config.TAXES.TAX_COLLECTION_DURATION);
+            Duration until = Duration.between(town.getLastTaxDate(), next);
+
+            taxText.onHover(TextActions.showText(Text.of(DARK_GREEN, "Due in ", GOLD, until.toString())));
 
             if (town.getDebt() > 0) {
                 townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
