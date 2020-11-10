@@ -1,5 +1,6 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.persistence.NationPlotRepository;
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 public class PlotService {
 
     public static final Text DEFAULT_TOWN_PLOT_NAME = Text.of("None");
+
+    @Inject
+    TownsConfig config;
 
     @Inject
     TownPlotRepository townPlotRepository;
@@ -97,6 +101,8 @@ public class PlotService {
 
     public void setTownPlotOwner(TownPlot plot, Resident owner) {
         plot.setOwner(owner);
+        plot.setPermissions(getDefaultPlotPermissions());
+
         townPlotRepository.saveOne(plot);
     }
 
@@ -153,5 +159,18 @@ public class PlotService {
         plot.getPermissions().removeIf(p -> p.getWorldPermission().equals(permission) && p.getContext().equals(type));
 
         townPlotRepository.saveOne(plot);
+    }
+
+    public Set<TownPlotPermission> getDefaultPlotPermissions() {
+        Set<TownPlotPermission> defaultTownPlotPermissions = new HashSet<>();
+
+        config.TOWN.DEFAULT_PLOT_PERMISSIONS.forEach(config -> {
+            TownPlotPermission townPlotPermission = new TownPlotPermission();
+            townPlotPermission.setContext(config.getContext());
+            townPlotPermission.setWorldPermission(config.getWorldPermission());
+            defaultTownPlotPermissions.add(townPlotPermission);
+        });
+
+        return defaultTownPlotPermissions;
     }
 }

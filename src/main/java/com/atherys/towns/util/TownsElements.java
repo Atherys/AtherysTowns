@@ -32,9 +32,14 @@ public final class TownsElements {
     }
 
     public static CommandElement townPermissionContext() {
-        return GenericArguments.catalogedElement(
+        Map<String,TownsPermissionContext> contexts = new HashMap<>();
+        Sponge.getRegistry().getAllOf(TownsPermissionContext.class).forEach(c -> {
+            contexts.put(c.getCommandElementName(), c);
+        });
+
+        return GenericArguments.choices(
                 Text.of("type"),
-                TownsPermissionContext.class
+                contexts
         );
     }
 

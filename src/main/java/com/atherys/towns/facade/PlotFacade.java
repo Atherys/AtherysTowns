@@ -96,6 +96,7 @@ public class PlotFacade {
         TownPlot plot = getPlotAtPlayer(player);
 
         plotService.setTownPlotOwner(plot, residentService.getOrCreate(target));
+
         townsMsg.info(player, "Granted the plot ", GOLD, plot.getName(), DARK_GREEN, " to ", GOLD, target.getName(), DARK_GREEN, ".");
     }
 

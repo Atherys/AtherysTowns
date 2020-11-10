@@ -55,9 +55,12 @@ public class TownConfig {
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.DESTROY));
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.BUILD));
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.DAMAGE_NONPLAYERS));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.DAMAGE_PLAYERS));
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_ENTITIES));
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_TILE_ENTITIES));
         DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_DOORS));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.INTERACT_REDSTONE));
+        DEFAULT_PLOT_PERMISSIONS.add(new PlotPermissionConfig(TownsPermissionContexts.TOWN, WorldPermissions.SPAWN_ENTITIES));
     }
 
     @Setting("roles")

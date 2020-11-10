@@ -11,10 +11,13 @@ public class TownsPermissionContext implements CatalogType {
 
     private String id;
 
+    private String commandElementName;
+
     private String name;
 
-    public TownsPermissionContext(String id, String name) {
+    public TownsPermissionContext(String id, String commandElementName, String name) {
         this.id = id;
+        this.commandElementName = commandElementName;
         this.name = name;
     }
 
@@ -26,6 +29,10 @@ public class TownsPermissionContext implements CatalogType {
     @Override
     public String getName() {
         return name;
+    }
+
+    public String getCommandElementName() {
+        return commandElementName;
     }
 
     @Override

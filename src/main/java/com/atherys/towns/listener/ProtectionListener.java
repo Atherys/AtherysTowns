@@ -81,14 +81,14 @@ public class ProtectionListener {
         });
     }
 
-    @Listener
-    public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
-        if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
-            event.getEntities().forEach(entity -> {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.SPAWN_ENTITIES, entity.getLocation(), true);
-            });
-        }
-    }
+    // @Listener
+    // public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
+    //     if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
+    //         event.getEntities().forEach(entity -> {
+    //             plotFacade.plotAccessCheck(event, player, WorldPermissions.SPAWN_ENTITIES, entity.getLocation(), true);
+    //         });
+    //     }
+    // }
 
     @Listener
     public void onEntityInteract(InteractEntityEvent event, @Root Player player) {

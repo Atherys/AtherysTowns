@@ -72,7 +72,7 @@ public class PermissionFacade {
         Collection<WorldPermission> perms = new ArrayList<>(Sponge.getGame().getRegistry().getAllOf(WorldPermission.class));
 
         Map<String, WorldPermission> worldPerms = new HashMap<>();
-        perms.forEach(permission -> worldPerms.put(permission.getId(), permission));
+        perms.forEach(permission -> worldPerms.put(permission.getCommandElementName(), permission));
 
         return worldPerms;
     }

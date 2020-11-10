@@ -5,7 +5,15 @@ import org.spongepowered.api.util.annotation.CatalogedBy;
 
 @CatalogedBy(WorldPermissions.class)
 public class WorldPermission extends Permission {
-    WorldPermission(String id, String name) {
+
+    private String commandElementName;
+    
+    WorldPermission(String id, String commandElementName, String name) {
         super(id, name);
+        this.commandElementName = commandElementName;
+    }
+
+    public String getCommandElementName() {
+        return commandElementName;
     }
 }
