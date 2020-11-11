@@ -185,7 +185,7 @@ public class PlotService {
                 continue;
             }
 
-            double newDistance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), p.getNorthEastCorner(), p.getSouthWestCorner());
+            double newDistance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), p);
             if (closest == null || newDistance < distance) {
                 closest = p;
                 distance = newDistance;
