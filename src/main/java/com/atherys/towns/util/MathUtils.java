@@ -266,4 +266,17 @@ public class MathUtils {
         }
         return remaining.isEmpty();
     }
+
+    public static double getDistanceToPlotSquared(Vector2i point, Rectangle plot) {
+        int lengthX = getWidth(plot);
+        int lengthZ = getHeight(plot);
+
+        double centerX = (double) (plot.minX() + plot.maxX()) / 2;
+        double centerZ = (double) (plot.minY() + plot.maxY()) / 2;
+
+        double pointXLength = Math.max(Math.abs(point.getX() - centerX) - (double) lengthX / 2, 0);
+        double pointYLength = Math.max(Math.abs(point.getY() - centerZ) - (double) lengthZ / 2, 0);
+
+        return Math.pow(pointXLength, 2) + Math.pow(pointYLength, 2);
+    }
 }

@@ -15,21 +15,18 @@ import com.atherys.towns.model.entity.*;
 import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.service.*;
 import com.atherys.towns.util.MathUtils;
+import com.flowpowered.math.vector.Vector2i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.ClickAction;
-import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
@@ -41,7 +38,6 @@ import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -120,7 +116,6 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You are already a town leader!");
         }
 
-        // Get the Nation this Town would be created in
         Nation nation = null;
         Optional<NationPlot> plot = plotService.getNationPlotsByLocation(player.getLocation()).stream().findFirst();
         if (plot.isPresent()) {
@@ -139,6 +134,17 @@ public class TownFacade implements EconomyFacade {
             UniqueAccount account = Economy.getAccount(player.getUniqueId()).get();
             if (account.getBalance(config.DEFAULT_CURRENCY).doubleValue() < config.TOWN.CREATION_COST) {
                 throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST, " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
+            }
+        }
+
+        Optional<TownPlot> closestPlot = plotService.getClosestTownPlot(homePlot);
+
+        if (closestPlot.isPresent()) {
+            int centerX = (homePlot.getNorthEastCorner().getX() + homePlot.getSouthWestCorner().getX()) / 2;
+            int centerZ = (homePlot.getNorthEastCorner().getY() + homePlot.getSouthWestCorner().getY()) / 2;
+            double distance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), closestPlot.get());
+            if (distance < Math.pow(config.TOWN.MIN_CREATION_DISTANCE, 2)) {
+                throw new TownsCommandException("This plot is too close to and existing town. (Min distance " + config.TOWN.MIN_CREATION_DISTANCE + ")");
             }
         }
 
