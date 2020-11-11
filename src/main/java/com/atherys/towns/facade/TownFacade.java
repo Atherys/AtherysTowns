@@ -144,7 +144,7 @@ public class TownFacade implements EconomyFacade {
             int centerZ = (homePlot.getNorthEastCorner().getY() + homePlot.getSouthWestCorner().getY()) / 2;
             double distance = MathUtils.getDistanceToPlotSquared(Vector2i.from(centerX, centerZ), closestPlot.get());
             if (distance < Math.pow(config.TOWN.MIN_CREATION_DISTANCE, 2)) {
-                throw new TownsCommandException("This plot is too close to and existing town. (Min distance " + config.TOWN.MIN_CREATION_DISTANCE + ")");
+                throw new TownsCommandException("This plot is too close to an existing town. (Min distance " + config.TOWN.MIN_CREATION_DISTANCE + ")");
             }
         }
 
