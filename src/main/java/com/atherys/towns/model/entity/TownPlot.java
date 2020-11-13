@@ -3,6 +3,7 @@ package com.atherys.towns.model.entity;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.persistence.converter.PermissionConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
+import org.hibernate.annotations.Cascade;
 import org.spongepowered.api.text.Text;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class TownPlot extends Plot {
     private Resident owner;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Set<TownPlotPermission> permissions;
 
     public Town getTown() {
