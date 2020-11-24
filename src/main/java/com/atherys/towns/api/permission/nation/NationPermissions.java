@@ -23,7 +23,10 @@ public final class NationPermissions {
     public static final NationPermission SET_NAME = new NationPermission("atherystowns.nation.name", "Set Name");
 
     // permission to set the nation's tax
-    public static final NationPermission SET_TAX = new NationPermission("atherystowns.nation.tax", "Set Name");
+    public static final NationPermission SET_TAX = new NationPermission("atherystowns.nation.tax", "Set Tax");
+
+    // permission to set the nation's tax
+    public static final NationPermission SET_COLOR = new NationPermission("atherystowns.nation.color", "Set Color");
 
     // permission to invite a town to the nation
     public static final NationPermission INVITE_TOWN = new NationPermission("atherystowns.nation.invite", "Invite Town");

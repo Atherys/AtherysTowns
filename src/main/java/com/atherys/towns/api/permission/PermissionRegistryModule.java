@@ -31,7 +31,8 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 NationPermissions.SET_NAME,
                 NationPermissions.TRANSFER_LEADERSHIP,
                 NationPermissions.SET_JOINABLE,
-                NationPermissions.SET_TAX
+                NationPermissions.SET_TAX,
+                NationPermissions.SET_COLOR
         );
 
         put(
