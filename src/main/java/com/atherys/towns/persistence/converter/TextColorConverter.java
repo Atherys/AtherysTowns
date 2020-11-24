@@ -14,6 +14,6 @@ public class TextColorConverter implements AttributeConverter<TextColor, String>
 
     @Override
     public TextColor convertToEntityAttribute(String dbData) {
-        return Sponge.getGame().getRegistry().getType(TextColor.class, dbData).orElse(TextColors.RESET);
+        return Sponge.getGame().getRegistry().getType(TextColor.class, dbData == null ? "" : dbData).orElse(TextColors.RESET);
     }
 }

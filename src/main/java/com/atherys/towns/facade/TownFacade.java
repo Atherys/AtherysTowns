@@ -148,6 +148,13 @@ public class TownFacade implements EconomyFacade {
             }
         }
 
+        // if the AtherysParties plugin is not loaded, just create the town
+        if (!Sponge.getPluginManager().isLoaded("atherysparties")) {
+            createTown(player, townName, homePlot, nation);
+            return;
+        }
+
+        // if the AtherysParties plugin is loaded, check for a party
         PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
         Optional<Party> party = partyFacade.getPlayerParty(player);
         if (party.isPresent()) {

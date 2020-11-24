@@ -45,7 +45,8 @@ import static com.atherys.towns.AtherysTowns.*;
         version = VERSION,
         dependencies = {
                 @Dependency(id = "atheryscore"),
-                @Dependency(id = "atherysparties")
+                @Dependency(id = "atherysparties", optional = true),
+                @Dependency(id = "atheryschat", optional = true)
         }
 )
 public class AtherysTowns {
@@ -115,8 +116,11 @@ public class AtherysTowns {
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
         Sponge.getEventManager().registerListeners(this, components.raidListener);
-        AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
-        AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
+
+        if (Sponge.getPluginManager().isLoaded("atheryschat")) {
+            AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
+            AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
+        }
 
         Sponge.getServiceManager()
                 .provideUnchecked(org.spongepowered.api.service.permission.PermissionService.class)
