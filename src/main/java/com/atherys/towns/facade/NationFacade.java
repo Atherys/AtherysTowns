@@ -22,6 +22,7 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.format.TextColor;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -117,6 +118,12 @@ public class NationFacade implements EconomyFacade {
         nationService.addTown(nation, town);
         nationService.setCapital(nation, town);
         townsMsg.info(source, "Nation capital set.");
+    }
+
+    public void setNationColor(Player source, TextColor color) throws TownsCommandException {
+        Nation nation = getPlayerNation(source);
+
+        nationService.setColor(nation, color);
     }
 
     public void addTownToNation(Nation nation, Town town) throws TownsCommandException {

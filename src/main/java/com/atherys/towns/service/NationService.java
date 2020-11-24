@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColor;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -109,6 +110,11 @@ public class NationService {
         nationRepository.saveOne(nation);
 
         Sponge.getEventManager().post(new NationEvent.Renamed(nation, oldName, name));
+    }
+
+    public void setColor(Nation nation, TextColor color) {
+        nation.setColor(color);
+        nationRepository.saveOne(nation);
     }
 
     public void setNationDescription(Nation nation, Text description) {

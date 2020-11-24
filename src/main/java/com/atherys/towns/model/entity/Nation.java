@@ -1,8 +1,10 @@
 package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
+import com.atherys.towns.persistence.converter.TextColorConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColor;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -19,6 +21,9 @@ public class Nation implements Identifiable<Long> {
     private Long id;
 
     private String name;
+
+    @Convert(converter = TextColorConverter.class)
+    private TextColor color;
 
     @Convert(converter = TextConverter.class)
     private Text description;
@@ -204,4 +209,11 @@ public class Nation implements Identifiable<Long> {
         this.version = version;
     }
 
+    public TextColor getColor() {
+        return color;
+    }
+
+    public void setColor(TextColor color) {
+        this.color = color;
+    }
 }
