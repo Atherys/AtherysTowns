@@ -1,6 +1,5 @@
 package com.atherys.towns;
 
-import com.atherys.chat.AtherysChat;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
 import com.atherys.core.economy.Economy;
@@ -8,13 +7,12 @@ import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.permission.*;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.chat.NationChannel;
-import com.atherys.towns.chat.TownChannel;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
+import com.atherys.towns.integration.AtherysChatIntegration;
 import com.atherys.towns.listener.PlayerListener;
 import com.atherys.towns.listener.ProtectionListener;
 import com.atherys.towns.listener.RaidListener;
@@ -118,8 +116,7 @@ public class AtherysTowns {
         Sponge.getEventManager().registerListeners(this, components.raidListener);
 
         if (Sponge.getPluginManager().isLoaded("atheryschat")) {
-            AtherysChat.getInstance().getChatService().registerChannel(new TownChannel());
-            AtherysChat.getInstance().getChatService().registerChannel(new NationChannel());
+            AtherysChatIntegration.registerChannels();
         }
 
         Sponge.getServiceManager()

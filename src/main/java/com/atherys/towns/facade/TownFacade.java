@@ -3,14 +3,12 @@ package com.atherys.towns.facade;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
 import com.atherys.core.utils.Question.Answer;
-import com.atherys.party.AtherysParties;
-import com.atherys.party.entity.Party;
-import com.atherys.party.facade.PartyFacade;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
+import com.atherys.towns.integration.AtherysPartiesIntegration;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.service.*;
@@ -155,11 +153,8 @@ public class TownFacade implements EconomyFacade {
         }
 
         // if the AtherysParties plugin is loaded, check for a party
-        PartyFacade partyFacade = AtherysParties.getInstance().getPartyFacade();
-        Optional<Party> party = partyFacade.getPlayerParty(player);
-        if (party.isPresent()) {
-            Set<Player> partyMembers = partyFacade.getOnlinePartyMembers(party.get());
-
+        if (AtherysPartiesIntegration.playerHasParty(player)) {
+            Set<Player> partyMembers = AtherysPartiesIntegration.fetchPlayerPartyMembers(player);
             if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
                 throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
             }
