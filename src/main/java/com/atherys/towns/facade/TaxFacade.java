@@ -109,6 +109,7 @@ public class TaxFacade {
         Text.Builder nextPaymentText = Text.builder();
 
         double townTotalTax = taxService.getTaxAmount(town);
+        double townTotalTaxLessDebt = townTotalTax - town.getDebt();
 
         nextPaymentText.append(
                 Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD,
@@ -122,7 +123,7 @@ public class TaxFacade {
         // Calculate Nation Tax/Rebate
         double nationMultiplier = town.getNation() == null ? 1.0 : town.getNation().getTax();
         if (nationMultiplier != 1.0) {
-            double nationTax = townTotalTax - (townTotalTax / nationMultiplier);
+            double nationTax = townTotalTaxLessDebt - (townTotalTaxLessDebt / nationMultiplier);
             String taxType = nationTax > 0 ? "Tax" : "Rebate";
             hoverText.append(Text.of(DARK_GREEN, "Nation ", taxType, ": ", GOLD,
                     config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(nationTax)), Text.NEW_LINE));
@@ -136,7 +137,7 @@ public class TaxFacade {
         // Calculate the PVP
         double pvpMultiplier = town.isPvpEnabled() ? 1.0 : config.TAXES.PVP_TAX_MODIFIER;
         if (pvpMultiplier != 1.0) {
-            double pvpPenalty = townTotalTax - (townTotalTax / pvpMultiplier);
+            double pvpPenalty = townTotalTaxLessDebt - (townTotalTaxLessDebt / pvpMultiplier);
             hoverText.append(Text.of(DARK_GREEN, "PVP Penalty: ", GOLD,
                     config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(pvpPenalty)), Text.NEW_LINE));
         }
