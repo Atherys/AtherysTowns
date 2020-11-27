@@ -8,10 +8,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.service.economy.transaction.TransferResult;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class TaxService {
     /**
      * A town is taxed for each active resident currently residing in the town, per-resident-tax amount each
      */
-    private double calcResidentTax(Town town) {
+    public double calcResidentTax(Town town) {
         long numberOfActiveResidents = town.getResidents().stream()
                 .filter(resident -> Duration.between(resident.getLastLogin(), LocalDateTime.now()).compareTo(config.TAXES.INACTIVE_DURATION) < 0)
                 .count();
@@ -48,7 +50,7 @@ public class TaxService {
     /**
      * Tax each claimed block of land with the per-block-area-tax
      */
-    private double calcAreaTax(Town town) {
+    public double calcAreaTax(Town town) {
         int townArea = townService.getTownSize(town);
 
         return (config.TAXES.PER_BLOCK_AREA_TAX * townArea) + calcOversizeAreaTax(town, townArea);
@@ -61,7 +63,7 @@ public class TaxService {
      * Example:
      * If a town has claimed 3000/2000 blocks, 2000 blocks are taxed normally, and the remaining 1000 have the oversize-area-tax-modifier applied
      */
-    private double calcOversizeAreaTax(Town town, int townArea) {
+    public double calcOversizeAreaTax(Town town, int townArea) {
         int oversizeArea = townArea > town.getMaxSize() ? townArea - town.getMaxSize() : 0;
         return config.TAXES.OVERSIZE_AREA_TAX_MODIFIER * config.TAXES.PER_BLOCK_AREA_TAX * oversizeArea;
     }
@@ -69,7 +71,7 @@ public class TaxService {
     /**
      * Base tax is taken directly from the tax configuration
      */
-    private double calcBaseTax(Town town) {
+    public double calcBaseTax(Town town) {
         return config.TAXES.BASE_TAX;
     }
 
@@ -83,9 +85,9 @@ public class TaxService {
         }
     }
 
-    public void payTaxes(Town town, double amount) {
+    public Optional<TransferResult> payTaxes(Town town, double amount) {
         Cause cause = Sponge.getCauseStackManager().getCurrentCause();
-        Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
+        return Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
     }
 
     private boolean isTaxTime(Town town) {
@@ -93,11 +95,14 @@ public class TaxService {
                 .compareTo(config.TAXES.TAX_COLLECTION_DURATION) > 0;
     }
 
+    public boolean isTaxable(Town town) {
+        return (town.getNation() != null && !town.getNation().getCapital().equals(town));
+    }
+
     public Set<Town> getTaxableTowns() {
         return townRepository.getAll().stream()
-                .filter(town -> town.getNation() != null)
+                .filter(this::isTaxable)
                 .filter(this::isTaxTime)
-                .filter(town -> !town.getNation().getCapital().equals(town))
                 .collect(Collectors.toSet());
     }
 }
