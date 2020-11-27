@@ -124,7 +124,7 @@ public class TaxFacade {
         if (nationMultiplier != 1.0) {
             double nationTax = townTotalTax - (townTotalTax / nationMultiplier);
             String taxType = nationTax > 0 ? "Tax" : "Rebate";
-            hoverText.append(Text.of(DARK_GREEN, "Nation ", taxType, " :", GOLD,
+            hoverText.append(Text.of(DARK_GREEN, "Nation ", taxType, ": ", GOLD,
                     config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(nationTax)), Text.NEW_LINE));
         }
 
