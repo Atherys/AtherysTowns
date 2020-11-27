@@ -18,6 +18,7 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -27,6 +28,8 @@ import java.util.UUID;
 public class NationService {
 
     public static final Text DEFAULT_NATION_DESCRIPTION = Text.of("No description available.");
+
+    public static final TextColor DEFAULT_NATION_COLOR = TextColors.RESET;
 
     @Inject
     private TownService townService;
@@ -64,6 +67,7 @@ public class NationService {
 
         nation.setName(name);
         nation.setDescription(DEFAULT_NATION_DESCRIPTION);
+        nation.setColor(DEFAULT_NATION_COLOR);
 
         nationRepository.saveOne(nation);
 
