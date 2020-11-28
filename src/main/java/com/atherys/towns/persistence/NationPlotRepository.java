@@ -5,9 +5,11 @@ import com.atherys.towns.model.entity.NationPlot;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.Collection;
 
+@Singleton
 public class NationPlotRepository extends CachedHibernateRepository<NationPlot, Long> {
 
     private TownsCache townsCache;
