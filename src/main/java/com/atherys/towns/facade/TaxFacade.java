@@ -8,8 +8,7 @@ import com.atherys.towns.service.TaxService;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.ResultType;
@@ -24,7 +23,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.format.TextColors.*;
 
@@ -155,13 +153,11 @@ public class TaxFacade {
         if (until.isNegative()) {
             hoverText.append(Text.of(RED, "Now"));
         } else {
+            String format = "H'h 'm'm 's's'";
             if (until.toDays() > 0) {
-                hoverText.append(Text.of(GOLD, until.toDays(), "days "));
+                format = "d'd '" + format;
             }
-            hoverText.append(Text.of(GOLD, String.format("%sh %sm %ss",
-                    until.toHours() - TimeUnit.DAYS.toHours(until.toDays()),
-                    until.toMinutes() - TimeUnit.HOURS.toMinutes(until.toHours()),
-                    until.getSeconds() - TimeUnit.MINUTES.toSeconds(until.toMinutes()))));
+            hoverText.append(Text.of(GOLD, DurationFormatUtils.formatDuration(until.toMillis(), format)));
         }
 
         nextPaymentText.onHover(TextActions.showText(hoverText.build()));
