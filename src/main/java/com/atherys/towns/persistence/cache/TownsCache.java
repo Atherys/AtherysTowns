@@ -8,6 +8,7 @@ import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.persistence.*;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 import java.util.UUID;
@@ -16,19 +17,19 @@ import java.util.UUID;
 public class TownsCache {
 
     @Inject
-    private ResidentRepository residentRepository;
+    private Provider<ResidentRepository> residentRepository;
 
     @Inject
-    private TownPlotRepository townPlotRepository;
+    private Provider<TownPlotRepository> townPlotRepository;
 
     @Inject
-    private TownRepository townRepository;
+    private Provider<TownRepository> townRepository;
 
     @Inject
-    private NationRepository nationRepository;
+    private Provider<NationRepository> nationRepository;
 
     @Inject
-    private NationPlotRepository nationPlotRepository;
+    private Provider<NationPlotRepository> nationPlotRepository;
 
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
@@ -44,19 +45,19 @@ public class TownsCache {
     }
 
     public void initCache() {
-        residentRepository.initCache();
-        townRepository.initCache();
-        townPlotRepository.initCache();
-        nationRepository.initCache();
-        nationPlotRepository.initCache();
+        residentRepository.get().initCache();
+        townRepository.get().initCache();
+        townPlotRepository.get().initCache();
+        nationRepository.get().initCache();
+        nationPlotRepository.get().initCache();
     }
 
     public void flushCache() {
-        residentRepository.flushCache();
-        townPlotRepository.flushCache();
-        townRepository.flushCache();
-        nationRepository.flushCache();
-        nationPlotRepository.flushCache();
+        residentRepository.get().flushCache();
+        townPlotRepository.get().flushCache();
+        townRepository.get().flushCache();
+        nationRepository.get().flushCache();
+        nationPlotRepository.get().flushCache();
     }
 
     public Cache<Resident, UUID> getResidentCache() {

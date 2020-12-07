@@ -4,8 +4,10 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.TownService;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.spongepowered.api.command.CommandSource;
 
+@Singleton
 public class TownAdminFacade {
     @Inject
     TownService townService;
