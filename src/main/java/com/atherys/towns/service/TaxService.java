@@ -98,6 +98,7 @@ public class TaxService {
                 .filter(town -> town.getNation() != null)
                 .filter(this::isTaxTime)
                 .filter(town -> !town.getNation().getCapital().equals(town))
+                .filter(Town::isTaxable)
                 .collect(Collectors.toSet());
     }
 }

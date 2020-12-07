@@ -741,4 +741,8 @@ public class TownFacade implements EconomyFacade {
 
         town.setMaxSize(newTownMaxArea);
     }
+
+    public void setTownTaxable(Town town, boolean taxable) {
+        townService.setTownTaxable(town, taxable);
+    }
 }

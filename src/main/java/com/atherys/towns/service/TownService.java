@@ -119,6 +119,7 @@ public class TownService {
         town.setTaxFailedCount(0);
         town.setDebt(0);
         town.setBank(UUID.randomUUID());
+        town.setTaxable(true);
 
         if (nation != null) {
             nationService.addTown(nation, town);
@@ -452,5 +453,9 @@ public class TownService {
 
     public Collection<Town> fetchAllTowns() {
         return townRepository.getAll();
+    }
+
+    public void setTownTaxable(Town town, boolean taxable) {
+        town.setTaxable(taxable);
     }
 }
