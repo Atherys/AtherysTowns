@@ -6,11 +6,12 @@ plugins {
 
 group 'com.atherys'
 
-version '1.3.3'
+version '2.0.0'
 
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'com.flowpowered:flow-math:1.0.3'
+    shadow 'com.github.Atherys-Horizons:AtherysCore:2.0.0-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysChat:master-SNAPSHOT'
     shadow 'com.github.Atherys-Horizons:AtherysParties:master-SNAPSHOT'
 }

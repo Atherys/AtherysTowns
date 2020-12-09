@@ -3,6 +3,7 @@ package com.atherys.towns;
 import com.atherys.core.AtherysCore;
 import com.atherys.core.command.CommandService;
 import com.atherys.core.economy.Economy;
+import com.atherys.core.event.AtherysDatabaseMigrationEvent;
 import com.atherys.core.event.AtherysHibernateConfigurationEvent;
 import com.atherys.core.event.AtherysHibernateInitializedEvent;
 import com.atherys.towns.api.permission.*;
@@ -150,6 +151,11 @@ public class AtherysTowns {
         event.registerEntity(TownPlot.class);
         event.registerEntity(Resident.class);
         event.registerEntity(TownPlotPermission.class);
+    }
+
+    @Listener
+    public void onDatabaseMigration(AtherysDatabaseMigrationEvent event) {
+        event.registerForMigration(ID);
     }
 
     @Listener(order = Order.LAST)
