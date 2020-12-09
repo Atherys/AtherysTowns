@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(schema = "atherystowns", name = "TownPlot")
 public class TownPlot extends Plot {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -21,7 +22,8 @@ public class TownPlot extends Plot {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
-            name = "townplot_permissions",
+            schema = "atherystowns",
+            name = "TownPlot_permissions",
             joinColumns = @JoinColumn(name = "townplot_id"),
             inverseJoinColumns = @JoinColumn(name = "townplot_permission_id")
     )

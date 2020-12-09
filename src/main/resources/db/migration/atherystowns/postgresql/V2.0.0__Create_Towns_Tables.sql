@@ -1,6 +1,6 @@
-create schema if not exists atherys;
+create schema if not exists atherystowns;
 
-create table if not exists atherys.Nation (
+create table if not exists atherystowns.Nation (
     id bigserial not null,
     bank uuid,
     color varchar(255),
@@ -14,19 +14,19 @@ create table if not exists atherys.Nation (
     primary key (id)
 );
 
-create table if not exists atherys.nation_allies (
+create table if not exists atherystowns.Nation_allies (
     nation_id int8 not null,
     ally_nation_id int8 not null,
     primary key (nation_id, ally_nation_id)
 );
 
-create table if not exists atherys.nation_enemies (
+create table if not exists atherystowns.Nation_enemies (
     nation_id int8 not null,
     enemy_nation_id int8 not null,
     primary key (nation_id, enemy_nation_id)
 );
 
-create table if not exists atherys.NationPlot (
+create table if not exists atherystowns.NationPlot (
     id bigserial not null,
     neCorner varchar(255),
     swCorner varchar(255),
@@ -35,7 +35,7 @@ create table if not exists atherys.NationPlot (
     primary key (id)
 );
 
-create table if not exists atherys.Resident (
+create table if not exists atherystowns.Resident (
     id uuid not null,
     lastLogin timestamp,
     lastTownSpawn timestamp,
@@ -47,23 +47,23 @@ create table if not exists atherys.Resident (
     primary key (id)
 );
 
-create table if not exists atherys.resident_friends (
+create table if not exists atherystowns.Resident_friends (
     resident_id uuid not null,
     friend_id uuid not null,
     primary key (resident_id, friend_id)
 );
 
-create table if not exists atherys.Resident_nationRoleIds (
+create table if not exists atherystowns.Resident_nationRoleIds (
     Resident_id uuid not null,
     nationRoleIds varchar(255)
 );
 
-create table if not exists atherys.Resident_townRoleIds (
+create table if not exists atherystowns.Resident_townRoleIds (
     Resident_id uuid not null,
     townRoleIds varchar(255)
 );
 
-create table if not exists atherys.Town (
+create table if not exists atherystowns.Town (
     id bigserial not null,
     bank uuid,
     color varchar(255),
@@ -86,7 +86,7 @@ create table if not exists atherys.Town (
     primary key (id)
 );
 
-create table if not exists atherys.TownPlot (
+create table if not exists atherystowns.TownPlot (
     id bigserial not null,
     neCorner varchar(255),
     swCorner varchar(255),
@@ -97,13 +97,13 @@ create table if not exists atherys.TownPlot (
     primary key (id)
 );
 
-create table if not exists atherys.townplot_permissions (
+create table if not exists atherystowns.TownPlot_permissions (
     townplot_id int8 not null,
     townplot_permission_id int8 not null,
     primary key (townplot_id, townplot_permission_id)
 );
 
-create table if not exists atherys.TownPlotPermission (
+create table if not exists atherystowns.TownPlotPermission (
     id bigserial not null,
     context varchar(255),
     worldPermission varchar(255),

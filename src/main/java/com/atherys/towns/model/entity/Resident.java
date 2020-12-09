@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(schema = "atherystowns", name = "Resident")
 public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     @Id
@@ -26,16 +27,19 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
-            name = "resident_friends",
+            schema = "atherystowns",
+            name = "Resident_friends",
             joinColumns = @JoinColumn(name = "resident_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private Set<Resident> friends = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(schema = "atherystowns", name = "Resident_townRoleIds")
     private Set<String> townRoleIds = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(schema = "atherystowns", name = "Resident_nationRoleIds")
     private Set<String> nationRoleIds = new HashSet<>();
 
     private LocalDateTime registeredOn;

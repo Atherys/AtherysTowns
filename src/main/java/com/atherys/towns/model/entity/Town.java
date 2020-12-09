@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
+@Table(schema = "atherystowns", name = "Town")
 public class Town implements Identifiable<Long> {
 
     @Id

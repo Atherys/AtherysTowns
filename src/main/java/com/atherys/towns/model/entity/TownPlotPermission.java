@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
+@Table(schema = "atherystowns", name = "TownPlotPermission")
 public class TownPlotPermission {
 
     @Id
