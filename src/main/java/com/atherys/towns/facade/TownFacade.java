@@ -78,6 +78,9 @@ public class TownFacade implements EconomyFacade {
     private NationFacade nationFacade;
 
     @Inject
+    private TaxFacade taxFacade;
+
+    @Inject
     private PermissionFacade permissionFacade;
 
     @Inject
@@ -615,28 +618,13 @@ public class TownFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
-                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE);
-
-        if (AtherysTowns.economyIsEnabled() && town.getNation() != null) {
-            Text.Builder taxText = Text.builder();
-            taxText.append(Text.of(DARK_GREEN, "Next Tax Payment: ", GOLD, taxService.getTaxAmount(town), Text.NEW_LINE));
-
-            LocalDateTime next = town.getLastTaxDate().plus(config.TAXES.TAX_COLLECTION_DURATION);
-            Duration until = Duration.between(town.getLastTaxDate(), next);
-
-            taxText.onHover(TextActions.showText(Text.of(DARK_GREEN, "Due in ", GOLD, until.toString())));
-
-            if (town.getDebt() > 0) {
-                townText.append(Text.of(DARK_GREEN, "Debt Owed: ", RED, town.getDebt(), Text.NEW_LINE));
-            }
-        }
-
-        townText.append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
-                .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE));
-
-        townText.append(Text.of(
-                DARK_GREEN, "Residents [", GREEN, town.getResidents().size(), DARK_GREEN, "]: ",
-                GOLD, residentFacade.renderResidents(town.getResidents())
+                .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
+                .append(taxFacade.renderTax(town))
+                .append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
+                .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE))
+                .append(Text.of(
+                    DARK_GREEN, "Residents [", GREEN, town.getResidents().size(), DARK_GREEN, "]: ",
+                    GOLD, residentFacade.renderResidents(town.getResidents())
         ));
 
         receiver.sendMessage(townText.build());
