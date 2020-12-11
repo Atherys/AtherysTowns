@@ -96,7 +96,7 @@ public class TaxService {
     }
 
     public boolean isTaxable(Town town) {
-        return (town.getNation() != null && !town.getNation().getCapital().equals(town));
+        return (town.isTaxable() && town.getNation() != null && !town.getNation().getCapital().equals(town));
     }
 
     public Set<Town> getTaxableTowns() {
