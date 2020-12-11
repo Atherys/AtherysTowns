@@ -103,6 +103,7 @@ public class TaxService {
         return townRepository.getAll().stream()
                 .filter(this::isTaxable)
                 .filter(this::isTaxTime)
+                .filter(town -> !town.getNation().getCapital().equals(town))
                 .collect(Collectors.toSet());
     }
 }

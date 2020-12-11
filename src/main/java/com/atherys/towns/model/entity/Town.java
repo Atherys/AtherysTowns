@@ -72,6 +72,8 @@ public class Town implements Identifiable<Long> {
 
     private double debt;
 
+    private boolean taxable;
+
     @Version
     private int version;
 
@@ -259,5 +261,13 @@ public class Town implements Identifiable<Long> {
 
     public void setDebt(double debt) {
         this.debt = debt;
+    }
+
+    public boolean isTaxable() {
+        return taxable;
+    }
+
+    public void setTaxable(boolean taxable) {
+        this.taxable = taxable;
     }
 }
