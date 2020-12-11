@@ -1,5 +1,6 @@
 package com.atherys.towns.listener;
 
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.google.inject.Inject;
@@ -41,14 +42,18 @@ public class ProtectionListener {
     @Listener
     public void onBlockPlace(ChangeBlockEvent.Place event, @Root Player player) {
         event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
+            // Block locations need to be shifted, so they don't appear to be on the edge of a town
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD,
+                    location.copy().add(0.5, 0.5, 0.5), true);
         }));
     }
 
     @Listener
     public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
         event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.DESTROY, location, true);
+            // Block locations need to be shifted, so they don't appear to be on the edge of a town
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.DESTROY,
+                    location.copy().add(0.5, 0.5, 0.5), true);
         }));
     }
 
@@ -57,8 +62,9 @@ public class ProtectionListener {
         event.getTransactions().forEach(blockSnapshotTransaction -> blockSnapshotTransaction.getOriginal().getLocation().ifPresent(location -> {
             BlockType blockType = blockSnapshotTransaction.getOriginal().getState().getType();
             if (isDoor(blockType) || isRedstone(blockType) || isTileEntity(blockSnapshotTransaction.getOriginal())) return;
-
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD, location, true);
+            // Block locations need to be shifted, so they don't appear to be on the edge of a town
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.BUILD,
+                    location.copy().add(0.5, 0.5, 0.5), true);
         }));
     }
 
@@ -67,16 +73,20 @@ public class ProtectionListener {
         event.getTargetBlock().getLocation().ifPresent(location -> {
             BlockType blockType = event.getTargetBlock().getState().getType();
             if (isTileEntity(event.getTargetBlock())) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES, location, true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_TILE_ENTITIES,
+                        location.copy().add(0.5, 0.5, 0.5), true);
             }
             if (isDoor(blockType)) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS, location, true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_DOORS,
+                        location.copy().add(0.5, 0.5, 0.5), true);
             }
             if (isRedstone(blockType) && !isDoor(blockType)) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, location, true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE,
+                        location.copy().add(0.5, 0.5, 0.5), true);
             }
             if (blockType.equals(BlockTypes.TNT)) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, location, true);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES,
+                        location.copy().add(0.5, 0.5, 0.5), true);
             }
         });
     }
@@ -95,7 +105,8 @@ public class ProtectionListener {
         if (!(event.getTargetEntity() instanceof Player)) {
             //This prevents it from firing twice.
             if (event instanceof InteractEntityEvent.Primary.MainHand || event instanceof InteractEntityEvent.Secondary.MainHand) {
-                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES, event.getTargetEntity().getLocation(), false);
+                plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_ENTITIES,
+                        event.getTargetEntity().getLocation(), false);
             }
         }
     }
@@ -103,7 +114,8 @@ public class ProtectionListener {
     @Listener
     public void onCollideBlock(CollideBlockEvent event, @Root Player player) {
         if (isRedstone(event.getTargetBlock().getType())) {
-            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE, event.getTargetLocation(), false);
+            plotFacade.plotAccessCheck(event, player, WorldPermissions.INTERACT_REDSTONE,
+                    event.getTargetLocation(), false);
         }
     }
 
@@ -113,7 +125,8 @@ public class ProtectionListener {
                 .map(User::getPlayer).ifPresent(player -> {
             if (event.getEntities().stream().noneMatch(entity -> entity instanceof Player)) {
                 event.getEntities().forEach(entity -> {
-                    plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.INTERACT_ENTITIES, entity.getLocation(), true);
+                    plotFacade.plotAccessCheck(event, player.get(), WorldPermissions.INTERACT_ENTITIES,
+                            entity.getLocation(), true);
                 });
             }
         });
