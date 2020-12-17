@@ -53,8 +53,6 @@ public class TaxFacade {
         Set<Town> townsToRemove = new HashSet<>();
         TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
 
-        AtherysTowns.getInstance().getLogger().info("Running Tax Cycle");
-
         for (Town town : taxService.getTaxableTowns()) {
 
             AtherysTowns.getInstance().getLogger().info("Taxing Town: " + town.getName());
