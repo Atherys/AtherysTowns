@@ -1,16 +1,13 @@
 package com.atherys.towns.model.entity;
 
-import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.persistence.converter.PermissionConverter;
 import com.atherys.towns.persistence.converter.TextConverter;
-import org.hibernate.annotations.Cascade;
 import org.spongepowered.api.text.Text;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(schema = "atherystowns", name = "TownPlot")
 public class TownPlot extends Plot {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -23,8 +20,13 @@ public class TownPlot extends Plot {
     @ManyToOne(fetch = FetchType.EAGER)
     private Resident owner;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            schema = "atherystowns",
+            name = "TownPlot_permissions",
+            joinColumns = @JoinColumn(name = "townplot_id"),
+            inverseJoinColumns = @JoinColumn(name = "townplot_permission_id")
+    )
     private Set<TownPlotPermission> permissions;
 
     public Town getTown() {

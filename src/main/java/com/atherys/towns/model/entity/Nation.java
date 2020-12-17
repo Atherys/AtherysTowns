@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(schema = "atherystowns", name = "Nation")
 public class Nation implements Identifiable<Long> {
 
     @Id
@@ -42,7 +43,8 @@ public class Nation implements Identifiable<Long> {
             fetch = FetchType.EAGER
     )
     @JoinTable(
-            name = "nation_allies",
+            schema = "atherystowns",
+            name = "Nation_allies",
             joinColumns = @JoinColumn(name = "nation_id"),
             inverseJoinColumns = @JoinColumn(name = "ally_nation_id")
     )
@@ -53,7 +55,8 @@ public class Nation implements Identifiable<Long> {
             fetch = FetchType.EAGER
     )
     @JoinTable(
-            name = "nation_enemies",
+            schema = "atherystowns",
+            name = "Nation_enemies",
             joinColumns = @JoinColumn(name = "nation_id"),
             inverseJoinColumns = @JoinColumn(name = "enemy_nation_id")
     )

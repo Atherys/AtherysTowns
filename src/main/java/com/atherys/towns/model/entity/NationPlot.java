@@ -3,6 +3,7 @@ package com.atherys.towns.model.entity;
 import javax.persistence.*;
 
 @Entity
+@Table(schema = "atherystowns", name = "NationPlot")
 public class NationPlot extends Plot {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
