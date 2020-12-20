@@ -3,10 +3,7 @@ package com.atherys.towns.command.town;
 import com.atherys.core.command.PlayerCommand;
 import com.atherys.core.command.annotation.*;
 import com.atherys.towns.AtherysTowns;
-import com.atherys.towns.command.town.admin.DecreaseTownSizeCommand;
-import com.atherys.towns.command.town.admin.IncreaseTownSizeCommand;
-import com.atherys.towns.command.town.admin.OverrideLeaderCommand;
-import com.atherys.towns.command.town.admin.RecalculateTownSizesCommand;
+import com.atherys.towns.command.town.admin.*;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -46,6 +43,7 @@ import javax.annotation.Nonnull;
         TownPayDebtCommand.class,
         GrantTownCommand.class,
         RecalculateTownSizesCommand.class,
+        TownToggleTaxCommand.class,
         OverrideLeaderCommand.class
 })
 @Permission("atherystowns.town.base")
