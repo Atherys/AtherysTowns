@@ -19,7 +19,7 @@ import org.spongepowered.api.text.Text;
 @Aliases("overrideLeader")
 @Permission("atherystowns.admin.town.mayor")
 @Description("Set the mayor of the town. If no resident is provided, the town will become mayorless.")
-public class SetMayorCommand implements ParameterizedCommand {
+public class OverrideLeaderCommand implements ParameterizedCommand {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
