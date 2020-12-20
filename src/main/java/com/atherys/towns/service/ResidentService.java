@@ -33,6 +33,12 @@ public class ResidentService {
     ResidentService() {
     }
 
+    public Resident createFakeResident(String name) {
+        Resident res = getOrCreate(UUID.randomUUID(), name);
+        res.setLastLogin(LocalDateTime.now());
+        return res;
+    }
+
     public Resident getOrCreate(UUID playerUuid, String playerName) {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 

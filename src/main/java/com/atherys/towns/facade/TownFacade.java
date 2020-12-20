@@ -791,7 +791,7 @@ public class TownFacade implements EconomyFacade {
         UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
         userStorageService.get(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
 
-        Resident fakeResident = residentService.getOrCreate(UUID.randomUUID(), "None");
+        Resident fakeResident = residentService.createFakeResident("None");
         townService.setTownLeader(town, fakeResident);
     }
 
