@@ -457,8 +457,4 @@ public class TownService {
     public void setTownTaxable(Town town, boolean taxable) {
         town.setTaxable(taxable);
     }
-
-    public void removeTownLeader(Town town) {
-
-    }
 }
