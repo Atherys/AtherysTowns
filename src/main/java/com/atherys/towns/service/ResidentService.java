@@ -34,18 +34,19 @@ public class ResidentService {
     }
 
     public Resident createFakeResident(String name) {
-        Resident res = getOrCreate(UUID.randomUUID(), name);
+        Resident res = getOrCreate(UUID.randomUUID(), name, true);
         res.setLastLogin(LocalDateTime.now());
         return res;
     }
 
-    public Resident getOrCreate(UUID playerUuid, String playerName) {
+    public Resident getOrCreate(UUID playerUuid, String playerName, boolean isFake) {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 
         if (resident.isPresent()) {
             Resident res = resident.get();
             res.setName(playerName);
             res.setLastLogin(LocalDateTime.now());
+            res.setFake(isFake);
             return res;
         } else {
             Resident newResident = new Resident();
@@ -62,7 +63,7 @@ public class ResidentService {
     }
 
     public Resident getOrCreate(User src) {
-        return getOrCreate(src.getUniqueId(), src.getName());
+        return getOrCreate(src.getUniqueId(), src.getName(), false);
     }
 
     public Optional<User> getUserFromResident(Resident resident) {

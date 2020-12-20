@@ -426,7 +426,7 @@ public class TownService {
         town.addResident(resident);
         resident.setTown(town);
 
-        if (user != null ) {
+        if (user != null) {
             roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
             if (town.getNation() != null) {
@@ -453,6 +453,10 @@ public class TownService {
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
+
+        if (resident.isFake()) {
+            residentRepository.deleteOne(resident);
+        }
 
         Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
     }

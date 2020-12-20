@@ -783,7 +783,7 @@ public class TownFacade implements EconomyFacade {
      * @throws TownsCommandException
      */
     private void removeTownLeader(Town town) throws TownsCommandException {
-        if (town.getLeader() == null) {
+        if (town.getLeader().isFake()) {
             throw new TownsCommandException("This town does not have a leader.");
         }
 
@@ -815,12 +815,6 @@ public class TownFacade implements EconomyFacade {
      */
     private void replaceTownLeader(Town town, User user) throws TownsCommandException {
         Resident userResident = residentService.getOrCreate(user);
-        Optional<User> currentTownLeader = Optional.empty();
-
-        if (town.getLeader() != null) {
-            UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
-            currentTownLeader = userStorageService.get(town.getLeader().getId());
-        }
 
         if (userResident.getTown() == null) {
             townService.addResidentToTown(user, userResident, town);
@@ -829,13 +823,15 @@ public class TownFacade implements EconomyFacade {
         if (userResident.getTown() != null && !userResident.getTown().getId().equals(town.getId())) {
             Resident userTownLeader = userResident.getTown().getLeader();
 
-            if (userTownLeader != null && userTownLeader.getId().equals(user.getUniqueId())) {
+            if (userTownLeader.getId().equals(user.getUniqueId())) {
                 throw new TownsCommandException("That user is already the leader of another town");
             }
 
             townService.removeResidentFromTown(user, userResident, town);
             townService.addResidentToTown(user, userResident, town);
         }
+
+        Optional<? extends User> currentTownLeader = UserUtils.getUser(town.getLeader().getId());
 
         if (currentTownLeader.isPresent()) {
             this.grantTown(currentTownLeader.get(), user);

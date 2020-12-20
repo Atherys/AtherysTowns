@@ -49,6 +49,8 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     private LocalDateTime lastTownSpawn;
 
+    private boolean isFake;
+
     @Transient
     private int warmupSecondsLeft;
 
@@ -143,6 +145,14 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     public void setWarmupSecondsLeft(int warmupSecondsLeft) {
         this.warmupSecondsLeft = warmupSecondsLeft;
+    }
+
+    public boolean isFake() {
+        return isFake;
+    }
+
+    public void setFake(boolean fake) {
+        isFake = fake;
     }
 
     public int getVersion() {
