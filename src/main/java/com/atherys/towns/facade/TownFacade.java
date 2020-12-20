@@ -774,7 +774,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     /**
-     * 1. Remove leader of town and leave town leaderless<br>
+     * 1. Remove leader of town and leave town leaderless ( create fake resident with fake name )<br>
      *  1.1. Town has leader<br>
      *   - Remove leader resident as leader ( but keep in town )<br>
      *  1.2 Town does not have leader<br>
@@ -790,7 +790,9 @@ public class TownFacade implements EconomyFacade {
 
         UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
         userStorageService.get(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
-        townService.setTownLeader(town, null);
+
+        Resident fakeResident = residentService.getOrCreate(UUID.randomUUID(), "None");
+        townService.setTownLeader(town, fakeResident);
     }
 
     /**

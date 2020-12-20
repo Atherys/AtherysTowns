@@ -33,11 +33,12 @@ public class ResidentService {
     ResidentService() {
     }
 
-    protected Resident getOrCreate(UUID playerUuid, String playerName) {
+    public Resident getOrCreate(UUID playerUuid, String playerName) {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 
         if (resident.isPresent()) {
             Resident res = resident.get();
+            res.setName(playerName);
             res.setLastLogin(LocalDateTime.now());
             return res;
         } else {
