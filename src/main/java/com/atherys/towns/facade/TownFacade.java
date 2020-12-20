@@ -3,6 +3,7 @@ package com.atherys.towns.facade;
 import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.Question;
 import com.atherys.core.utils.Question.Answer;
+import com.atherys.core.utils.UserUtils;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
@@ -788,8 +789,7 @@ public class TownFacade implements EconomyFacade {
 
         Resident leader = town.getLeader();
 
-        UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
-        userStorageService.get(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
+        UserUtils.getUser(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
 
         Resident fakeResident = residentService.createFakeResident("None");
         townService.setTownLeader(town, fakeResident);
