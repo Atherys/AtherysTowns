@@ -66,7 +66,7 @@ public class ResidentFacade {
         Resident resident = residentService.getOrCreate(player);
         residentService.setLastTownSpawn(resident, LocalDateTime.now());
         residentService.setLastLogin(resident, LocalDateTime.now());
-        roleService.validateRoles(player, resident);
+        roleService.validateRoles(resident);
         townsPermissionService.updateContexts(player, resident);
 
         Town currentTown = plotService.getTownPlotByLocation(player.getLocation()).map(TownPlot::getTown).orElse(null);

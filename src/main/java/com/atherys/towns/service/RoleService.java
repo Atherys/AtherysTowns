@@ -98,7 +98,7 @@ public class RoleService {
         user.getSubjectData().removeParent(townContexts, roleSubject.asSubjectReference());
     }
 
-    public void validateRoles(User user, Resident resident) {
+    public void validateRoles(Resident resident) {
         for (String role : resident.getTownRoleIds()) {
             if (!config.TOWN.ROLES.containsKey(role)) {
                 residentService.removeTownRole(resident, role);
@@ -118,5 +118,9 @@ public class RoleService {
         }
 
         return permissionService;
+    }
+
+    public void clearRolesAndPermissions(User user, Resident resident) {
+
     }
 }

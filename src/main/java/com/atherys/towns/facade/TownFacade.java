@@ -24,6 +24,7 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -194,14 +195,15 @@ public class TownFacade implements EconomyFacade {
         return town;
     }
 
-    public void grantTown(Player player, User target) throws TownsCommandException {
+    public void grantTown(User player, User target) throws TownsCommandException {
         Town town = getPlayerTown(player);
         Resident newMayor = residentService.getOrCreate(target);
         Resident oldMayor = residentService.getOrCreate(player);
 
         if (residentService.isResidentTownLeader(oldMayor, town) && partOfSameTown(player, target)) {
             roleService.removeTownRole(player, town, config.TOWN.TOWN_LEADER_ROLE);
-            townService.setTownLeader(town, newMayor, target);
+            townService.setTownLeader(town, newMayor);
+            roleService.addTownRole(target, town, config.TOWN.TOWN_LEADER_ROLE);
             townsMsg.broadcastTownInfo(town, GOLD, target.getName(), DARK_GREEN, " is now the mayor of ", GOLD, town.getName(), ".");
         } else {
             throw new TownsCommandException("The player you are granting leadership to is either not in your town, or you are not the town leader.");
@@ -290,7 +292,7 @@ public class TownFacade implements EconomyFacade {
         confirmation.pollChat(player);
     }
 
-    public Town getPlayerTown(Player source) throws TownsCommandException {
+    public Town getPlayerTown(User source) throws TownsCommandException {
         Town town = residentService.getOrCreate(source).getTown();
 
         if (town == null) {
@@ -427,7 +429,7 @@ public class TownFacade implements EconomyFacade {
 
         if (town.equals(resident.getTown())) {
 
-            if (town.getLeader().equals(resident)) {
+            if (town.getLeader() != null && town.getLeader().equals(resident)) {
                 throw new TownsCommandException("You cannot kick the leader of the town.");
             }
 
@@ -438,7 +440,7 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
-    public void joinTown(Player player, Town town) throws TownsCommandException {
+    public void joinTown(User player, Town town) throws TownsCommandException {
         if (!town.isFreelyJoinable()) {
             throw new TownsCommandException(Text.of(town.getName(), " is not freely joinable."));
         }
@@ -447,16 +449,19 @@ public class TownFacade implements EconomyFacade {
         joinTownMessage(player, town);
     }
 
-    public void leaveTown(Player player) throws TownsCommandException {
-        Town town = getPlayerTown(player);
-        Resident resident = residentService.getOrCreate(player);
+    public void leaveTown(User user) throws TownsCommandException {
+        Town town = getPlayerTown(user);
+        Resident resident = residentService.getOrCreate(user);
 
-        if (town.getLeader().equals(resident)) {
+        if (town.getLeader() != null && town.getLeader().equals(resident)) {
             throw new TownsCommandException("The town leader cannot leave the town.");
         }
 
-        townService.removeResidentFromTown(player, resident, town);
-        townsMsg.info(player, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+        townService.removeResidentFromTown(user, resident, town);
+
+        if (user instanceof Player) {
+            townsMsg.info((Player) user, "You have left the town ", GOLD, town.getName(), DARK_GREEN, ".");
+        }
     }
 
 
@@ -615,7 +620,7 @@ public class TownFacade implements EconomyFacade {
         ));
 
         townText
-                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, town.getLeader() == null ? "None" : residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
@@ -640,7 +645,7 @@ public class TownFacade implements EconomyFacade {
                 .onHover(TextActions.showText(Text.of(
                         GOLD, town.getName(), Text.NEW_LINE,
                         DARK_GREEN, "Nation: ", nationFacade.renderNation(town.getNation()), Text.NEW_LINE,
-                        DARK_GREEN, "Leader: ", GOLD, town.getLeader().getName(), Text.NEW_LINE,
+                        DARK_GREEN, "Leader: ", GOLD, town.getLeader() != null ? town.getLeader().getName() : "None", Text.NEW_LINE,
                         DARK_GREEN, "Residents: ", GOLD, town.getResidents().size(), Text.NEW_LINE,
                         DARK_GRAY, "Click to view"
                 )))
@@ -677,7 +682,7 @@ public class TownFacade implements EconomyFacade {
         event.setCancelled(!attackerPlot.get().getTown().isPvpEnabled());
     }
 
-    private void joinTownMessage(Player player, Town town) {
+    private void joinTownMessage(User player, Town town) {
         townsMsg.broadcastTownInfo(town, player.getName(), " has joined the town");
     }
 
@@ -732,5 +737,107 @@ public class TownFacade implements EconomyFacade {
 
     public void setTownTaxable(Town town, boolean taxable) {
         townService.setTownTaxable(town, taxable);
+    }
+
+    /**
+     * Cases:<br>
+     * 1. Remove leader of town and leave town leaderless<br>
+     *  1.1. Town has leader<br>
+     *   - Remove leader resident as leader ( but keep in town )<br>
+     *  1.2 Town does not have leader<br>
+     *   - Do nothing<br><br>
+     * 2. Set player as mayor of town<br>
+     *  2.1. Player is not part of town<br>
+     *   - Join player to the town<br>
+     *   - grant the town to them<br>
+     *  2.2. Player is part of town<br>
+     *   2.2.1. Player is part of same town<br>
+     *    - Grant the town to them<br>
+     *   2.2.2. Player is not part of same town<br>
+     *    - Make player leave their own town ( fails if they are leader )<br>
+     *    - Join player to the requested town<br>
+     *    - Grant the town to them<br>
+     * @param town
+     * @param user
+     * @throws CommandException
+     */
+    public void overrideLeader(Town town, @Nullable User user) throws CommandException {
+        if (town == null) {
+            throw new TownsCommandException("No town provided");
+        }
+
+        if (user == null) {
+            removeTownLeader(town);
+        } else {
+            replaceTownLeader(town, user);
+        }
+    }
+
+    /**
+     * 1. Remove leader of town and leave town leaderless<br>
+     *  1.1. Town has leader<br>
+     *   - Remove leader resident as leader ( but keep in town )<br>
+     *  1.2 Town does not have leader<br>
+     * @param town
+     * @throws TownsCommandException
+     */
+    private void removeTownLeader(Town town) throws TownsCommandException {
+        if (town.getLeader() == null) {
+            throw new TownsCommandException("This town does not have a leader.");
+        }
+
+        Resident leader = town.getLeader();
+
+        UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
+        userStorageService.get(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
+        townService.setTownLeader(town, null);
+    }
+
+    /**
+     * 2. Set player as mayor of town<br>
+     *  2.1. Player is not part of town<br>
+     *   - Join player to the town<br>
+     *   - grant the town to them<br>
+     *  2.2. Player is part of town<br>
+     *   2.2.1. Player is part of same town<br>
+     *    - Grant the town to them<br>
+     *   2.2.2. Player is not part of same town<br>
+     *    - Make player leave their own town ( fails if they are leader )<br>
+     *    - Join player to the requested town<br>
+     *    - Grant the town to them<br>
+     *
+     * @param town
+     * @param user
+     */
+    private void replaceTownLeader(Town town, User user) throws TownsCommandException {
+        Resident userResident = residentService.getOrCreate(user);
+        Optional<User> currentTownLeader = Optional.empty();
+
+        if (town.getLeader() != null) {
+            UserStorageService userStorageService = Sponge.getServiceManager().provide(UserStorageService.class).get();
+            currentTownLeader = userStorageService.get(town.getLeader().getId());
+        }
+
+        if (userResident.getTown() == null) {
+            townService.addResidentToTown(user, userResident, town);
+        }
+
+        if (userResident.getTown() != null && !userResident.getTown().getId().equals(town.getId())) {
+            Resident userTownLeader = userResident.getTown().getLeader();
+
+            if (userTownLeader != null && userTownLeader.getId().equals(user.getUniqueId())) {
+                throw new TownsCommandException("That user is already the leader of another town");
+            }
+
+            townService.removeResidentFromTown(user, userResident, town);
+            townService.addResidentToTown(user, userResident, town);
+        }
+
+        if (currentTownLeader.isPresent()) {
+            this.grantTown(currentTownLeader.get(), user);
+        } else {
+            townService.setTownLeader(town, userResident);
+            roleService.addTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE);
+        }
     }
 }

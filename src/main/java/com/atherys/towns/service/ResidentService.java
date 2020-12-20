@@ -123,7 +123,7 @@ public class ResidentService {
     }
 
     public boolean isResidentTownLeader(Resident resident, Town town) {
-        return town.getLeader().getId().equals(resident.getId());
+        return town.getLeader() != null && town.getLeader().getId().equals(resident.getId());
     }
 
     public void grantTownRole(Resident resident, String role) {

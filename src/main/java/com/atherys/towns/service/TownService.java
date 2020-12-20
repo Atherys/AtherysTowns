@@ -155,10 +155,9 @@ public class TownService {
         return townRepository.findByName(townName);
     }
 
-    public void setTownLeader(Town town, Resident resident, User user) {
+    public void setTownLeader(Town town, Resident resident) {
         town.setLeader(resident);
         townRepository.saveOne(town);
-        roleService.addTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE);
     }
 
     public void setTownName(Town town, String name) {
@@ -457,5 +456,9 @@ public class TownService {
 
     public void setTownTaxable(Town town, boolean taxable) {
         town.setTaxable(taxable);
+    }
+
+    public void removeTownLeader(Town town) {
+
     }
 }
