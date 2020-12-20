@@ -439,7 +439,7 @@ public class TownService {
     }
 
     public void removeResidentFromTown(User user, Resident resident, Town town) {
-        town.removeResident(resident);
+        town.getResidents().removeIf(r -> r.getId().equals(user.getUniqueId()));
         resident.setTown(null);
         townsPermissionService.clearPermissions(user, town);
         townsPermissionService.updateContexts(user, resident);
