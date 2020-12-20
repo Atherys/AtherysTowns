@@ -792,6 +792,8 @@ public class TownFacade implements EconomyFacade {
         UserUtils.getUser(leader.getId()).ifPresent(user -> roleService.removeTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE));
 
         Resident fakeResident = residentService.createFakeResident("None");
+
+        townService.addResidentToTown(null, fakeResident, town);
         townService.setTownLeader(town, fakeResident);
     }
 

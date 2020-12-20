@@ -422,27 +422,34 @@ public class TownService {
         Sponge.getEventManager().post(new TownEvent.Removed(town));
     }
 
-    public void addResidentToTown(User user, Resident resident, Town town) {
+    public void addResidentToTown(@Nullable User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
-        if (town.getNation() != null) {
-            roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
+        if (user != null ) {
+            roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
+
+            if (town.getNation() != null) {
+                roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
+            }
+
+            townsPermissionService.updateContexts(user, resident);
         }
 
-        townsPermissionService.updateContexts(user, resident);
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
 
         Sponge.getEventManager().post(new ResidentEvent.JoinedTown(resident, town));
     }
 
-    public void removeResidentFromTown(User user, Resident resident, Town town) {
-        town.getResidents().removeIf(r -> r.getId().equals(user.getUniqueId()));
+    public void removeResidentFromTown(@Nullable User user, Resident resident, Town town) {
+        town.getResidents().removeIf(r -> r.getId().equals(resident.getId()));
         resident.setTown(null);
-        townsPermissionService.clearPermissions(user, town);
-        townsPermissionService.updateContexts(user, resident);
+
+        if (user != null) {
+            townsPermissionService.clearPermissions(user, town);
+            townsPermissionService.updateContexts(user, resident);
+        }
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);

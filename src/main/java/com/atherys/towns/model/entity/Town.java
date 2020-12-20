@@ -113,7 +113,6 @@ public class Town implements Identifiable<Long> {
         this.motd = motd;
     }
 
-    @Nullable
     public Resident getLeader() {
         return leader;
     }
