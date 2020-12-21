@@ -621,7 +621,7 @@ public class TownFacade implements EconomyFacade {
         ));
 
         townText
-                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, town.getLeader() == null ? "None" : residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Leader: ", GOLD, town.getLeader().isFake() ? "None" : residentFacade.renderResident(town.getLeader()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Size: ", GOLD, townService.getTownSize(town), "/", town.getMaxSize(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Board: ", GOLD, town.getMotd(), Text.NEW_LINE))
                 .append(townsMsg.renderBank(town.getBank().toString()), Text.NEW_LINE)
@@ -629,7 +629,7 @@ public class TownFacade implements EconomyFacade {
                 .append(Text.of(DARK_GREEN, "PvP: ", townsMsg.renderBoolean(town.isPvpEnabled(), true), DARK_GRAY, " | "))
                 .append(Text.of(DARK_GREEN, "Freely Joinable: ", townsMsg.renderBoolean(town.isFreelyJoinable(), true), Text.NEW_LINE))
                 .append(Text.of(
-                    DARK_GREEN, "Residents [", GREEN, town.getResidents().size(), DARK_GREEN, "]: ",
+                    DARK_GREEN, "Residents [", GREEN, town.getResidents().size() - (town.getLeader().isFake() ? 1 : 0), DARK_GREEN, "]: ",
                     GOLD, residentFacade.renderResidents(town.getResidents())
         ));
 

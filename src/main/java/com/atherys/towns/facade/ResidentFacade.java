@@ -146,6 +146,10 @@ public class ResidentFacade {
         Text.Builder residentsText = Text.builder();
         int i = 0;
         for (Resident resident : residents) {
+            if (resident.isFake()) {
+                continue;
+            }
+
             i++;
             residentsText.append(
                     Text.of(renderResident(resident), i == residents.size() || i == config.MAX_RESIDENTS_DISPLAY ? "" : ", ")
