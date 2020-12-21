@@ -162,7 +162,7 @@ public class TownService {
         townRepository.saveOne(town);
 
         if (previousLeader.isFake()) {
-            residentRepository.deleteOne(previousLeader);
+            removeResidentFromTown(null, previousLeader, town);
         }
     }
 
