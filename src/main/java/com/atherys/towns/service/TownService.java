@@ -156,8 +156,14 @@ public class TownService {
     }
 
     public void setTownLeader(Town town, Resident resident) {
+        Resident previousLeader = town.getLeader();
+
         town.setLeader(resident);
         townRepository.saveOne(town);
+
+        if (previousLeader.isFake()) {
+            residentRepository.deleteOne(previousLeader);
+        }
     }
 
     public void setTownName(Town town, String name) {

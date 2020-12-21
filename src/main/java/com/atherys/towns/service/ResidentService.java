@@ -46,7 +46,7 @@ public class ResidentService {
             Resident res = resident.get();
             res.setName(playerName);
             res.setLastLogin(LocalDateTime.now());
-            res.setFake(isFake);
+
             return res;
         } else {
             Resident newResident = new Resident();
@@ -54,7 +54,9 @@ public class ResidentService {
             newResident.setId(playerUuid);
             newResident.setName(playerName);
             newResident.setRegisteredOn(LocalDateTime.now());
+            newResident.setLastLogin(LocalDateTime.now());
             newResident.setLastTownSpawn(LocalDateTime.now().minus(1, ChronoUnit.YEARS));
+            newResident.setFake(isFake);
 
             residentRepository.saveOne(newResident);
 
