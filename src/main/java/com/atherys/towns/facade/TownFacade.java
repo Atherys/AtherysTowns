@@ -20,9 +20,11 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.service.economy.account.Account;
-import org.spongepowered.api.service.economy.account.UniqueAccount;
+import org.spongepowered.api.service.economy.transaction.ResultType;
+import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -34,8 +36,6 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -132,9 +132,13 @@ public class TownFacade implements EconomyFacade {
         validateNewTownPlot(homePlot, player, player.getLocation());
 
         if (AtherysTowns.economyIsEnabled()) {
-            UniqueAccount account = Economy.getAccount(player.getUniqueId()).get();
-            if (account.getBalance(config.DEFAULT_CURRENCY).doubleValue() < config.TOWN.CREATION_COST) {
-                throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST, " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
+            Account account = Economy.getAccount(player.getUniqueId()).get();
+            Cause cause = Sponge.getCauseStackManager().getCurrentCause();
+            TransactionResult result = account.withdraw(config.DEFAULT_CURRENCY,
+                                                        BigDecimal.valueOf(config.TOWN.CREATION_COST), cause);
+            if (result.getResult() == ResultType.FAILED || result.getResult() == ResultType.ACCOUNT_NO_FUNDS) {
+                throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST,
+                                                " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
             }
         }
 
