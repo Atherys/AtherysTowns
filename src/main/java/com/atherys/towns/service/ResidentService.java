@@ -33,12 +33,20 @@ public class ResidentService {
     ResidentService() {
     }
 
-    protected Resident getOrCreate(UUID playerUuid, String playerName) {
+    public Resident createFakeResident(String name) {
+        Resident res = getOrCreate(UUID.randomUUID(), name, true);
+        res.setLastLogin(LocalDateTime.now());
+        return res;
+    }
+
+    public Resident getOrCreate(UUID playerUuid, String playerName, boolean isFake) {
         Optional<Resident> resident = residentRepository.findById(playerUuid);
 
         if (resident.isPresent()) {
             Resident res = resident.get();
+            res.setName(playerName);
             res.setLastLogin(LocalDateTime.now());
+
             return res;
         } else {
             Resident newResident = new Resident();
@@ -46,7 +54,9 @@ public class ResidentService {
             newResident.setId(playerUuid);
             newResident.setName(playerName);
             newResident.setRegisteredOn(LocalDateTime.now());
+            newResident.setLastLogin(LocalDateTime.now());
             newResident.setLastTownSpawn(LocalDateTime.now().minus(1, ChronoUnit.YEARS));
+            newResident.setFake(isFake);
 
             residentRepository.saveOne(newResident);
 
@@ -55,7 +65,7 @@ public class ResidentService {
     }
 
     public Resident getOrCreate(User src) {
-        return getOrCreate(src.getUniqueId(), src.getName());
+        return getOrCreate(src.getUniqueId(), src.getName(), false);
     }
 
     public Optional<User> getUserFromResident(Resident resident) {
@@ -123,7 +133,7 @@ public class ResidentService {
     }
 
     public boolean isResidentTownLeader(Resident resident, Town town) {
-        return town.getLeader().getId().equals(resident.getId());
+        return town.getLeader() != null && town.getLeader().getId().equals(resident.getId());
     }
 
     public void grantTownRole(Resident resident, String role) {

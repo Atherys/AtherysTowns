@@ -22,6 +22,7 @@ import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -66,7 +67,7 @@ public class ResidentFacade {
         Resident resident = residentService.getOrCreate(player);
         residentService.setLastTownSpawn(resident, LocalDateTime.now());
         residentService.setLastLogin(resident, LocalDateTime.now());
-        roleService.validateRoles(player, resident);
+        roleService.validateRoles(resident);
         townsPermissionService.updateContexts(player, resident);
 
         Town currentTown = plotService.getTownPlotByLocation(player.getLocation()).map(TownPlot::getTown).orElse(null);
@@ -100,7 +101,10 @@ public class ResidentFacade {
         Text title = Text.of(GOLD, resident.getName(), DARK_GRAY, " (", status, DARK_GRAY, ")");
         String padding = StringUtils.repeat("=", townsMsg.getPadding(title.toPlain().length()));
 
-        String lastPlayed = formatter.format(UserUtils.getUser(resident.getId()).get().get(Keys.LAST_DATE_PLAYED).get());
+        String lastPlayed = UserUtils.getUser(resident.getId())
+                .flatMap(user -> user.get(Keys.LAST_DATE_PLAYED))
+                .map(formatter::format)
+                .orElse("N/A");
 
         Text.Builder residentInfo = Text.builder()
                 .append(Text.of(DARK_GRAY, "[]", padding, "[ ", title, DARK_GRAY, " ]", padding, "[]", Text.NEW_LINE))
@@ -142,6 +146,10 @@ public class ResidentFacade {
         Text.Builder residentsText = Text.builder();
         int i = 0;
         for (Resident resident : residents) {
+            if (resident.isFake()) {
+                continue;
+            }
+
             i++;
             residentsText.append(
                     Text.of(renderResident(resident), i == residents.size() || i == config.MAX_RESIDENTS_DISPLAY ? "" : ", ")

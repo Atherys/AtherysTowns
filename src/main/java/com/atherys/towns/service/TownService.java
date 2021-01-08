@@ -155,10 +155,15 @@ public class TownService {
         return townRepository.findByName(townName);
     }
 
-    public void setTownLeader(Town town, Resident resident, User user) {
+    public void setTownLeader(Town town, Resident resident) {
+        Resident previousLeader = town.getLeader();
+
         town.setLeader(resident);
         townRepository.saveOne(town);
-        roleService.addTownRole(user, town, config.TOWN.TOWN_LEADER_ROLE);
+
+        if (previousLeader.isFake()) {
+            removeResidentFromTown(null, previousLeader, town);
+        }
     }
 
     public void setTownName(Town town, String name) {
@@ -423,30 +428,41 @@ public class TownService {
         Sponge.getEventManager().post(new TownEvent.Removed(town));
     }
 
-    public void addResidentToTown(User user, Resident resident, Town town) {
+    public void addResidentToTown(@Nullable User user, Resident resident, Town town) {
         town.addResident(resident);
         resident.setTown(town);
-        roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
 
-        if (town.getNation() != null) {
-            roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
+        if (user != null) {
+            roleService.addTownRole(user, town, config.TOWN.TOWN_DEFAULT_ROLE);
+
+            if (town.getNation() != null) {
+                roleService.addNationRole(user, town.getNation(), config.NATION.DEFAULT_ROLE);
+            }
+
+            townsPermissionService.updateContexts(user, resident);
         }
 
-        townsPermissionService.updateContexts(user, resident);
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
 
         Sponge.getEventManager().post(new ResidentEvent.JoinedTown(resident, town));
     }
 
-    public void removeResidentFromTown(User user, Resident resident, Town town) {
-        town.removeResident(resident);
+    public void removeResidentFromTown(@Nullable User user, Resident resident, Town town) {
+        town.getResidents().removeIf(r -> r.getId().equals(resident.getId()));
         resident.setTown(null);
-        townsPermissionService.clearPermissions(user, town);
-        townsPermissionService.updateContexts(user, resident);
+
+        if (user != null) {
+            townsPermissionService.clearPermissions(user, town);
+            townsPermissionService.updateContexts(user, resident);
+        }
 
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
+
+        if (resident.isFake()) {
+            residentRepository.deleteOne(resident);
+        }
 
         Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
     }

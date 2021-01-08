@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,6 +48,8 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
     private LocalDateTime lastLogin;
 
     private LocalDateTime lastTownSpawn;
+
+    private boolean isFake;
 
     @Transient
     private int warmupSecondsLeft;
@@ -144,6 +147,14 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         this.warmupSecondsLeft = warmupSecondsLeft;
     }
 
+    public boolean isFake() {
+        return isFake;
+    }
+
+    public void setFake(boolean fake) {
+        isFake = fake;
+    }
+
     public int getVersion() {
         return version;
     }
@@ -151,5 +162,4 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
     public void setVersion(int version) {
         this.version = version;
     }
-
 }
