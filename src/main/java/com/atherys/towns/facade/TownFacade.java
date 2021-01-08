@@ -21,9 +21,11 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.service.economy.account.Account;
-import org.spongepowered.api.service.economy.account.UniqueAccount;
+import org.spongepowered.api.service.economy.transaction.ResultType;
+import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
@@ -36,8 +38,6 @@ import org.spongepowered.api.world.World;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -133,13 +133,6 @@ public class TownFacade implements EconomyFacade {
         TownPlot homePlot = plotService.createTownPlotFromSelection(selection);
         validateNewTownPlot(homePlot, player, player.getLocation());
 
-        if (AtherysTowns.economyIsEnabled()) {
-            UniqueAccount account = Economy.getAccount(player.getUniqueId()).get();
-            if (account.getBalance(config.DEFAULT_CURRENCY).doubleValue() < config.TOWN.CREATION_COST) {
-                throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST, " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
-            }
-        }
-
         Optional<TownPlot> closestPlot = plotService.getClosestTownPlot(homePlot);
 
         if (closestPlot.isPresent()) {
@@ -151,30 +144,36 @@ public class TownFacade implements EconomyFacade {
             }
         }
 
-        // if the AtherysParties plugin is not loaded, just create the town
-        if (!Sponge.getPluginManager().isLoaded("atherysparties")) {
+        if (!Sponge.getPluginManager().isLoaded("atherysparties") ||
+                permissionFacade.isPermitted(player, TownPermissions.CREATE_WITHOUT_PARTY)) {
             createTown(player, townName, homePlot, nation);
-            return;
-        }
-
-        // if the AtherysParties plugin is loaded, check for a party
-        if (AtherysPartiesIntegration.playerHasParty(player)) {
+        } else if (AtherysPartiesIntegration.playerHasParty(player)) {
             Set<Player> partyMembers = AtherysPartiesIntegration.fetchPlayerPartyMembers(player);
             if (partyMembers.size() < config.MIN_RESIDENTS_TOWN_CREATE) {
                 throw new TownsCommandException("Your party does not have enough members (Min: " + config.MIN_RESIDENTS_TOWN_CREATE + ").");
             }
-
             partyMembers.removeAll(partyMembers.stream().filter(this::isLeaderOfPlayerTown).collect(Collectors.toSet()));
             pollFacade.sendCreateTownPoll(townName, partyMembers, player, homePlot, nation);
-        } else if (permissionFacade.isPermitted(player, TownPermissions.CREATE_WITHOUT_PARTY)) {
-            createTown(player, townName, homePlot, nation);
-        } else {
+        }
+        else {
             throw new TownsCommandException("You require a party to form a town!");
         }
     }
 
     public Town createTown(Player player, String name, TownPlot homePlot, @Nullable Nation nation) throws CommandException {
         Resident mayor = residentService.getOrCreate(player);
+
+        // Doing this check here, so that we don't need to handle refund logic in a few places
+        if (AtherysTowns.economyIsEnabled()) {
+            Account account = Economy.getAccount(player.getUniqueId()).get();
+            Cause cause = Sponge.getCauseStackManager().getCurrentCause();
+            TransactionResult result = account.withdraw(config.DEFAULT_CURRENCY,
+                    BigDecimal.valueOf(config.TOWN.CREATION_COST), cause);
+            if (result.getResult() == ResultType.FAILED || result.getResult() == ResultType.ACCOUNT_NO_FUNDS) {
+                throw new TownsCommandException("You lack the funds to create a town. ", config.TOWN.CREATION_COST,
+                        " ", config.DEFAULT_CURRENCY.getPluralDisplayName(), " are required.");
+            }
+        }
 
         // create the town
         Town town = townService.createTown(
