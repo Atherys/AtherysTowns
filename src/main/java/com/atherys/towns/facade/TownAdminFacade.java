@@ -15,11 +15,7 @@ public class TownAdminFacade {
     @Inject
     TownsMessagingFacade townsMsg;
 
-    public void decreaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
-        Town town = townService.getTownFromName(townName).orElseThrow(() -> {
-            return TownsCommandException.townNotFound(townName);
-        });
-
+    public void decreaseTownSize(CommandSource source, Town town, int amount) {
         if (town.getMaxSize() - amount > townService.getTownSize(town)) {
             townService.decreaseTownSize(town, amount);
             townsMsg.info(source, "Town size decreased.");
@@ -28,11 +24,7 @@ public class TownAdminFacade {
         }
     }
 
-    public void increaseTownSize(CommandSource source, String townName, int amount) throws TownsCommandException {
-        Town town = townService.getTownFromName(townName).orElseThrow(() -> {
-            return TownsCommandException.townNotFound(townName);
-        });
-
+    public void increaseTownSize(CommandSource source, Town town, int amount) {
         townService.increaseTownSize(town, amount);
         townsMsg.info(source, "Town size increased.");
     }

@@ -5,6 +5,7 @@ import com.atherys.core.command.annotation.Aliases;
 import com.atherys.core.command.annotation.Description;
 import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -29,7 +30,7 @@ public class DecreaseTownSizeCommand implements ParameterizedCommand {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getTownAdminFacade().decreaseTownSize(
-                src, args.<String>getOne("town").get(), args.<Integer>getOne("amount").get()
+                src, args.<Town>getOne("town").get(), args.<Integer>getOne("amount").get()
         );
         return CommandResult.success();
     }
