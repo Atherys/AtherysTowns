@@ -1,7 +1,5 @@
 package com.atherys.towns.api.permission;
 
-import com.atherys.towns.api.permission.nation.NationPermissions;
-import com.atherys.towns.api.permission.world.WorldPermission;
 import org.spongepowered.api.registry.CatalogRegistryModule;
 
 import java.util.Collection;

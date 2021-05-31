@@ -4,7 +4,6 @@ import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.service.PlotService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;

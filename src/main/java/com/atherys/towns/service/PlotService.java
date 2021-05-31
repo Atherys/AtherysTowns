@@ -2,17 +2,14 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.TownsPermissionContext;
+import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.persistence.NationPlotRepository;
 import com.atherys.towns.persistence.TownPlotRepository;
-import com.atherys.towns.model.PlotSelection;
-import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.MathUtils;
-import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.text.Text;
@@ -49,8 +46,8 @@ public class PlotService {
     }
 
     public static Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
-        Vector2i southWestCorner = plot.getSouthWestCorner();
-        Vector2i northEastCorner = plot.getNorthEastCorner();
+        Vector3i southWestCorner = plot.getSouthWestCorner();
+        Vector3i northEastCorner = plot.getNorthEastCorner();
 
         Set<Vector2i> chunkCoordinates = new HashSet<>();
 
