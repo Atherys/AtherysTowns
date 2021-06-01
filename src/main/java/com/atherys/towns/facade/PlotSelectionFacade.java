@@ -9,14 +9,13 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Singleton
 public class PlotSelectionFacade {
 
     private final Map<UUID, PlotSelection> selections = new HashMap<>();
+    private final Set<UUID> plotSelectors = new HashSet<>();
 
     @Inject
     TownsMessagingFacade townMsg;
@@ -72,24 +71,24 @@ public class PlotSelectionFacade {
         }
     }
 
-    private void selectPointAAtLocation(Player player, Location<World> location) {
+    public void selectPointAAtLocation(Player player, Location<World> location) {
         getOrCreateSelection(player).setPointA(location);
         checkBorders(player);
+        sendPointSelectionMessage(player, "A");
     }
 
-    private void selectPointBAtLocation(Player player, Location<World> location) {
+    public void selectPointBAtLocation(Player player, Location<World> location) {
         getOrCreateSelection(player).setPointB(location);
         checkBorders(player);
+        sendPointSelectionMessage(player, "B");
     }
 
     public void selectPointAFromPlayerLocation(Player player) {
         selectPointAAtLocation(player, player.getLocation());
-        sendPointSelectionMessage(player, "A");
     }
 
     public void selectPointBFromPlayerLocation(Player player) {
         selectPointBAtLocation(player, player.getLocation());
-        sendPointSelectionMessage(player, "B");
     }
 
     private void sendPointSelectionMessage(Player player, String point) {
@@ -130,5 +129,19 @@ public class PlotSelectionFacade {
 
     public PlotSelection getCurrentPlotSelection(Player player) {
         return getOrCreateSelection(player);
+    }
+
+    public boolean playerIsSelectingPlot(Player player) {
+        return plotSelectors.contains(player.getUniqueId());
+    }
+
+    public void togglePlotSelectionMode(Player player) {
+        if (playerIsSelectingPlot(player)) {
+            plotSelectors.remove(player.getUniqueId());
+            townMsg.info(player, "Plot selection mode disabled.");
+        } else {
+            plotSelectors.add(player.getUniqueId());
+            townMsg.info(player, "Plot selection mode enabled.");
+        }
     }
 }

@@ -390,6 +390,14 @@ public class TownFacade implements EconomyFacade {
         townsMsg.info(source, "Plot claimed.");
     }
 
+    public void claimTownPlotWithoutThrowing(Player source) {
+        try {
+            claimTownPlotFromPlayerSelection(source);
+        } catch (CommandException e) {
+            townsMsg.error(source, e.getText());
+        }
+    }
+
     public void inviteToTown(Player source, Player invitee) throws TownsCommandException {
         Town town = getPlayerTown(source);
 

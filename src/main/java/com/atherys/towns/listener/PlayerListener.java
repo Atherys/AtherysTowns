@@ -6,8 +6,11 @@ import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.facade.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
@@ -43,6 +46,12 @@ public class PlayerListener {
     @Inject
     private TownRaidFacade townRaidFacade;
 
+    @Inject
+    private PlotSelectionFacade plotSelectionFacade;
+
+    @Inject
+    private TownsMessagingFacade townsMsg;
+
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
         // And the move event was triggered due to a change in block position
@@ -73,5 +82,30 @@ public class PlayerListener {
     @Listener
     public void onPlayerVote(PlayerVoteEvent event) {
         pollFacade.onPlayerVote(event);
+    }
+
+    @Listener
+    public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
+        if (plotSelectionFacade.playerIsSelectingPlot(player)) {
+            event.getTransactions().get(0).getOriginal().getLocation().ifPresent(location -> {
+                plotSelectionFacade.selectPointAAtLocation(player, location);
+                event.setCancelled(true);
+            });
+        }
+    }
+
+    @Listener
+    public void onBlockInteract(InteractBlockEvent.Secondary.MainHand event, @Root Player player) {
+        if (plotSelectionFacade.playerIsSelectingPlot(player)) {
+            event.getTargetBlock().getLocation().ifPresent(location -> {
+                if (player.get(Keys.IS_SNEAKING).get()) {
+                    townFacade.claimTownPlotWithoutThrowing(player);
+                } else {
+                    plotSelectionFacade.selectPointBAtLocation(player, location);
+                }
+
+                event.setCancelled(true);
+            });
+        }
     }
 }
