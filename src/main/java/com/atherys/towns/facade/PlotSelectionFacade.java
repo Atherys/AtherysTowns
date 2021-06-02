@@ -15,7 +15,6 @@ import java.util.*;
 public class PlotSelectionFacade {
 
     private final Map<UUID, PlotSelection> selections = new HashMap<>();
-    private final Set<UUID> plotSelectors = new HashSet<>();
 
     @Inject
     TownsMessagingFacade townMsg;
@@ -27,7 +26,7 @@ public class PlotSelectionFacade {
         if (selections.containsKey(player.getUniqueId())) {
             return selections.get(player.getUniqueId());
         } else {
-            PlotSelection plotSelection = new PlotSelection();
+            PlotSelection plotSelection = new PlotSelection(false);
             selections.put(player.getUniqueId(), plotSelection);
             return plotSelection;
         }
@@ -132,15 +131,15 @@ public class PlotSelectionFacade {
     }
 
     public boolean playerIsSelectingPlot(Player player) {
-        return plotSelectors.contains(player.getUniqueId());
+        return selections.containsKey(player.getUniqueId());
     }
 
-    public void togglePlotSelectionMode(Player player) {
+    public void togglePlotSelectionMode(Player player, boolean isCuboid) {
         if (playerIsSelectingPlot(player)) {
-            plotSelectors.remove(player.getUniqueId());
+            selections.remove(player.getUniqueId());
             townMsg.info(player, "Plot selection mode disabled.");
         } else {
-            plotSelectors.add(player.getUniqueId());
+            selections.put(player.getUniqueId(), new PlotSelection(isCuboid));
             townMsg.info(player, "Plot selection mode enabled.");
         }
     }

@@ -11,7 +11,10 @@ public class PlotSelection {
 
     private Location<World> pointB;
 
-    public PlotSelection() {
+    private boolean isCuboid;
+
+    public PlotSelection(boolean isCuboid) {
+        this.isCuboid = isCuboid;
     }
 
     public Location<World> getPointA() {
@@ -40,5 +43,13 @@ public class PlotSelection {
 
     public boolean isComplete() {
         return pointA != null && pointB != null;
+    }
+
+    public boolean isCuboid() {
+        return isCuboid;
+    }
+
+    public void setCuboid(boolean cuboid) {
+        isCuboid = cuboid;
     }
 }

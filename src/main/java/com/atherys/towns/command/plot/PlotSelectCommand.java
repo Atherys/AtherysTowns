@@ -16,19 +16,17 @@ import org.spongepowered.api.entity.living.player.Player;
 import javax.annotation.Nonnull;
 
 @Aliases("select")
-@Description("Base plot selection command. Toggles plot selection mode.")
+@Description("Toggles 2D plot selection mode. Will toggle off either mode.")
 @Children({
-        PlotSelectPointACommand.class,
-        PlotSelectPointBCommand.class,
-        PlotClearSelectionCommand.class
+        PlotClearSelectionCommand.class,
+        PlotSelectCuboidCommand.class
 })
-
 @HelpCommand(title = "Selection Help", prefix = "plot", command = "help")
 public class PlotSelectCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getPlotSelectionFacade().togglePlotSelectionMode(source);
+        AtherysTowns.getInstance().getPlotSelectionFacade().togglePlotSelectionMode(source, false);
         return CommandResult.success();
     }
 }
