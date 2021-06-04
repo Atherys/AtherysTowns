@@ -93,8 +93,14 @@ public class MathUtils {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        rect.setTopLeftCorner(new Vector3i(pSW.getX(), pSW.getY(), pSW.getZ() + 1));
-        rect.setBottomRightCorner(new Vector3i(pNE.getX() + 1, pNE.getY(), pNE.getZ()));
+        // If the southwest point is higher, include the selected block, otherwise the northeast one
+        boolean swIsHigher = pSW.getY() > pNE.getY();
+
+        double ySW = swIsHigher ? pSW.getY() + 1 : pSW.getY();
+        double yNE = swIsHigher ? pNE.getY() : pNE.getY() + 1;
+
+        rect.setTopLeftCorner(new Vector3i(pSW.getX(), ySW, pSW.getZ() + 1));
+        rect.setBottomRightCorner(new Vector3i(pNE.getX() + 1, yNE, pNE.getZ()));
     }
 
 
