@@ -272,6 +272,20 @@ public class TownService {
         addPlotToGraph(town, plot);
     }
 
+    public void claimCuboidPlotForTown(TownPlot plot, TownPlot containingPlot) {
+        Town town = containingPlot.getTown();
+
+        plot.setName(Text.of("Plot #", town.getPlots().size()));
+        town.addPlot(plot);
+        plot.setTown(town);
+
+        containingPlot.addCuboidPlot(plot);
+
+        townPlotRepository.saveOne(plot);
+        townPlotRepository.saveOne(containingPlot);
+        townRepository.saveOne(town);
+    }
+
     public void generatePlotGraph(Town town) {
         Map<TownPlot, Set<TownPlot>> adjList = new HashMap<>();
         for (TownPlot plota : town.getPlots()) {

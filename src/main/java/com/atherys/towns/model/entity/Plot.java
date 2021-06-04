@@ -50,8 +50,8 @@ public class Plot implements Rectangle, Identifiable<Long> {
     }
 
     @Override
-    public void setTopLeftCorner(Vector2i point) {
-        this.swCorner = point.toVector3(point.getY());
+    public void setTopLeftCorner(Vector3i point) {
+        this.swCorner = point;
     }
 
     public Vector3i getNorthEastCorner() {
@@ -68,8 +68,8 @@ public class Plot implements Rectangle, Identifiable<Long> {
     }
 
     @Override
-    public void setBottomRightCorner(Vector2i point) {
-        this.neCorner = point.toVector3(point.getY());
+    public void setBottomRightCorner(Vector3i point) {
+        this.neCorner = point;
     }
 
     protected int getVersion() {

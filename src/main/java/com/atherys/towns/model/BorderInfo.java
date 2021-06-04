@@ -64,12 +64,12 @@ public class BorderInfo implements Rectangle {
     }
 
     @Override
-    public void setTopLeftCorner(Vector2i point) {
-        swCorner = point.toVector3(point.getY());
+    public void setTopLeftCorner(Vector3i point) {
+        swCorner = point;
     }
 
     @Override
-    public void setBottomRightCorner(Vector2i point) {
-        neCorner = point.toVector3(point.getY());
+    public void setBottomRightCorner(Vector3i point) {
+        neCorner = point;
     }
 }

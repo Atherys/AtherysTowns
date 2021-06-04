@@ -32,6 +32,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.AABB;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -350,6 +351,27 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
+    public TownPlot validateNewCuboidTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
+        AABB cuboid = plot.asAABB();
+
+        int shortestSide = MathUtils.getShortestSide(cuboid);
+        if (shortestSide < config.TOWN.MIN_CUBOID_PLOT_SIDE - 1) {
+            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", shortestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+        }
+
+        Town town = residentService.getOrCreate(player).getTown();
+
+        if (isTownTaxDue(town)) {
+            throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
+        }
+
+        TownPlot containingPlot = plotService.getTownPlotContainingPlot(plot, town).orElseThrow(() ->
+                new TownsCommandException("New cuboid plot is not contained within an existing plot.")
+        );
+
+        return containingPlot;
+    }
+
     public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location, boolean messageUser) {
         try {
             validateNewTownPlot(plot, player, location);
@@ -383,9 +405,14 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(source);
         TownPlot plot = plotService.createTownPlotFromSelection(selection);
-        validateNewTownPlot(plot, source, source.getLocation());
+        if (plot.isCuboid()) {
+            TownPlot containingPlot = validateNewCuboidTownPlot(plot, source, source.getLocation());
+            townService.claimCuboidPlotForTown(plot, containingPlot);
+        } else {
+            validateNewTownPlot(plot, source, source.getLocation());
+            townService.claimPlotForTown(plot, town);
+        }
 
-        townService.claimPlotForTown(plot, town);
         plotSelectionFacade.clearSelection(source);
         townsMsg.info(source, "Plot claimed.");
     }

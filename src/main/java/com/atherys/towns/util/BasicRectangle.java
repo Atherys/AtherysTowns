@@ -1,6 +1,7 @@
 package com.atherys.towns.util;
 
 import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
 
 import java.util.Objects;
 
@@ -27,13 +28,13 @@ public class BasicRectangle implements Rectangle {
     }
 
     @Override
-    public void setTopLeftCorner(Vector2i point) {
-        topLeft = point;
+    public void setTopLeftCorner(Vector3i point) {
+        topLeft = point.toVector2(true);
     }
 
     @Override
-    public void setBottomRightCorner(Vector2i point) {
-        bottomRight = point;
+    public void setBottomRightCorner(Vector3i point) {
+        bottomRight = point.toVector2(true);
     }
 
     @Override

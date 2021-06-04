@@ -63,35 +63,26 @@ public class PlotSelectionFacade {
         return Math.min(sideX, sideZ);
     }
 
-    public void checkBorders(Player player) {
+    public void selectPointAAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointA(location);
+        checkBorders(player);
+        sendPointSelectionMessage(player, location, "A");
+    }
+
+    public void selectPointBAtLocation(Player player, Location<World> location) {
+        getOrCreateSelection(player).setPointB(location);
+        checkBorders(player);
+        sendPointSelectionMessage(player, location, "B");
+    }
+
+    private void checkBorders(Player player) {
         PlotSelection selection = getOrCreateSelection(player);
         if (selection.isComplete()) {
             plotBorderFacade.refreshBorders(player, player.getLocation());
         }
     }
 
-    public void selectPointAAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointA(location);
-        checkBorders(player);
-        sendPointSelectionMessage(player, "A");
-    }
-
-    public void selectPointBAtLocation(Player player, Location<World> location) {
-        getOrCreateSelection(player).setPointB(location);
-        checkBorders(player);
-        sendPointSelectionMessage(player, "B");
-    }
-
-    public void selectPointAFromPlayerLocation(Player player) {
-        selectPointAAtLocation(player, player.getLocation());
-    }
-
-    public void selectPointBFromPlayerLocation(Player player) {
-        selectPointBAtLocation(player, player.getLocation());
-    }
-
-    private void sendPointSelectionMessage(Player player, String point) {
-        Location<World> location = player.getLocation();
+    private void sendPointSelectionMessage(Player player, Location<World> location, String point) {
         townMsg.info(player, "You have selected point", TextColors.GOLD, " ", point, " ", TextColors.DARK_GREEN,
                 "at ", location.getBlockX(), ", ", location.getBlockY(), ", ", location.getBlockZ(), ".");
     }
@@ -101,14 +92,9 @@ public class PlotSelectionFacade {
      * @param player The player requesting the selection
      */
     public void validatePlayerPlotSelection(Player player) throws TownsCommandException {
-        PlotSelection selection = getCurrentPlotSelection(player);
-        if (selection == null) {
-            throw new TownsCommandException("Plot selection is null");
-        }
-
-        if (!selection.isComplete()) {
-            throw new TownsCommandException("Plot selection is incomplete.");
-        }
+        getCompletePlotSelection(player).orElseThrow(() ->
+                new TownsCommandException("Plot selection is incomplete.")
+        );
     }
 
     public boolean playerHasValidSelection(Player player) {
@@ -121,13 +107,14 @@ public class PlotSelectionFacade {
     }
 
     public PlotSelection getValidPlayerPlotSelection(Player player) throws TownsCommandException {
-        PlotSelection selection = getOrCreateSelection(player);
+        PlotSelection selection = selections.get(player.getUniqueId());
         validatePlayerPlotSelection(player);
         return selection;
     }
 
-    public PlotSelection getCurrentPlotSelection(Player player) {
-        return getOrCreateSelection(player);
+    public Optional<PlotSelection> getCompletePlotSelection(Player player) {
+        PlotSelection selection = getOrCreateSelection(player);
+        return Optional.ofNullable(selection.isComplete() ? selection : null);
     }
 
     public boolean playerIsSelectingPlot(Player player) {
@@ -135,12 +122,7 @@ public class PlotSelectionFacade {
     }
 
     public void togglePlotSelectionMode(Player player, boolean isCuboid) {
-        if (playerIsSelectingPlot(player)) {
-            selections.remove(player.getUniqueId());
-            townMsg.info(player, "Plot selection mode disabled.");
-        } else {
-            selections.put(player.getUniqueId(), new PlotSelection(isCuboid));
-            townMsg.info(player, "Plot selection mode enabled.");
-        }
+        townMsg.info(player, isCuboid ? "3D" : "2D", " plot selection enabled.");
+        getOrCreateSelection(player).setCuboid(isCuboid);
     }
 }
