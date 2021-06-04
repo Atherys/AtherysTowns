@@ -55,8 +55,10 @@ public class PlotService {
         Set<Vector2i> chunkCoordinates = new HashSet<>();
 
         // Calculate min corner and max corner chunks
-        Vector2i southWestChunk = Vector2i.from(southWestCorner.getX() >> 4, southWestCorner.getZ() >> 4); // South West Corner Chunk
-        Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getZ() >> 4); // North East Corner Chunk
+        // South West Corner Chunk
+        Vector2i southWestChunk = Vector2i.from(southWestCorner.getX() >> 4, southWestCorner.getZ() >> 4);
+        // North East Corner Chunk
+        Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getZ() >> 4);
 
         for (int x = southWestChunk.getX(); x <= northEastChunk.getX(); x++) {
             for (int y = northEastChunk.getY(); y <= southWestChunk.getY(); y++) {
@@ -69,7 +71,6 @@ public class PlotService {
     public TownPlot createTownPlotFromSelection(PlotSelection selection) {
         TownPlot plot = new TownPlot();
         MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
-        plot.setName(DEFAULT_TOWN_PLOT_NAME);
         plot.setCuboid(selection.isCuboid());
         return plot;
     }

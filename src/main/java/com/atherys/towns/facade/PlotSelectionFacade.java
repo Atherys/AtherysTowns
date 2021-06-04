@@ -15,6 +15,7 @@ import java.util.*;
 public class PlotSelectionFacade {
 
     private final Map<UUID, PlotSelection> selections = new HashMap<>();
+    private final Map<UUID, Boolean> selectionModes = new HashMap<>();
 
     @Inject
     TownsMessagingFacade townMsg;
@@ -23,44 +24,22 @@ public class PlotSelectionFacade {
     PlotBorderFacade plotBorderFacade;
 
     private PlotSelection getOrCreateSelection(Player player) {
+        PlotSelection selection;
         if (selections.containsKey(player.getUniqueId())) {
-            return selections.get(player.getUniqueId());
+            selection = selections.get(player.getUniqueId());
         } else {
-            PlotSelection plotSelection = new PlotSelection(false);
-            selections.put(player.getUniqueId(), plotSelection);
-            return plotSelection;
+            selection = new PlotSelection();
+            selections.put(player.getUniqueId(), selection);
         }
+
+        selection.setCuboid(selectionModes.get(player.getUniqueId()));
+        return selection;
     }
 
     public void clearSelection(Player player) {
         selections.remove(player.getUniqueId());
         plotBorderFacade.refreshBorders(player, player.getLocation());
-        townMsg.info(player, "You have cleared your selection.");
-    }
-
-    /**
-     * Calculate the area of a plot selection.
-     *
-     * @param plotSelection The selection whose area is to be calculated
-     * @return The plot selection area, or -1 if the plot selection is invalid ( null or incomplete )
-     */
-    private int getPlotSelectionArea(PlotSelection plotSelection) {
-        if (plotSelection == null || !plotSelection.isComplete()) {
-            return -1;
-        }
-
-        return Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX()) *
-                Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
-    }
-
-    private int getSmallestPlotSelectionSideSize(PlotSelection plotSelection) {
-        if (plotSelection == null || !plotSelection.isComplete()) {
-            return -1;
-        }
-
-        int sideX = Math.abs(plotSelection.getPointA().getBlockX() - plotSelection.getPointB().getBlockX());
-        int sideZ = Math.abs(plotSelection.getPointA().getBlockZ() - plotSelection.getPointB().getBlockZ());
-        return Math.min(sideX, sideZ);
+        townMsg.info(player, "Your plot selection has been cleared.");
     }
 
     public void selectPointAAtLocation(Player player, Location<World> location) {
@@ -97,32 +76,25 @@ public class PlotSelectionFacade {
         );
     }
 
-    public boolean playerHasValidSelection(Player player) {
-        try {
-            validatePlayerPlotSelection(player);
-        } catch (TownsCommandException e) {
-            return false;
-        }
-        return true;
-    }
-
     public PlotSelection getValidPlayerPlotSelection(Player player) throws TownsCommandException {
         PlotSelection selection = selections.get(player.getUniqueId());
         validatePlayerPlotSelection(player);
         return selection;
     }
 
+    /**
+     * Returns a player's {@link PlotSelection} if it has both points selected, or an empty optional.
+     */
     public Optional<PlotSelection> getCompletePlotSelection(Player player) {
         PlotSelection selection = getOrCreateSelection(player);
         return Optional.ofNullable(selection.isComplete() ? selection : null);
     }
 
-    public boolean playerIsSelectingPlot(Player player) {
-        return selections.containsKey(player.getUniqueId());
-    }
-
+    /**
+     * Sets a player's selection mode: whether they are selecting a 3D plot or not.
+     */
     public void togglePlotSelectionMode(Player player, boolean isCuboid) {
+        selectionModes.put(player.getUniqueId(), isCuboid);
         townMsg.info(player, isCuboid ? "3D" : "2D", " plot selection enabled.");
-        getOrCreateSelection(player).setCuboid(isCuboid);
     }
 }
