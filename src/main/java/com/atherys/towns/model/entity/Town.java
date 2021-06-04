@@ -52,6 +52,9 @@ public class Town implements Identifiable<Long> {
     @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
     private Set<TownPlot> plots = new HashSet<>();
 
+    @OneToMany(mappedBy = "town", fetch = FetchType.EAGER)
+    private Set<TownPlot> cuboidPlots = new HashSet<>();
+
     /**
      * This is the graph of all plots within a town formatted as an adjacency list
      */
@@ -173,10 +176,6 @@ public class Town implements Identifiable<Long> {
         return plots;
     }
 
-    public void setPlots(Set<TownPlot> plots) {
-        this.plots = plots;
-    }
-
     public void addPlot(TownPlot plot) {
         plots.add(plot);
     }
@@ -271,5 +270,17 @@ public class Town implements Identifiable<Long> {
 
     public void setTaxable(boolean taxable) {
         this.taxable = taxable;
+    }
+
+    public Set<TownPlot> getCuboidPlots() {
+        return cuboidPlots;
+    }
+
+    public void setCuboidPlots(Set<TownPlot> cuboidPlots) {
+        this.cuboidPlots = cuboidPlots;
+    }
+
+    public void addCuboidPlot(TownPlot cuboidPlot) {
+        this.cuboidPlots.add(cuboidPlot);
     }
 }

@@ -276,7 +276,7 @@ public class TownService {
         Town town = containingPlot.getTown();
 
         plot.setName(Text.of("Plot #", town.getPlots().size()));
-        town.addPlot(plot);
+        town.addCuboidPlot(plot);
         plot.setTown(town);
 
         containingPlot.addCuboidPlot(plot);

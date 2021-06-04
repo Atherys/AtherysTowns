@@ -13,7 +13,6 @@ public final class AtherysPartiesIntegration {
         return AtherysParties.getInstance().getPartyFacade().getPlayerParty(player).isPresent();
     }
 
-
     public static Set<Player> fetchPlayerPartyMembers(Player player) {
         Optional<Party> playerParty = AtherysParties.getInstance().getPartyFacade().getPlayerParty(player);
 

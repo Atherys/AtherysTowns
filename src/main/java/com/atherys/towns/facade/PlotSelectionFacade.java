@@ -32,7 +32,7 @@ public class PlotSelectionFacade {
             selections.put(player.getUniqueId(), selection);
         }
 
-        selection.setCuboid(selectionModes.get(player.getUniqueId()));
+        selection.setCuboid(selectionModes.getOrDefault(player.getUniqueId(), false));
         return selection;
     }
 
