@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.checkerframework.checker.nullness.Opt;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.AABB;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -93,6 +94,11 @@ public class PlotService {
             }
         }
         return Optional.empty();
+    }
+
+    public boolean aabbIntersectAnyCuboidPlots(AABB aabb, TownPlot containing) {
+        return containing.getCuboidPlots().stream()
+                .anyMatch(plot -> aabb.intersects(plot.asAABB()));
     }
 
     public Optional<TownPlot> getTownPlotByLocation(Location<World> location) {

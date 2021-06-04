@@ -369,6 +369,10 @@ public class TownFacade implements EconomyFacade {
                 new TownsCommandException("New cuboid plot is not contained within an existing plot.")
         );
 
+        if (plotService.aabbIntersectAnyCuboidPlots(cuboid, containingPlot)) {
+            throw new TownsCommandException("New cuboid plot intersects other cuboid plot(s).");
+        }
+
         return containingPlot;
     }
 
