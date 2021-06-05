@@ -1,8 +1,8 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
-import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.persistence.cache.TownPlotCache;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.atherys.towns.util.MathUtils;

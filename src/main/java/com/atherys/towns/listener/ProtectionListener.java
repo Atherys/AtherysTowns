@@ -1,6 +1,5 @@
 package com.atherys.towns.listener;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.facade.PlotFacade;
 import com.google.inject.Inject;
@@ -17,10 +16,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-
-import java.util.Optional;
 
 public class ProtectionListener {
 

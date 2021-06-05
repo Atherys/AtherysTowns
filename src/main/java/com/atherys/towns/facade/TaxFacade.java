@@ -54,9 +54,6 @@ public class TaxFacade {
         TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
 
         for (Town town : taxService.getTaxableTowns()) {
-
-            AtherysTowns.getInstance().getLogger().info("Taxing Town: " + town.getName());
-
             double taxPaymentAmount = Math.floor(taxService.getTaxAmount(town));
             Account townBank = Economy.getAccount(town.getBank().toString()).get();
             double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();

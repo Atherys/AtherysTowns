@@ -2,7 +2,6 @@ package com.atherys.towns.model.entity;
 
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.AABB;
 
 import javax.persistence.*;
 import java.util.HashSet;

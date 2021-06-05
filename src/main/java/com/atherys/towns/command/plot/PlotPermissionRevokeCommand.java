@@ -8,7 +8,6 @@ import com.atherys.core.command.annotation.Permission;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.TownsElements;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;

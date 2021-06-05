@@ -1,6 +1,5 @@
 package com.atherys.towns.service;
 
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.Permission;
 import com.atherys.towns.api.permission.world.WorldPermission;
@@ -57,7 +56,6 @@ public class RoleService {
 
             for (Permission permission : permissions) {
                 subjectData.setPermission(SubjectData.GLOBAL_CONTEXT, permission.getId(), Tristate.TRUE);
-                AtherysTowns.getInstance().getLogger().info(permission.getId());
             }
 
             for (WorldPermission permission : worldPermissions) {

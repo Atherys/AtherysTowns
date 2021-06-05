@@ -12,13 +12,11 @@ import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.checkerframework.checker.nullness.Opt;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.AABB;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import javax.swing.text.html.Option;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;

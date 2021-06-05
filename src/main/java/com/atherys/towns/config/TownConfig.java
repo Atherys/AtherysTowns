@@ -1,6 +1,5 @@
 package com.atherys.towns.config;
 
-import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.api.permission.TownsPermissionContexts;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermissions;

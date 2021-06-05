@@ -1,7 +1,6 @@
 package com.atherys.towns.listener;
 
 import com.atherys.core.utils.EntityUtils;
-import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.facade.*;
@@ -19,8 +18,6 @@ import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEv
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
 
 @Singleton
@@ -92,7 +89,6 @@ public class PlayerListener {
     public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
         if (player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType() == config.TOWN.PLOT_SELECTION_ITEM) {
             event.getTransactions().get(0).getOriginal().getLocation().ifPresent(location -> {
-                AtherysTowns.getInstance().getLogger().info("Point A: {}", location.getPosition());
                 plotSelectionFacade.selectPointAAtLocation(player, location);
                 event.setCancelled(true);
             });
@@ -103,7 +99,6 @@ public class PlayerListener {
     public void onBlockInteract(InteractBlockEvent.Secondary.MainHand event, @Root Player player) {
         if (player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType() == config.TOWN.PLOT_SELECTION_ITEM) {
             event.getTargetBlock().getLocation().ifPresent(location -> {
-                AtherysTowns.getInstance().getLogger().info("Point B: {}", location.getPosition());
                 if (player.get(Keys.IS_SNEAKING).get()) {
                     townFacade.claimTownPlotWithoutThrowing(player);
                 } else {

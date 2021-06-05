@@ -1,19 +1,16 @@
 package com.atherys.towns.service;
 
 import com.atherys.core.AtherysCore;
-import com.atherys.core.economy.Economy;
 import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
-import com.atherys.towns.config.TaxConfig;
 import com.atherys.towns.api.event.ResidentEvent;
 import com.atherys.towns.api.event.TownEvent;
-import com.atherys.towns.facade.TownsMessagingFacade;
 import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.Town;
-import com.atherys.towns.persistence.TownPlotRepository;
+import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.persistence.ResidentRepository;
+import com.atherys.towns.persistence.TownPlotRepository;
 import com.atherys.towns.persistence.TownRepository;
 import com.atherys.towns.util.MathUtils;
 import com.google.inject.Inject;
@@ -22,10 +19,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
@@ -33,16 +27,10 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.world.World;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import javax.annotation.Nullable;
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
 
 @Singleton
 public class TownService {
@@ -219,8 +207,6 @@ public class TownService {
         Set<String> ids = town.getResidents().stream()
                 .map(resident -> resident.getId().toString())
                 .collect(Collectors.toSet());
-
-        AtherysTowns.getInstance().getLogger().info(ids.toString());
 
         Set<Context> nationContext = town.getNation() == null ? null : townsPermissionService.getContextForNation(town.getNation());
 

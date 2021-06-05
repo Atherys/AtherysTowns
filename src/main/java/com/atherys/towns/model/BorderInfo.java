@@ -5,8 +5,6 @@ import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 
-import java.util.UUID;
-
 public class BorderInfo implements Rectangle {
 
     private Vector3i neCorner;

@@ -5,7 +5,6 @@ import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.util.AABB;
-import org.spongepowered.api.world.extent.BlockVolume;
 
 import java.util.ArrayList;
 import java.util.List;
