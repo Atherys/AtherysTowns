@@ -9,48 +9,28 @@ import java.util.UUID;
 
 public class BorderInfo implements Rectangle {
 
-    private ParticleEffect effect;
     private Vector3i neCorner;
     private Vector3i swCorner;
-    private UUID playerUUID;
+    private final boolean isCuboid;
+    private final ParticleEffect effect;
 
-    public BorderInfo(ParticleEffect effect, UUID playerUUID, Vector3i neCorner, Vector3i swCorner) {
-        this.effect = effect;
-        this.playerUUID = playerUUID;
+    public BorderInfo(Vector3i neCorner, Vector3i swCorner, boolean isCuboid, ParticleEffect effect) {
         this.neCorner = neCorner;
         this.swCorner = swCorner;
-    }
-
-    public UUID getPlayerUUID() {
-        return this.playerUUID;
-    }
-
-    public void setPlayerUUID(UUID playerUUID) {
-        this.playerUUID = playerUUID;
+        this.isCuboid = isCuboid;
+        this.effect = effect;
     }
 
     public Vector3i getNECorner() {
         return this.neCorner;
     }
 
-    public void setNECorner(Vector3i neCorner) {
-        this.neCorner = neCorner;
-    }
-
     public Vector3i getSWCorner() {
         return this.swCorner;
     }
 
-    public void setSWCorner(Vector3i swCorner) {
-        this.swCorner = swCorner;
-    }
-
     public ParticleEffect getEffect() {
         return this.effect;
-    }
-
-    public void setEffect(ParticleEffect effect) {
-        this.effect = effect;
     }
 
     @Override
@@ -71,5 +51,9 @@ public class BorderInfo implements Rectangle {
     @Override
     public void setBottomRightCorner(Vector3i point) {
         neCorner = point;
+    }
+
+    public boolean isCuboid() {
+        return isCuboid;
     }
 }

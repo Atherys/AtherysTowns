@@ -120,7 +120,7 @@ public class PlotBorderFacade {
     public void showPlotBorders(Player player, Location<World> newLocation) {
         Optional<TownPlot> plot = plotService.getTownPlotByLocation(newLocation);
         if (plot.isPresent() && isPlayerViewingBorders(player)) {
-            BorderInfo borderInfo = new BorderInfo(blueWalls, player.getUniqueId(), plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner());
+            BorderInfo borderInfo = new BorderInfo(plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner(), plot.get().isCuboid(), blueWalls);
             addSelectionBorder(player, borderInfo);
         }
     }
@@ -132,7 +132,7 @@ public class PlotBorderFacade {
             int plotArea = MathUtils.getArea(plot);
             if (plotArea < config.TOWN.MAX_PLOT_AREA) {
                 ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location, false) ? greenWalls : yellowWalls;
-                BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+                BorderInfo borderInfo = new BorderInfo(plot.getNorthEastCorner(), plot.getSouthWestCorner(), plot.isCuboid(), effect);
                 addSelectionBorder(player, borderInfo);
             }
         });
@@ -145,8 +145,9 @@ public class PlotBorderFacade {
                     int width = MathUtils.getWidth(borderInfo);
                     int height = MathUtils.getHeight(borderInfo);
 
-                    Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getZ());
-                    Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getZ());
+                    double y = player.getPosition().getY();
+                    Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), y, borderInfo.getNECorner().getZ());
+                    Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), y, borderInfo.getSWCorner().getZ());
 
                     player.spawnParticles(borderInfo.getEffect(), particleLocationNE);
                     player.spawnParticles(borderInfo.getEffect(), particleLocationSW);
