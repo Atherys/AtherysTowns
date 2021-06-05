@@ -4,8 +4,9 @@ import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
+import org.spongepowered.api.util.AABB;
+import org.spongepowered.api.world.extent.BlockVolume;
 
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -34,15 +35,15 @@ public class MathUtils {
      *
      * The two points in a PlotSelection are not necessarily the corners we need, we may need to work out opposite corners
      *
-     * Additionally, as we want the borders around a set of blocks, we need to Floor SW.x, Ceil SW.y, Ceil NE.x, Floor NE.y
+     * Additionally, as we want the borders around a set of blocks, we need to Floor SW.x, Ceil SW.z, Ceil NE.x, Floor NE.z
      *
      * @param rect The Rectangle to populate
      * @param pA First point
      * @param pB Second point
      */
-    public static void populateRectangleFromTwoCorners(Rectangle rect, Vector2d pA, Vector2d pB) {
-        Vector2d pNE;
-        Vector2d pSW;
+    public static void populateRectangleFromTwoCorners(Rectangle rect, Vector3d pA, Vector3d pB) {
+        Vector3d pNE;
+        Vector3d pSW;
 
         //             +z
         //     pB, SW  *
@@ -52,7 +53,7 @@ public class MathUtils {
         //         *    pA NE
         //         -z
         //
-        if (pA.getX() > pB.getX() && pA.getY() < pB.getY()) {
+        if (pA.getX() > pB.getX() && pA.getZ() < pB.getZ()) {
             pNE = pA;
             pSW = pB;
             //             +z
@@ -63,7 +64,7 @@ public class MathUtils {
             //         *    pB NE
             //         -z
             //
-        } else if (pA.getX() < pB.getX() && pA.getY() > pB.getY()) {
+        } else if (pA.getX() < pB.getX() && pA.getZ() > pB.getZ()) {
             pNE = pB;
             pSW = pA;
             //         +z
@@ -74,9 +75,9 @@ public class MathUtils {
             //     pB      *
             //            -z
             //
-        } else if (pA.getX() > pB.getX() && pA.getY() > pB.getY()) {
-            pNE = Vector2d.from(pA.getX(), pB.getY());
-            pSW = Vector2d.from(pB.getX(), pA.getY());
+        } else if (pA.getX() > pB.getX() && pA.getZ() > pB.getZ()) {
+            pNE = Vector3d.from(pA.getX(), pA.getY(), pB.getZ());
+            pSW = Vector3d.from(pB.getX(), pB.getY(), pA.getZ());
             //         +z
             //         *     pB
             //         +---+
@@ -85,15 +86,21 @@ public class MathUtils {
             //     pA      *
             //            -z
             //
-        } else if (pA.getX() < pB.getX() && pA.getY() < pB.getY()) {
-            pNE = Vector2d.from(pB.getX(), pA.getY());
-            pSW = Vector2d.from(pA.getX(), pB.getY());
+        } else if (pA.getX() < pB.getX() && pA.getZ() < pB.getZ()) {
+            pNE = Vector3d.from(pB.getX(), pB.getY(), pA.getZ());
+            pSW = Vector3d.from(pA.getX(), pA.getY(), pB.getZ());
         } else {
             throw new IllegalArgumentException("Could not resolve south-west and north-east plot points.");
         }
 
-        rect.setTopLeftCorner(new Vector2i(pSW.getFloorX(), Math.ceil(pSW.getY())));
-        rect.setBottomRightCorner(new Vector2i(Math.ceil(pNE.getX()), pNE.getFloorY()));
+        // If the southwest point is higher, include the selected block, otherwise the northeast one
+        boolean swIsHigher = pSW.getY() > pNE.getY();
+
+        double ySW = swIsHigher ? pSW.getY() + 1 : pSW.getY();
+        double yNE = swIsHigher ? pNE.getY() : pNE.getY() + 1;
+
+        rect.setTopLeftCorner(new Vector3i(pSW.getX(), ySW, pSW.getZ() + 1));
+        rect.setBottomRightCorner(new Vector3i(pNE.getX() + 1, yNE, pNE.getZ()));
     }
 
 
@@ -172,6 +179,13 @@ public class MathUtils {
 
     public static int getShortestSide(Rectangle a) {
         return Math.min(getHeight(a), getWidth(a));
+    }
+
+    public static int getShortestSide(AABB cuboid) {
+        return (int) Math.min(
+            Math.min(Math.abs(cuboid.getMin().getX() - cuboid.getMax().getX()), Math.abs(cuboid.getMin().getY() - cuboid.getMax().getY())),
+            Math.abs(cuboid.getMin().getZ() - cuboid.getMax().getZ())
+        );
     }
 
     public static int getArea(Rectangle a) {

@@ -7,6 +7,8 @@ import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.google.common.collect.ImmutableSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,12 @@ public class TownConfig {
 
     @Setting("plot-min-side")
     public int MIN_PLOT_SIDE = 16;
+
+    @Setting("cuboid-plot-min-side")
+    public int MIN_CUBOID_PLOT_SIDE = 7;
+
+    @Setting("plot-selection-item")
+    public ItemType PLOT_SELECTION_ITEM = ItemTypes.GOLDEN_AXE;
 
     @Setting("town-min-creation-distance")
     public int MIN_CREATION_DISTANCE = 100;

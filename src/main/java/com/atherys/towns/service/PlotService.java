@@ -2,23 +2,23 @@ package com.atherys.towns.service;
 
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.TownsPermissionContext;
+import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.*;
 import com.atherys.towns.persistence.NationPlotRepository;
 import com.atherys.towns.persistence.TownPlotRepository;
-import com.atherys.towns.model.PlotSelection;
-import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.util.MathUtils;
-import com.flowpowered.math.vector.Vector2d;
 import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.checkerframework.checker.nullness.Opt;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.AABB;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import javax.swing.text.html.Option;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,9 +26,6 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class PlotService {
-
-    public static final Text DEFAULT_TOWN_PLOT_NAME = Text.of("None");
-
     @Inject
     TownsConfig config;
 
@@ -45,18 +42,24 @@ public class PlotService {
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
+        if (plot.isCuboid()) {
+            return plot.asAABB().contains(location.getPosition());
+        }
+
         return MathUtils.pointInRectangle(location.getPosition(), plot);
     }
 
     public static Set<Vector2i> getChunksOverlappedByPlot(Plot plot) {
-        Vector2i southWestCorner = plot.getSouthWestCorner();
-        Vector2i northEastCorner = plot.getNorthEastCorner();
+        Vector3i southWestCorner = plot.getSouthWestCorner();
+        Vector3i northEastCorner = plot.getNorthEastCorner();
 
         Set<Vector2i> chunkCoordinates = new HashSet<>();
 
         // Calculate min corner and max corner chunks
-        Vector2i southWestChunk = Vector2i.from(southWestCorner.getX() >> 4, southWestCorner.getY() >> 4); // South West Corner Chunk
-        Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getY() >> 4); // North East Corner Chunk
+        // South West Corner Chunk
+        Vector2i southWestChunk = Vector2i.from(southWestCorner.getX() >> 4, southWestCorner.getZ() >> 4);
+        // North East Corner Chunk
+        Vector2i northEastChunk = Vector2i.from(northEastCorner.getX() >> 4, northEastCorner.getZ() >> 4);
 
         for (int x = southWestChunk.getX(); x <= northEastChunk.getX(); x++) {
             for (int y = northEastChunk.getY(); y <= southWestChunk.getY(); y++) {
@@ -69,7 +72,7 @@ public class PlotService {
     public TownPlot createTownPlotFromSelection(PlotSelection selection) {
         TownPlot plot = new TownPlot();
         MathUtils.populateRectangleFromTwoCorners(plot, selection.getPointAVector(), selection.getPointBVector());
-        plot.setName(DEFAULT_TOWN_PLOT_NAME);
+        plot.setCuboid(selection.isCuboid());
         return plot;
     }
 
@@ -82,6 +85,22 @@ public class PlotService {
             }
         }
         return false;
+    }
+
+    public Optional<TownPlot> getTownPlotContainingPlot(TownPlot plot, Town town) {
+        for (Vector2i chunkCoordinate : getChunksOverlappedByPlot(plot)) {
+            for (TownPlot other : townPlotRepository.getPlotsIntersectingChunk(chunkCoordinate)) {
+                if (!other.isCuboid() && MathUtils.contains(other, plot) && other.getTown() == town) {
+                    return Optional.of(other);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public boolean aabbIntersectAnyCuboidPlots(AABB aabb, TownPlot containing) {
+        return containing.getCuboidPlots().stream()
+                .anyMatch(plot -> aabb.intersects(plot.asAABB()));
     }
 
     public Optional<TownPlot> getTownPlotByLocation(Location<World> location) {

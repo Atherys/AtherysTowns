@@ -1,6 +1,5 @@
 package com.atherys.towns.api.permission;
 
-import com.atherys.towns.api.permission.world.WorldPermissions;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.util.annotation.CatalogedBy;
 

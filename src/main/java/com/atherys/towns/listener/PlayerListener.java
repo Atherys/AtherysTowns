@@ -1,13 +1,17 @@
 package com.atherys.towns.listener;
 
 import com.atherys.core.utils.EntityUtils;
+import com.atherys.towns.AtherysTowns;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
 import com.atherys.towns.facade.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
@@ -15,6 +19,9 @@ import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEv
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
 
 @Singleton
 public class PlayerListener {
@@ -42,6 +49,12 @@ public class PlayerListener {
 
     @Inject
     private TownRaidFacade townRaidFacade;
+
+    @Inject
+    private PlotSelectionFacade plotSelectionFacade;
+
+    @Inject
+    private TownsMessagingFacade townsMsg;
 
     @Listener
     public void onPlayerMove(MoveEntityEvent event, @Root Player player) {
@@ -73,5 +86,32 @@ public class PlayerListener {
     @Listener
     public void onPlayerVote(PlayerVoteEvent event) {
         pollFacade.onPlayerVote(event);
+    }
+
+    @Listener
+    public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
+        if (player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType() == config.TOWN.PLOT_SELECTION_ITEM) {
+            event.getTransactions().get(0).getOriginal().getLocation().ifPresent(location -> {
+                AtherysTowns.getInstance().getLogger().info("Point A: {}", location.getPosition());
+                plotSelectionFacade.selectPointAAtLocation(player, location);
+                event.setCancelled(true);
+            });
+        }
+    }
+
+    @Listener
+    public void onBlockInteract(InteractBlockEvent.Secondary.MainHand event, @Root Player player) {
+        if (player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType() == config.TOWN.PLOT_SELECTION_ITEM) {
+            event.getTargetBlock().getLocation().ifPresent(location -> {
+                AtherysTowns.getInstance().getLogger().info("Point B: {}", location.getPosition());
+                if (player.get(Keys.IS_SNEAKING).get()) {
+                    townFacade.claimTownPlotWithoutThrowing(player);
+                } else {
+                    plotSelectionFacade.selectPointBAtLocation(player, location);
+                }
+
+                event.setCancelled(true);
+            });
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.atherys.towns.model;
 
-import com.flowpowered.math.vector.Vector2d;
-import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3d;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -11,6 +10,8 @@ public class PlotSelection {
 
     private Location<World> pointB;
 
+    private boolean isCuboid;
+
     public PlotSelection() {
     }
 
@@ -18,8 +19,8 @@ public class PlotSelection {
         return pointA;
     }
 
-    public Vector2d getPointAVector() {
-        return pointA.getPosition().toVector2(true);
+    public Vector3d getPointAVector() {
+        return pointA.getPosition();
     }
 
     public void setPointA(Location<World> pointA) {
@@ -30,8 +31,8 @@ public class PlotSelection {
         return pointB;
     }
 
-    public Vector2d getPointBVector() {
-        return pointB.getPosition().toVector2(true);
+    public Vector3d getPointBVector() {
+        return pointB.getPosition();
     }
 
     public void setPointB(Location<World> pointB) {
@@ -40,5 +41,13 @@ public class PlotSelection {
 
     public boolean isComplete() {
         return pointA != null && pointB != null;
+    }
+
+    public boolean isCuboid() {
+        return isCuboid;
+    }
+
+    public void setCuboid(boolean cuboid) {
+        isCuboid = cuboid;
     }
 }

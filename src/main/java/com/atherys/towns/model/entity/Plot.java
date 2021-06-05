@@ -1,16 +1,14 @@
 package com.atherys.towns.model.entity;
 
 import com.atherys.core.db.Identifiable;
-import com.atherys.towns.api.permission.world.WorldPermission;
-import com.atherys.towns.persistence.converter.PermissionConverter;
-import com.atherys.towns.persistence.converter.Vector2iConverter;
+import com.atherys.towns.persistence.converter.Vector3iConverter;
 import com.atherys.towns.util.Rectangle;
 import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
+import org.spongepowered.api.util.AABB;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @MappedSuperclass
 public class Plot implements Rectangle, Identifiable<Long> {
@@ -20,11 +18,11 @@ public class Plot implements Rectangle, Identifiable<Long> {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Convert(converter = Vector2iConverter.class)
-    private Vector2i swCorner;
+    @Convert(converter = Vector3iConverter.class)
+    private Vector3i swCorner;
 
-    @Convert(converter = Vector2iConverter.class)
-    private Vector2i neCorner;
+    @Convert(converter = Vector3iConverter.class)
+    private Vector3i neCorner;
 
     @Version
     private int version;
@@ -39,40 +37,48 @@ public class Plot implements Rectangle, Identifiable<Long> {
         this.id = id;
     }
 
-    public Vector2i getSouthWestCorner() {
+    public Vector3i getSouthWestCorner() {
         return swCorner;
     }
 
     @Override
     public Vector2i getTopLeftCorner() {
-        return swCorner;
+        return swCorner.toVector2(true);
     }
 
-    public void setSouthWestCorner(Vector2i swCorner) {
+    public void setSouthWestCorner(Vector3i swCorner) {
         this.swCorner = swCorner;
     }
 
     @Override
-    public void setTopLeftCorner(Vector2i point) {
+    public void setTopLeftCorner(Vector3i point) {
         this.swCorner = point;
     }
 
-    public Vector2i getNorthEastCorner() {
+    public Vector3i getNorthEastCorner() {
         return neCorner;
     }
 
     @Override
     public Vector2i getBottomRightCorner() {
-        return neCorner;
+        return neCorner.toVector2(true);
     }
 
-    public void setNorthEastCorner(Vector2i neCorner) {
+    public void setNorthEastCorner(Vector3i neCorner) {
         this.neCorner = neCorner;
     }
 
     @Override
-    public void setBottomRightCorner(Vector2i point) {
+    public void setBottomRightCorner(Vector3i point) {
         this.neCorner = point;
+    }
+
+    public boolean isCuboid() {
+        return true;
+    }
+
+    public AABB asAABB() {
+        return new AABB(neCorner, swCorner);
     }
 
     protected int getVersion() {

@@ -5,10 +5,8 @@ import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.model.BorderInfo;
 import com.atherys.towns.model.entity.Plot;
-import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.model.entity.TownPlot;
-import com.atherys.towns.model.entity.Town;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector3d;
@@ -74,7 +72,9 @@ public class PlotBorderFacade {
 
     public void showAllBorders(Player player, Location<World> location) {
         showPlotBorders(player, location);
-        showNewPlotSelectionBorders(player, location);
+        if (isPlayerViewingBorders(player)) {
+            showNewPlotSelectionBorders(player, location);
+        }
     }
 
     public void clearBorders(Player player) {
@@ -120,23 +120,22 @@ public class PlotBorderFacade {
     public void showPlotBorders(Player player, Location<World> newLocation) {
         Optional<TownPlot> plot = plotService.getTownPlotByLocation(newLocation);
         if (plot.isPresent() && isPlayerViewingBorders(player)) {
-            BorderInfo borderInfo = new BorderInfo(blueWalls, player.getUniqueId(), plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner());
+            BorderInfo borderInfo = new BorderInfo(plot.get().getNorthEastCorner(), plot.get().getSouthWestCorner(), plot.get().isCuboid(), blueWalls);
             addSelectionBorder(player, borderInfo);
         }
     }
 
     public void showNewPlotSelectionBorders(Player player, Location<World> location) {
-        PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
-        if (selection.isComplete() && isPlayerViewingBorders(player)) {
+        plotSelectionFacade.getCompletePlotSelection(player).ifPresent(selection -> {
             TownPlot plot = plotService.createTownPlotFromSelection(selection);
             // Only show plots smaller than the max plot area
             int plotArea = MathUtils.getArea(plot);
             if (plotArea < config.TOWN.MAX_PLOT_AREA) {
-                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location, true) ? greenWalls : yellowWalls;
-                BorderInfo borderInfo = new BorderInfo(effect, player.getUniqueId(), plot.getNorthEastCorner(), plot.getSouthWestCorner());
+                ParticleEffect effect = townFacade.isValidNewTownPlot(plot, player, location, false) ? greenWalls : yellowWalls;
+                BorderInfo borderInfo = new BorderInfo(plot.getNorthEastCorner(), plot.getSouthWestCorner(), plot.isCuboid(), effect);
                 addSelectionBorder(player, borderInfo);
             }
-        }
+        });
     }
 
     public void initBorderTask() {
@@ -146,8 +145,9 @@ public class PlotBorderFacade {
                     int width = MathUtils.getWidth(borderInfo);
                     int height = MathUtils.getHeight(borderInfo);
 
-                    Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), player.getPosition().getFloorY(), borderInfo.getNECorner().getY());
-                    Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), player.getPosition().getFloorY(), borderInfo.getSWCorner().getY());
+                    double y = player.getPosition().getY();
+                    Vector3d particleLocationNE = new Vector3d(borderInfo.getNECorner().getX(), y, borderInfo.getNECorner().getZ());
+                    Vector3d particleLocationSW = new Vector3d(borderInfo.getSWCorner().getX(), y, borderInfo.getSWCorner().getZ());
 
                     player.spawnParticles(borderInfo.getEffect(), particleLocationNE);
                     player.spawnParticles(borderInfo.getEffect(), particleLocationSW);
@@ -183,27 +183,28 @@ public class PlotBorderFacade {
     }
 
     public void onPlayerMove(Transform<World> from, Transform<World> to, Player player) {
-        if (isPlayerViewingBorders(player)) {
-            Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
-            Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
-            PlotSelection selection = plotSelectionFacade.getCurrentPlotSelection(player);
+        if (!isPlayerViewingBorders(player)) return;
 
-            //If you're leaving a plot, then remove the border
-            if (plotFrom.isPresent() && !plotTo.isPresent()) {
-                removeSelectionBorder(player, plotFrom.get());
-            }
+        Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
+        Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
-            //If you're entering a plot, then draw a border
-            if (!plotFrom.isPresent() && plotTo.isPresent()) {
-                refreshBorders(player, to.getLocation());
-            }
+        //If you're leaving a plot, then remove the border
+        if (plotFrom.isPresent() && !plotTo.isPresent()) {
+            removeSelectionBorder(player, plotFrom.get());
+        }
 
-            //If your from and to locations are both plots, but not the same plot, then remove border and add new border
-            if ((plotTo.isPresent() && plotFrom.isPresent()) && !plotFrom.equals(plotTo)) {
-                refreshBorders(player, to.getLocation());
-            }
+        //If you're entering a plot, then draw a border
+        if (!plotFrom.isPresent() && plotTo.isPresent()) {
+            refreshBorders(player, to.getLocation());
+        }
 
-            //If you have a complete plot selection
+        //If your from and to locations are both plots, but not the same plot, then remove border and add new border
+        if ((plotTo.isPresent() && plotFrom.isPresent()) && !plotFrom.equals(plotTo)) {
+            refreshBorders(player, to.getLocation());
+        }
+
+        plotSelectionFacade.getCompletePlotSelection(player).ifPresent(selection -> {
+            // If you have a complete plot selection
             if (selection.isComplete()) {
                 TownPlot selectionPlot = plotService.createTownPlotFromSelection(selection);
                 boolean fromInSelection = plotService.isLocationWithinPlot(from.getLocation(), selectionPlot);
@@ -215,6 +216,6 @@ public class PlotBorderFacade {
                     refreshBorders(player, to.getLocation());
                 }
             }
-        }
+        });
     }
 }

@@ -10,8 +10,8 @@ import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.town.TownPermission;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.integration.AtherysPartiesIntegration;
-import com.atherys.towns.model.entity.*;
 import com.atherys.towns.model.PlotSelection;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.service.*;
 import com.atherys.towns.util.MathUtils;
 import com.flowpowered.math.vector.Vector2i;
@@ -27,12 +27,12 @@ import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.ResultType;
 import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
-import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.AABB;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -351,6 +351,31 @@ public class TownFacade implements EconomyFacade {
         }
     }
 
+    public TownPlot validateNewCuboidTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
+        AABB cuboid = plot.asAABB();
+
+        int shortestSide = MathUtils.getShortestSide(cuboid);
+        if (shortestSide < config.TOWN.MIN_CUBOID_PLOT_SIDE - 1) {
+            throw new TownsCommandException("Plot selection has a side smaller than permitted ( ", shortestSide, " < ", config.TOWN.MIN_PLOT_SIDE, " )");
+        }
+
+        Town town = residentService.getOrCreate(player).getTown();
+
+        if (isTownTaxDue(town)) {
+            throw new TownsCommandException("Plot claiming has been disabled due to unpaid taxes!");
+        }
+
+        TownPlot containingPlot = plotService.getTownPlotContainingPlot(plot, town).orElseThrow(() ->
+                new TownsCommandException("New cuboid plot is not contained within an existing plot.")
+        );
+
+        if (plotService.aabbIntersectAnyCuboidPlots(cuboid, containingPlot)) {
+            throw new TownsCommandException("New cuboid plot intersects other cuboid plot(s).");
+        }
+
+        return containingPlot;
+    }
+
     public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location, boolean messageUser) {
         try {
             validateNewTownPlot(plot, player, location);
@@ -384,11 +409,24 @@ public class TownFacade implements EconomyFacade {
 
         Town town = getPlayerTown(source);
         TownPlot plot = plotService.createTownPlotFromSelection(selection);
-        validateNewTownPlot(plot, source, source.getLocation());
+        if (plot.isCuboid()) {
+            TownPlot containingPlot = validateNewCuboidTownPlot(plot, source, source.getLocation());
+            townService.claimCuboidPlotForTown(plot, containingPlot);
+        } else {
+            validateNewTownPlot(plot, source, source.getLocation());
+            townService.claimPlotForTown(plot, town);
+        }
 
-        townService.claimPlotForTown(plot, town);
         plotSelectionFacade.clearSelection(source);
         townsMsg.info(source, "Plot claimed.");
+    }
+
+    public void claimTownPlotWithoutThrowing(Player source) {
+        try {
+            claimTownPlotFromPlayerSelection(source);
+        } catch (CommandException e) {
+            townsMsg.error(source, e.getText());
+        }
     }
 
     public void inviteToTown(Player source, Player invitee) throws TownsCommandException {

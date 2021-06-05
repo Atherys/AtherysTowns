@@ -2,8 +2,10 @@ package com.atherys.towns.model.entity;
 
 import com.atherys.towns.persistence.converter.TextConverter;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.AABB;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -28,6 +30,17 @@ public class TownPlot extends Plot {
             inverseJoinColumns = @JoinColumn(name = "townplot_permission_id")
     )
     private Set<TownPlotPermission> permissions;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            schema = "atherystowns",
+            name = "TownPlot_cuboidPlots",
+            joinColumns = @JoinColumn(name = "townplot_id"),
+            inverseJoinColumns = @JoinColumn(name = "cuboid_id")
+    )
+    private Set<TownPlot> cuboidPlots = new HashSet<>();
+
+    private boolean isCuboid;
 
     public Town getTown() {
         return town;
@@ -59,5 +72,26 @@ public class TownPlot extends Plot {
 
     public void setPermissions(Set<TownPlotPermission> permissions) {
         this.permissions = permissions;
+    }
+
+    @Override
+    public boolean isCuboid() {
+        return isCuboid;
+    }
+
+    public void setCuboid(boolean cuboid) {
+        isCuboid = cuboid;
+    }
+
+    public Set<TownPlot> getCuboidPlots() {
+        return cuboidPlots;
+    }
+
+    public void addCuboidPlot(TownPlot cuboidPlot) {
+        this.cuboidPlots.add(cuboidPlot);
+    }
+
+    public void removeCuboidPlot(TownPlot cuboidPlot) {
+        this.cuboidPlots.remove(cuboidPlot);
     }
 }

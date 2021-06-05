@@ -4,7 +4,6 @@ import com.atherys.core.economy.Economy;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.nation.NationPermission;
-import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.atherys.towns.model.PlotSelection;
 import com.atherys.towns.model.entity.Nation;
 import com.atherys.towns.model.entity.NationPlot;
