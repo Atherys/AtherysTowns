@@ -90,7 +90,7 @@ public class PlotService {
     public Optional<TownPlot> getTownPlotContainingPlot(TownPlot plot, Town town) {
         for (Vector2i chunkCoordinate : getChunksOverlappedByPlot(plot)) {
             for (TownPlot other : townPlotRepository.getPlotsIntersectingChunk(chunkCoordinate)) {
-                if (MathUtils.contains(other, plot) && other.getTown() == town) {
+                if (!other.isCuboid() && MathUtils.contains(other, plot) && other.getTown() == town) {
                     return Optional.of(other);
                 }
             }
