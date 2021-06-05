@@ -244,6 +244,7 @@ public class TownService {
         removePlotFromGraph(town, plot);
 
         townRepository.saveOne(town);
+        townPlotRepository.deleteAll(plot.getCuboidPlots());
         townPlotRepository.deleteOne(plot);
     }
 
@@ -423,6 +424,7 @@ public class TownService {
 
         residentRepository.saveAll(town.getResidents());
         townPlotRepository.deleteAll(town.getPlots());
+        townPlotRepository.deleteAll(town.getCuboidPlots());
         townRepository.deleteOne(town);
 
         Sponge.getEventManager().post(new TownEvent.Removed(town));
