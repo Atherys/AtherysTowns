@@ -26,9 +26,6 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class PlotService {
-
-    public static final Text DEFAULT_TOWN_PLOT_NAME = Text.of("None");
-
     @Inject
     TownsConfig config;
 
@@ -45,6 +42,10 @@ public class PlotService {
     }
 
     public boolean isLocationWithinPlot(Location<World> location, Plot plot) {
+        if (plot.isCuboid()) {
+            return plot.asAABB().contains(location.getPosition());
+        }
+
         return MathUtils.pointInRectangle(location.getPosition(), plot);
     }
 

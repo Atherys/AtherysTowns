@@ -5,6 +5,7 @@ import com.atherys.towns.persistence.converter.Vector3iConverter;
 import com.atherys.towns.util.Rectangle;
 import com.flowpowered.math.vector.Vector2i;
 import com.flowpowered.math.vector.Vector3i;
+import org.spongepowered.api.util.AABB;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -70,6 +71,14 @@ public class Plot implements Rectangle, Identifiable<Long> {
     @Override
     public void setBottomRightCorner(Vector3i point) {
         this.neCorner = point;
+    }
+
+    public boolean isCuboid() {
+        return true;
+    }
+
+    public AABB asAABB() {
+        return new AABB(neCorner, swCorner);
     }
 
     protected int getVersion() {

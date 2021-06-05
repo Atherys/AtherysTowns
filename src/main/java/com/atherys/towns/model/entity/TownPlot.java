@@ -74,16 +74,13 @@ public class TownPlot extends Plot {
         this.permissions = permissions;
     }
 
+    @Override
     public boolean isCuboid() {
         return isCuboid;
     }
 
     public void setCuboid(boolean cuboid) {
         isCuboid = cuboid;
-    }
-
-    public AABB asAABB() {
-        return new AABB(getNorthEastCorner(), getSouthWestCorner());
     }
 
     public Set<TownPlot> getCuboidPlots() {

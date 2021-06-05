@@ -276,10 +276,6 @@ public class Town implements Identifiable<Long> {
         return cuboidPlots;
     }
 
-    public void setCuboidPlots(Set<TownPlot> cuboidPlots) {
-        this.cuboidPlots = cuboidPlots;
-    }
-
     public void addCuboidPlot(TownPlot cuboidPlot) {
         this.cuboidPlots.add(cuboidPlot);
     }
