@@ -10,6 +10,7 @@ import com.atherys.towns.api.permission.*;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
+import com.atherys.towns.command.rent.RentCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
@@ -129,6 +130,7 @@ public class AtherysTowns {
             AtherysCore.getCommandService().register(new PlotCommand(), this);
             AtherysCore.getCommandService().register(new TownCommand(), this);
             AtherysCore.getCommandService().register(new NationCommand(), this);
+            AtherysCore.getCommandService().register(new RentCommand(), this);
         } catch (CommandService.AnnotatedCommandException e) {
             e.printStackTrace();
         }
@@ -229,6 +231,10 @@ public class AtherysTowns {
         return components.roleService;
     }
 
+    public RentService getRentService() {
+        return components.rentService;
+    }
+
     public TownsPermissionService getPermissionService() {
         return components.townsPermissionService;
     }
@@ -289,6 +295,10 @@ public class AtherysTowns {
         return components.taxFacade;
     }
 
+    public RentFacade getRentFacade() {
+        return components.rentFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -347,6 +357,9 @@ public class AtherysTowns {
         private TownRaidService townRaidService;
 
         @Inject
+        private RentService rentService;
+
+        @Inject
         private TownsMessagingFacade townsMessagingFacade;
 
         @Inject
@@ -384,6 +397,9 @@ public class AtherysTowns {
 
         @Inject
         private TaxFacade taxFacade;
+
+        @Inject
+        private RentFacade rentFacade;
 
         @Inject
         private PlayerListener playerListener;
