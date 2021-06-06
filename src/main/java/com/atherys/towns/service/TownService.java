@@ -241,6 +241,10 @@ public class TownService {
     public void removePlotFromTown(Town town, TownPlot plot) {
         town.removePlot(plot);
 
+        if (plot.isCuboid()) {
+            plot.getParentPlot().removeCuboidPlot(plot);
+        }
+
         removePlotFromGraph(town, plot);
 
         townRepository.saveOne(town);
@@ -262,11 +266,12 @@ public class TownService {
     public void claimCuboidPlotForTown(TownPlot plot, TownPlot containingPlot) {
         Town town = containingPlot.getTown();
 
-        plot.setName(Text.of("Plot #", town.getPlots().size()));
         town.addCuboidPlot(plot);
         plot.setTown(town);
-
         containingPlot.addCuboidPlot(plot);
+        plot.setParentPlot(containingPlot);
+
+        plot.setName(Text.of("Plot #", town.getPlots().size()));
 
         townPlotRepository.saveOne(plot);
         townPlotRepository.saveOne(containingPlot);

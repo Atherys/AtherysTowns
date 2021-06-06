@@ -39,6 +39,9 @@ public class TownPlot extends Plot {
     )
     private Set<TownPlot> cuboidPlots = new HashSet<>();
 
+    @OneToOne
+    private TownPlot parentPlot;
+
     private boolean isCuboid;
 
     public Town getTown() {
@@ -92,5 +95,13 @@ public class TownPlot extends Plot {
 
     public void removeCuboidPlot(TownPlot cuboidPlot) {
         this.cuboidPlots.remove(cuboidPlot);
+    }
+
+    public TownPlot getParentPlot() {
+        return parentPlot;
+    }
+
+    public void setParentPlot(TownPlot parentPlot) {
+        this.parentPlot = parentPlot;
     }
 }
