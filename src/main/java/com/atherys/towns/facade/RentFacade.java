@@ -106,4 +106,16 @@ public class RentFacade implements EconomyFacade {
         rentService.clearPlotRenter(rentInfo);
         townsMsg.info(source, "Plot has been evicted.");
     }
+
+    public void vacatePlot(Player source) throws TownsCommandException {
+        TownPlot plot = plotFacade.getPlotAtPlayer(source);
+        RentInfo rentInfo = getRentInfoFromPlot(plot);
+
+        if (rentInfo.getRenter() == residentService.getOrCreate(source)) {
+            rentService.clearPlotRenter(rentInfo);
+            townsMsg.info(source, "You have vacated this plot.");
+        }
+
+        throw new TownsCommandException("You are not renting this plot.");
+    }
 }
