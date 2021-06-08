@@ -105,9 +105,9 @@ public class PlotFacade {
         townsMsg.info(player, "Revoked ownership of plot ", GOLD, plot.getName(), DARK_GREEN, ".");
     }
 
-    private TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
+    public TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
         return plotService.getTownPlotByLocation(player.getLocation()).orElseThrow(() ->
-                new TownsCommandException("No plot found at your position"));
+                new TownsCommandException("You are not standing in a plot."));
     }
 
     private Optional<TownPlot> getPlotAtPlayerOptional(Player player) {

@@ -1,22 +1,19 @@
 package com.atherys.towns.persistence;
 
 import com.atherys.core.db.CachedHibernateRepository;
-import com.atherys.towns.model.entity.Resident;
+import com.atherys.towns.model.entity.RentInfo;
 import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.UUID;
-
 @Singleton
-public class ResidentRepository extends CachedHibernateRepository<Resident, UUID> {
-
+public class RentInfoRepository extends CachedHibernateRepository<RentInfo, Long> {
     private TownsCache townsCache;
 
     @Inject
-    protected ResidentRepository(TownsCache townsCache) {
-        super(Resident.class);
-        super.cache = townsCache.getResidentCache();
+    public RentInfoRepository(TownsCache townsCache) {
+        super(RentInfo.class);
+        super.cache = townsCache.getRentInfoCache();
         this.townsCache = townsCache;
     }
 }

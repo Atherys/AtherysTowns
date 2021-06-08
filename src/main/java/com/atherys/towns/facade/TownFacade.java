@@ -569,23 +569,28 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You must be inside your town to deposit.");
         }
 
-        Optional<TransferResult> result = Economy.transferCurrency(
+        TransferResult result = depositToTown(player, town, amount);
+
+        Text feedback = getResultFeedback(
+                result.getResult(),
+                Text.of("Deposited ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
+                Text.of("You do not have enough to deposit."),
+                Text.of("Depositing failed.")
+        );
+
+        townsMsg.info(player, feedback);
+    }
+
+    public TransferResult depositToTown(Player player, Town town, BigDecimal amount) throws TownsCommandException {
+        return Economy.transferCurrency(
                 player.getUniqueId(),
                 town.getBank().toString(),
                 config.DEFAULT_CURRENCY,
                 amount,
                 Sponge.getCauseStackManager().getCurrentCause()
+        ).orElseThrow(() ->
+                new TownsCommandException("Transaction failed. Please report this.")
         );
-
-        if (result.isPresent()) {
-            Text feedback = getResultFeedback(
-                    result.get().getResult(),
-                    Text.of("Deposited ", GOLD, config.DEFAULT_CURRENCY.format(amount), DARK_GREEN, " to the town."),
-                    Text.of("You do not have enough to deposit."),
-                    Text.of("Depositing failed.")
-            );
-            townsMsg.info(player, feedback);
-        }
     }
 
     public void withdrawFromTown(Player player, BigDecimal amount) throws TownsCommandException {

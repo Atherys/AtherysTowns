@@ -130,7 +130,10 @@ public class AtherysTowns {
             AtherysCore.getCommandService().register(new PlotCommand(), this);
             AtherysCore.getCommandService().register(new TownCommand(), this);
             AtherysCore.getCommandService().register(new NationCommand(), this);
-            AtherysCore.getCommandService().register(new RentCommand(), this);
+
+            if (economyIsEnabled()) {
+                AtherysCore.getCommandService().register(new RentCommand(), this);
+            }
         } catch (CommandService.AnnotatedCommandException e) {
             e.printStackTrace();
         }
@@ -150,6 +153,7 @@ public class AtherysTowns {
         event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(NationPlot.class);
+        event.registerEntity(RentInfo.class);
         event.registerEntity(TownPlot.class);
         event.registerEntity(Resident.class);
         event.registerEntity(TownPlotPermission.class);
@@ -322,6 +326,9 @@ public class AtherysTowns {
 
         @Inject
         private TownPlotRepository townPlotRepository;
+
+        @Inject
+        private RentInfoRepository rentInfoRepository;
 
         @Inject
         private NationPlotRepository nationPlotRepository;

@@ -124,6 +124,10 @@ public class ResidentFacade {
     }
 
     public Text renderResident(Resident resident) {
+        if (resident == null) {
+            return Text.of(GOLD, "None");
+        }
+
         return Text.builder()
                 .append(Text.of( isResidentActive(resident) ? GOLD : GRAY, resident.getName()))
                 .onHover(TextActions.showText(
