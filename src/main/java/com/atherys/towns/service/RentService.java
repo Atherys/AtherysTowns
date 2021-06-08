@@ -33,12 +33,18 @@ public class RentService {
         townPlotRepository.saveOne(plot);
     }
 
-    public void setPlotRenter(TownPlot plot, Resident resident, int periods) {
-        RentInfo rentInfo = plot.getRentInfo().get();
-
+    public void setPlotRenter(RentInfo rentInfo, Resident resident, int periods) {
         rentInfo.setRenter(resident);
         rentInfo.setTimeRented(LocalDateTime.now());
         rentInfo.setPeriodsRented(periods);
+
+        rentInfoRepository.saveOne(rentInfo);
+    }
+
+    public void clearPlotRenter(RentInfo rentInfo) {
+        rentInfo.setRenter(null);
+        rentInfo.setPeriodsRented(0);
+        rentInfo.setTimeRented(null);
 
         rentInfoRepository.saveOne(rentInfo);
     }

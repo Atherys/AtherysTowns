@@ -12,16 +12,12 @@ import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.Optional;
 
-import static org.spongepowered.api.text.format.TextColors.GOLD;
 import static org.spongepowered.api.util.Color.DARK_GREEN;
 
 @Singleton
@@ -99,7 +95,15 @@ public class RentFacade implements EconomyFacade {
                 Text.of("Rent failed.")
         );
 
+        rentService.setPlotRenter(rentInfo, resident, periods);
         townsMsg.info(source, feedback);
-        rentService.setPlotRenter(plot, resident, periods);
+    }
+
+    public void evictPlotRenter(Player source) throws TownsCommandException {
+        TownPlot plot = plotFacade.getPlotAtPlayer(source);
+        RentInfo rentInfo = getRentInfoFromPlot(plot);
+
+        rentService.clearPlotRenter(rentInfo);
+        townsMsg.info(source, "Plot has been evicted.");
     }
 }

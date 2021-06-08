@@ -61,6 +61,8 @@ public final class TownPermissions {
     // permission to change the owner of a plot belonging to the town
     public static final TownPermission GRANT_PLOT = new TownPermission("atherystowns.plot.grant", "Grant Plot");
 
+    public static final TownPermission MAKE_RENTABLE = new TownPermission("atherystowns.rent.create", "Create Rentable");
+
     // permission to kick residents from the town
     public static final TownPermission KICK_RESIDENT = new TownPermission("atherystowns.town.kick", "Kick Resident");
 
