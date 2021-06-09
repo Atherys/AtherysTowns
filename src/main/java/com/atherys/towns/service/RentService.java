@@ -21,6 +21,10 @@ public class RentService {
     @Inject
     private RentInfoRepository rentInfoRepository;
 
+    public void init() {
+
+    }
+
     public void setPlotRentInfo(TownPlot plot, BigDecimal price, Duration period, TownsPermissionContext context) {
         RentInfo rentInfo = new RentInfo();
         rentInfo.setPeriod(period);
@@ -38,6 +42,11 @@ public class RentService {
         rentInfo.setTimeRented(LocalDateTime.now());
         rentInfo.setPeriodsRented(periods);
 
+        rentInfoRepository.saveOne(rentInfo);
+    }
+
+    public void setRentPeriods(RentInfo rentInfo, int periods) {
+        rentInfo.setPeriodsRented(periods);
         rentInfoRepository.saveOne(rentInfo);
     }
 
