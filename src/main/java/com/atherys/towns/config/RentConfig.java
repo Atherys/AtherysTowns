@@ -21,4 +21,7 @@ public class RentConfig {
 
     @Setting("maximum-rent-period")
     public Duration MAXIMUM_RENT_PERIOD = Duration.ofDays(31);
+
+    @Setting("rent-check-interval")
+    public Duration RENT_CHECK_INTERVAL = Duration.ofHours(12);
 }

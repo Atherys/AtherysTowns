@@ -1,5 +1,7 @@
 package com.atherys.towns.service;
 
+import com.atherys.towns.AtherysTowns;
+import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.model.entity.RentInfo;
 import com.atherys.towns.model.entity.Resident;
@@ -8,10 +10,12 @@ import com.atherys.towns.persistence.RentInfoRepository;
 import com.atherys.towns.persistence.TownPlotRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.scheduler.Task;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class RentService {
@@ -21,8 +25,25 @@ public class RentService {
     @Inject
     private RentInfoRepository rentInfoRepository;
 
-    public void init() {
+    @Inject
+    private TownsConfig townsConfig;
 
+    public void init() {
+        Task.builder()
+                .interval(townsConfig.TOWN.RENT_CONFIG.RENT_CHECK_INTERVAL.toMinutes(), TimeUnit.MINUTES)
+                .execute(() -> {
+                   for (RentInfo rentInfo : rentInfoRepository.getAll()) {
+                        if (getEndTimeForRent(rentInfo).isBefore(LocalDateTime.now())) {
+                            clearPlotRenter(rentInfo);
+                        }
+                   }
+                })
+                .submit(AtherysTowns.getInstance());
+    }
+
+    public LocalDateTime getEndTimeForRent(RentInfo rentInfo) {
+        Duration totalRent = rentInfo.getPeriod().multipliedBy(rentInfo.getPeriodsRented());
+        return rentInfo.getTimeRented().plus(totalRent);
     }
 
     public void setPlotRentInfo(TownPlot plot, BigDecimal price, Duration period, TownsPermissionContext context) {

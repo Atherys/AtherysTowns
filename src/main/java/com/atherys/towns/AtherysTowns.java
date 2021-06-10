@@ -111,7 +111,11 @@ public class AtherysTowns {
         getTownsCache().initCache();
         getTownRaidService().initRaidTimer();
         getPlotBorderFacade().initBorderTask();
-        getTaxFacade().init();
+
+        if (economyIsEnabled()) {
+            getTaxFacade().init();
+            getRentService().init();
+        }
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);

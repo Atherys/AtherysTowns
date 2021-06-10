@@ -96,9 +96,7 @@ public class RentFacade implements EconomyFacade {
             rentText.append(Text.of(DARK_GREEN, "Rent For: ", GOLD, TextUtils.formatDuration(rentInfo.getPeriod().toMillis())));
         } else {
             rentText.append(Text.of(DARK_GREEN, "Rented By: ", residentFacade.renderResident(rentInfo.getRenter()), Text.NEW_LINE));
-            Duration totalRent = rentInfo.getPeriod().multipliedBy(rentInfo.getPeriodsRented());
-            LocalDateTime endTime = rentInfo.getTimeRented().plus(totalRent);
-            Duration timeLeft = Duration.between(LocalDateTime.now(), endTime);
+            Duration timeLeft = Duration.between(LocalDateTime.now(), rentService.getEndTimeForRent(rentInfo));
             rentText.append(Text.of(DARK_GREEN, "Rented For: ", GOLD, TextUtils.formatDuration(timeLeft.toMillis())));
         }
 

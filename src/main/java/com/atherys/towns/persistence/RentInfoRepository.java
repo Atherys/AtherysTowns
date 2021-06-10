@@ -6,6 +6,8 @@ import com.atherys.towns.persistence.cache.TownsCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import java.util.Collection;
+
 @Singleton
 public class RentInfoRepository extends CachedHibernateRepository<RentInfo, Long> {
     private TownsCache townsCache;
@@ -15,5 +17,9 @@ public class RentInfoRepository extends CachedHibernateRepository<RentInfo, Long
         super(RentInfo.class);
         super.cache = townsCache.getRentInfoCache();
         this.townsCache = townsCache;
+    }
+
+    public Collection<RentInfo> getAll() {
+        return townsCache.getRentInfoCache().getAll();
     }
 }
