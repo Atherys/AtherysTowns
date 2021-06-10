@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.utils.TextUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.TownsPermissionContext;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.spongepowered.api.text.Text.NEW_LINE;
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
@@ -78,13 +80,13 @@ public class PlotFacade {
         plotText.append(Text.of(
                 DARK_GREEN, "Town: ",
                 plot.getTown() == null ? Text.of(RED, "None") : Text.of(GOLD, plot.getTown().getName()),
-                Text.NEW_LINE
+                NEW_LINE
         ));
 
         plotText
-                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
 
         player.sendMessage(plotText.build());
@@ -108,10 +110,6 @@ public class PlotFacade {
     public TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
         return plotService.getTownPlotByLocation(player.getLocation()).orElseThrow(() ->
                 new TownsCommandException("You are not standing in a plot."));
-    }
-
-    private Optional<TownPlot> getPlotAtPlayerOptional(Player player) {
-        return plotService.getTownPlotByLocation(player.getLocation());
     }
 
     public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {
@@ -202,7 +200,18 @@ public class PlotFacade {
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
         if (plotTo.isPresent() && !plotFrom.isPresent()) {
-            Text titleText = Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName());
+            TownPlot plot = plotTo.get();
+            Text titleText = Text.of(plot.getTown().getColor(), plot.getTown().getName());
+
+            if (plot.getRentInfo().isPresent()) {
+                Text price = config.DEFAULT_CURRENCY.format(plot.getRentInfo().get().getPrice());
+                Text duration = TextUtils.formatDuration(plot.getRentInfo().get().getPeriod().toMillis());
+
+                titleText = titleText.concat(Text.of(
+                        NEW_LINE, DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration
+                ));
+            }
+
             player.sendTitle(Title.builder().stay(20).title(titleText).build());
             return;
         }
@@ -257,7 +266,7 @@ public class PlotFacade {
                 .append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) ->
-                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, s, Text.NEW_LINE)));
+                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, s, NEW_LINE)));
 
         player.sendMessage(plotPermsText.build());
     }
@@ -281,7 +290,7 @@ public class PlotFacade {
             }
 
             if (groups.size() > 0) {
-                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), Text.NEW_LINE));
+                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), NEW_LINE));
             }
         });
 
