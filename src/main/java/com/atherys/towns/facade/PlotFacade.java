@@ -161,6 +161,16 @@ public class PlotFacade {
         Resident resPlayer = residentService.getOrCreate(player);
         Resident plotOwner = plot.getOwner();
 
+        if (plotOwner == resPlayer) {
+            return true;
+        }
+
+        if (plot.getRentInfo().isPresent()) {
+            if (plot.getRentInfo().get().getRenter() == resPlayer) {
+                return true;
+            }
+        }
+
         Set<TownsPermissionContext> contexts = getRelevantResidentContexts(plot, resPlayer);
 
         if (plotOwner == null) {
@@ -171,10 +181,6 @@ public class PlotFacade {
             }
 
             return permissionValue.asBoolean();
-        }
-
-        if (plotOwner == resPlayer) {
-            return true;
         }
 
         return plot.getPermissions().stream().anyMatch(p -> (p.getWorldPermission() != null && p.getWorldPermission().equals(permission)) && (p.getContext() != null && contexts.contains(p.getContext())));
@@ -196,7 +202,8 @@ public class PlotFacade {
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
         if (plotTo.isPresent() && !plotFrom.isPresent()) {
-            player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName())).build());
+            Text titleText = Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName());
+            player.sendTitle(Title.builder().stay(20).title(titleText).build());
             return;
         }
 
@@ -260,8 +267,7 @@ public class PlotFacade {
         verifyPlotOwnership(plot, player);
         Text.Builder plotPermsText = Text.builder();
 
-        plotPermsText
-                .append(townsMsg.createTownsHeader("Plot Permissions"));
+        plotPermsText.append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
             Set<TownPlotPermission> permissions = plot.getPermissions();
