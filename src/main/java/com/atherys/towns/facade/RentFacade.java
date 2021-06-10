@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.economy.Economy;
 import com.atherys.core.utils.TextUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
@@ -12,6 +13,7 @@ import com.atherys.towns.service.RentService;
 import com.atherys.towns.service.ResidentService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
@@ -126,7 +128,21 @@ public class RentFacade implements EconomyFacade {
 
         BigDecimal totalPrice = rentInfo.getPrice().multiply(BigDecimal.valueOf(periods));
 
-        TransferResult paymentResult = townFacade.depositToTown(source, plot.getTown(), totalPrice);
+        TransferResult paymentResult;
+
+        if (plot.getOwner() == null) {
+            paymentResult = townFacade.depositToTown(source, plot.getTown(), totalPrice);
+        } else {
+            paymentResult = Economy.transferCurrency(
+                    source.getUniqueId(),
+                    plot.getOwner().getId(),
+                    config.DEFAULT_CURRENCY,
+                    totalPrice,
+                    Sponge.getCauseStackManager().getCurrentCause()
+            ).orElseThrow(() ->
+                    new TownsCommandException("Transaction failed. Please report this.")
+            );
+        }
 
         Text feedback = getResultFeedback(
                 paymentResult.getResult(),
