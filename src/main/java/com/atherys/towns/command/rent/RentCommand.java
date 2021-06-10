@@ -20,7 +20,8 @@ import javax.annotation.Nonnull;
         InfoRentCommand.class,
         ListRentCommand.class,
         VacateRentCommand.class,
-        BuyRentCommand.class
+        BuyRentCommand.class,
+        ClearRentCommand.class
 })
 @Permission("atherystowns.rent.base")
 public class RentCommand implements PlayerCommand {

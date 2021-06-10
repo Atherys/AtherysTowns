@@ -76,18 +76,26 @@ public class RentFacade implements EconomyFacade {
         townsMsg.info(source, "Plot made rentable.");
     }
 
+    public void clearPlotRentable(Player source) throws TownsCommandException {
+        TownPlot plot = plotFacade.getPlotAtPlayer(source);
+        getRentInfoFromPlot(plot);
+
+        rentService.clearPlotRentInfo(plot);
+        townsMsg.info(source, "Plot no longer rented.");
+    }
+
     public void sendRentInfo(Player source) throws TownsCommandException {
         TownPlot plot = plotFacade.getPlotAtPlayer(source);
         RentInfo rentInfo = getRentInfoFromPlot(plot);
 
         Text.Builder rentText = Text.builder();
-        rentText.append(townsMsg.createTownsHeader(plot.getName().toPlain()), Text.NEW_LINE);
+        rentText.append(townsMsg.createTownsHeader(plot.getName().toPlain()));
 
         if (rentInfo.getRenter() == null) {
-            rentText.append(Text.of(DARK_GREEN, "Rent Cost: "), config.DEFAULT_CURRENCY.format(rentInfo.getPrice()));
+            rentText.append(Text.of(DARK_GREEN, "Rent Cost: ", GOLD, config.DEFAULT_CURRENCY.format(rentInfo.getPrice()), Text.NEW_LINE));
             rentText.append(Text.of(DARK_GREEN, "Rent For: ", GOLD, TextUtils.formatDuration(rentInfo.getPeriod().toMillis())));
         } else {
-            rentText.append(Text.of(DARK_GREEN, "Rented By: "), residentFacade.renderResident(rentInfo.getRenter()));
+            rentText.append(Text.of(DARK_GREEN, "Rented By: ", residentFacade.renderResident(rentInfo.getRenter()), Text.NEW_LINE));
             Duration totalRent = rentInfo.getPeriod().multipliedBy(rentInfo.getPeriodsRented());
             LocalDateTime endTime = rentInfo.getTimeRented().plus(totalRent);
             Duration timeLeft = Duration.between(LocalDateTime.now(), endTime);

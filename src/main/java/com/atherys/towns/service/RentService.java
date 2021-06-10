@@ -57,4 +57,12 @@ public class RentService {
 
         rentInfoRepository.saveOne(rentInfo);
     }
+
+    public void clearPlotRentInfo(TownPlot plot) {
+        RentInfo rentInfo = plot.getRentInfo().get();
+        plot.setRentInfo(null);
+
+        townPlotRepository.saveOne(plot);
+        rentInfoRepository.deleteOne(rentInfo);
+    }
 }
