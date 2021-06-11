@@ -28,7 +28,7 @@ public class RentInfo implements Identifiable<Long> {
     @Convert(converter = TownPermissionContextConverter.class)
     private TownsPermissionContext permissionContext;
 
-    @OneToOne
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Resident renter;
 
     private LocalDateTime timeRented;

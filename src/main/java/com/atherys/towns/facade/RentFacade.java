@@ -116,6 +116,10 @@ public class RentFacade implements EconomyFacade {
         RentInfo rentInfo = getRentInfoFromPlot(plot);
         Resident resident = residentService.getOrCreate(source);
 
+        if (resident.getTenantPlots().size() >= config.TOWN.RENT_CONFIG.PLOTS_RENTABLE) {
+            throw new TownsCommandException("You are not allowed to rent any more plots!");
+        }
+
         // Someone else is renting this plot
         if (rentInfo.getRenter() != null && rentInfo.getRenter() != resident) {
             throw new TownsCommandException("This plot is already being rented!");

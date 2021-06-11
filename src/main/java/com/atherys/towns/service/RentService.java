@@ -7,6 +7,7 @@ import com.atherys.towns.model.entity.RentInfo;
 import com.atherys.towns.model.entity.Resident;
 import com.atherys.towns.model.entity.TownPlot;
 import com.atherys.towns.persistence.RentInfoRepository;
+import com.atherys.towns.persistence.ResidentRepository;
 import com.atherys.towns.persistence.TownPlotRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -24,6 +25,9 @@ public class RentService {
 
     @Inject
     private RentInfoRepository rentInfoRepository;
+
+    @Inject
+    private ResidentRepository residentRepository;
 
     @Inject
     private TownsConfig townsConfig;
@@ -63,7 +67,10 @@ public class RentService {
         rentInfo.setTimeRented(LocalDateTime.now());
         rentInfo.setPeriodsRented(periods);
 
+        resident.addTenantPlot(rentInfo);
+
         rentInfoRepository.saveOne(rentInfo);
+        residentRepository.saveOne(resident);
     }
 
     public void setRentPeriods(RentInfo rentInfo, int periods) {
@@ -72,16 +79,28 @@ public class RentService {
     }
 
     public void clearPlotRenter(RentInfo rentInfo) {
+        Resident renter = rentInfo.getRenter();
+
         rentInfo.setRenter(null);
         rentInfo.setPeriodsRented(0);
         rentInfo.setTimeRented(null);
 
+        renter.removeTenantPlot(rentInfo);
+
         rentInfoRepository.saveOne(rentInfo);
+        residentRepository.saveOne(renter);
     }
 
     public void clearPlotRentInfo(TownPlot plot) {
         RentInfo rentInfo = plot.getRentInfo().get();
+
         plot.setRentInfo(null);
+
+        Resident resident = rentInfo.getRenter();
+        if (resident != null) {
+            resident.removeTenantPlot(rentInfo);
+            residentRepository.saveOne(resident);
+        }
 
         townPlotRepository.saveOne(plot);
         rentInfoRepository.deleteOne(rentInfo);
