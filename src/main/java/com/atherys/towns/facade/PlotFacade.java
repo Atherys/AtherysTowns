@@ -164,24 +164,30 @@ public class PlotFacade {
         }
 
         if (plot.getRentInfo().isPresent()) {
-            if (plot.getRentInfo().get().getRenter() == resPlayer) {
-                return true;
+            Resident renter = plot.getOwner();
+            if (renter != null) {
+                return resPlayer == renter || renter.getFriends().contains(resPlayer);
             }
         }
 
         Set<TownsPermissionContext> contexts = getRelevantResidentContexts(plot, resPlayer);
 
         if (plotOwner == null) {
+            // Get raw permission value from player
             Tristate permissionValue = player.getPermissionValue(townsPermissionService.getContextsForTown(plot.getTown()), permission.getId());
 
             if (permissionValue.equals(Tristate.UNDEFINED)) {
-                return config.TOWN.DEFAULT_PLOT_PERMISSIONS.stream().anyMatch(p -> p.getWorldPermission().equals(permission) && contexts.contains(p.getContext()));
+                return config.TOWN.DEFAULT_PLOT_PERMISSIONS.stream().anyMatch(p ->
+                        p.getWorldPermission().equals(permission) && contexts.contains(p.getContext())
+                );
             }
 
             return permissionValue.asBoolean();
         }
 
-        return plot.getPermissions().stream().anyMatch(p -> (p.getWorldPermission() != null && p.getWorldPermission().equals(permission)) && (p.getContext() != null && contexts.contains(p.getContext())));
+        return plot.getPermissions().stream().anyMatch(p ->
+                permission.equals(p.getWorldPermission()) && contexts.contains(p.getContext())
+        );
     }
 
     public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
