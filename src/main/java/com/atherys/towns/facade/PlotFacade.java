@@ -54,6 +54,9 @@ public class PlotFacade {
     @Inject
     TownsPermissionService townsPermissionService;
 
+    @Inject
+    TownFacade townFacade;
+
     PlotFacade() {}
 
     public void renameTownPlotAtPlayerLocation(Player player, Text newName) throws TownsCommandException {
@@ -77,11 +80,7 @@ public class PlotFacade {
 
         plotText.append(townsMsg.createTownsHeader(plot.getName().toPlain()));
 
-        plotText.append(Text.of(
-                DARK_GREEN, "Town: ",
-                plot.getTown() == null ? Text.of(RED, "None") : Text.of(GOLD, plot.getTown().getName()),
-                NEW_LINE
-        ));
+        plotText.append(Text.of(DARK_GREEN, "Town: ", townFacade.renderTown(plot.getTown()), NEW_LINE));
 
         plotText
                 .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, NEW_LINE))
@@ -208,15 +207,16 @@ public class PlotFacade {
         boolean plotToHasRent = plotTo.map(p -> p.getRentInfo().map(rent -> rent.getRenter() != null).orElse(false))
                 .orElse(false);
 
-        if (plotToHasRent) {
+        if (plotToHasRent && (!plotFrom.isPresent() || plotTo.get() != plotFrom.get())) {
             RentInfo rentInfo = plotTo.get().getRentInfo().get();
             Text price = config.DEFAULT_CURRENCY.format(rentInfo.getPrice());
             Text duration = TextUtils.formatDuration(rentInfo.getPeriod().toMillis());
 
-            Title title = Title.builder()
-                    .title(Text.of(GOLD, plotTo.get().getName()))
-                    .subtitle(Text.of(NEW_LINE, DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration))
-                    .build();
+            Title title = Title.of(
+                    Text.of(GOLD, plotTo.get().getName()),
+                    Text.of(DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration)
+            );
+
 
             player.sendTitle(title);
             return;
@@ -225,13 +225,13 @@ public class PlotFacade {
         if (plotTo.isPresent() && !plotFrom.isPresent()) {
             TownPlot plot = plotTo.get();
 
-            Title title = Title.of(Text.of(plot.getTown().getColor(), plot.getTown().getName()));
+            Title title = Title.of(Text.of(plot.getTown().getColor(), plot.getTown().getName()), Text.EMPTY);
 
             player.sendTitle(title);
         }
 
         if (!plotTo.isPresent() && plotFrom.isPresent()) {
-            player.sendTitle(Title.builder().stay(20).title(Text.of(GREEN, "Wilderness")).build());
+            player.sendTitle(Title.of(Text.of(GREEN, "Wilderness"), Text.EMPTY));
         }
     }
 
