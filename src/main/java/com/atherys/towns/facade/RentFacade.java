@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.action.TextActions.showText;
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
 public class RentFacade implements EconomyFacade {
@@ -132,7 +131,7 @@ public class RentFacade implements EconomyFacade {
 
         PaginationList paginationList = PaginationList.builder()
                 .title(Text.of(GOLD, "Rented Plots"))
-                .padding(Text.of(DARK_GREEN, "="))
+                .padding(Text.of(DARK_GRAY, "="))
                 .contents(rentList)
                 .linesPerPage(5)
                 .build();
