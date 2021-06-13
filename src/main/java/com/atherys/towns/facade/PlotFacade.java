@@ -204,7 +204,7 @@ public class PlotFacade {
         Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
-        boolean plotToHasRent = plotTo.map(p -> p.getRentInfo().map(rent -> rent.getRenter() != null).orElse(false))
+        boolean plotToHasRent = plotTo.map(p -> p.getRentInfo().map(rent -> rent.getRenter() == null).orElse(false))
                 .orElse(false);
 
         if (plotToHasRent && (!plotFrom.isPresent() || plotTo.get() != plotFrom.get())) {
