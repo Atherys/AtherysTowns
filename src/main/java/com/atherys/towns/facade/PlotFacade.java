@@ -205,21 +205,29 @@ public class PlotFacade {
         Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
+        boolean plotToHasRent = plotTo.map(p -> p.getRentInfo().map(rent -> rent.getRenter() != null).orElse(false))
+                .orElse(false);
+
+        if (plotToHasRent) {
+            RentInfo rentInfo = plotTo.get().getRentInfo().get();
+            Text price = config.DEFAULT_CURRENCY.format(rentInfo.getPrice());
+            Text duration = TextUtils.formatDuration(rentInfo.getPeriod().toMillis());
+
+            Title title = Title.builder()
+                    .title(Text.of(GOLD, plotTo.get().getName()))
+                    .subtitle(Text.of(NEW_LINE, DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration))
+                    .build();
+
+            player.sendTitle(title);
+            return;
+        }
+
         if (plotTo.isPresent() && !plotFrom.isPresent()) {
             TownPlot plot = plotTo.get();
-            Text titleText = Text.of(plot.getTown().getColor(), plot.getTown().getName());
 
-            if (plot.getRentInfo().isPresent()) {
-                Text price = config.DEFAULT_CURRENCY.format(plot.getRentInfo().get().getPrice());
-                Text duration = TextUtils.formatDuration(plot.getRentInfo().get().getPeriod().toMillis());
+            Title title = Title.of(Text.of(plot.getTown().getColor(), plot.getTown().getName()));
 
-                titleText = titleText.concat(Text.of(
-                        NEW_LINE, DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration
-                ));
-            }
-
-            player.sendTitle(Title.builder().stay(20).title(titleText).build());
-            return;
+            player.sendTitle(title);
         }
 
         if (!plotTo.isPresent() && plotFrom.isPresent()) {

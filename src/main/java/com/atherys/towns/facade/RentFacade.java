@@ -18,7 +18,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -103,8 +102,7 @@ public class RentFacade implements EconomyFacade {
             rentText.append(Text.of(DARK_GREEN, "Rent For: ", GOLD, TextUtils.formatDuration(rentInfo.getPeriod().toMillis())));
         } else {
             rentText.append(Text.of(DARK_GREEN, "Rented By: ", residentFacade.renderResident(rentInfo.getRenter()), Text.NEW_LINE));
-            Duration timeLeft = Duration.between(LocalDateTime.now(), rentService.getEndTimeForRent(rentInfo).get());
-            rentText.append(Text.of(DARK_GREEN, "Rented For: ", GOLD, TextUtils.formatDuration(timeLeft.toMillis())));
+            rentText.append(Text.of(DARK_GREEN, "Rented For: ", GOLD, formatRentDuration(rentInfo)));
         }
 
         source.sendMessage(rentText.build());
@@ -115,14 +113,14 @@ public class RentFacade implements EconomyFacade {
 
         if (resident.getTenantPlots().isEmpty()) {
             townsMsg.info(source, "You are not renting any plots.");
-
+            return;
         }
 
         List<Text> rentList = resident.getTenantPlots().stream()
                 .map(rentInfo -> {
                     TownPlot plot = rentInfo.getPlot();
                     Text plotText = Text.builder()
-                            .append(Text.of(GOLD, plot.getName()))
+                            .append(Text.of(GOLD, plot.getName(), DARK_GREEN, " rented for ", GOLD, formatRentDuration(rentInfo)))
                             .onHover(showText(Text.of(
                                     DARK_GREEN, "Town: ", GOLD, plot.getTown().getName(), Text.NEW_LINE,
                                     DARK_GREEN, "Location: ", GOLD, plot.getSouthWestCorner()
@@ -140,6 +138,11 @@ public class RentFacade implements EconomyFacade {
                 .build();
 
         paginationList.sendTo(source);
+    }
+
+    private Text formatRentDuration(RentInfo rentInfo) {
+        Duration timeLeft = Duration.between(LocalDateTime.now(), rentService.getEndTimeForRent(rentInfo).get());
+        return TextUtils.formatDuration(timeLeft.toMillis());
     }
 
     private RentInfo getRentInfoFromPlot(TownPlot plot) throws TownsCommandException {
