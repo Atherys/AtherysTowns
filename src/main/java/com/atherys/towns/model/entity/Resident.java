@@ -169,6 +169,10 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
         return tenantPlots;
     }
 
+    public void setTenantPlots(Set<RentInfo> tenantPlots) {
+        this.tenantPlots = tenantPlots;
+    }
+
     public void addTenantPlot(RentInfo rentInfo) {
         tenantPlots.add(rentInfo);
     }

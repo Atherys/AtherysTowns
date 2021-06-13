@@ -16,12 +16,17 @@ import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
+import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.spongepowered.api.text.action.TextActions.showText;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 
@@ -103,6 +108,37 @@ public class RentFacade implements EconomyFacade {
         }
 
         source.sendMessage(rentText.build());
+    }
+
+    public void listRentInfo(Player source) {
+        Resident resident = residentService.getOrCreate(source);
+
+        if (resident.getTenantPlots().isEmpty()) {
+            townsMsg.info(source, "You are not renting any plots.");
+        }
+
+        List<Text> rentList = resident.getTenantPlots().stream()
+                .map(rentInfo -> {
+                    TownPlot plot = rentInfo.getPlot();
+                    Text plotText = Text.builder()
+                            .append(Text.of(GOLD, plot.getName()))
+                            .onHover(showText(Text.of(
+                                    DARK_GREEN, "Town: ", GOLD, plot.getTown().getName(), Text.NEW_LINE,
+                                    DARK_GREEN, "Location: ", GOLD, plot.getSouthWestCorner()
+                            )))
+                            .build();
+                    return Text.of(plotText);
+                })
+                .collect(Collectors.toList());
+
+        PaginationList paginationList = PaginationList.builder()
+                .title(Text.of(GOLD, "Rented Plots"))
+                .padding(Text.of(DARK_GREEN, "="))
+                .contents(rentList)
+                .linesPerPage(5)
+                .build();
+
+        paginationList.sendTo(source);
     }
 
     private RentInfo getRentInfoFromPlot(TownPlot plot) throws TownsCommandException {

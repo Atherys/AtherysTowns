@@ -55,6 +55,7 @@ public class RentService {
         rentInfo.setPeriod(period);
         rentInfo.setPrice(price);
         rentInfo.setPermissionContext(context);
+        rentInfo.setPlot(plot);
 
         plot.setRentInfo(rentInfo);
 

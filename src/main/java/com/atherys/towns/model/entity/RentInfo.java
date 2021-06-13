@@ -35,6 +35,9 @@ public class RentInfo implements Identifiable<Long> {
 
     private int periodsRented;
 
+    @OneToOne
+    private TownPlot plot;
+
     @Nonnull
     @Override
     public Long getId() {
@@ -87,5 +90,13 @@ public class RentInfo implements Identifiable<Long> {
 
     public void setPeriodsRented(int periodsRented) {
         this.periodsRented = periodsRented;
+    }
+
+    public TownPlot getPlot() {
+        return plot;
+    }
+
+    public void setPlot(TownPlot plot) {
+        this.plot = plot;
     }
 }
