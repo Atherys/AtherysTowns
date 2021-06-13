@@ -50,7 +50,7 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     private boolean isFake;
 
-    @OneToMany(mappedBy = "renter")
+    @OneToMany(mappedBy = "renter", fetch = FetchType.EAGER)
     private Set<RentInfo> tenantPlots = new HashSet<>();
 
     @Transient

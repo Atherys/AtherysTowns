@@ -16,6 +16,7 @@ import org.spongepowered.api.scheduler.Task;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Singleton
@@ -36,18 +37,24 @@ public class RentService {
         Task.builder()
                 .interval(townsConfig.TOWN.RENT_CONFIG.RENT_CHECK_INTERVAL.toMinutes(), TimeUnit.MINUTES)
                 .execute(() -> {
-                   for (RentInfo rentInfo : rentInfoRepository.getAll()) {
-                        if (getEndTimeForRent(rentInfo).isBefore(LocalDateTime.now())) {
-                            clearPlotRenter(rentInfo);
-                        }
-                   }
+                    for (RentInfo rentInfo : rentInfoRepository.getAll()) {
+                        getEndTimeForRent(rentInfo).ifPresent(time -> {
+                            if (time.isBefore(LocalDateTime.now())) {
+                                clearPlotRenter(rentInfo);
+                            }
+                        });
+                    }
                 })
                 .submit(AtherysTowns.getInstance());
     }
 
-    public LocalDateTime getEndTimeForRent(RentInfo rentInfo) {
+    public Optional<LocalDateTime> getEndTimeForRent(RentInfo rentInfo) {
+        if (rentInfo.getRenter() == null) {
+            return Optional.empty();
+        }
+
         Duration totalRent = rentInfo.getPeriod().multipliedBy(rentInfo.getPeriodsRented());
-        return rentInfo.getTimeRented().plus(totalRent);
+        return Optional.of(rentInfo.getTimeRented().plus(totalRent));
     }
 
     public void setPlotRentInfo(TownPlot plot, BigDecimal price, Duration period, TownsPermissionContext context) {
