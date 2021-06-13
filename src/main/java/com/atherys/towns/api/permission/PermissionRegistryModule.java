@@ -41,6 +41,7 @@ public class PermissionRegistryModule implements CatalogRegistryModule<Permissio
                 TownPermissions.UNCLAIM_PLOT,
                 TownPermissions.RENAME_PLOT,
                 TownPermissions.GRANT_PLOT,
+                TownPermissions.MAKE_RENTABLE,
                 TownPermissions.SET_PERMISSION,
                 TownPermissions.SET_ROLE,
                 TownPermissions.RUIN_TOWN,

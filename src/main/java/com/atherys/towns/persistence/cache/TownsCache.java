@@ -2,10 +2,7 @@ package com.atherys.towns.persistence.cache;
 
 import com.atherys.core.db.cache.Cache;
 import com.atherys.core.db.cache.SimpleCache;
-import com.atherys.towns.model.entity.Nation;
-import com.atherys.towns.model.entity.NationPlot;
-import com.atherys.towns.model.entity.Resident;
-import com.atherys.towns.model.entity.Town;
+import com.atherys.towns.model.entity.*;
 import com.atherys.towns.persistence.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -23,6 +20,9 @@ public class TownsCache {
     private Provider<TownPlotRepository> townPlotRepository;
 
     @Inject
+    private Provider<RentInfoRepository> rentInfoRepository;
+
+    @Inject
     private Provider<TownRepository> townRepository;
 
     @Inject
@@ -34,6 +34,8 @@ public class TownsCache {
     private Cache<Resident, UUID> residentCache = new SimpleCache<>();
 
     private TownPlotCache townPlotCache = new TownPlotCache();
+
+    private Cache<RentInfo, Long> rentInfoCache = new SimpleCache<>();
 
     private Cache<NationPlot, Long> nationPlotCache = new SimpleCache<>();
 
@@ -48,6 +50,7 @@ public class TownsCache {
         residentRepository.get().initCache();
         townRepository.get().initCache();
         townPlotRepository.get().initCache();
+        rentInfoRepository.get().initCache();
         nationRepository.get().initCache();
         nationPlotRepository.get().initCache();
     }
@@ -56,6 +59,7 @@ public class TownsCache {
         residentRepository.get().flushCache();
         townPlotRepository.get().flushCache();
         townRepository.get().flushCache();
+        rentInfoRepository.get().flushCache();
         nationRepository.get().flushCache();
         nationPlotRepository.get().flushCache();
     }
@@ -78,5 +82,9 @@ public class TownsCache {
 
     public Cache<NationPlot, Long> getNationPlotCache() {
         return nationPlotCache;
+    }
+
+    public Cache<RentInfo, Long> getRentInfoCache() {
+        return rentInfoCache;
     }
 }

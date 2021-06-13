@@ -5,6 +5,7 @@ import org.spongepowered.api.text.Text;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -43,6 +44,9 @@ public class TownPlot extends Plot {
     private TownPlot parentPlot;
 
     private boolean isCuboid;
+
+    @OneToOne
+    private RentInfo rentInfo;
 
     public Town getTown() {
         return town;
@@ -103,5 +107,13 @@ public class TownPlot extends Plot {
 
     public void setParentPlot(TownPlot parentPlot) {
         this.parentPlot = parentPlot;
+    }
+
+    public Optional<RentInfo> getRentInfo() {
+        return Optional.ofNullable(rentInfo);
+    }
+
+    public void setRentInfo(RentInfo rentInfo) {
+        this.rentInfo = rentInfo;
     }
 }

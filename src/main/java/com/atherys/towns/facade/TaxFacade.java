@@ -41,7 +41,7 @@ public class TaxFacade {
     private Task townTaxTask;
 
     public void init() {
-        if (AtherysTowns.economyIsEnabled() && config.TAXES.IS_ENABLED) {
+        if (config.TAXES.IS_ENABLED) {
             townTaxTask = Task.builder()
                     .execute(this::taxTowns)
                     .interval(config.TAXES.TAX_TIMER_INTERVAL.toMinutes(), TimeUnit.MINUTES)

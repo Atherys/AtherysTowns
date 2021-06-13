@@ -10,6 +10,7 @@ import com.atherys.towns.api.permission.*;
 import com.atherys.towns.api.permission.world.WorldPermission;
 import com.atherys.towns.command.nation.NationCommand;
 import com.atherys.towns.command.plot.PlotCommand;
+import com.atherys.towns.command.rent.RentCommand;
 import com.atherys.towns.command.resident.ResidentCommand;
 import com.atherys.towns.command.town.TownCommand;
 import com.atherys.towns.facade.*;
@@ -110,7 +111,11 @@ public class AtherysTowns {
         getTownsCache().initCache();
         getTownRaidService().initRaidTimer();
         getPlotBorderFacade().initBorderTask();
-        getTaxFacade().init();
+
+        if (economyIsEnabled()) {
+            getTaxFacade().init();
+            getRentService().init();
+        }
 
         Sponge.getEventManager().registerListeners(this, components.playerListener);
         Sponge.getEventManager().registerListeners(this, components.protectionListener);
@@ -129,6 +134,10 @@ public class AtherysTowns {
             AtherysCore.getCommandService().register(new PlotCommand(), this);
             AtherysCore.getCommandService().register(new TownCommand(), this);
             AtherysCore.getCommandService().register(new NationCommand(), this);
+
+            if (economyIsEnabled()) {
+                AtherysCore.getCommandService().register(new RentCommand(), this);
+            }
         } catch (CommandService.AnnotatedCommandException e) {
             e.printStackTrace();
         }
@@ -148,6 +157,7 @@ public class AtherysTowns {
         event.registerEntity(Nation.class);
         event.registerEntity(Town.class);
         event.registerEntity(NationPlot.class);
+        event.registerEntity(RentInfo.class);
         event.registerEntity(TownPlot.class);
         event.registerEntity(Resident.class);
         event.registerEntity(TownPlotPermission.class);
@@ -229,6 +239,10 @@ public class AtherysTowns {
         return components.roleService;
     }
 
+    public RentService getRentService() {
+        return components.rentService;
+    }
+
     public TownsPermissionService getPermissionService() {
         return components.townsPermissionService;
     }
@@ -289,6 +303,10 @@ public class AtherysTowns {
         return components.taxFacade;
     }
 
+    public RentFacade getRentFacade() {
+        return components.rentFacade;
+    }
+
     public TownsCache getTownsCache() {
         return components.townsCache;
     }
@@ -312,6 +330,9 @@ public class AtherysTowns {
 
         @Inject
         private TownPlotRepository townPlotRepository;
+
+        @Inject
+        private RentInfoRepository rentInfoRepository;
 
         @Inject
         private NationPlotRepository nationPlotRepository;
@@ -345,6 +366,9 @@ public class AtherysTowns {
 
         @Inject
         private TownRaidService townRaidService;
+
+        @Inject
+        private RentService rentService;
 
         @Inject
         private TownsMessagingFacade townsMessagingFacade;
@@ -384,6 +408,9 @@ public class AtherysTowns {
 
         @Inject
         private TaxFacade taxFacade;
+
+        @Inject
+        private RentFacade rentFacade;
 
         @Inject
         private PlayerListener playerListener;

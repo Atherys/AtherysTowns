@@ -59,6 +59,9 @@ public class TownConfig {
     @Setting("generate-roles")
     public boolean GENERATE_ROLES = true;
 
+    @Setting("rent-config")
+    public RentConfig RENT_CONFIG = new RentConfig();
+
     @Setting("default-plot-permissions")
     public Set<PlotPermissionConfig> DEFAULT_PLOT_PERMISSIONS = new HashSet<>();
     {

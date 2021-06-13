@@ -1,5 +1,6 @@
 package com.atherys.towns.facade;
 
+import com.atherys.core.utils.TextUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.command.TownsCommandException;
 import com.atherys.towns.api.permission.TownsPermissionContext;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.spongepowered.api.text.Text.NEW_LINE;
 import static org.spongepowered.api.text.format.TextColors.*;
 
 @Singleton
@@ -51,6 +53,9 @@ public class PlotFacade {
 
     @Inject
     TownsPermissionService townsPermissionService;
+
+    @Inject
+    TownFacade townFacade;
 
     PlotFacade() {}
 
@@ -75,16 +80,12 @@ public class PlotFacade {
 
         plotText.append(townsMsg.createTownsHeader(plot.getName().toPlain()));
 
-        plotText.append(Text.of(
-                DARK_GREEN, "Town: ",
-                plot.getTown() == null ? Text.of(RED, "None") : Text.of(GOLD, plot.getTown().getName()),
-                Text.NEW_LINE
-        ));
+        plotText.append(Text.of(DARK_GREEN, "Town: ", townFacade.renderTown(plot.getTown()), NEW_LINE));
 
         plotText
-                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Owner: ", GOLD, ownerName, NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Size: ", GOLD, MathUtils.getArea(plot), NEW_LINE))
+                .append(Text.of(DARK_GREEN, "Point A: ", GOLD, "x: ", plot.getSouthWestCorner().getX(), ", z: ", plot.getSouthWestCorner().getY(), NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Point B: ", GOLD, "x: ", plot.getNorthEastCorner().getX(), ", z: ", plot.getNorthEastCorner().getY()));
 
         player.sendMessage(plotText.build());
@@ -105,13 +106,9 @@ public class PlotFacade {
         townsMsg.info(player, "Revoked ownership of plot ", GOLD, plot.getName(), DARK_GREEN, ".");
     }
 
-    private TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
+    public TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
         return plotService.getTownPlotByLocation(player.getLocation()).orElseThrow(() ->
-                new TownsCommandException("No plot found at your position"));
-    }
-
-    private Optional<TownPlot> getPlotAtPlayerOptional(Player player) {
-        return plotService.getTownPlotByLocation(player.getLocation());
+                new TownsCommandException("You are not standing in a plot."));
     }
 
     public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {
@@ -161,23 +158,35 @@ public class PlotFacade {
         Resident resPlayer = residentService.getOrCreate(player);
         Resident plotOwner = plot.getOwner();
 
+        if (plotOwner == resPlayer) {
+            return true;
+        }
+
+        if (plot.getRentInfo().isPresent()) {
+            Resident renter = plot.getOwner();
+            if (renter != null) {
+                return resPlayer == renter || renter.getFriends().contains(resPlayer);
+            }
+        }
+
         Set<TownsPermissionContext> contexts = getRelevantResidentContexts(plot, resPlayer);
 
         if (plotOwner == null) {
+            // Get raw permission value from player
             Tristate permissionValue = player.getPermissionValue(townsPermissionService.getContextsForTown(plot.getTown()), permission.getId());
 
             if (permissionValue.equals(Tristate.UNDEFINED)) {
-                return config.TOWN.DEFAULT_PLOT_PERMISSIONS.stream().anyMatch(p -> p.getWorldPermission().equals(permission) && contexts.contains(p.getContext()));
+                return config.TOWN.DEFAULT_PLOT_PERMISSIONS.stream().anyMatch(p ->
+                        p.getWorldPermission().equals(permission) && contexts.contains(p.getContext())
+                );
             }
 
             return permissionValue.asBoolean();
         }
 
-        if (plotOwner == resPlayer) {
-            return true;
-        }
-
-        return plot.getPermissions().stream().anyMatch(p -> (p.getWorldPermission() != null && p.getWorldPermission().equals(permission)) && (p.getContext() != null && contexts.contains(p.getContext())));
+        return plot.getPermissions().stream().anyMatch(p ->
+                permission.equals(p.getWorldPermission()) && contexts.contains(p.getContext())
+        );
     }
 
     public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
@@ -195,13 +204,34 @@ public class PlotFacade {
         Optional<TownPlot> plotTo = plotService.getTownPlotByLocation(to.getLocation());
         Optional<TownPlot> plotFrom = plotService.getTownPlotByLocation(from.getLocation());
 
-        if (plotTo.isPresent() && !plotFrom.isPresent()) {
-            player.sendTitle(Title.builder().stay(20).title(Text.of(plotTo.get().getTown().getColor(), plotTo.get().getTown().getName())).build());
+        boolean plotToHasRent = plotTo.map(p -> p.getRentInfo().map(rent -> rent.getRenter() == null).orElse(false))
+                .orElse(false);
+
+        if (plotToHasRent && (!plotFrom.isPresent() || plotTo.get() != plotFrom.get())) {
+            RentInfo rentInfo = plotTo.get().getRentInfo().get();
+            Text price = config.DEFAULT_CURRENCY.format(rentInfo.getPrice());
+            Text duration = TextUtils.formatDuration(rentInfo.getPeriod().toMillis());
+
+            Title title = Title.of(
+                    Text.of(GOLD, plotTo.get().getName()),
+                    Text.of(DARK_GREEN, "Rent for ", GOLD, price, DARK_GREEN, " per ", GOLD, duration)
+            );
+
+
+            player.sendTitle(title);
             return;
         }
 
+        if (plotTo.isPresent() && !plotFrom.isPresent()) {
+            TownPlot plot = plotTo.get();
+
+            Title title = Title.of(Text.of(plot.getTown().getColor(), plot.getTown().getName()), Text.EMPTY);
+
+            player.sendTitle(title);
+        }
+
         if (!plotTo.isPresent() && plotFrom.isPresent()) {
-            player.sendTitle(Title.builder().stay(20).title(Text.of(GREEN, "Wilderness")).build());
+            player.sendTitle(Title.of(Text.of(GREEN, "Wilderness"), Text.EMPTY));
         }
     }
 
@@ -250,7 +280,7 @@ public class PlotFacade {
                 .append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) ->
-                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, s, Text.NEW_LINE)));
+                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, s, NEW_LINE)));
 
         player.sendMessage(plotPermsText.build());
     }
@@ -260,8 +290,7 @@ public class PlotFacade {
         verifyPlotOwnership(plot, player);
         Text.Builder plotPermsText = Text.builder();
 
-        plotPermsText
-                .append(townsMsg.createTownsHeader("Plot Permissions"));
+        plotPermsText.append(townsMsg.createTownsHeader("Plot Permissions"));
 
         permissionFacade.WORLD_PERMISSIONS.forEach((s, worldPermission) -> {
             Set<TownPlotPermission> permissions = plot.getPermissions();
@@ -275,7 +304,7 @@ public class PlotFacade {
             }
 
             if (groups.size() > 0) {
-                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), Text.NEW_LINE));
+                plotPermsText.append(Text.of(DARK_GREEN, worldPermission.getName(), ": ", GOLD, String.join(", ", groups), NEW_LINE));
             }
         });
 

@@ -19,5 +19,4 @@ public class ResidentRepository extends CachedHibernateRepository<Resident, UUID
         super.cache = townsCache.getResidentCache();
         this.townsCache = townsCache;
     }
-
 }

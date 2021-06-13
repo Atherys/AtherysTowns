@@ -50,6 +50,9 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     private boolean isFake;
 
+    @OneToMany(mappedBy = "renter", fetch = FetchType.EAGER)
+    private Set<RentInfo> tenantPlots = new HashSet<>();
+
     @Transient
     private int warmupSecondsLeft;
 
@@ -160,5 +163,21 @@ public class Resident implements SpongeIdentifiable, Identifiable<UUID> {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public Set<RentInfo> getTenantPlots() {
+        return tenantPlots;
+    }
+
+    public void setTenantPlots(Set<RentInfo> tenantPlots) {
+        this.tenantPlots = tenantPlots;
+    }
+
+    public void addTenantPlot(RentInfo rentInfo) {
+        tenantPlots.add(rentInfo);
+    }
+
+    public void removeTenantPlot(RentInfo rentInfo) {
+        tenantPlots.remove(rentInfo);
     }
 }
