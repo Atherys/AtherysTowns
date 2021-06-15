@@ -436,6 +436,11 @@ public class TownService {
     }
 
     public void addResidentToTown(@Nullable User user, Resident resident, Town town) {
+        Town fromTown = resident.getTown();
+        if (fromTown != null) {
+            removeResidentFromTown(user, resident, town, false);
+        }
+
         town.addResident(resident);
         resident.setTown(town);
 
@@ -452,10 +457,14 @@ public class TownService {
         townRepository.saveOne(town);
         residentRepository.saveOne(resident);
 
-        Sponge.getEventManager().post(new ResidentEvent.JoinedTown(resident, town));
+        if (fromTown == null) {
+            Sponge.getEventManager().post(new ResidentEvent.JoinedTown(resident, town));
+        } else {
+            Sponge.getEventManager().post(new ResidentEvent.SwitchedTown(resident, fromTown, town));
+        }
     }
 
-    public void removeResidentFromTown(@Nullable User user, Resident resident, Town town) {
+    public void removeResidentFromTown(@Nullable User user, Resident resident, Town town, boolean postEvent) {
         town.getResidents().removeIf(r -> r.getId().equals(resident.getId()));
         resident.setTown(null);
 
@@ -471,7 +480,13 @@ public class TownService {
             residentRepository.deleteOne(resident);
         }
 
-        Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
+        if (postEvent) {
+            Sponge.getEventManager().post(new ResidentEvent.LeftTown(resident, town));
+        }
+    }
+
+    public void removeResidentFromTown(@Nullable User user, Resident resident, Town town) {
+        removeResidentFromTown(user, resident, town, false);
     }
 
     public Collection<Town> fetchAllTowns() {

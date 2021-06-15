@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.action.TextActions.showText;
@@ -220,6 +221,17 @@ public class RentFacade implements EconomyFacade {
             townsMsg.info(source, "You have vacated this plot.");
         } else {
             throw new TownsCommandException("You are not renting this plot.");
+        }
+    }
+
+    public void updateRentOwnership(Resident resident) {
+        Set<RentInfo> rents = resident.getTenantPlots();
+        if (rents.isEmpty()) return;
+
+        for (RentInfo rentInfo : rents) {
+            if (!plotFacade.getRelevantResidentContexts(rentInfo.getPlot(), resident).contains(rentInfo.getPermissionContext())) {
+                rentService.clearPlotRenter(rentInfo);
+            }
         }
     }
 }

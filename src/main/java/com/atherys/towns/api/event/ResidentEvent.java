@@ -51,4 +51,23 @@ public abstract class ResidentEvent implements Event {
             return town;
         }
     }
+
+    public static class SwitchedTown extends ResidentEvent {
+        private final Town fromTown;
+        private final Town toTown;
+
+        public SwitchedTown(Resident resident, Town fromTown, Town toTown) {
+            super(resident);
+            this.fromTown = fromTown;
+            this.toTown = toTown;
+        }
+
+        public Town getToTown() {
+            return toTown;
+        }
+
+        public Town getFromTown() {
+            return fromTown;
+        }
+    }
 }

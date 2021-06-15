@@ -3,6 +3,7 @@ package com.atherys.towns.listener;
 import com.atherys.core.utils.EntityUtils;
 import com.atherys.towns.TownsConfig;
 import com.atherys.towns.api.event.PlayerVoteEvent;
+import com.atherys.towns.api.event.ResidentEvent;
 import com.atherys.towns.facade.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -49,6 +50,9 @@ public class PlayerListener {
 
     @Inject
     private PlotSelectionFacade plotSelectionFacade;
+
+    @Inject
+    private RentFacade rentFacade;
 
     @Inject
     private TownsMessagingFacade townsMsg;
@@ -108,5 +112,15 @@ public class PlayerListener {
                 event.setCancelled(true);
             });
         }
+    }
+
+    @Listener
+    public void onTownLeave(ResidentEvent.LeftTown event) {
+        rentFacade.updateRentOwnership(event.getResident());
+    }
+
+    @Listener
+    public void onTownSwitch(ResidentEvent.SwitchedTown event) {
+        rentFacade.updateRentOwnership(event.getResident());
     }
 }
