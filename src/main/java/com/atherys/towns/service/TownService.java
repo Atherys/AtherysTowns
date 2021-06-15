@@ -486,7 +486,7 @@ public class TownService {
     }
 
     public void removeResidentFromTown(@Nullable User user, Resident resident, Town town) {
-        removeResidentFromTown(user, resident, town, false);
+        removeResidentFromTown(user, resident, town, true);
     }
 
     public Collection<Town> fetchAllTowns() {
