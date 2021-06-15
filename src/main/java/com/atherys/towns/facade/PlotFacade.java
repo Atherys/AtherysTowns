@@ -163,7 +163,7 @@ public class PlotFacade {
         }
 
         if (plot.getRentInfo().isPresent()) {
-            Resident renter = plot.getOwner();
+            Resident renter = plot.getRentInfo().get().getRenter();
             if (renter != null) {
                 return resPlayer == renter || renter.getFriends().contains(resPlayer);
             }

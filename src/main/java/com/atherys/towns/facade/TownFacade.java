@@ -389,13 +389,14 @@ public class TownFacade implements EconomyFacade {
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
         TownPlot plot = plotService.getTownPlotByLocation(source.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("You are not currently standing on a claim area.");
+            return new TownsCommandException("You are not currently standing in a plot.");
         });
+
         if (town.getPlots().size() == 1) {
             throw new TownsCommandException("You cannot unclaim your last remaining plot.");
         }
 
-        if (townService.checkPlotRemovalCreatesOrphans(town, plot)) {
+        if (!plot.isCuboid() && townService.checkPlotRemovalCreatesOrphans(town, plot)) {
             throw new TownsCommandException("You cannot unclaim a plot that would result in orphaned plots.");
         }
 
