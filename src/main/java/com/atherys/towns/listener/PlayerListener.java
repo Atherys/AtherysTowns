@@ -90,11 +90,10 @@ public class PlayerListener {
     }
 
     @Listener
-    public void onBlockBreak(ChangeBlockEvent.Break event, @Root Player player) {
+    public void onBlockInteract(InteractBlockEvent.Primary event, @Root Player player) {
         if (player.getEquipped(EquipmentTypes.MAIN_HAND).get().getType() == config.TOWN.PLOT_SELECTION_ITEM) {
-            event.getTransactions().get(0).getOriginal().getLocation().ifPresent(location -> {
+            event.getTargetBlock().getLocation().ifPresent(location -> {
                 plotSelectionFacade.selectPointAAtLocation(player, location);
-                event.setCancelled(true);
             });
         }
     }
