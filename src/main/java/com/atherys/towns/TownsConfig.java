@@ -50,6 +50,5 @@ public class TownsConfig extends PluginConfig {
 
     protected TownsConfig() throws IOException {
         super("config/" + AtherysTowns.ID, "config.conf");
-        init();
     }
 }

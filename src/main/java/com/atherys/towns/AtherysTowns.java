@@ -89,12 +89,11 @@ public class AtherysTowns {
         townsInjector = spongeInjector.createChildInjector(new AtherysTownsModule());
         townsInjector.injectMembers(components);
 
-        getConfig().init();
-
         init = true;
     }
 
     private void start() {
+        getConfig().init();
         economyEnabled = Economy.isPresent() && components.config.ECONOMY;
 
         if (components.config.TOWN.TOWN_WARMUP < 0) {
