@@ -76,9 +76,9 @@ public class TaxFacade {
                                 "town being ruined!"));
                         townsToRemove.add(town);
                     } else {
-                        townsMsg.broadcastTownError(town, Text.of("You have failed to pay your taxes!",
-                                " If not paid by next tax cycle your town will be ruined!",
-                                " Town features have been limited until paid off."));
+                        int cycles = config.TAXES.MAX_TAX_FAILURES;
+                        townsMsg.broadcastTownError(town, Text.of("Your town has failed to pay its taxes! If not paid fully within the next " +
+                                cycles, " tax cycle" + (cycles == 1 ? "" : "s"), " your town will be ruined! Town features have been limited until paid off."));
 
                         taxService.setTaxesPaid(town, false);
                         taxService.payTaxes(town, townBalance);
