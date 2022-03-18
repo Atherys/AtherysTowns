@@ -199,7 +199,7 @@ public class TownService {
     }
 
     public void addTownDebt(Town town, double debt) {
-        town.setDebt(town.getDebt() + debt);
+        town.setDebt(town.getDebt());
         townRepository.saveOne(town);
     }
 
