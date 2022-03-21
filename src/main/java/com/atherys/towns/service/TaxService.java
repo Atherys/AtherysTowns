@@ -33,7 +33,7 @@ public class TaxService {
         double pvpMultiplier = town.isPvpEnabled() ? 1.0 : config.TAXES.PVP_TAX_MODIFIER;
         double nationMultiplier = town.getNation() == null ? 1.0 : town.getNation().getTax();
 
-        return nationMultiplier * pvpMultiplier * (calcBaseTax(town) + calcResidentTax(town) + calcAreaTax(town)) + town.getDebt();
+        return nationMultiplier * pvpMultiplier * (calcBaseTax(town) + calcResidentTax(town) + calcAreaTax(town));
     }
 
     /**
