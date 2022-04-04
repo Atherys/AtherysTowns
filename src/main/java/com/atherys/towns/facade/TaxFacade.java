@@ -12,6 +12,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.ResultType;
+import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -55,41 +56,42 @@ public class TaxFacade {
 
         for (Town town : taxService.getTaxableTowns()) {
             double taxPaymentAmount = Math.floor(taxService.getTaxAmount(town));
+            double voidedAmount = taxPaymentAmount * config.TAXES.VOID_RATE;
+            taxPaymentAmount -= voidedAmount;
+
             Account townBank = Economy.getAccount(town.getBank().toString()).get();
             double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
 
-            Optional<TransferResult> result = taxService.payTaxes(town, taxPaymentAmount);
-            result.ifPresent(transferResult -> {
-                // Tax was attempted, so we don't need to check this town until it's next tax period
-                town.setLastTaxDate(LocalDateTime.now());
+            if (townBalance < taxPaymentAmount + voidedAmount) {
+                if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
+                    townsMsg.broadcastTownError(town, Text.of("Failure to pay taxes has resulted in your ",
+                            "town being ruined!"));
+                    townsToRemove.add(town);
+                } else {
+                    int cycles = config.TAXES.MAX_TAX_FAILURES - town.getTaxFailedCount();
+                    townsMsg.broadcastTownError(town, Text.of("Your town has failed to pay its taxes! If not paid fully within the next " +
+                            cycles, " tax cycle" + (cycles == 1 ? "" : "s"), " your town will be ruined! Town features have been limited until paid off."));
 
-                if (transferResult.getResult() == ResultType.SUCCESS) {
-                    townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD,
-                            config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ",
-                            GOLD, town.getNation().getName(), DARK_GREEN, " in taxes."));
-                    taxService.setTaxesPaid(town, true);
-                } else if (transferResult.getResult() == ResultType.FAILED ||
-                        transferResult.getResult() == ResultType.ACCOUNT_NO_FUNDS) {
-
-                    if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
-                        townsMsg.broadcastTownError(town, Text.of("Failure to pay taxes has resulted in your ",
-                                "town being ruined!"));
-                        townsToRemove.add(town);
-                    } else {
-                        int cycles = config.TAXES.MAX_TAX_FAILURES - town.getTaxFailedCount();
-                        townsMsg.broadcastTownError(town, Text.of("Your town has failed to pay its taxes! If not paid fully within the next " +
-                                cycles, " tax cycle" + (cycles == 1 ? "" : "s"), " your town will be ruined! Town features have been limited until paid off."));
-
-                        taxService.setTaxesPaid(town, false);
-                        taxService.payTaxes(town, townBalance);
-                        townService.addTownDebt(town, (taxPaymentAmount - townBalance));
-                    }
+                    voidedAmount = townBalance * config.TAXES.VOID_RATE;
+                    taxPaymentAmount = townBalance - voidedAmount;
+                    taxService.payTaxes(town, townBalance, voidedAmount);
+                    townService.addTownDebt(town, (taxPaymentAmount + voidedAmount - townBalance - town.getDebt()));
+                    taxService.setTaxesPaid(town, false);
                 }
-            });
+            } else {
+                townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD,
+                        config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ",
+                        GOLD, town.getNation().getName(), DARK_GREEN, " in taxes."));
+
+                taxService.payTaxes(town, taxPaymentAmount, voidedAmount);
+                taxService.setTaxesPaid(town, true);
+            }
+
+            town.setLastTaxDate(LocalDateTime.now());
         }
 
         townsToRemove.forEach(townService::removeTown);
-    };
+    }
 
 
     public Text renderTax(Town town) {

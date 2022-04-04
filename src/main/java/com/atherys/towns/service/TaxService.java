@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ public class TaxService {
         double pvpMultiplier = town.isPvpEnabled() ? 1.0 : config.TAXES.PVP_TAX_MODIFIER;
         double nationMultiplier = town.getNation() == null ? 1.0 : town.getNation().getTax();
 
-        return nationMultiplier * pvpMultiplier * (calcBaseTax(town) + calcResidentTax(town) + calcAreaTax(town));
+        return nationMultiplier * pvpMultiplier * (calcBaseTax(town) + calcResidentTax(town) + calcAreaTax(town)) + town.getDebt();
     }
 
     /**
@@ -85,9 +86,11 @@ public class TaxService {
         }
     }
 
-    public Optional<TransferResult> payTaxes(Town town, double amount) {
+    public Optional<TransferResult> payTaxes(Town town, double amount, double voided) {
         Cause cause = Sponge.getCauseStackManager().getCurrentCause();
-        return Economy.transferCurrency(town.getBank().toString(), town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
+        String account = town.getBank().toString();
+        Economy.removeCurrency(account, config.DEFAULT_CURRENCY, BigDecimal.valueOf(voided), cause);
+        return Economy.transferCurrency(account, town.getNation().getBank().toString(), config.DEFAULT_CURRENCY, BigDecimal.valueOf(amount), cause);
     }
 
     private boolean isTaxTime(Town town) {

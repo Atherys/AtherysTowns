@@ -41,7 +41,9 @@ public class TaxConfig {
     @Setting("max-nation-modifier")
     public double MAX_NATION_TAX_MODIFIER = 2.0;
 
+    @Setting("void-rate")
+    public double VOID_RATE = 0.2;
+
     @Setting("max-tax-failures-before-ruin")
     public int MAX_TAX_FAILURES = 3;
-
 }

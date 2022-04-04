@@ -756,7 +756,9 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("Town bank does not have enough money to pay your debt!");
         }
 
-        taxService.payTaxes(town, town.getDebt());
+        double voided = town.getDebt() * config.TAXES.VOID_RATE;
+
+        taxService.payTaxes(town, town.getDebt() - voided, voided);
         taxService.setTaxesPaid(town, true);
         townsMsg.info(player, "Tax debt has been paid off! All town features have been re-enabled!");
     }
