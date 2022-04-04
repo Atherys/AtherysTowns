@@ -73,14 +73,13 @@ public class TaxFacade {
                             cycles, " tax cycle" + (cycles == 1 ? "" : "s"), " your town will be ruined! Town features have been limited until paid off."));
 
                     voidedAmount = townBalance * config.TAXES.VOID_RATE;
-                    taxPaymentAmount = townBalance - voidedAmount;
-                    taxService.payTaxes(town, townBalance, voidedAmount);
+                    taxService.payTaxes(town, townBalance * (1 - config.TAXES.VOID_RATE), voidedAmount);
                     townService.addTownDebt(town, (taxPaymentAmount + voidedAmount - townBalance - town.getDebt()));
                     taxService.setTaxesPaid(town, false);
                 }
             } else {
                 townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD,
-                        config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ",
+                        config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount + voidedAmount)), DARK_GREEN, " to ",
                         GOLD, town.getNation().getName(), DARK_GREEN, " in taxes."));
 
                 taxService.payTaxes(town, taxPaymentAmount, voidedAmount);
