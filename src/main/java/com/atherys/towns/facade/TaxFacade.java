@@ -53,16 +53,15 @@ public class TaxFacade {
     public void taxTowns() {
         Set<Town> townsToRemove = new HashSet<>();
         TownsMessagingFacade townsMsg = AtherysTowns.getInstance().getTownsMessagingService();
+        final double VOID_RATE = config.TAXES.VOID_RATE;
 
         for (Town town : taxService.getTaxableTowns()) {
             double taxPaymentAmount = Math.floor(taxService.getTaxAmount(town));
-            double voidedAmount = taxPaymentAmount * config.TAXES.VOID_RATE;
-            taxPaymentAmount -= voidedAmount;
 
             Account townBank = Economy.getAccount(town.getBank().toString()).get();
             double townBalance = townBank.getBalance(config.DEFAULT_CURRENCY).doubleValue();
 
-            if (townBalance < taxPaymentAmount + voidedAmount) {
+            if (townBalance < taxPaymentAmount) {
                 if (town.getTaxFailedCount() >= config.TAXES.MAX_TAX_FAILURES) {
                     townsMsg.broadcastTownError(town, Text.of("Failure to pay taxes has resulted in your ",
                             "town being ruined!"));
@@ -72,17 +71,16 @@ public class TaxFacade {
                     townsMsg.broadcastTownError(town, Text.of("Your town has failed to pay its taxes! If not paid fully within the next " +
                             cycles, " tax cycle" + (cycles == 1 ? "" : "s"), " your town will be ruined! Town features have been limited until paid off."));
 
-                    voidedAmount = townBalance * config.TAXES.VOID_RATE;
-                    taxService.payTaxes(town, townBalance * (1 - config.TAXES.VOID_RATE), voidedAmount);
-                    townService.addTownDebt(town, (taxPaymentAmount + voidedAmount - townBalance - town.getDebt()));
+                    taxService.payTaxes(town, townBalance * (1 - VOID_RATE), townBalance * VOID_RATE);
+                    townService.addTownDebt(town, (taxPaymentAmount - townBalance - town.getDebt()));
                     taxService.setTaxesPaid(town, false);
                 }
             } else {
                 townsMsg.broadcastTownInfo(town, Text.of("Paid ", GOLD,
-                        config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount + voidedAmount)), DARK_GREEN, " to ",
+                        config.DEFAULT_CURRENCY.format(BigDecimal.valueOf(taxPaymentAmount)), DARK_GREEN, " to ",
                         GOLD, town.getNation().getName(), DARK_GREEN, " in taxes."));
 
-                taxService.payTaxes(town, taxPaymentAmount, voidedAmount);
+                taxService.payTaxes(town, taxPaymentAmount * (1 - VOID_RATE), taxPaymentAmount * VOID_RATE);
                 taxService.setTaxesPaid(town, true);
             }
 
@@ -116,7 +114,7 @@ public class TaxFacade {
 
         // Calculate Nation Tax/Rebate
         double nationMultiplier = town.getNation() == null ? 1.0 : town.getNation().getTax();
-        if (nationMultiplier != 1.0) {
+        if (nationMultiplier != 1.0 && nationMultiplier != 0.0) {
             double nationTax = townTotalTaxLessDebt - (townTotalTaxLessDebt / nationMultiplier);
             String taxType = nationTax > 0 ? "Tax" : "Rebate";
             hoverText.append(Text.of(DARK_GREEN, "Nation ", taxType, ": ", GOLD,

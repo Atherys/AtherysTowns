@@ -75,6 +75,7 @@ public class NationService {
         nation.addTown(capital);
         nation.setCapital(capital);
         nation.setLeader(capital.getLeader());
+        nation.setTax(1.0);
 
         residentService.getUserFromResident(capital.getLeader()).ifPresent(user -> {
             roleService.addNationRole(user, nation, config.NATION.LEADER_ROLE);
