@@ -388,7 +388,7 @@ public class NationFacade implements EconomyFacade {
         config.NATION.SECONDARY_CURRENCIES.forEach(currency -> {
             double amount = account.getBalance(currency).doubleValue();
             if (amount > 0) {
-                nationInfo.append(Text.of(DARK_GREEN, currency.getPluralDisplayName(), ": ", GOLD, amount));
+                nationInfo.append(Text.of(DARK_GREEN, currency.getPluralDisplayName(), ": ", GOLD, amount, Text.NEW_LINE));
             }
         });
 
