@@ -17,6 +17,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.economy.account.Account;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -377,10 +378,21 @@ public class NationFacade implements EconomyFacade {
         Text leader = nation.getLeader() == null ? Text.of("No Leader") : residentFacade.renderResident(nation.getLeader());
         Text capital = nation.getCapital() == null ? Text.of("No Capital") : townFacade.renderTown(nation.getCapital());
 
+        String bank = nation.getBank().toString();
         nationInfo
                 .append(Text.of(DARK_GREEN, "Capital: ", GOLD, capital), Text.NEW_LINE)
                 .append(Text.of(DARK_GREEN, "Leader: ", GOLD, leader), Text.NEW_LINE)
-                .append(townsMsg.renderBank(nation.getBank().toString()), Text.NEW_LINE)
+                .append(townsMsg.renderBank(bank), Text.NEW_LINE);
+
+        Account account = Economy.getAccount(bank).get();
+        config.NATION.SECONDARY_CURRENCIES.forEach(currency -> {
+            double amount = account.getBalance(currency).doubleValue();
+            if (amount > 0) {
+                nationInfo.append(Text.of(DARK_GREEN, currency.getPluralDisplayName(), ": ", GOLD, amount));
+            }
+        });
+
+        nationInfo
                 .append(Text.of(DARK_GREEN, "Tax Rate: ", GOLD, nation.getTax(), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Population: ", GOLD, nationService.getNationPopulation(nation)), Text.NEW_LINE)
                 .append(Text.of(

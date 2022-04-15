@@ -4,9 +4,12 @@ import com.atherys.towns.api.permission.nation.NationPermissions;
 import com.google.common.collect.ImmutableSet;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.service.economy.Currency;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @ConfigSerializable
 public class NationConfig {
@@ -22,6 +25,9 @@ public class NationConfig {
 
     @Setting("generate-roles")
     public boolean GENERATE_ROLES = true;
+
+    @Setting("secondary-currencies")
+    public Set<Currency> SECONDARY_CURRENCIES = new HashSet<>();
 
     @Setting("roles")
     public Map<String, NationRoleConfig> ROLES = new HashMap<>();

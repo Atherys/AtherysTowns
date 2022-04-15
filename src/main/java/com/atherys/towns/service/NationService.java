@@ -16,10 +16,13 @@ import com.atherys.towns.persistence.TownRepository;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.service.economy.Currency;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -197,6 +200,10 @@ public class NationService {
 
         nationRepository.saveOne(nation);
         nationPlotRepository.deleteOne(plot);
+    }
+
+    public void depositToNation(Nation nation, Currency currency, BigDecimal amount, Cause cause) {
+
     }
 
     public Collection<Nation> getAllNations() {
