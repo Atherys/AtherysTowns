@@ -108,11 +108,16 @@ public class ResidentFacade {
                 .map(formatter::format)
                 .orElse("N/A");
 
+        String firstJoined = UserUtils.getUser(resident.getId())
+                .flatMap(user -> user.get(Keys.FIRST_DATE_PLAYED))
+                .map(formatter::format)
+                .orElse("N/A");
+
         Text.Builder residentInfo = Text.builder()
                 .append(Text.of(DARK_GRAY, "[]", padding, "[ ", title, DARK_GRAY, " ]", padding, "[]", Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Town: ", townFacade.renderTown(resident.getTown()), Text.NEW_LINE))
                 .append(Text.of(DARK_GREEN, "Last online: ", GOLD, lastPlayed, Text.NEW_LINE))
-                .append(Text.of(DARK_GREEN, "First online: ", GOLD, formatter.format(resident.getRegisteredOn()), Text.NEW_LINE))
+                .append(Text.of(DARK_GREEN, "First online: ", GOLD, firstJoined, Text.NEW_LINE))
                 .append(townsMsg.renderBank(resident.getId()));
 
 

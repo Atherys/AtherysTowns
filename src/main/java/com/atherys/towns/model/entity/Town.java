@@ -66,6 +66,8 @@ public class Town implements Identifiable<Long> {
 
     private boolean pvpEnabled;
 
+    private boolean hostileMobsAllowed;
+
     private UUID bank;
 
     private LocalDateTime lastTaxDate;
@@ -197,6 +199,14 @@ public class Town implements Identifiable<Long> {
 
     public void setPvpEnabled(boolean pvpEnabled) {
         this.pvpEnabled = pvpEnabled;
+    }
+
+    public void setMobs(boolean mobs) {
+        this.hostileMobsAllowed = mobs;
+    }
+
+    public boolean isMobs() {
+        return hostileMobsAllowed;
     }
 
     public TextColor getColor() {

@@ -19,19 +19,13 @@ import javax.annotation.Nonnull;
 @Aliases("joinable")
 @Description("Sets the town joinable status.")
 @Permission("atherystowns.town.joinable")
-public class SetTownJoinableCommand implements PlayerCommand, ParameterizedCommand {
-    @Override
-    public CommandElement[] getArguments() {
-        return new CommandElement[]{
-                GenericArguments.bool(Text.of("joinable"))
-        };
-    }
+public class SetTownJoinableCommand implements PlayerCommand {
 
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
         AtherysTowns.getInstance().getTownFacade().setPlayerTownJoinable(
-                source, args.<Boolean>getOne("joinable").get()
+                source, !AtherysTowns.getInstance().getTownFacade().getPlayerTown(source).isFreelyJoinable()
         );
         return CommandResult.success();
     }
