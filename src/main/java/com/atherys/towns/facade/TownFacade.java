@@ -264,11 +264,11 @@ public class TownFacade implements EconomyFacade {
         townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
     }
 
-    public void setPlayerTownMobs(Player playerb, boolean mobs) throws TownsCommandException {
-        Town town = getPlayerTown(playerb);
+    public void setPlayerTownMobs(Player player, boolean mobs) throws TownsCommandException {
+        Town town = getPlayerTown(player);
 
         townService.setTownMobs(town, mobs);
-        townsMsg.info(playerb, "Your town now has hostile mobs ", mobs ? "enabled." : "disabled.");
+        townsMsg.info(player, "Your town now has hostile mobs ", mobs ? "enabled." : "disabled.");
     }
 
     public void ruinPlayerTown(Player player) throws TownsCommandException {
