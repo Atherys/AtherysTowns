@@ -113,11 +113,7 @@ public class PlotFacade {
     }
 
     public boolean checkHostileSpawningAtLocation(Location<World> location) {
-        AtomicBoolean spawn = new AtomicBoolean(true);
-
-        plotService.getTownPlotByLocation(location).ifPresent(plot -> spawn.set(plot.getTown().isMobs()));
-
-        return spawn.get();
+        return plotService.getTownPlotByLocation(location).map(plot -> plot.getTown().isMobs()).orElse(false);
     }
 
     public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {
