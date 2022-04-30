@@ -139,8 +139,8 @@ public class PlotBorderFacade {
     }
 
     public void initBorderTask() {
-        Task.builder().execute(task -> activeBorders.forEach((uuid, borderInfoSet) -> {
-            Sponge.getServer().getPlayer(uuid).ifPresent(player -> {
+        Task.builder().execute(task -> activeBorders.forEach((uuid, borderInfoSet) ->
+            Sponge.getServer().getPlayer(uuid).ifPresent(player ->
                 borderInfoSet.forEach(borderInfo -> {
                     int width = MathUtils.getWidth(borderInfo);
                     int height = MathUtils.getHeight(borderInfo);
@@ -160,13 +160,14 @@ public class PlotBorderFacade {
                         player.spawnParticles(borderInfo.getEffect(), particleLocationNE.sub(i, 0, 0));
                         player.spawnParticles(borderInfo.getEffect(), particleLocationSW.add(i, 0, 0));
                     }
-                });
-            });
-        })).intervalTicks(10).submit(AtherysTowns.getInstance());
+                })
+            )
+        )).intervalTicks(10).submit(AtherysTowns.getInstance());
     }
 
-    public void setPlayerViewBorderStatus(Player player, boolean state) throws TownsCommandException {
+    public void setPlayerViewBorderStatus(Player player) throws TownsCommandException {
         Text.Builder statusText = Text.builder();
+        boolean state = !isPlayerViewingBorders(player);
         Text status = state ? Text.of(TextColors.GREEN, "Enabled") : Text.of(TextColors.RED, "Disabled");
         statusText.append(Text.of("Plot border viewing has been ", status));
 

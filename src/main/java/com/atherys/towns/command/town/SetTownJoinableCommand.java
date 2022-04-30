@@ -24,9 +24,7 @@ public class SetTownJoinableCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownJoinable(
-                source, !AtherysTowns.getInstance().getTownFacade().getPlayerTown(source).isFreelyJoinable()
-        );
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownJoinable(source);
         return CommandResult.success();
     }
 }

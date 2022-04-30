@@ -21,8 +21,7 @@ public class SetTownPvpCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source,
-                !AtherysTowns.getInstance().getTownFacade().getPlayerTown(source).isPvpEnabled());
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownPvp(source);
         return CommandResult.success();
     }
 }
