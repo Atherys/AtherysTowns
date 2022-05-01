@@ -20,8 +20,7 @@ public class SetTownMobsCommand implements PlayerCommand {
     @Nonnull
     @Override
     public CommandResult execute(@Nonnull Player source, @Nonnull CommandContext args) throws CommandException {
-        AtherysTowns.getInstance().getTownFacade().setPlayerTownMobs(source,
-                !AtherysTowns.getInstance().getTownFacade().getPlayerTown(source).isMobs());
+        AtherysTowns.getInstance().getTownFacade().setPlayerTownMobs(source);
         return CommandResult.success();
     }
 }
