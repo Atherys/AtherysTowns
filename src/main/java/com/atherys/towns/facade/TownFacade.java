@@ -24,6 +24,7 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.service.economy.account.Account;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.ResultType;
 import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.service.economy.transaction.TransferResult;
@@ -102,17 +103,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void createTownOrPoll(Player player, String townName) throws CommandException {
-        if (townName == null || townName.isEmpty()) {
-            throw new TownsCommandException("Must provide a town name.");
-        }
-
-        if (townService.getTownFromName(townName).isPresent()) {
-            throw new TownsCommandException("A town with that name already exists.");
-        }
-
-        if (townName.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
-            throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
-        }
+        checkTownName(townName);
 
         Resident resident = residentService.getOrCreate(player);
         if (hasPlayerTown(player) && residentService.isResidentTownLeader(resident, resident.getTown())) {
@@ -159,6 +150,24 @@ public class TownFacade implements EconomyFacade {
             throw new TownsCommandException("You require a party to form a town!");
         }
     }
+
+    // START REFACTOR TownFacade#createTownOrPoll(Player, String) \\
+
+    private void checkTownName(String townName) throws CommandException {
+        if (townName == null || townName.isEmpty()) {
+            throw new TownsCommandException("Must provide a town name.");
+        }
+
+        if (townService.getTownFromName(townName).isPresent()) {
+            throw new TownsCommandException("A town with that name already exists.");
+        }
+
+        if (townName.length() > config.TOWN.MAX_TOWN_NAME_LENGTH) {
+            throw new TownsCommandException("Your new name is longer than the maximum (", config.TOWN.MAX_TOWN_NAME_LENGTH, ").");
+        }
+    }
+
+    // END REFACTOR TownFacade#createTownOrPoll(Player, String) \\
 
     public Town createTown(Player player, String name, TownPlot homePlot, @Nullable Nation nation) throws CommandException {
         Resident mayor = residentService.getOrCreate(player);
@@ -246,22 +255,29 @@ public class TownFacade implements EconomyFacade {
         townsMsg.info(player, "Town motd set.");
     }
 
-    public void setPlayerTownPvp(Player player, boolean pvp) throws TownsCommandException {
+    public void setPlayerTownPvp(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
         if (isTownTaxDue(town)) {
             throw new TownsCommandException("Unable to change PvP status as taxes are unpaid!");
         }
 
-        townService.setTownPvp(town, pvp);
-        townsMsg.info(player, "Your town now has PvP ", pvp ? "enabled." : "disabled.");
+        townService.setTownPvp(town, !town.isPvpEnabled());
+        townsMsg.info(player, "Your town now has PvP ", town.isPvpEnabled() ? "enabled." : "disabled.");
     }
 
-    public void setPlayerTownJoinable(Player player, boolean joinable) throws TownsCommandException {
+    public void setPlayerTownJoinable(Player player) throws TownsCommandException {
         Town town = getPlayerTown(player);
 
-        townService.setTownJoinable(town, joinable);
-        townsMsg.info(player, "Your town is now ", joinable ? "freely joinable." : "not freely joinable.");
+        townService.setTownJoinable(town, !town.isFreelyJoinable());
+        townsMsg.info(player, "Your town is now ", town.isFreelyJoinable() ? "freely joinable." : "not freely joinable.");
+    }
+
+    public void setPlayerTownMobs(Player player) throws TownsCommandException {
+        Town town = getPlayerTown(player);
+
+        townService.setTownMobs(town, !town.isMobs());
+        townsMsg.info(player, "Your town now has hostile mobs ", town.isMobs() ? "enabled." : "disabled.");
     }
 
     public void ruinPlayerTown(Player player) throws TownsCommandException {
@@ -284,9 +300,9 @@ public class TownFacade implements EconomyFacade {
                     plotBorderFacade.removeBordersForTown(town);
                     townsMsg.info(player, "Town ruined.");
                 }))
-                .addAnswer(Answer.of(Text.of(RED, "No"), p -> {
-                    townsMsg.error(p, "Town deletion cancelled.");
-                }))
+                .addAnswer(Answer.of(Text.of(RED, "No"), p ->
+                    townsMsg.error(p, "Town deletion cancelled.")
+                ))
                 .build();
 
         confirmation.pollChat(player);
@@ -344,11 +360,8 @@ public class TownFacade implements EconomyFacade {
 
         // Plot must be completely contained within the nation
         Optional<NationPlot> nPlot = plotService.getNationPlotsByTownPlot(plot);
-        if (nPlot.isPresent()) {
-            if (!MathUtils.rectangleContainedInSet(plot, nPlot.get().getNation().getPlots())){
-                throw new TownsCommandException("New plot is not contained completely within the nation.");
-            }
-        }
+        if (nPlot.isPresent() && !MathUtils.rectangleContainedInSet(plot, nPlot.get().getNation().getPlots()))
+            throw new TownsCommandException("New plot is not contained completely within the nation.");
     }
 
     public TownPlot validateNewCuboidTownPlot(TownPlot plot, Player player, Location<World> location) throws TownsCommandException {
@@ -379,26 +392,24 @@ public class TownFacade implements EconomyFacade {
     public boolean isValidNewTownPlot(TownPlot plot, Player player, Location<World> location, boolean messageUser) {
         try {
             validateNewTownPlot(plot, player, location);
+            return true;
         } catch (TownsCommandException e) {
             if (messageUser && e.getText() != null) player.sendMessage(e.getText());
             return false;
         }
-        return true;
     }
 
     public void abandonTownPlotAtPlayerLocation(Player source) throws TownsCommandException {
         Town town = getPlayerTown(source);
-        TownPlot plot = plotService.getTownPlotByLocation(source.getLocation()).orElseThrow(() -> {
-            return new TownsCommandException("You are not currently standing in a plot.");
-        });
+        TownPlot plot = plotService.getTownPlotByLocation(source.getLocation()).orElseThrow(() ->
+                new TownsCommandException("You are not currently standing in a plot.")
+        );
 
-        if (town.getPlots().size() == 1) {
+        if (town.getPlots().size() == 1)
             throw new TownsCommandException("You cannot unclaim your last remaining plot.");
-        }
 
-        if (!plot.isCuboid() && townService.checkPlotRemovalCreatesOrphans(town, plot)) {
+        if (!plot.isCuboid() && townService.checkPlotRemovalCreatesOrphans(town, plot))
             throw new TownsCommandException("You cannot unclaim a plot that would result in orphaned plots.");
-        }
 
         townService.removePlotFromTown(town, plot);
         plotBorderFacade.removeSelectionBorder(source, plot);

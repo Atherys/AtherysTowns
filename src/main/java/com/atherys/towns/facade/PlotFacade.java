@@ -28,6 +28,7 @@ import org.spongepowered.api.world.World;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.spongepowered.api.text.Text.NEW_LINE;
@@ -109,6 +110,10 @@ public class PlotFacade {
     public TownPlot getPlotAtPlayer(Player player) throws TownsCommandException {
         return plotService.getTownPlotByLocation(player.getLocation()).orElseThrow(() ->
                 new TownsCommandException("You are not standing in a plot."));
+    }
+
+    public boolean checkHostileSpawningAtLocation(Location<World> location) {
+        return plotService.getTownPlotByLocation(location).map(plot -> plot.getTown().isMobs()).orElse(false);
     }
 
     public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {

@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
         SetTownMotdCommand.class,
         SetTownNameCommand.class,
         SetTownJoinableCommand.class,
+        SetTownMobsCommand.class,
         SetTownPvpCommand.class,
         InviteToTownCommand.class,
         TownKickCommand.class,

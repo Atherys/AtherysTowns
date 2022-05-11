@@ -45,6 +45,8 @@ public class TownService {
 
     public static final boolean DEFAULT_TOWN_FREELY_JOINABLE = false;
 
+    public static final boolean DEFAULT_HOSTILE_MOBS = true;
+
     private final TownsConfig config;
 
     private final PlotService plotService;
@@ -102,6 +104,7 @@ public class TownService {
         town.setMaxSize(config.TOWN.DEFAULT_TOWN_MAX_SIZE);
         town.setPvpEnabled(DEFAULT_TOWN_PVP);
         town.setFreelyJoinable(DEFAULT_TOWN_FREELY_JOINABLE);
+        town.setMobs(DEFAULT_HOSTILE_MOBS);
         town.setWorld(leader.getWorld().getUniqueId());
         town.setLastTaxDate(LocalDateTime.now());
         town.setTaxFailedCount(0);
@@ -180,6 +183,11 @@ public class TownService {
 
     public void setTownPvp(Town town, boolean pvp) {
         town.setPvpEnabled(pvp);
+        townRepository.saveOne(town);
+    }
+
+    public void setTownMobs(Town town, boolean hostileMobs) {
+        town.setMobs(hostileMobs);
         townRepository.saveOne(town);
     }
 

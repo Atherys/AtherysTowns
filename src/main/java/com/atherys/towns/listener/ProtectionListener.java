@@ -7,6 +7,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.Hostile;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
@@ -16,6 +17,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.CollideEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 
 public class ProtectionListener {
@@ -125,6 +127,16 @@ public class ProtectionListener {
                             entity.getLocation(), true);
                 });
             }
+        });
+    }
+
+    @Listener
+    public void onEntitySpawn(SpawnEntityEvent event) {
+        event.filterEntities(entity -> {
+            if(entity instanceof Hostile)
+                return plotFacade.checkHostileSpawningAtLocation(entity.getLocation());
+
+            return true;
         });
     }
 
