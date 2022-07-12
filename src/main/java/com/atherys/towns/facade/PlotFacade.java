@@ -113,7 +113,7 @@ public class PlotFacade {
     }
 
     public boolean checkHostileSpawningAtLocation(Location<World> location) {
-        return plotService.getTownPlotByLocation(location).map(plot -> plot.getTown().isMobs()).orElse(false);
+        return plotService.getTownPlotByLocation(location).map(plot -> plot.getTown().isMobs()).orElse(true);
     }
 
     public Set<TownsPermissionContext> getRelevantResidentContexts(TownPlot plot, Resident resident) {

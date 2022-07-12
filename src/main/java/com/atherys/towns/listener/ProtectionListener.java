@@ -133,8 +133,9 @@ public class ProtectionListener {
     @Listener
     public void onEntitySpawn(SpawnEntityEvent event) {
         event.filterEntities(entity -> {
-            if(entity instanceof Hostile)
+            if (entity instanceof Hostile) {
                 return plotFacade.checkHostileSpawningAtLocation(entity.getLocation());
+            }
 
             return true;
         });
