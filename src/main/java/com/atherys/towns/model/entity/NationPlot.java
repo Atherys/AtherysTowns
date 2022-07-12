@@ -17,4 +17,9 @@ public class NationPlot extends Plot {
     public void setNation(Nation nation) {
         this.nation = nation;
     }
+
+    @Override
+    public boolean isCuboid() {
+        return false;
+    }
 }
