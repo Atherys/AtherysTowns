@@ -153,7 +153,7 @@ public class TownFacade implements EconomyFacade {
 
     // START REFACTOR TownFacade#createTownOrPoll(Player, String) \\
 
-    private void checkTownName(String townName) throws CommandException {
+    private void checkTownName(String townName) throws TownsCommandException {
         if (townName == null || townName.isEmpty()) {
             throw new TownsCommandException("Must provide a town name.");
         }
@@ -224,9 +224,7 @@ public class TownFacade implements EconomyFacade {
     }
 
     public void setPlayerTownName(Player source, String name) throws TownsCommandException {
-        if (name == null || name.isEmpty()) {
-            throw new TownsCommandException("Must provide a new town name.");
-        }
+        checkTownName(name);
 
         Town town = getPlayerTown(source);
 
