@@ -7,7 +7,9 @@ import com.atherys.towns.api.permission.TownsPermissionContext;
 import com.atherys.towns.api.permission.TownsPermissionContexts;
 import com.atherys.towns.api.permission.town.TownPermissions;
 import com.atherys.towns.api.permission.world.WorldPermission;
+import com.atherys.towns.api.permission.world.WorldPermissions;
 import com.atherys.towns.model.entity.*;
+import com.atherys.towns.service.NationService;
 import com.atherys.towns.service.PlotService;
 import com.atherys.towns.service.ResidentService;
 import com.atherys.towns.service.TownsPermissionService;
@@ -57,6 +59,8 @@ public class PlotFacade {
 
     @Inject
     TownFacade townFacade;
+
+    private static final String NATION_OVERRIDE_PERMISSION = "atherystowns.admin.build";
 
     PlotFacade() {}
 
@@ -195,6 +199,13 @@ public class PlotFacade {
     }
 
     public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
+        if (permission == WorldPermissions.BUILD || permission == WorldPermissions.DESTROY && plotService.getNationPlotsByLocation(location).isEmpty()) {
+            if (!player.hasPermission(NATION_OVERRIDE_PERMISSION)) {
+                townsMsg.error((MessageReceiver) player, "You do not have permission to do that!");
+                return;
+            }
+        }
+
         plotService.getTownPlotByLocation(location).ifPresent(plot -> {
             if (!hasPlotAccess(player, plot, permission)) {
                 if (messageUser && player instanceof Player) {
