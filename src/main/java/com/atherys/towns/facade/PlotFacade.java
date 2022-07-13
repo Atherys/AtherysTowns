@@ -202,6 +202,7 @@ public class PlotFacade {
         if (permission == WorldPermissions.BUILD || permission == WorldPermissions.DESTROY && plotService.getNationPlotsByLocation(location).isEmpty()) {
             if (!player.hasPermission(NATION_OVERRIDE_PERMISSION)) {
                 townsMsg.error((MessageReceiver) player, "You do not have permission to do that!");
+                event.setCancelled(true);
                 return;
             }
         }
