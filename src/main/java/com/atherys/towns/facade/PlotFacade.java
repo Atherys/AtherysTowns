@@ -199,7 +199,7 @@ public class PlotFacade {
     }
 
     public void plotAccessCheck(Cancellable event, User player, WorldPermission permission, Location<World> location, boolean messageUser) {
-        if (permission == WorldPermissions.BUILD || permission == WorldPermissions.DESTROY && plotService.getNationPlotsByLocation(location).isEmpty()) {
+        if ((permission == WorldPermissions.BUILD || permission == WorldPermissions.DESTROY) && plotService.getNationPlotsByLocation(location).isEmpty()) {
             if (!player.hasPermission(NATION_OVERRIDE_PERMISSION)) {
                 townsMsg.error((MessageReceiver) player, "You do not have permission to do that!");
                 event.setCancelled(true);
